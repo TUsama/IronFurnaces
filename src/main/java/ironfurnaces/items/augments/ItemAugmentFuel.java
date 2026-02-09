@@ -1,6 +1,6 @@
 package ironfurnaces.items.augments;
 
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -22,7 +22,7 @@ public class ItemAugmentFuel extends ItemAugmentGreen {
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".augment_fuel_pro").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GREEN))));
-        tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".augment_fuel_con").setStyle(Style.EMPTY.applyFormat(ChatFormatting.DARK_RED)));
+        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_fuel_pro").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GREEN))));
+        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_fuel_con").setStyle(Style.EMPTY.applyFormat(ChatFormatting.DARK_RED)));
     }
 }

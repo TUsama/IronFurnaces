@@ -1,6 +1,6 @@
 package ironfurnaces.items.augments;
 
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -24,7 +24,7 @@ public class ItemAugment extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".augment_right_click").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_right_click").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
     }
 
 

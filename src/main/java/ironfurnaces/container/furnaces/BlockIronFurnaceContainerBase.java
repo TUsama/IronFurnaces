@@ -5,7 +5,7 @@ import ironfurnaces.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.ItemAugmentBlasting;
 import ironfurnaces.items.augments.ItemAugmentSmoking;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.util.container.FactoryDataSlot;
 import net.minecraft.core.BlockPos;
@@ -476,15 +476,15 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
         switch (te.furnaceSettings.get(index))
         {
             case 1:
-                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_input");
+                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_input");
             case 2:
-                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_output");
+                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_output");
             case 3:
-                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_input_output");
+                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_input_output");
             case 4:
-                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_fuel");
+                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_fuel");
             default:
-                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_none");
+                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_none");
         }
     }
 

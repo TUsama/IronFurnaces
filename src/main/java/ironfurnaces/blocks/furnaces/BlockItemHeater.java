@@ -1,7 +1,7 @@
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.StringHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -31,8 +31,8 @@ public class BlockItemHeater extends BlockItem {
             tooltip.add(Component.literal(StringHelper.displayEnergy(stack.getTag().getInt("Energy"), 1000000).get(0)).withStyle(ChatFormatting.GOLD));
         }
         if (BlockIronFurnaceScreenBase.isShiftKeyDown()) {
-            tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater_block").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-            tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater_block1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+            tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_block").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+            tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_block1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         } else {
             tooltip.add(StringHelper.getShiftInfoText());
         }

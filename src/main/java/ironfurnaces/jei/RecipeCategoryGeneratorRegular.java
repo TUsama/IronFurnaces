@@ -2,7 +2,7 @@ package ironfurnaces.jei;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import ironfurnaces.init.Registration;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
@@ -29,7 +29,7 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
 public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGeneratorRecipe> {
 
-    public static final ResourceLocation UID = new ResourceLocation(ForgeEntrypoint.MOD_ID, "category_generator_regular");
+    public static final ResourceLocation UID = new ResourceLocation(IronFurnaces.MOD_ID, "category_generator_regular");
     public IGuiHelper guiHelper;
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
@@ -41,10 +41,10 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
     public RecipeCategoryGeneratorRegular(IGuiHelper guiHelper)
     {
         this.guiHelper = guiHelper;
-        staticFlame = guiHelper.createDrawable(new ResourceLocation(ForgeEntrypoint.MOD_ID, "textures/gui/jei.png"), 68, 0, 14, 14);
+        staticFlame = guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 68, 0, 14, 14);
         animatedFlame = guiHelper.createAnimatedDrawable(staticFlame, 300, IDrawableAnimated.StartDirection.TOP, true);
 
-        staticEnergy = guiHelper.createDrawable(new ResourceLocation(ForgeEntrypoint.MOD_ID, "textures/gui/jei.png"), 82, 0, 14, 42);
+        staticEnergy = guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 82, 0, 14, 42);
         animatedEnergy = guiHelper.createAnimatedDrawable(staticEnergy, 300, IDrawableAnimated.StartDirection.BOTTOM, false);
 
     }
@@ -56,12 +56,12 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
 
     @Override
     public Component getTitle() {
-        return Component.translatable(ForgeEntrypoint.MOD_ID + ".jei_category_regular");
+        return Component.translatable(IronFurnaces.MOD_ID + ".jei_category_regular");
     }
 
     @Override
     public IDrawable getBackground() {
-        return guiHelper.createDrawable(new ResourceLocation(ForgeEntrypoint.MOD_ID, "textures/gui/jei.png"), 0, 0, 68, 42);
+        return guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 0, 0, 68, 42);
     }
 
     @Override

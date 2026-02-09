@@ -21,5 +21,8 @@ allprojects {
         maven("https://cursemaven.com")
         maven("https://thedarkcolour.github.io/KotlinForForge/")
         maven ("https://jm.gserv.me/repository/maven-public/")
+        maven ("https://maven.blamejared.com/")
+        maven("https://maven.theillusivec4.top/")
+        maven("https://thedarkcolour.github.io/KotlinForForge/")
     }
 }

@@ -4,7 +4,7 @@ package ironfurnaces.util;
 import ironfurnaces.capability.PlayerFurnacesListProvider;
 import ironfurnaces.capability.PlayerShowConfigProvider;
 import ironfurnaces.init.Registration;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockMillionFurnaceTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -28,8 +28,8 @@ public class EventHandler {
     {
         if (event.getObject() instanceof Player)
         {
-            event.addCapability(new ResourceLocation(ForgeEntrypoint.MOD_ID, "show_config"), new PlayerShowConfigProvider());
-            event.addCapability(new ResourceLocation(ForgeEntrypoint.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
+            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "show_config"), new PlayerShowConfigProvider());
+            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
         }
     }
 

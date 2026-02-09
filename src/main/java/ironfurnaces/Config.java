@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ironfurnaces.init.Registration;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -388,7 +388,7 @@ public class Config {
     }
 
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
-        ForgeEntrypoint.LOGGER.debug("Loading config file {}", path);
+        IronFurnaces.LOGGER.debug("Loading config file {}", path);
 
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()
@@ -396,9 +396,9 @@ public class Config {
                 .writingMode(WritingMode.REPLACE)
                 .build();
 
-        ForgeEntrypoint.LOGGER.debug("Built TOML config for {}", path.toString());
+        IronFurnaces.LOGGER.debug("Built TOML config for {}", path.toString());
         configData.load();
-        ForgeEntrypoint.LOGGER.debug("Loaded TOML config file {}", path.toString());
+        IronFurnaces.LOGGER.debug("Loaded TOML config file {}", path.toString());
         spec.setConfig(configData);
     }
 
@@ -435,7 +435,7 @@ public class Config {
         if (!event.player.level().isClientSide) {
             if (event.player.getServer().getAdvancements() != null)
             {
-                Advancement adv = event.player.getServer().getAdvancements().getAdvancement(new ResourceLocation(ForgeEntrypoint.MOD_ID, "coal"));
+                Advancement adv = event.player.getServer().getAdvancements().getAdvancement(new ResourceLocation(IronFurnaces.MOD_ID, "coal"));
                 if (adv != null)
                 {
                     if (!((ServerPlayer) event.player).getAdvancements().getOrStartProgress(adv).isDone()) {
@@ -470,7 +470,7 @@ public class Config {
             return null;
         }
         try {
-            URL newestURL = new URL("https://raw.githubusercontent.com/Qelifern/IronFurnaces/" + ForgeEntrypoint.GITHUB_BRANCH + "/update/uuids.json");
+            URL newestURL = new URL("https://raw.githubusercontent.com/Qelifern/IronFurnaces/" + IronFurnaces.GITHUB_BRANCH + "/update/uuids.json");
             JsonParser jp = new JsonParser();
             JsonElement root = jp.parse(new InputStreamReader(newestURL.openStream()));
             JsonObject rootobj = root.getAsJsonObject();

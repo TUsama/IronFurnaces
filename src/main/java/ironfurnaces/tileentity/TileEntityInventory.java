@@ -132,20 +132,21 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
             stack.setCount(this.getMaxStackSize());
         }
     }
-
+/*
     @Override
     public int getMaxStackSize() {
         return WorldlyContainer.super.getMaxStackSize();
     }
-
+*/
 
 
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-        this.inventory = NonNullList.withSize(this.getMaxStackSize(), ItemStack.EMPTY);
+        this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(nbt, this.inventory);
+
         if (nbt.contains("CustomName", 8)) {
             this.name = Component.Serializer.fromJson(nbt.getString("CustomName"));
         }

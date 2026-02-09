@@ -44,6 +44,7 @@ modstitch {
         modVersion = property("mod_version") as String
         modGroup = property("mod_group_id") as String
         modAuthor = property("mod_authors") as String
+        modLicense = "Apache License Version 2.0"
 
         fun <K : Any, V : Any> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
             block()
@@ -170,17 +171,8 @@ modstitch {
     }
 
     mixin {
-        // You do not need to specify mixins in any mods.json/toml file if this is set to
-        // true, it will automatically be generated.
         addMixinsToModManifest = true
-
-        configs.register("examplemod")
-
-        // Most of the time you wont ever need loader specific mixins.
-        // If you do, simply make the mixin file and add it like so for the respective loader:
-        // if (isLoom) configs.register("examplemod-fabric")
-        // if (isModDevGradleRegular) configs.register("examplemod-neoforge")
-        // if (isModDevGradleLegacy) configs.register("examplemod-forge")
+        configs.register("ironfurnaces")
     }
 }
 
@@ -264,10 +256,23 @@ dependencies {
 
         modstitchModCompileOnly(fzzyString)
         (fzzyString).runtimeOnly()
+
+        prop("deps.kotlin"){
+            "thedarkcolour:kotlinforforge:${it}".runtimeOnly()
+        }
     }
 
-    modstitchCompileOnly ("curse.maven:project-mmo-353935:5075049")
-    ("curse.maven:project-mmo-353935:5075049").runtimeOnly()
+    modstitchModCompileOnly ("curse.maven:project-mmo-353935:5075049")
+    //("curse.maven:project-mmo-353935:5075049").runtimeOnly()
+
+    prop("deps.jei"){
+
+        //modstitchModCompileOnly("mezz.jei:jei-${minecraft}-common-api:${it}")
+        modstitchModCompileOnly("mezz.jei:jei-${minecraft}-${loader}-api:${it}")
+        // at runtime, use the full JEI jar for NeoForge
+        ("mezz.jei:jei-${minecraft}-${loader}:${it}").runtimeOnly()
+    }
+
 
     //lombok
     modstitchCompileOnly("org.projectlombok:lombok:1.18.42")

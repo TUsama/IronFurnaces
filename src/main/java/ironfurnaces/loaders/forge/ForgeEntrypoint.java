@@ -5,6 +5,7 @@ import ironfurnaces.Config;
 import ironfurnaces.init.ClientSetup;
 import ironfurnaces.init.ModSetup;
 import ironfurnaces.init.Registration;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
 import ironfurnaces.update.UpdateChecker;
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,18 +15,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-@Mod(ForgeEntrypoint.MOD_ID)
+@Mod(IronFurnaces.MOD_ID)
 public class ForgeEntrypoint {
 
-    public static final Logger LOGGER = LogManager.getLogger();
-    public static final String GITHUB_BRANCH = "1.20.1";
-    public static final String MC_VERSION = "1.20.1";
-    public static final String RELEASE_TYPE = "-beta";
-    public static final String VERSION = "416";
-    public static final String MOD_ID = "ironfurnaces";
     public static IEventBus MOD_EVENT_BUS;
 
     public static CreativeModeTab tabIronFurnaces;
@@ -52,7 +45,7 @@ public class ForgeEntrypoint {
         if (Config.checkUpdates.get()) {
             new UpdateChecker();
         } else {
-            LOGGER.warn("You have disabled Iron Furnaces's Update Checker, to re-enable: change the value of Update Checker in .minecraft->config->ironfurnaces-client.toml to 'true'.");
+            IronFurnaces.LOGGER.warn("You have disabled Iron Furnaces's Update Checker, to re-enable: change the value of Update Checker in .minecraft->config->ironfurnaces-client.toml to 'true'.");
         }
     }
 }

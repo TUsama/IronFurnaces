@@ -1,7 +1,7 @@
 package ironfurnaces.items;
 
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.StringHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -30,14 +30,14 @@ public class ItemHeater extends Item {
         if (BlockIronFurnaceScreenBase.isShiftKeyDown())
         {
             if (stack.hasTag()) {
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heaterX").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("X")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heaterY").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("Y")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heaterZ").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("Z")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heaterX").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("X")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heaterY").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("Y")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heaterZ").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))).append(Component.literal("" + stack.getTag().getInt("Z")).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY)))));
             } else {
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater_not_bound").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater_tip").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-                tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".heater_tip1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_not_bound").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_tip").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_tip1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
             }
         }
         else

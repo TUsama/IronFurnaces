@@ -14,7 +14,7 @@ import ironfurnaces.container.furnaces.other.BlockVibraniumFurnaceContainer;
 import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.*;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
@@ -47,7 +47,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import static ironfurnaces.loaders.forge.ForgeEntrypoint.MOD_ID;
+import static ironfurnaces.loaders.IronFurnaces.MOD_ID;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Registration {
@@ -84,9 +84,9 @@ public class Registration {
 
     public static final class RecipeTypes {
 
-        public static mezz.jei.api.recipe.RecipeType<GeneratorRecipe> GENERATOR_BLASTING = mezz.jei.api.recipe.RecipeType.create(ForgeEntrypoint.MOD_ID, "generator_blasting", GeneratorRecipe.class);
-        public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_SMOKING = mezz.jei.api.recipe.RecipeType.create(ForgeEntrypoint.MOD_ID, "generator_smoking", SimpleGeneratorRecipe.class);
-        public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_REGULAR = mezz.jei.api.recipe.RecipeType.create(ForgeEntrypoint.MOD_ID, "generator_regular", SimpleGeneratorRecipe.class);
+        public static mezz.jei.api.recipe.RecipeType<GeneratorRecipe> GENERATOR_BLASTING = mezz.jei.api.recipe.RecipeType.create(IronFurnaces.MOD_ID, "generator_blasting", GeneratorRecipe.class);
+        public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_SMOKING = mezz.jei.api.recipe.RecipeType.create(IronFurnaces.MOD_ID, "generator_smoking", SimpleGeneratorRecipe.class);
+        public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_REGULAR = mezz.jei.api.recipe.RecipeType.create(IronFurnaces.MOD_ID, "generator_regular", SimpleGeneratorRecipe.class);
     }
     public static RegistryObject<RecipeType<GeneratorRecipe>> GENERATOR_RECIPE_TYPE = RECIPE_TYPES.register(GENERATOR_ID, () -> new RecipeType<GeneratorRecipe>() {
         @Override

@@ -3,7 +3,7 @@ package ironfurnaces.jei;
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
 import ironfurnaces.init.Registration;
-import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
@@ -27,7 +27,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(ForgeEntrypoint.MOD_ID, "plugin_" + ForgeEntrypoint.MOD_ID);
+		return new ResourceLocation(IronFurnaces.MOD_ID, "plugin_" + IronFurnaces.MOD_ID);
 	}
 
 	@Override
