@@ -238,6 +238,7 @@ dependencies {
     propLib{
         "maven.modrinth:nirvana-library:$loader-$minecraft-$it".implementation()
         "mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}".runtimeOnly()
+        modstitchModCompileOnly ("mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}")
     }
 
     prop("deps.fzzy_config_version"){
@@ -265,14 +266,15 @@ dependencies {
         (fzzyString).runtimeOnly()
     }
 
-
+    modstitchCompileOnly ("curse.maven:project-mmo-353935:5075049")
+    ("curse.maven:project-mmo-353935:5075049").runtimeOnly()
 
     //lombok
-    modstitchCompileOnly("org.projectlombok:lombok:1.18.36")
-    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    modstitchCompileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
 
-    testCompileOnly("org.projectlombok:lombok:1.18.36")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
+    testCompileOnly("org.projectlombok:lombok:1.18.42")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
 }
 
 publishMods {

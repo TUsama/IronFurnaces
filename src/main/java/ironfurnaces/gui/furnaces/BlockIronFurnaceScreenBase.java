@@ -1,15 +1,15 @@
 package ironfurnaces.gui.furnaces;
 
+import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import ironfurnaces.IronFurnaces;
 import ironfurnaces.capability.ClientShowConfig;
 import ironfurnaces.container.furnaces.BlockIronFurnaceContainerBase;
 import ironfurnaces.items.ItemMillionFurnace;
-import ironfurnaces.network.Messages;
-import ironfurnaces.network.PacketSettingsButton;
-import ironfurnaces.network.PacketShowConfigButton;
+import ironfurnaces.loaders.forge.ForgeEntrypoint;
+import ironfurnaces.network.C2SSettingsButtonPacket;
+import ironfurnaces.network.C2SShowConfigButtonPacket;
 import ironfurnaces.util.StringHelper;
 import ironfurnaces.util.gui.FurnaceGuiButton;
 import ironfurnaces.util.gui.FurnaceGuiEnergy;
@@ -17,7 +17,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.FurnaceScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -31,19 +30,19 @@ import java.util.Random;
 
 public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceContainerBase> extends AbstractContainerScreen<T> {
 
-    public ResourceLocation GUI = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace.png");
-    public static final ResourceLocation GUI_NETHERITE = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_netherite.png");
-    public static final ResourceLocation GUI_ATM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_allthemodium.png");
-    public static final ResourceLocation GUI_VIB = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_vibranium.png");
-    public static final ResourceLocation GUI_UNOB = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_unobtainium.png");
-    public static final ResourceLocation GUI_FACTORY = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_factory.png");
-    public static final ResourceLocation GUI_GENERATOR = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator.png");
-    public static final ResourceLocation GUI_GENERATOR_NETHERITE = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_netherite.png");
-    public static final ResourceLocation GUI_GENERATOR_ALLTHEMODIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_allthemodium.png");
-    public static final ResourceLocation GUI_GENERATOR_VIBRANIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_vibranium.png");
-    public static final ResourceLocation GUI_GENERATOR_UNOBTAINIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_unobtainium.png");
-    public static final ResourceLocation GUI_AUGMENTS = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/augment.png");
-    public static final ResourceLocation WIDGETS = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/widgets.png");
+    public ResourceLocation GUI = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace.png");
+    public static final ResourceLocation GUI_NETHERITE = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_netherite.png");
+    public static final ResourceLocation GUI_ATM = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_allthemodium.png");
+    public static final ResourceLocation GUI_VIB = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_vibranium.png");
+    public static final ResourceLocation GUI_UNOB = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_unobtainium.png");
+    public static final ResourceLocation GUI_FACTORY = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_factory.png");
+    public static final ResourceLocation GUI_GENERATOR = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_generator.png");
+    public static final ResourceLocation GUI_GENERATOR_NETHERITE = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_generator_netherite.png");
+    public static final ResourceLocation GUI_GENERATOR_ALLTHEMODIUM = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_generator_allthemodium.png");
+    public static final ResourceLocation GUI_GENERATOR_VIBRANIUM = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_generator_vibranium.png");
+    public static final ResourceLocation GUI_GENERATOR_UNOBTAINIUM = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/furnace_generator_unobtainium.png");
+    public static final ResourceLocation GUI_AUGMENTS = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/augment.png");
+    public static final ResourceLocation WIDGETS = new ResourceLocation(ForgeEntrypoint.MOD_ID + ":" + "textures/gui/widgets.png");
     Inventory playerInv;
     Component name;
 
@@ -117,7 +116,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
     public void setShowConfig(int value)
     {
         ClientShowConfig.set(value);
-        Messages.INSTANCE.sendToServer(new PacketShowConfigButton(value));
+        NetworkUtils.sendToServer(new C2SShowConfigButtonPacket(value));
     }
 
     public int getShowConfig()
@@ -167,8 +166,8 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     private void addTooltips(GuiGraphics matrix, int mouseX, int mouseY) {
 
-        augmentButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_open_augments"), mouseX, mouseY, !getMenu().getAugmentGUI());
-        augmentButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_open_furnace"), mouseX, mouseY, getMenu().getAugmentGUI());
+        augmentButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_open_augments"), mouseX, mouseY, !getMenu().getAugmentGUI());
+        augmentButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_open_furnace"), mouseX, mouseY, getMenu().getAugmentGUI());
         energyBar.changePos(109, 22, getMenu().getIsGenerator() && !getMenu().getAugmentGUI());
         energyBar.changePos(9, 7, getMenu().getIsFactory() && !getMenu().getAugmentGUI());
         energyBar.renderTooltip(font, matrix, mouseX, mouseY, getMenu().getEnergy(), getMenu().getMaxEnergy(), getMenu().getIsGenerator() && !getMenu().getAugmentGUI());
@@ -181,53 +180,53 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
         if (!showInventoryButtons()) {
             if (mouseX >= -20 && mouseX <= 0 && mouseY >= 4 && mouseY <= 26) {
-                matrix.renderTooltip(font, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_open"), mouseX, mouseY);
+                matrix.renderTooltip(font, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_open"), mouseX, mouseY);
             }
         } else {
             if (mouseX >= -13 && mouseX <= 0 && mouseY >= 4 && mouseY <= 26) {
                 matrix.renderComponentTooltip(font, StringHelper.getShiftInfoGui(), mouseX, mouseY);
             }
             List<Component> list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_auto_input"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_auto_input"));
             list.add(Component.literal("" + (getMenu().getAutoInput() ? "ON" : "OFF")));
             autoInputButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_auto_output"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_auto_output"));
             list.add(Component.literal("" + (getMenu().getAutoOutput() ? "ON" : "OFF")));
             autoOutputButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_top"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_top"));
             list.add(this.getMenu().getTooltip(Direction.UP.ordinal()));
             topButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_bottom"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_bottom"));
             list.add(this.getMenu().getTooltip(Direction.DOWN.ordinal()));
             bottomButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
             if (isShiftKeyDown()) {
-                list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_reset"));
+                list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_reset"));
             } else {
-                list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_front"));
+                list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_front"));
                 list.add(this.getMenu().getTooltip(getMenu().getIndexFront()));
             }
             frontButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_back"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_back"));
             list.add(this.getMenu().getTooltip(getMenu().getIndexBack()));
             backButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_left"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_left"));
             list.add(this.getMenu().getTooltip(getMenu().getIndexLeft()));
             leftButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
             list = Lists.newArrayList();
-            list.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_right"));
+            list.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_right"));
             list.add(this.getMenu().getTooltip(getMenu().getIndexRight()));
             rightButton.renderComponentTooltip(font, matrix, list, mouseX, mouseY, true);
-            redstoneIgnoredButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_redstone_ignored"), mouseX, mouseY, true);
-            redstoneLowButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_redstone_low"), mouseX, mouseY, isShiftKeyDown());
-            redstoneHighButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_redstone_high"), mouseX, mouseY, !isShiftKeyDown());
-            comparatorButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_redstone_comparator"), mouseX, mouseY, true);
-            comparatorSubButton.renderTooltip(font, matrix, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_redstone_comparator_sub"), mouseX, mouseY, true);
+            redstoneIgnoredButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_redstone_ignored"), mouseX, mouseY, true);
+            redstoneLowButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_redstone_low"), mouseX, mouseY, isShiftKeyDown());
+            redstoneHighButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_redstone_high"), mouseX, mouseY, !isShiftKeyDown());
+            comparatorButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_redstone_comparator"), mouseX, mouseY, true);
+            comparatorSubButton.renderTooltip(font, matrix, Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_redstone_comparator_sub"), mouseX, mouseY, true);
         }
     }
 
@@ -555,7 +554,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         {
             for (int i = 0; i < sideButtons.size(); i++)
             {
-                Messages.INSTANCE.sendToServer(new PacketSettingsButton(getMenu().getPos(), i, 0));
+                NetworkUtils.sendToServer(new C2SSettingsButtonPacket(getMenu().getPos(), i, 0));
             }
         }
 

@@ -1,7 +1,7 @@
 package ironfurnaces.util;
 
 import ironfurnaces.Config;
-import ironfurnaces.IronFurnaces;
+import ironfurnaces.loaders.forge.ForgeEntrypoint;
 import net.minecraft.nbt.CompoundTag;
 
 public class FurnaceSettings {
@@ -52,9 +52,9 @@ public class FurnaceSettings {
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             if (Config.showErrors.get()) {
-                IronFurnaces.LOGGER.error("Something went wrong.");
+                ForgeEntrypoint.LOGGER.error("Something went wrong.");
                 for (int i = 0; i < e.getStackTrace().length; i++) {
-                    IronFurnaces.LOGGER.error(e.getStackTrace()[i].toString());
+                    ForgeEntrypoint.LOGGER.error(e.getStackTrace()[i].toString());
                 }
             }
         }
@@ -106,9 +106,9 @@ public class FurnaceSettings {
             onChanged();
         } catch (ArrayIndexOutOfBoundsException e) {
             if (Config.showErrors.get()) {
-                IronFurnaces.LOGGER.error("Something went wrong.");
+                ForgeEntrypoint.LOGGER.error("Something went wrong.");
                 for (int i = 0; i < e.getStackTrace().length; i++) {
-                    IronFurnaces.LOGGER.error(e.getStackTrace()[i].toString());
+                    ForgeEntrypoint.LOGGER.error(e.getStackTrace()[i].toString());
                 }
             }
         }

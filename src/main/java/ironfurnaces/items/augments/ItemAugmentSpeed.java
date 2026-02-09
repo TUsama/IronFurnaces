@@ -1,6 +1,6 @@
 package ironfurnaces.items.augments;
 
-import ironfurnaces.IronFurnaces;
+import ironfurnaces.loaders.forge.ForgeEntrypoint;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -24,8 +24,8 @@ public class ItemAugmentSpeed extends ItemAugmentGreen {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_speed_pro").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GREEN))));
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_speed_con").setStyle(Style.EMPTY.applyFormat(ChatFormatting.DARK_RED)));
+        tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".augment_speed_pro").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GREEN))));
+        tooltip.add(Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".augment_speed_con").setStyle(Style.EMPTY.applyFormat(ChatFormatting.DARK_RED)));
     }
 
 

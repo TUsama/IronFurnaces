@@ -2,8 +2,8 @@ package ironfurnaces.jei;
 
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
-import ironfurnaces.IronFurnaces;
 import ironfurnaces.init.Registration;
+import ironfurnaces.loaders.forge.ForgeEntrypoint;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
@@ -27,7 +27,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(IronFurnaces.MOD_ID, "plugin_" + IronFurnaces.MOD_ID);
+		return new ResourceLocation(ForgeEntrypoint.MOD_ID, "plugin_" + ForgeEntrypoint.MOD_ID);
 	}
 
 	@Override

@@ -1,12 +1,11 @@
 package ironfurnaces.util.gui;
 
+import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.mojang.blaze3d.platform.InputConstants;
-import ironfurnaces.network.Messages;
-import ironfurnaces.network.PacketSettingsButton;
+import ironfurnaces.network.C2SSettingsButtonPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -68,7 +67,7 @@ public class FurnaceGuiButton {
         {
             if (hovering(mouseX, mouseY))
             {
-                Messages.INSTANCE.sendToServer(new PacketSettingsButton(pos, index, set));
+                NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.6F, 0.3F));
             }
         }
@@ -82,7 +81,7 @@ public class FurnaceGuiButton {
             {
                 if (hovering(mouseX, mouseY))
                 {
-                    Messages.INSTANCE.sendToServer(new PacketSettingsButton(pos, index, set));
+                    NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
                     Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.3F, 0.3F));
                 }
             }

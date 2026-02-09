@@ -1,11 +1,11 @@
 package ironfurnaces.container.furnaces;
 
-import ironfurnaces.IronFurnaces;
 import ironfurnaces.container.slots.*;
 import ironfurnaces.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.ItemAugmentBlasting;
 import ironfurnaces.items.augments.ItemAugmentSmoking;
+import ironfurnaces.loaders.forge.ForgeEntrypoint;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.util.container.FactoryDataSlot;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,6 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -477,15 +476,15 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
         switch (te.furnaceSettings.get(index))
         {
             case 1:
-                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_input");
+                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_input");
             case 2:
-                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_output");
+                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_output");
             case 3:
-                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_input_output");
+                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_input_output");
             case 4:
-                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_fuel");
+                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_fuel");
             default:
-                return Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_none");
+                return Component.translatable("tooltip." + ForgeEntrypoint.MOD_ID + ".gui_none");
         }
     }
 
