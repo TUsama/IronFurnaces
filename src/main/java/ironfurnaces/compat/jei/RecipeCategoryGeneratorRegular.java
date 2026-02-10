@@ -1,4 +1,4 @@
-package ironfurnaces.jei;
+package ironfurnaces.compat.jei;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import ironfurnaces.init.Registration;

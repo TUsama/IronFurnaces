@@ -109,7 +109,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
     }
 
 
-    private boolean showInventoryButtons() {
+    public boolean showInventoryButtons() {
         return getShowConfig() == 1;
     }
 

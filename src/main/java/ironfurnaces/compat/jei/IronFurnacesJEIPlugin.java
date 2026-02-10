@@ -1,7 +1,9 @@
-package ironfurnaces.jei;
+package ironfurnaces.compat.jei;
 
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
+import ironfurnaces.compat.jei.gui.FurnacesExtraAreas;
+import ironfurnaces.gui.furnaces.BlockGoldFurnaceScreen;
 import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
@@ -21,6 +23,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @JeiPlugin
 public class IronFurnacesJEIPlugin implements IModPlugin {
@@ -35,7 +38,8 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	}
 
-	@Override
+
+    @Override
 	public void registerCategories(IRecipeCategoryRegistration registration) {
 		if (Config.enableJeiPlugin.get())
 		{
@@ -148,6 +152,8 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registry) {
+        registry.addGuiContainerHandler(BlockGoldFurnaceScreen.class, new FurnacesExtraAreas());
+        System.out.println("register test!!!");
 		/**if (Config.enableJeiPlugin.get() && Config.enableJeiClickArea.get()) {
 			registry.addRecipeClickArea(BlockIronFurnaceScreen.class, 79, 35, 24, 17, RecipeTypes.FUELING, VanillaRecipeCategoryUid.FURNACE);
 			registry.addRecipeClickArea(BlockGoldFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);

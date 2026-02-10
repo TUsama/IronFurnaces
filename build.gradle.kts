@@ -266,8 +266,6 @@ dependencies {
     //("curse.maven:project-mmo-353935:5075049").runtimeOnly()
 
     prop("deps.jei"){
-
-        //modstitchModCompileOnly("mezz.jei:jei-${minecraft}-common-api:${it}")
         modstitchModCompileOnly("mezz.jei:jei-${minecraft}-${loader}-api:${it}")
         // at runtime, use the full JEI jar for NeoForge
         ("mezz.jei:jei-${minecraft}-${loader}:${it}").runtimeOnly()
