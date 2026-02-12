@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeNetherite extends ItemUpgrade {
 
 
     public ItemUpgradeNetherite(Properties properties) {
-        super(properties, Registration.OBSIDIAN_FURNACE.get(), Registration.NETHERITE_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get(), LegacyFurnaceBlocks.NETHERITE_FURNACE.get());
     }
 }

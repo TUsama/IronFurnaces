@@ -91,10 +91,7 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
         return list;
     }
 
-    @Override
-    public boolean handleInput(SimpleGeneratorRecipe recipe, double mouseX, double mouseY, InputConstants.Key input) {
-        return IRecipeCategory.super.handleInput(recipe, mouseX, mouseY, input);
-    }
+
 
     @Override
     public boolean isHandled(SimpleGeneratorRecipe recipe) {

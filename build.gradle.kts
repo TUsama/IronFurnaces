@@ -1,3 +1,6 @@
+import deps.DependencyConfig
+import org.gradle.kotlin.dsl.add
+
 plugins {
     id("dev.isxander.modstitch.base") version "0.8.4"
     id("me.modmuss50.mod-publish-plugin") version "1.1.0"
@@ -271,6 +274,9 @@ dependencies {
         ("mezz.jei:jei-${minecraft}-${loader}:${it}").runtimeOnly()
     }
 
+    DependencyConfig.getDependencies(loader, minecraft).forEach { dep ->
+        dependencies.add(dep.configuration, dep.notation, dep.options)
+    }
 
     //lombok
     modstitchCompileOnly("org.projectlombok:lombok:1.18.42")
@@ -278,6 +284,8 @@ dependencies {
 
     testCompileOnly("org.projectlombok:lombok:1.18.42")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+
+
 }
 
 publishMods {

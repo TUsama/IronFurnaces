@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeEmerald extends ItemUpgrade {
 
 
     public ItemUpgradeEmerald(Properties properties) {
-        super(properties, Registration.DIAMOND_FURNACE.get(), Registration.EMERALD_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.DIAMOND_FURNACE.get(), LegacyFurnaceBlocks.EMERALD_FURNACE.get());
     }
 }

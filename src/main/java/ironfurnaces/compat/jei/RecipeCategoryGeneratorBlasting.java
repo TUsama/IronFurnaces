@@ -91,10 +91,6 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
         return list;
     }
 
-    @Override
-    public boolean handleInput(GeneratorRecipe recipe, double mouseX, double mouseY, InputConstants.Key input) {
-        return IRecipeCategory.super.handleInput(recipe, mouseX, mouseY, input);
-    }
 
     @Override
     public boolean isHandled(GeneratorRecipe recipe) {

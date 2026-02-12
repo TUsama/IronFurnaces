@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeObsidian2 extends ItemUpgrade {
 
 
     public ItemUpgradeObsidian2(Properties properties) {
-        super(properties, Registration.CRYSTAL_FURNACE.get(), Registration.OBSIDIAN_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.CRYSTAL_FURNACE.get(), LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get());
     }
 }

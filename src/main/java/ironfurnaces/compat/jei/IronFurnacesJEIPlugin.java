@@ -2,12 +2,13 @@ package ironfurnaces.compat.jei;
 
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
-import ironfurnaces.compat.jei.gui.FurnacesExtraAreas;
-import ironfurnaces.gui.furnaces.BlockGoldFurnaceScreen;
+import ironfurnaces.compat.jei.gui.FurnacesGuiHandler;
+import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -23,7 +24,6 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @JeiPlugin
 public class IronFurnacesJEIPlugin implements IModPlugin {
@@ -105,32 +105,32 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 			registry.addRecipeCatalyst(new ItemStack(Registration.FACTORY_AUGMENT.get()), RecipeTypes.SMELTING);
 
-			registry.addRecipeCatalyst(new ItemStack(Registration.IRON_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.GOLD_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.DIAMOND_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.EMERALD_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.OBSIDIAN_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.CRYSTAL_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.NETHERITE_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.COPPER_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.IRON_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.GOLD_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.DIAMOND_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.EMERALD_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
 
 			if (Config.enableRainbowContent.get()) {
-				registry.addRecipeCatalyst(new ItemStack(Registration.MILLION_FURNACE.get()), RecipeTypes.SMELTING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.SMELTING);
 			}
 
-			registry.addRecipeCatalyst(new ItemStack(Registration.IRON_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.GOLD_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.DIAMOND_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.EMERALD_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.OBSIDIAN_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.CRYSTAL_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.NETHERITE_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.COPPER_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.IRON_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.GOLD_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.DIAMOND_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.EMERALD_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.FUELING);
+			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.FUELING);
 
 			if (Config.enableRainbowContent.get()) {
-				registry.addRecipeCatalyst(new ItemStack(Registration.MILLION_FURNACE.get()), RecipeTypes.FUELING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.FUELING);
 			}
 
 			registry.addRecipeCatalyst(new ItemStack(Registration.BLASTING_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_BLASTING);
@@ -140,39 +140,19 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 			if (ModList.get().isLoaded("allthemodium"))
 			{
-				registry.addRecipeCatalyst(new ItemStack(Registration.ALLTHEMODIUM_FURNACE.get()), RecipeTypes.SMELTING);
-				registry.addRecipeCatalyst(new ItemStack(Registration.VIBRANIUM_FURNACE.get()), RecipeTypes.SMELTING);
-				registry.addRecipeCatalyst(new ItemStack(Registration.UNOBTAINIUM_FURNACE.get()), RecipeTypes.SMELTING);
-				registry.addRecipeCatalyst(new ItemStack(Registration.ALLTHEMODIUM_FURNACE.get()), RecipeTypes.FUELING);
-				registry.addRecipeCatalyst(new ItemStack(Registration.VIBRANIUM_FURNACE.get()), RecipeTypes.FUELING);
-				registry.addRecipeCatalyst(new ItemStack(Registration.UNOBTAINIUM_FURNACE.get()), RecipeTypes.FUELING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.ALLTHEMODIUM_FURNACE.get()), RecipeTypes.SMELTING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.VIBRANIUM_FURNACE.get()), RecipeTypes.SMELTING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE.get()), RecipeTypes.SMELTING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.ALLTHEMODIUM_FURNACE.get()), RecipeTypes.FUELING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.VIBRANIUM_FURNACE.get()), RecipeTypes.FUELING);
+				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE.get()), RecipeTypes.FUELING);
 			}
 		}
 	}
 
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registry) {
-        registry.addGuiContainerHandler(BlockGoldFurnaceScreen.class, new FurnacesExtraAreas());
-        System.out.println("register test!!!");
-		/**if (Config.enableJeiPlugin.get() && Config.enableJeiClickArea.get()) {
-			registry.addRecipeClickArea(BlockIronFurnaceScreen.class, 79, 35, 24, 17, RecipeTypes.FUELING, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockGoldFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockDiamondFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockEmeraldFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockCrystalFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockObsidianFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockNetheriteFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockCopperFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockSilverFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			registry.addRecipeClickArea(BlockMillionFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-
-			if (ModList.get().isLoaded("allthemodium"))
-			{
-				registry.addRecipeClickArea(BlockAllthemodiumFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-				registry.addRecipeClickArea(BlockVibraniumFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-				registry.addRecipeClickArea(BlockUnobtainiumFurnaceScreen.class, 79, 35, 24, 17, VanillaRecipeCategoryUid.FUEL, VanillaRecipeCategoryUid.FURNACE);
-			}
-		}**/
+        registry.addGenericGuiContainerHandler(BlockIronFurnaceScreenBase.class, new FurnacesGuiHandler());
 	}
 
 }

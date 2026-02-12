@@ -24,5 +24,9 @@ allprojects {
         maven ("https://maven.blamejared.com/")
         maven("https://maven.theillusivec4.top/")
         maven("https://thedarkcolour.github.io/KotlinForForge/")
+
+        maven("https://maven.ithundxr.dev/snapshots")
+        maven("https://mvn.devos.one/snapshots/")
+        maven("https://maven.tterrag.com/")
     }
 }

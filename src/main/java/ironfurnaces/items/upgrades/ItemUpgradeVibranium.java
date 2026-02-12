@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeVibranium extends ItemUpgrade {
 
 
     public ItemUpgradeVibranium(Properties properties) {
-        super(properties, Registration.ALLTHEMODIUM_FURNACE.get(), Registration.VIBRANIUM_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.ALLTHEMODIUM_FURNACE.get(), LegacyFurnaceBlocks.VIBRANIUM_FURNACE.get());
     }
 }

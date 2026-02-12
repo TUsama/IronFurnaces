@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeAllthemodium extends ItemUpgrade {
 
 
     public ItemUpgradeAllthemodium(Properties properties) {
-        super(properties, Registration.NETHERITE_FURNACE.get(), Registration.ALLTHEMODIUM_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.NETHERITE_FURNACE.get(), LegacyFurnaceBlocks.ALLTHEMODIUM_FURNACE.get());
     }
 }

@@ -1,3 +1,9 @@
+### 4.2.0
+fix a bug that high max stack size will cause the furnace run out of memory
+add jei bookmark compat
+refactor registration, breaking changes below(only for dev):
+1. remove item tag forge:furnaces, all furnaces provided by this mod use c:player_workstations/furnaces
+
 4.1.6
 +Fixed getBurnTime now uses ForgeHooks.getBurnTime
 +Relocated hasRecipe caches so a single (3 in total), cache is used for all furnaces existing in the world, also switched from LRU cache to a full hashmap (shouldnt impact negatively performance but should save RAM)

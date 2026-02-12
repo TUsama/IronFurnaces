@@ -1,11 +1,11 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
 
 public class ItemUpgradeDiamond extends ItemUpgrade {
 
 
     public ItemUpgradeDiamond(Properties properties) {
-        super(properties, Registration.GOLD_FURNACE.get(), Registration.DIAMOND_FURNACE.get());
+        super(properties, LegacyFurnaceBlocks.GOLD_FURNACE.get(), LegacyFurnaceBlocks.DIAMOND_FURNACE.get());
     }
 }
