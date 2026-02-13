@@ -3,9 +3,9 @@ package ironfurnaces.util;
 
 import ironfurnaces.capability.PlayerFurnacesListProvider;
 import ironfurnaces.capability.PlayerShowConfigProvider;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.BlockMillionFurnaceTile;
+import ironfurnaces.registration.ModItems;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -40,13 +40,13 @@ public class EventHandler {
         for (BlockPos pos : list)
         {
             Level world = event.getLevel();
-            if (world.getBlockEntity(pos) instanceof BlockMillionFurnaceTile)
+            if (LegacyUnifiedTileEntity.isRainbow(world.getBlockEntity(pos)))
             {
                 event.getExplosion().getToBlow().remove(pos);
                 world.removeBlockEntity(pos);
                 world.removeBlock(pos, false);
 
-                world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY() + 6f, pos.getZ(), new ItemStack(Registration.RAINBOW_COAL.get())));
+                world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY() + 6f, pos.getZ(), new ItemStack(ModItems.RAINBOW_COAL.get())));
             }
         }
     }

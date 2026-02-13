@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -66,7 +67,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public IDrawable getIcon() {
-        return guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Registration.GENERATOR_AUGMENT.get()));
+        return guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModItems.GENERATOR_AUGMENT.get()));
     }
 
     @Override

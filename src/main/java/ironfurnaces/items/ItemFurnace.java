@@ -15,18 +15,10 @@ import java.util.List;
 
 public class ItemFurnace extends BlockItem {
 
-    private int cooktime;
 
-    public ItemFurnace(Block block, Properties properties, int cooktime) {
+    public ItemFurnace(Block block, Properties properties) {
         super(block, properties);
-        this.cooktime = cooktime;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        tooltip.add(Component.literal("Cooktime: " + cooktime).withStyle(ChatFormatting.GRAY));
-
-    }
 
 }

@@ -2,14 +2,15 @@ package ironfurnaces.container;
 
 import ironfurnaces.container.slots.SlotHeater;
 import ironfurnaces.energy.FEnergyStorage;
-import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
+import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -20,7 +21,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-
+import org.jetbrains.annotations.Nullable;
 
 
 public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
@@ -32,15 +33,19 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
     protected final Level world;
 
     public BlockWirelessEnergyHeaterContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        super(Registration.HEATER_CONTAINER.get(), windowId);
-        this.te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
-        this.playerEntity = player;
+        this(ModMenus.HEATER_MENU.get(), windowId, world, playerInventory, player);
+
+    }
+
+    public BlockWirelessEnergyHeaterContainer(@Nullable MenuType<?> menuType, int containerId, Level world, Inventory playerInventory, Player playerEntity) {
+        super(menuType, containerId);
+        this.world = world;
         this.playerInventory = new InvWrapper(playerInventory);
-        this.world = playerInventory.player.level();
+        this.playerEntity = playerEntity;
+
         trackPower();
         this.addSlot(new SlotHeater(te, 0, 80, 37));
         layoutPlayerInventorySlots(8, 84);
-
     }
 
     public int getEnergy() {

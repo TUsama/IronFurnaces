@@ -1,8 +1,11 @@
 package ironfurnaces.blocks.furnaces;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.Config;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.BlockNetheriteFurnaceTile;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,20 +22,24 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
 
-    public static final String NETHERITE_FURNACE = "netherite_furnace";
+    public static final String ID = "netherite_furnace";
 
     public BlockNetheriteFurnace(Properties properties) {
         super(properties);
     }
 
+    @Override
+    public String getBackgroundID() {
+        return "furnace_netherite";
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.NETHERITE_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -48,9 +55,9 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
                 return;
             }
             BlockIronFurnaceTileBase tile = ((BlockIronFurnaceTileBase) world.getBlockEntity(pos));
-            if (tile.getItem(3).getItem() == Registration.SMOKING_AUGMENT.get()) {
+            if (tile.getItem(3).getItem() == ModItems.SMOKING_AUGMENT.get()) {
                 super.animateTick(state, world, pos, rand);
-            } else if (tile.getItem(3).getItem() == Registration.BLASTING_AUGMENT.get()) {
+            } else if (tile.getItem(3).getItem() == ModItems.BLASTING_AUGMENT.get()) {
                 super.animateTick(state, world, pos, rand);
             }
             else
@@ -78,6 +85,5 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new BlockNetheriteFurnaceTile(p_153215_, p_153216_);
-    }
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE), p_153215_, p_153216_, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID);    }
 }

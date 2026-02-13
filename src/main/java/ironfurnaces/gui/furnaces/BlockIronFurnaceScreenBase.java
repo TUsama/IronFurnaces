@@ -76,6 +76,11 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         this.name = name;
     }
 
+    public BlockIronFurnaceScreenBase(T t, Inventory inv, Component name, ResourceLocation selectedGui) {
+        this(t, inv, name);
+        this.GUI = selectedGui;
+    }
+
     @Override
     public void render(GuiGraphics matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);

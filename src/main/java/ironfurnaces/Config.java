@@ -6,8 +6,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.ModItems;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -441,7 +441,7 @@ public class Config {
                     if (!((ServerPlayer) event.player).getAdvancements().getOrStartProgress(adv).isDone()) {
                         Player player = getPlayer(event.player.level());
                         if (player != null && player == event.player) {
-                            event.player.level().addFreshEntity(new ItemEntity(event.player.level(), event.player.position().x, event.player.position().y, event.player.position().z, new ItemStack(Registration.RAINBOW_COAL.get())));
+                            event.player.level().addFreshEntity(new ItemEntity(event.player.level(), event.player.position().x, event.player.position().y, event.player.position().z, new ItemStack(ModItems.RAINBOW_COAL.get())));
 
                         }
                     }

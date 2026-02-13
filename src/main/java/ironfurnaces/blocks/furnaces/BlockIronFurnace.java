@@ -1,7 +1,9 @@
 package ironfurnaces.blocks.furnaces;
 
-import ironfurnaces.init.Registration;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTile;
+import ironfurnaces.Config;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class BlockIronFurnace extends BlockIronFurnaceBase {
 
-    public static final String IRON_FURNACE = "iron_furnace";
+    public static final String ID = "iron_furnace";
 
     public BlockIronFurnace(Properties properties) {
         super(properties);
@@ -24,10 +26,10 @@ public class BlockIronFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.IRON_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.IRON_FURNACE));
     }
 
     public BlockEntity newBlockEntity(BlockPos p_153277_, BlockState p_153278_) {
-        return new BlockIronFurnaceTile(p_153277_, p_153278_);
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.IRON_FURNACE), p_153277_, p_153278_, Config.ironFurnaceSpeed, Config.ironFurnaceTier, Config.ironFurnaceGeneration,BlockIronFurnace.ID);
     }
 }

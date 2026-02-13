@@ -1,9 +1,11 @@
 package ironfurnaces.blocks.furnaces;
 
-import ironfurnaces.init.Registration;
+import ironfurnaces.Config;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.BlockMillionFurnaceTile;
-import net.minecraft.client.Minecraft;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -17,13 +19,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 import javax.annotation.Nullable;
 
 public class BlockMillionFurnace extends BlockIronFurnaceBase {
 
-    public static final String MILLION_FURNACE = "million_furnace";
+    public static final String ID = "million_furnace";
     public static final BooleanProperty RAINBOW_GENERATING = BooleanProperty.create("rainbow");
 
 
@@ -31,14 +32,13 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
         super(properties);
     }
     public BlockEntity newBlockEntity(BlockPos p_153277_, BlockState p_153278_) {
-        return new BlockMillionFurnaceTile(p_153277_, p_153278_);
-    }
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.MILLION_FURNACE), p_153277_, p_153278_, Config.millionFurnaceSpeed, Config.millionFurnaceTier, Config.millionFurnaceGeneration,BlockMillionFurnace.ID);    }
 
     @Override
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
-        if (world.getBlockEntity(pos) != null && world.getBlockEntity(pos) instanceof BlockMillionFurnaceTile)
+        if (world.getBlockEntity(pos) != null && world.getBlockEntity(pos) instanceof BlockIronFurnaceTileBase base && base.isRainbowFurnace())
         {
-            if (((BlockMillionFurnaceTile)world.getBlockEntity(pos)).getItem(BlockMillionFurnaceTile.AUGMENT_BLUE).getItem() == Registration.GENERATOR_AUGMENT.get())
+            if (base.getItem(BlockIronFurnaceTileBase.AUGMENT_BLUE).getItem() == ModItems.GENERATOR_AUGMENT.get())
             {
                 if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING)) {
                     for (Direction direction : Direction.values()) {
@@ -71,7 +71,7 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.MILLION_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.MILLION_FURNACE));
     }
 
     @Override

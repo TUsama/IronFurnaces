@@ -24,37 +24,36 @@ public class ModItemGroups {
                         entries.accept(LegacyFurnaceBlocks.COPPER_FURNACE.get());
                         entries.accept(LegacyFurnaceBlocks.SILVER_FURNACE.get());
 
-                        entries.accept(Registration.IRON_UPGRADE.get());
-                        entries.accept(Registration.GOLD_UPGRADE.get());
-                        entries.accept(Registration.DIAMOND_UPGRADE.get());
-                        entries.accept(Registration.EMERALD_UPGRADE.get());
-                        entries.accept(Registration.OBSIDIAN_UPGRADE.get());
-                        entries.accept(Registration.CRYSTAL_UPGRADE.get());
-                        entries.accept(Registration.NETHERITE_UPGRADE.get());
-                        entries.accept(Registration.COPPER_UPGRADE.get());
-                        entries.accept(Registration.SILVER_UPGRADE.get());
+                        entries.accept(ModItems.IRON_UPGRADE.get());
+                        entries.accept(ModItems.GOLD_UPGRADE.get());
+                        entries.accept(ModItems.DIAMOND_UPGRADE.get());
+                        entries.accept(ModItems.EMERALD_UPGRADE.get());
+                        entries.accept(ModItems.OBSIDIAN_UPGRADE.get());
+                        entries.accept(ModItems.CRYSTAL_UPGRADE.get());
+                        entries.accept(ModItems.NETHERITE_UPGRADE.get());
+                        entries.accept(ModItems.COPPER_UPGRADE.get());
+                        entries.accept(ModItems.SILVER_UPGRADE.get());
 
-                        entries.accept(Registration.OBSIDIAN2_UPGRADE.get());
-                        entries.accept(Registration.IRON2_UPGRADE.get());
-                        entries.accept(Registration.GOLD2_UPGRADE.get());
-                        entries.accept(Registration.SILVER2_UPGRADE.get());
-                        entries.accept(Registration.HEATER_ITEM.get());
-                        entries.accept(Registration.ITEM_HEATER.get());
-                        entries.accept(Registration.BLASTING_AUGMENT.get());
-                        entries.accept(Registration.SMOKING_AUGMENT.get());
-                        entries.accept(Registration.FACTORY_AUGMENT.get());
+                        entries.accept(ModItems.OBSIDIAN2_UPGRADE.get());
+                        entries.accept(ModItems.IRON2_UPGRADE.get());
+                        entries.accept(ModItems.GOLD2_UPGRADE.get());
+                        entries.accept(ModItems.SILVER2_UPGRADE.get());
+                        entries.accept(ModItems.ITEM_HEATER.get());
+                        entries.accept(ModItems.BLASTING_AUGMENT.get());
+                        entries.accept(ModItems.SMOKING_AUGMENT.get());
+                        entries.accept(ModItems.FACTORY_AUGMENT.get());
 
-                        entries.accept(Registration.GENERATOR_AUGMENT.get());
-                        entries.accept(Registration.SPEED_AUGMENT.get());
-                        entries.accept(Registration.FUEL_AUGMENT.get());
-                        entries.accept(Registration.ITEM_SPOOKY.get());
-                        entries.accept(Registration.ITEM_XMAS.get());
-                        entries.accept(Registration.ITEM_COPY.get());
-                        entries.accept(Registration.RAINBOW_CORE.get());
-                        entries.accept(Registration.RAINBOW_PLATING.get());
+                        entries.accept(ModItems.GENERATOR_AUGMENT.get());
+                        entries.accept(ModItems.SPEED_AUGMENT.get());
+                        entries.accept(ModItems.FUEL_AUGMENT.get());
+                        entries.accept(ModItems.ITEM_SPOOKY.get());
+                        entries.accept(ModItems.ITEM_XMAS.get());
+                        entries.accept(ModItems.ITEM_COPY.get());
+                        entries.accept(ModItems.RAINBOW_CORE.get());
+                        entries.accept(ModItems.RAINBOW_PLATING.get());
 
                         entries.accept(LegacyFurnaceBlocks.MILLION_FURNACE.get());
-                        entries.accept(Registration.RAINBOW_COAL.get());
+                        entries.accept(ModItems.RAINBOW_COAL.get());
                     })
                     .title(REGISTRATE.addRawLang("itemGroup." + IronFurnaces.MOD_ID, "Iron Furnaces"))
                     .build()

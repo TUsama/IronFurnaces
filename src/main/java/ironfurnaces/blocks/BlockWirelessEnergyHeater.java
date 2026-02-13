@@ -1,6 +1,7 @@
 package ironfurnaces.blocks;
 
 import ironfurnaces.init.Registration;
+import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,7 +46,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTicker(level, type, Registration.HEATER_TILE.get());
+        return createTicker(level, type, ModBlocks.asGenericBlockEntityType(ModBlocks.HEATER));
     }
 
     @Nullable
@@ -62,7 +63,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (!world.isClientSide) {
             BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
-            ItemStack stack = new ItemStack(Registration.HEATER.get());
+            ItemStack stack = new ItemStack(ModBlocks.HEATER.get());
             if (te.hasCustomName()) {
                 stack.setHoverName(te.getDisplayName());
             }

@@ -1,8 +1,11 @@
 package ironfurnaces.blocks.furnaces;
 
-import ironfurnaces.init.Registration;
-import ironfurnaces.tileentity.furnaces.BlockCrystalFurnaceTile;
+import ironfurnaces.Config;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,7 +31,7 @@ import javax.annotation.Nullable;
 
 public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleWaterloggedBlock {
 
-    public static final String CRYSTAL_FURNACE = "crystal_furnace";
+    public static final String ID = "crystal_furnace";
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public BlockCrystalFurnace(Properties properties) {
@@ -39,7 +42,7 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.CRYSTAL_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.CRYSTAL_FURNACE));
     }
 
     @Override
@@ -73,7 +76,7 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
             return;
         }
         BlockIronFurnaceTileBase tile = ((BlockIronFurnaceTileBase) world.getBlockEntity(pos));
-        if (tile.getItem(3).getItem() == Registration.SMOKING_AUGMENT.get()) {
+        if (tile.getItem(3).getItem() == ModItems.SMOKING_AUGMENT.get()) {
             double lvt_5_1_ = (double) pos.getX() + 0.5D;
             double lvt_7_1_ = (double) pos.getY();
             double lvt_9_1_ = (double) pos.getZ() + 0.5D;
@@ -104,6 +107,6 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new BlockCrystalFurnaceTile(p_153215_, p_153216_);
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.CRYSTAL_FURNACE), p_153215_, p_153216_, Config.crystalFurnaceSpeed, Config.crystalFurnaceTier, Config.crystalFurnaceGeneration,BlockCrystalFurnace.ID);
     }
 }

@@ -7,8 +7,7 @@ import ironfurnaces.init.ModSetup;
 import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
-import ironfurnaces.registration.LegacyFurnaceBlocks;
-import ironfurnaces.registration.ModItemGroups;
+import ironfurnaces.registration.*;
 import ironfurnaces.update.UpdateChecker;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -38,6 +37,10 @@ public class ForgeEntrypoint {
 
         MOD_EVENT_BUS.register(Registration.class);
 
+        ModMenus.register();
+        ModRecipeTypes.register();
+        ModBlocks.register();
+        ModItems.register();
         LegacyFurnaceBlocks.register();
         Registration.init();
         ModItemGroups.register();

@@ -9,6 +9,8 @@ import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModItems;
+import ironfurnaces.registration.ModRecipeTypes;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -67,7 +69,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registration.addRecipes(Registration.RecipeTypes.GENERATOR_REGULAR, recipes);
 
 			List<GeneratorRecipe> recipes1 = Lists.newArrayList();
-			List<GeneratorRecipe> list = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.GENERATOR_RECIPE_TYPE.get()).stream().toList();
+			List<GeneratorRecipe> list = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.GENERATOR_RECIPE.get()).stream().toList();
 			for (GeneratorRecipe item : list)
 			{
 				recipes1.add(item);
@@ -96,14 +98,14 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registry) {
 		if (Config.enableJeiPlugin.get() && Config.enableJeiCatalysts.get()) {
-			registry.addRecipeCatalyst(new ItemStack(Registration.BLASTING_AUGMENT.get()), RecipeTypes.BLASTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SMOKING_AUGMENT.get()), RecipeTypes.SMOKING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.BLASTING_AUGMENT.get()), RecipeTypes.BLASTING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.SMOKING_AUGMENT.get()), RecipeTypes.SMOKING);
 
-			registry.addRecipeCatalyst(new ItemStack(Registration.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_REGULAR);
-			registry.addRecipeCatalyst(new ItemStack(Registration.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_BLASTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_SMOKING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_REGULAR);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_BLASTING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_SMOKING);
 
-			registry.addRecipeCatalyst(new ItemStack(Registration.FACTORY_AUGMENT.get()), RecipeTypes.SMELTING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.FACTORY_AUGMENT.get()), RecipeTypes.SMELTING);
 
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.IRON_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.GOLD_FURNACE.get()), RecipeTypes.SMELTING);
@@ -133,8 +135,8 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.FUELING);
 			}
 
-			registry.addRecipeCatalyst(new ItemStack(Registration.BLASTING_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_BLASTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SMOKING_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_SMOKING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.BLASTING_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_BLASTING);
+			registry.addRecipeCatalyst(new ItemStack(ModItems.SMOKING_AUGMENT.get()), Registration.RecipeTypes.GENERATOR_SMOKING);
 
 
 

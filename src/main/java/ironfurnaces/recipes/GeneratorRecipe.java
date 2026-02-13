@@ -2,6 +2,7 @@ package ironfurnaces.recipes;
 
 import com.google.gson.JsonObject;
 import ironfurnaces.init.Registration;
+import ironfurnaces.registration.ModRecipeTypes;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -84,12 +85,12 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return Registration.GENERATOR_RECIPE_SERIALIZER.get();
+        return ModRecipeTypes.GENERATOR_RECIPE.asSerializer();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return Registration.GENERATOR_RECIPE_TYPE.get();
+        return ModRecipeTypes.GENERATOR_RECIPE.get();
     }
 
     public static class Serializer implements RecipeSerializer<GeneratorRecipe> {

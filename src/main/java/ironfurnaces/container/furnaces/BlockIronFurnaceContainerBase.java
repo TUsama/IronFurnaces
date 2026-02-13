@@ -7,6 +7,7 @@ import ironfurnaces.items.augments.ItemAugmentBlasting;
 import ironfurnaces.items.augments.ItemAugmentSmoking;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import ironfurnaces.util.container.FactoryDataSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -26,7 +27,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 
-public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
+public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
     protected BlockIronFurnaceTileBase te;
     protected Player playerEntity;
@@ -35,10 +36,11 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
 
     public BlockIronFurnaceContainerBase(MenuType<?> containerType, int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
         super(containerType, windowId);
-        this.te = (BlockIronFurnaceTileBase) world.getBlockEntity(pos);
+        
         this.playerEntity = player;
         this.playerInventory = new InvWrapper(playerInventory);
         this.world = playerInventory.player.level();
+        this.te = ((LegacyUnifiedTileEntity) world.getBlockEntity(pos));
 
         //FURNACE
         this.addSlot(new SlotIronFurnaceInput(te, 0, 56, 17));

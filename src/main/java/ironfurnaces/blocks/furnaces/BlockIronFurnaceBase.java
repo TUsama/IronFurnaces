@@ -2,16 +2,14 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
-import ironfurnaces.capability.CapabilityPlayerShowConfig;
-import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
 import ironfurnaces.items.ItemXmas;
 import ironfurnaces.items.augments.ItemAugment;
 import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.BlockMillionFurnaceTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -94,7 +92,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             {
                 Player player = (Player)entity;
                 player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.add(pos));
-                if (te instanceof BlockMillionFurnaceTile)
+                if (te.isRainbowFurnace())
                 {
                     te.owner = player.getUUID();
                 }
@@ -214,7 +212,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 return;
             }
             BlockIronFurnaceTileBase tile = ((BlockIronFurnaceTileBase) world.getBlockEntity(pos));
-            if (tile.getItem(3).getItem() == Registration.SMOKING_AUGMENT.get())
+            if (tile.getItem(3).getItem() == ModItems.SMOKING_AUGMENT.get())
             {
                 double lvt_5_1_ = (double)pos.getX() + 0.5D;
                 double lvt_7_1_ = (double)pos.getY();
@@ -226,7 +224,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 world.addParticle(ParticleTypes.SMOKE, lvt_5_1_, lvt_7_1_ + 1.1D, lvt_9_1_, 0.0D, 0.0D, 0.0D);
 
             }
-            else if (tile.getItem(3).getItem() == Registration.BLASTING_AUGMENT.get())
+            else if (tile.getItem(3).getItem() == ModItems.BLASTING_AUGMENT.get())
             {
                 double lvt_5_1_ = (double)pos.getX() + 0.5D;
                 double lvt_7_1_ = (double)pos.getY();
@@ -427,5 +425,10 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     protected static <T extends BlockEntity> BlockEntityTicker<T> createFurnaceTicker(Level p_151988_, BlockEntityType<T> p_151989_, BlockEntityType<? extends BlockIronFurnaceTileBase> p_151990_) {
         return p_151988_.isClientSide ? null : createTickerHelper(p_151989_, p_151990_, BlockIronFurnaceTileBase::tick);
     }
+    private static final String ID = "furnace";
+    public String getBackgroundID(){
+        return ID;
+    }
+
 
 }

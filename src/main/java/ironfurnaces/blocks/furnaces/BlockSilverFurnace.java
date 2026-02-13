@@ -1,7 +1,9 @@
 package ironfurnaces.blocks.furnaces;
 
-import ironfurnaces.init.Registration;
-import ironfurnaces.tileentity.furnaces.BlockSilverFurnaceTile;
+import ironfurnaces.Config;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class BlockSilverFurnace extends BlockIronFurnaceBase {
 
-    public static final String SILVER_FURNACE = "silver_furnace";
+    public static final String ID = "silver_furnace";
 
     public BlockSilverFurnace(Properties properties) {
         super(properties);
@@ -23,12 +25,11 @@ public class BlockSilverFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new BlockSilverFurnaceTile(p_153215_, p_153216_);
-    }
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.SILVER_FURNACE), p_153215_, p_153216_, Config.silverFurnaceSpeed, Config.silverFurnaceTier, Config.silverFurnaceGeneration,BlockSilverFurnace.ID);    }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.SILVER_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.SILVER_FURNACE));
     }
 }

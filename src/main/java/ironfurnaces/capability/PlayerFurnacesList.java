@@ -1,10 +1,6 @@
 package ironfurnaces.capability;
 
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.BlockSilverFurnaceTile;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;

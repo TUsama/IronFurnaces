@@ -1,8 +1,10 @@
 package ironfurnaces.blocks.furnaces.other;
 
+import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
-import ironfurnaces.init.Registration;
-import ironfurnaces.tileentity.furnaces.other.BlockUnobtainiumFurnaceTile;
+import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,7 +16,7 @@ import javax.annotation.Nullable;
 
 public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
 
-    public static final String UNOBTAINIUM_FURNACE = "unobtainium_furnace";
+    public static final String ID = "unobtainium_furnace";
 
     public BlockUnobtainiumFurnace(Properties properties) {
         super(properties);
@@ -25,12 +27,16 @@ public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new BlockUnobtainiumFurnaceTile(p_153215_, p_153216_);
+        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE), p_153215_, p_153216_, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration,BlockUnobtainiumFurnace.ID);       }
+
+    @Override
+    public String getBackgroundID() {
+        return "furnace_unobtainium";
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, Registration.UNOBTAINIUM_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE));
     }
 }

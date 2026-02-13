@@ -2,7 +2,6 @@ package ironfurnaces.loaders;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import com.tterrag.registrate.Registrate;
-import ironfurnaces.registration.ModItemGroups;
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -20,5 +19,9 @@ public class IronFurnaces {
 
     public ResourceLocation id(String path){
         return ResourceLocationUtils.make(MOD_ID, path);
+    }
+
+    public ResourceLocation gui(String id){
+        return ResourceLocationUtils.make(MOD_ID, "textures/gui/" + id + ".png");
     }
 }

@@ -4,6 +4,7 @@ import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.energy.FEnergyStorage;
 import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
+import ironfurnaces.registration.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -23,7 +25,11 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
 
 
     public BlockWirelessEnergyHeaterTile(BlockPos pos, BlockState state) {
-        super(Registration.HEATER_TILE.get(), pos, state, 1);
+        this(ModBlocks.asGenericBlockEntityType(ModBlocks.HEATER), pos, state);
+    }
+
+    public BlockWirelessEnergyHeaterTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+        super(tileEntityTypeIn, pos, state, 1);
     }
 
     private LazyOptional<IEnergyStorage> energy = LazyOptional.of(this::createEnergy);

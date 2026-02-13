@@ -13,11 +13,10 @@ import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
+import ironfurnaces.registration.ModItems;
+import ironfurnaces.registration.ModRecipeTypes;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.TileEntityInventory;
-import ironfurnaces.tileentity.furnaces.other.BlockAllthemodiumFurnaceTile;
-import ironfurnaces.tileentity.furnaces.other.BlockUnobtainiumFurnaceTile;
-import ironfurnaces.tileentity.furnaces.other.BlockVibraniumFurnaceTile;
 import ironfurnaces.util.DirectionUtil;
 import ironfurnaces.util.FurnaceSettings;
 import ironfurnaces.util.LRUCache;
@@ -25,7 +24,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -45,32 +43,30 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.extensions.IForgeItem;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiPredicate;
 
 import static ironfurnaces.init.ModSetup.SMOKING_BURNS;
 import static ironfurnaces.init.ModSetup.HAS_RECIPE;
@@ -247,7 +243,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     protected Optional<GeneratorRecipe> getRecipeGeneratorBlasting(ItemStack item) {
         return (item.getItem() instanceof AirItem)
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(Registration.GENERATOR_RECIPE_TYPE.get(), new SimpleContainer(item), this.level).orElse(null));
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(ModRecipeTypes.GENERATOR_RECIPE.get(), new SimpleContainer(item), this.level).orElse(null));
     }
 
     protected void checkRecipeType() {
@@ -342,9 +338,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         return (int)Math.max(1, i);
     }
 
-    public ForgeConfigSpec.IntValue getCookTimeConfig() {
-        return null;
+    public abstract ForgeConfigSpec.IntValue getCookTimeConfig();
+
+    public LegacyUnifiedTileEntity self(){
+        return ((LegacyUnifiedTileEntity) this);
     }
+
 
     protected int getAugment(ItemStack stack) {
         if (stack.getItem() instanceof ItemAugmentBlasting) {
@@ -386,34 +385,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public int getGeneration() {
-        int rf = 0;
-        if (this instanceof BlockCopperFurnaceTile) {
-            rf = Config.copperFurnaceGeneration.get();
-        } else if (this instanceof BlockIronFurnaceTile) {
-            rf = Config.ironFurnaceGeneration.get();
-        } else if (this instanceof BlockSilverFurnaceTile) {
-            rf = Config.silverFurnaceGeneration.get();
-        } else if (this instanceof BlockGoldFurnaceTile) {
-            rf = Config.goldFurnaceGeneration.get();
-        } else if (this instanceof BlockDiamondFurnaceTile) {
-            rf = Config.diamondFurnaceGeneration.get();
-        } else if (this instanceof BlockEmeraldFurnaceTile) {
-            rf = Config.emeraldFurnaceGeneration.get();
-        } else if (this instanceof BlockCrystalFurnaceTile) {
-            rf = Config.crystalFurnaceGeneration.get();
-        } else if (this instanceof BlockObsidianFurnaceTile) {
-            rf = Config.obsidianFurnaceGeneration.get();
-        } else if (this instanceof BlockNetheriteFurnaceTile) {
-            rf = Config.netheriteFurnaceGeneration.get();
-        } else if (this instanceof BlockMillionFurnaceTile) {
-            rf = Config.millionFurnaceGeneration.get();
-        } else if (this instanceof BlockAllthemodiumFurnaceTile) {
-            rf = Config.allthemodiumGeneration.get();
-        } else if (this instanceof BlockVibraniumFurnaceTile) {
-            rf = Config.vibraniumGeneration.get();
-        } else if (this instanceof BlockUnobtainiumFurnaceTile) {
-            rf = Config.unobtainiumGeneration.get();
-        }
+        int rf = this.self().getGenerationPerTick();
+
         return getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed ? rf * 2 : getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel ? (int) (rf * 0.75) : rf;
     }
 
@@ -640,24 +613,15 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         return true;
     }
 
-    public static void tick(Level level, BlockPos worldPosition, BlockState blockState, BlockIronFurnaceTileBase e) {
-            if (!e.level.isClientSide) {
-                if (e.isGenerator())
+    public static void tick(Level level, BlockPos worldPosition, BlockState blockState, BlockIronFurnaceTileBase furnaceTile) {
+            if (!furnaceTile.level.isClientSide) {
+                if (furnaceTile.isGenerator())
                 {
                     boolean flag3 = false;
-                    List<BlockIronFurnaceTileBase> iron = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> gold = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> diamond = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> emerald = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> obsidian = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> crystal = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> netherite = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> copper = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> silver = new ArrayList<>();
-                    List<BlockIronFurnaceTileBase> rainbow = new ArrayList<>();
 
-                    if (e instanceof BlockMillionFurnaceTile) {
-                        BlockMillionFurnaceTile furnaceTile = (BlockMillionFurnaceTile) e;
+                    if (furnaceTile.isRainbowFurnace()) {
+                        List<BlockIronFurnaceTileBase> rainbow = new ArrayList<>();
+                        List<BlockIronFurnaceTileBase> nonRainbow = new ArrayList<>();
                         if (furnaceTile.owner != null)
                         {
                             flag3 = true;
@@ -674,51 +638,17 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                         BlockEntity be = level.getBlockEntity(furnacesBlockPos.get(i));
                                         if (be != null)
                                         {
-                                            if (be instanceof BlockIronFurnaceTileBase)
+                                            if (be instanceof BlockIronFurnaceTileBase te)
                                             {
-                                                BlockIronFurnaceTileBase te = (BlockIronFurnaceTileBase)be;
-                                                if (te instanceof BlockIronFurnaceTile)
-                                                {
-                                                    iron.add((BlockIronFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockGoldFurnaceTile)
-                                                {
-                                                    gold.add((BlockGoldFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockDiamondFurnaceTile)
-                                                {
-                                                    diamond.add((BlockDiamondFurnaceTile) te);
+                                                if (te instanceof LegacyUnifiedTileEntity unifiedTileEntity){
+                                                    if (unifiedTileEntity.getIdentifier().equals(BlockMillionFurnace.ID)) {
+                                                        rainbow.add(unifiedTileEntity);
+                                                    } else {
+                                                        nonRainbow.add(unifiedTileEntity);
+                                                    }
+
                                                 }
 
-                                                if (te instanceof BlockEmeraldFurnaceTile)
-                                                {
-                                                    emerald.add((BlockEmeraldFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockObsidianFurnaceTile)
-                                                {
-                                                    obsidian.add((BlockObsidianFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockCrystalFurnaceTile)
-                                                {
-                                                    crystal.add((BlockCrystalFurnaceTile) te);
-                                                }
-
-                                                if (te instanceof BlockNetheriteFurnaceTile)
-                                                {
-                                                    netherite.add((BlockNetheriteFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockCopperFurnaceTile)
-                                                {
-                                                    copper.add((BlockCopperFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockSilverFurnaceTile)
-                                                {
-                                                    silver.add((BlockSilverFurnaceTile) te);
-                                                }
-                                                if (te instanceof BlockMillionFurnaceTile)
-                                                {
-                                                    rainbow.add((BlockMillionFurnaceTile) te);
-                                                }
                                             }
                                         }
                                     }
@@ -741,29 +671,21 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                             }
                         }
                         if (flag3
-                                && e.rainbowCheckFurnaceTiers(iron)
-                                && e.rainbowCheckFurnaceTiers(gold)
-                                && e.rainbowCheckFurnaceTiers(diamond)
-                                && e.rainbowCheckFurnaceTiers(emerald)
-                                && e.rainbowCheckFurnaceTiers(obsidian)
-                                && e.rainbowCheckFurnaceTiers(crystal)
-                                && e.rainbowCheckFurnaceTiers(netherite)
-                                && e.rainbowCheckFurnaceTiers(copper)
-                                && e.rainbowCheckFurnaceTiers(silver)
+                                && furnaceTile.rainbowCheckFurnaceTiers(nonRainbow)
                         ) {
-                            e.rainbowGenerating = flag3;
+                            furnaceTile.rainbowGenerating = flag3;
                             BlockState state = level.getBlockState(worldPosition);
-                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != e.rainbowGenerating) {
-                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, e.rainbowGenerating), 3);
+                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != furnaceTile.rainbowGenerating) {
+                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, furnaceTile.rainbowGenerating), 3);
                             }
-                            e.rainbowEnergyOut();
+                            furnaceTile.rainbowEnergyOut();
                         }
                         else
                         {
-                            e.rainbowGenerating = false;
+                            furnaceTile.rainbowGenerating = false;
                             BlockState state = level.getBlockState(worldPosition);
-                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != e.rainbowGenerating) {
-                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, e.rainbowGenerating), 3);
+                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != furnaceTile.rainbowGenerating) {
+                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, furnaceTile.rainbowGenerating), 3);
                             }
                         }
                     }
@@ -772,35 +694,35 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
         boolean flag1 = false;
-        boolean wasBurning = e.isBurning();
-        if (e.furnaceSettings.size() <= 0) {
-            e.furnaceSettings = new FurnaceSettings() {
+        boolean wasBurning = furnaceTile.isBurning();
+        if (furnaceTile.furnaceSettings.size() <= 0) {
+            furnaceTile.furnaceSettings = new FurnaceSettings() {
                 @Override
                 public void onChanged() {
-                    e.setChanged();
+                    furnaceTile.setChanged();
                 }
             };
         }
         for (int i = 3; i <= 5; i++) {
-            if (e.currentAugment[i - 3] != e.getAugment(e.getItem(i))) {
-                e.currentAugment[i - 3] = e.getAugment(e.getItem(i));
-                e.furnaceBurnTime = 0;
-                e.generatorBurn = 0;
-                if (i - 3 == 2 || (e.isGenerator() && i - 3 == 0)) {
-                    e.dropContents();
+            if (furnaceTile.currentAugment[i - 3] != furnaceTile.getAugment(furnaceTile.getItem(i))) {
+                furnaceTile.currentAugment[i - 3] = furnaceTile.getAugment(furnaceTile.getItem(i));
+                furnaceTile.furnaceBurnTime = 0;
+                furnaceTile.generatorBurn = 0;
+                if (i - 3 == 2 || (furnaceTile.isGenerator() && i - 3 == 0)) {
+                    furnaceTile.dropContents();
                 }
 
             }
         }
-        if (!e.level.isClientSide) {
+        if (!furnaceTile.level.isClientSide) {
 
-            if (e.getCapacity() != e.getCapacityFromTier()) {
-                e.setMaxEnergy(e.getCapacityFromTier());
+            if (furnaceTile.getCapacity() != furnaceTile.getCapacityFromTier()) {
+                furnaceTile.setMaxEnergy(furnaceTile.getCapacityFromTier());
             }
-            if (e.totalCookTime != e.getCookTime()) {
-                e.totalCookTime = e.getCookTime();
+            if (furnaceTile.totalCookTime != furnaceTile.getCookTime()) {
+                furnaceTile.totalCookTime = furnaceTile.getCookTime();
             }
-            int mode = e.getRedstoneSetting();
+            int mode = furnaceTile.getRedstoneSetting();
             if (mode != 0) {
                 if (mode == 2) {
                     int i = 0;
@@ -810,9 +732,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         }
                     }
                     if (i != 0) {
-                        e.cookTime = 0;
-                        e.furnaceBurnTime = 0;
-                        e.forceUpdateAllStates();
+                        furnaceTile.cookTime = 0;
+                        furnaceTile.furnaceBurnTime = 0;
+                        furnaceTile.forceUpdateAllStates();
                         return;
                     }
                 }
@@ -825,21 +747,21 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         }
                     }
                     if (!flag) {
-                        e.cookTime = 0;
-                        e.furnaceBurnTime = 0;
-                        e.forceUpdateAllStates();
+                        furnaceTile.cookTime = 0;
+                        furnaceTile.furnaceBurnTime = 0;
+                        furnaceTile.forceUpdateAllStates();
                         return;
                     }
                 }
                 for (int i = 0; i < Direction.values().length; i++)
-                    e.provides[i] = e.getBlockState().getDirectSignal(e.level, worldPosition, DirectionUtil.fromId(i));
+                    furnaceTile.provides[i] = furnaceTile.getBlockState().getDirectSignal(furnaceTile.level, worldPosition, DirectionUtil.fromId(i));
 
             } else {
                 for (int i = 0; i < Direction.values().length; i++)
-                    e.provides[i] = 0;
+                    furnaceTile.provides[i] = 0;
             }
-            if (e.doesNeedUpdateSend()) {
-                e.onUpdateSent();
+            if (furnaceTile.doesNeedUpdateSend()) {
+                furnaceTile.onUpdateSent();
             }
 
 
@@ -847,9 +769,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
 
-        if (e.isFactory()) {
-            if (!e.level.isClientSide) {
-                e.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+        if (furnaceTile.isFactory()) {
+            if (!furnaceTile.level.isClientSide) {
+                furnaceTile.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
                     if (!h.canReceive()) {
                         ((FEnergyStorage) h).setMaxReceive(h.getMaxEnergyStored());
                     }
@@ -857,81 +779,81 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         ((FEnergyStorage) h).setMaxExtract(0);
                     }
                 });
-                e.checkRecipeType();
-                int start = e.getTier() == 0 ? 2 : e.getTier() == 1 ? 1 : 0;
-                int size = e.getTier() == 0 ? 4 : e.getTier() == 1 ? 5 : 6;
-                if (e.isAutoSplit()) {
-                    e.split(false, start, size);
+                furnaceTile.checkRecipeType();
+                int start = furnaceTile.getTier() == 0 ? 2 : furnaceTile.getTier() == 1 ? 1 : 0;
+                int size = furnaceTile.getTier() == 0 ? 4 : furnaceTile.getTier() == 1 ? 5 : 6;
+                if (furnaceTile.isAutoSplit()) {
+                    furnaceTile.split(false, start, size);
                 }
                 for (int i = start; i < size; i++) {
                     int slot = FACTORY_INPUT[i];
-                    if (e.factoryTotalCookTime[i] != e.getFactoryCookTime(slot)) {
-                        e.factoryTotalCookTime[i] = e.getFactoryCookTime(slot);
+                    if (furnaceTile.factoryTotalCookTime[i] != furnaceTile.getFactoryCookTime(slot)) {
+                        furnaceTile.factoryTotalCookTime[i] = furnaceTile.getFactoryCookTime(slot);
                     }
-                    if (!e.getItem(slot).isEmpty()) {
-                        Optional<AbstractCookingRecipe> irecipe = e.getRecipeFactory(slot, e.getItem(slot));
-                        boolean valid = e.canFactorySmelt(irecipe.orElse(null), slot);
+                    if (!furnaceTile.getItem(slot).isEmpty()) {
+                        Optional<AbstractCookingRecipe> irecipe = furnaceTile.getRecipeFactory(slot, furnaceTile.getItem(slot));
+                        boolean valid = furnaceTile.canFactorySmelt(irecipe.orElse(null), slot);
                         if (valid) {
                             int energyRecipe = irecipe.get().getCookingTime() * 20;
-                            int energy = e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed ?
-                                    energyRecipe * 2 : e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel ?
+                            int energy = furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed ?
+                                    energyRecipe * 2 : furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel ?
                                     energyRecipe / 2 : energyRecipe;
-                            if (e.getEnergy() >= energy || e.factoryCookTime[i] > 0) {
-                                e.factoryCookTime[i]++;
-                                e.usedRF[i] += (double) (energy / e.factoryTotalCookTime[i]);
-                                e.setEnergy((int) (e.getEnergy() - (double) (energy / e.factoryTotalCookTime[i])));
-                                if (level.getBlockState(e.getBlockPos()).getValue(BlockStateProperties.LIT) != e.isFactoryCooking()) {
-                                    level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, e.isFactoryCooking()), 3);
+                            if (furnaceTile.getEnergy() >= energy || furnaceTile.factoryCookTime[i] > 0) {
+                                furnaceTile.factoryCookTime[i]++;
+                                furnaceTile.usedRF[i] += (double) (energy / furnaceTile.factoryTotalCookTime[i]);
+                                furnaceTile.setEnergy((int) (furnaceTile.getEnergy() - (double) (energy / furnaceTile.factoryTotalCookTime[i])));
+                                if (level.getBlockState(furnaceTile.getBlockPos()).getValue(BlockStateProperties.LIT) != furnaceTile.isFactoryCooking()) {
+                                    level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, furnaceTile.isFactoryCooking()), 3);
                                 }
-                                if (e.factoryCookTime[i] >= e.factoryTotalCookTime[i]) {
-                                    e.factoryCookTime[i] = 0;
-                                    if (e.usedRF[i] < energy) {
-                                        double diff = energy - e.usedRF[i];
-                                        e.setEnergy((int) (e.getEnergy() - diff));
+                                if (furnaceTile.factoryCookTime[i] >= furnaceTile.factoryTotalCookTime[i]) {
+                                    furnaceTile.factoryCookTime[i] = 0;
+                                    if (furnaceTile.usedRF[i] < energy) {
+                                        double diff = energy - furnaceTile.usedRF[i];
+                                        furnaceTile.setEnergy((int) (furnaceTile.getEnergy() - diff));
                                     }
-                                    e.usedRF[i] = 0;
-                                    e.factoryTotalCookTime[i] = e.getFactoryCookTime(slot);
-                                    if (e.isAutoSplit()) {
-                                        e.split(true, start, size);
+                                    furnaceTile.usedRF[i] = 0;
+                                    furnaceTile.factoryTotalCookTime[i] = furnaceTile.getFactoryCookTime(slot);
+                                    if (furnaceTile.isAutoSplit()) {
+                                        furnaceTile.split(true, start, size);
                                     }
-                                    e.factorySmelt(irecipe.orElse(null), slot);
-                                    e.setChanged();
+                                    furnaceTile.factorySmelt(irecipe.orElse(null), slot);
+                                    furnaceTile.setChanged();
                                 }
                             }
                         }
                     } else {
-                        e.factoryCookTime[i] = 0;
-                        if (level.getBlockState(e.getBlockPos()).getValue(BlockStateProperties.LIT) != e.isFactoryCooking()) {
-                            level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, e.isFactoryCooking()), 3);
+                        furnaceTile.factoryCookTime[i] = 0;
+                        if (level.getBlockState(furnaceTile.getBlockPos()).getValue(BlockStateProperties.LIT) != furnaceTile.isFactoryCooking()) {
+                            level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, furnaceTile.isFactoryCooking()), 3);
                         }
                     }
 
                 }
-                if (e.level.getGameTime() % 24 == 0) {
+                if (furnaceTile.level.getGameTime() % 24 == 0) {
                     BlockState state = level.getBlockState(worldPosition);
-                    if (state.getValue(BlockIronFurnaceBase.TYPE) != e.getStateType()) {
-                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, e.getStateType()), 3);
+                    if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
+                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
                     }
-                    if (state.getValue(BlockIronFurnaceBase.JOVIAL) != e.jovial) {
-                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, e.jovial), 3);
+                    if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
+                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
                     }
-                    for (int i = 0; i < e.factoryCookTime.length; i++) {
-                        if (e.factoryCookTime[i] <= 0) {
+                    for (int i = 0; i < furnaceTile.factoryCookTime.length; i++) {
+                        if (furnaceTile.factoryCookTime[i] <= 0) {
                             for (int j = 0; j < FACTORY_INPUT.length; j++) {
-                                if (e.getItem(FACTORY_INPUT[j]).isEmpty()) {
-                                    e.autoFactoryIO();
-                                    e.setChanged();
-                                } else if (e.getItem(FACTORY_INPUT[j]).getCount() < e.getItem(FACTORY_INPUT[j]).getMaxStackSize()) {
-                                    e.autoFactoryIO();
-                                    e.setChanged();
+                                if (furnaceTile.getItem(FACTORY_INPUT[j]).isEmpty()) {
+                                    furnaceTile.autoFactoryIO();
+                                    furnaceTile.setChanged();
+                                } else if (furnaceTile.getItem(FACTORY_INPUT[j]).getCount() < furnaceTile.getItem(FACTORY_INPUT[j]).getMaxStackSize()) {
+                                    furnaceTile.autoFactoryIO();
+                                    furnaceTile.setChanged();
                                 }
                             }
                             for (int j = 0; j < FACTORY_INPUT.length; j++)
                             {
                                 int outputSlot = FACTORY_INPUT[j] + 6;
-                                if (!e.getItem(outputSlot).isEmpty() && e.getItem(outputSlot).getCount() >= 64)
+                                if (!furnaceTile.getItem(outputSlot).isEmpty() && furnaceTile.getItem(outputSlot).getCount() >= 64)
                                 {
-                                    e.autoFactoryIO();
+                                    furnaceTile.autoFactoryIO();
                                 }
                             }
 
@@ -939,9 +861,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     }
                 }
             }
-        } else if (e.isGenerator()) {
+        } else if (furnaceTile.isGenerator()) {
             if (!level.isClientSide) {
-                e.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                furnaceTile.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
                     if (h.canReceive()) {
                         ((FEnergyStorage) h).setMaxReceive(0);
                     }
@@ -949,65 +871,65 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         ((FEnergyStorage) h).setMaxExtract(h.getMaxEnergyStored());
                     }
                 });
-                if (e.getEnergy() < e.getCapacity()) {
-                    if (!e.getItem(GENERATOR_FUEL).isEmpty() && e.generatorBurn <= 0) {
-                        e.generatorBurn = e.getGeneratorBurn();
-                        e.generatorRecentRecipeRF = (int) e.generatorBurn;
-                        if (e.getItem(GENERATOR_FUEL).hasCraftingRemainingItem())
-                            e.setItem(GENERATOR_FUEL, e.getItem(GENERATOR_FUEL).getCraftingRemainingItem());
-                        else if (!e.getItem(GENERATOR_FUEL).isEmpty()) {
-                            e.getItem(GENERATOR_FUEL).shrink(1);
-                            if (e.getItem(GENERATOR_FUEL).isEmpty()) {
-                                e.setItem(GENERATOR_FUEL, e.getItem(GENERATOR_FUEL).getCraftingRemainingItem());
+                if (furnaceTile.getEnergy() < furnaceTile.getCapacity()) {
+                    if (!furnaceTile.getItem(GENERATOR_FUEL).isEmpty() && furnaceTile.generatorBurn <= 0) {
+                        furnaceTile.generatorBurn = furnaceTile.getGeneratorBurn();
+                        furnaceTile.generatorRecentRecipeRF = (int) furnaceTile.generatorBurn;
+                        if (furnaceTile.getItem(GENERATOR_FUEL).hasCraftingRemainingItem())
+                            furnaceTile.setItem(GENERATOR_FUEL, furnaceTile.getItem(GENERATOR_FUEL).getCraftingRemainingItem());
+                        else if (!furnaceTile.getItem(GENERATOR_FUEL).isEmpty()) {
+                            furnaceTile.getItem(GENERATOR_FUEL).shrink(1);
+                            if (furnaceTile.getItem(GENERATOR_FUEL).isEmpty()) {
+                                furnaceTile.setItem(GENERATOR_FUEL, furnaceTile.getItem(GENERATOR_FUEL).getCraftingRemainingItem());
                             }
                         }
-                        e.setChanged();
+                        furnaceTile.setChanged();
                     }
-                    if (e.isGenerator()) {
-                        if (level.getBlockState(e.getBlockPos()).getValue(BlockStateProperties.LIT) != e.generatorBurn > 0) {
-                            level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, e.generatorBurn > 0), 3);
+                    if (furnaceTile.isGenerator()) {
+                        if (level.getBlockState(furnaceTile.getBlockPos()).getValue(BlockStateProperties.LIT) != furnaceTile.generatorBurn > 0) {
+                            level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(BlockStateProperties.LIT, furnaceTile.generatorBurn > 0), 3);
                         }
                     }
-                    if (e.generatorBurn > 0) {
-                        double max = e.generatorRecentRecipeRF * 20;
-                        e.gottenRF += e.getGeneration();
+                    if (furnaceTile.generatorBurn > 0) {
+                        double max = furnaceTile.generatorRecentRecipeRF * 20;
+                        furnaceTile.gottenRF += furnaceTile.getGeneration();
 
-                        e.setEnergy(e.getEnergy() + e.getGeneration());
-                        if (e.generatorBurn - (double) ((double) e.getGeneration() / 20) <= 0) {
-                            if (e.gottenRF + e.getGeneration() > max && e.gottenRF + e.getGeneration() < e.getCapacity()) {
-                                int diff = (int) (e.gottenRF + e.getGeneration() - max);
-                                e.setEnergy(e.getEnergy() + e.getGeneration());
-                                e.removeEnergy(diff);
+                        furnaceTile.setEnergy(furnaceTile.getEnergy() + furnaceTile.getGeneration());
+                        if (furnaceTile.generatorBurn - (double) ((double) furnaceTile.getGeneration() / 20) <= 0) {
+                            if (furnaceTile.gottenRF + furnaceTile.getGeneration() > max && furnaceTile.gottenRF + furnaceTile.getGeneration() < furnaceTile.getCapacity()) {
+                                int diff = (int) (furnaceTile.gottenRF + furnaceTile.getGeneration() - max);
+                                furnaceTile.setEnergy(furnaceTile.getEnergy() + furnaceTile.getGeneration());
+                                furnaceTile.removeEnergy(diff);
                             }
-                            if (e.gottenRF + e.getGeneration() < max) {
-                                int diff = (int) (max - e.gottenRF + e.getGeneration());
-                                e.setEnergy(e.getEnergy() + e.getGeneration());
-                                e.setEnergy(e.getEnergy() + diff);
+                            if (furnaceTile.gottenRF + furnaceTile.getGeneration() < max) {
+                                int diff = (int) (max - furnaceTile.gottenRF + furnaceTile.getGeneration());
+                                furnaceTile.setEnergy(furnaceTile.getEnergy() + furnaceTile.getGeneration());
+                                furnaceTile.setEnergy(furnaceTile.getEnergy() + diff);
                             }
-                            e.gottenRF = 0;
+                            furnaceTile.gottenRF = 0;
                         }
-                        e.generatorBurn -= (double) ((double) e.getGeneration() / 20);
-                        if (e.generatorBurn <= 0) {
-                            e.autoIOGenerator();
-                            e.generatorBurn = 0;
+                        furnaceTile.generatorBurn -= (double) ((double) furnaceTile.getGeneration() / 20);
+                        if (furnaceTile.generatorBurn <= 0) {
+                            furnaceTile.autoIOGenerator();
+                            furnaceTile.generatorBurn = 0;
                         }
                     }
                 }
-                if (e.generatorBurn <= 0) {
-                    e.generatorBurn = 0;
+                if (furnaceTile.generatorBurn <= 0) {
+                    furnaceTile.generatorBurn = 0;
                 }
 
 
-                e.energyOut();
-                if (e.level.getGameTime() % 24 == 0) {
+                furnaceTile.energyOut();
+                if (furnaceTile.level.getGameTime() % 24 == 0) {
 
-                    if (e.generatorBurn <= 0) {
-                        if (e.getItem(GENERATOR_FUEL).isEmpty()) {
-                            e.autoIOGenerator();
-                            e.setChanged();
-                        } else if (e.getItem(GENERATOR_FUEL).getCount() < e.getItem(GENERATOR_FUEL).getMaxStackSize()) {
-                            e.autoIOGenerator();
-                            e.setChanged();
+                    if (furnaceTile.generatorBurn <= 0) {
+                        if (furnaceTile.getItem(GENERATOR_FUEL).isEmpty()) {
+                            furnaceTile.autoIOGenerator();
+                            furnaceTile.setChanged();
+                        } else if (furnaceTile.getItem(GENERATOR_FUEL).getCount() < furnaceTile.getItem(GENERATOR_FUEL).getMaxStackSize()) {
+                            furnaceTile.autoIOGenerator();
+                            furnaceTile.setChanged();
                         }
                     }
 
@@ -1016,19 +938,19 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
             }
-            if (e.level.getGameTime() % 24 == 0) {
+            if (furnaceTile.level.getGameTime() % 24 == 0) {
                 BlockState state = level.getBlockState(worldPosition);
-                if (state.getValue(BlockIronFurnaceBase.TYPE) != e.getStateType()) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, e.getStateType()), 3);
+                if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
+                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
                 }
-                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != e.jovial) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, e.jovial), 3);
+                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
+                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
                 }
             }
 
 
-        } else if (e.isFurnace()) {
-            e.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+        } else if (furnaceTile.isFurnace()) {
+            furnaceTile.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
                 if (h.canReceive()) {
                     ((FEnergyStorage) h).setMaxReceive(0);
                 }
@@ -1037,21 +959,21 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 }
             });
 
-            if (!e.level.isClientSide) {
-                if (e.isBurning()) {
-                    --e.furnaceBurnTime;
+            if (!furnaceTile.level.isClientSide) {
+                if (furnaceTile.isBurning()) {
+                    --furnaceTile.furnaceBurnTime;
                 }
-                e.checkRecipeType();
+                furnaceTile.checkRecipeType();
 
-                ItemStack itemstack = e.getItem(FUEL);
-                if (e.isBurning() || !itemstack.isEmpty() && !e.getItem(INPUT).isEmpty()) {
+                ItemStack itemstack = furnaceTile.getItem(FUEL);
+                if (furnaceTile.isBurning() || !itemstack.isEmpty() && !furnaceTile.getItem(INPUT).isEmpty()) {
                     Optional<AbstractCookingRecipe> irecipe = Optional.empty();
-                    if (!e.getItem(INPUT).isEmpty()) {
-                        irecipe = e.getRecipe(e.getItem(INPUT));
+                    if (!furnaceTile.getItem(INPUT).isEmpty()) {
+                        irecipe = furnaceTile.getRecipe(furnaceTile.getItem(INPUT));
                     }
 
-                    boolean valid = e.canSmelt(irecipe.orElse(null));
-                    if (!e.isBurning() && valid) {
+                    boolean valid = furnaceTile.canSmelt(irecipe.orElse(null));
+                    if (!furnaceTile.isBurning() && valid) {
                         if (itemstack.getItem() instanceof ItemHeater) {
                             if (itemstack.hasTag()) {
                                 int x = itemstack.getTag().getInt("X");
@@ -1061,113 +983,113 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                 if (te instanceof BlockWirelessEnergyHeaterTile) {
                                     int energy = ((BlockWirelessEnergyHeaterTile) te).getEnergy();
                                     if (energy >= 2000) {
-                                        if (!e.getItem(AUGMENT_GREEN).isEmpty() && e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel) {
-                                            e.furnaceBurnTime = 400 * e.getCookTime() / 200;
-                                        } else if (!e.getItem(AUGMENT_GREEN).isEmpty() && e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed) {
+                                        if (!furnaceTile.getItem(AUGMENT_GREEN).isEmpty() && furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel) {
+                                            furnaceTile.furnaceBurnTime = 400 * furnaceTile.getCookTime() / 200;
+                                        } else if (!furnaceTile.getItem(AUGMENT_GREEN).isEmpty() && furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed) {
                                             if (energy >= 4000) {
-                                                e.furnaceBurnTime = 100 * e.getCookTime() / 200;
+                                                furnaceTile.furnaceBurnTime = 100 * furnaceTile.getCookTime() / 200;
                                             }
                                         } else {
-                                            e.furnaceBurnTime = 200 * e.getCookTime() / 200;
+                                            furnaceTile.furnaceBurnTime = 200 * furnaceTile.getCookTime() / 200;
                                         }
-                                        if (e.furnaceBurnTime > 0)
+                                        if (furnaceTile.furnaceBurnTime > 0)
                                             ((BlockWirelessEnergyHeaterTile) te).removeEnergy(2000);
 
-                                        e.recipesUsed = e.furnaceBurnTime;
+                                        furnaceTile.recipesUsed = furnaceTile.furnaceBurnTime;
                                     }
                                 }
                             }
                         } else {
-                            if (!e.getItem(AUGMENT_GREEN).isEmpty())
+                            if (!furnaceTile.getItem(AUGMENT_GREEN).isEmpty())
                             {
-                                if (e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel)
+                                if (furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel)
                                 {
-                                    e.furnaceBurnTime = (getBurnTime(itemstack, e.recipeType) * e.getCookTime() / 200) * 2;
+                                    furnaceTile.furnaceBurnTime = (getBurnTime(itemstack, furnaceTile.recipeType) * furnaceTile.getCookTime() / 200) * 2;
                                 }
-                                else if (e.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed)
+                                else if (furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed)
                                 {
-                                    e.furnaceBurnTime = (getBurnTime(itemstack, e.recipeType) * e.getCookTime() / 200) / 2;
+                                    furnaceTile.furnaceBurnTime = (getBurnTime(itemstack, furnaceTile.recipeType) * furnaceTile.getCookTime() / 200) / 2;
 
                                 }
                             }
                             else
                             {
-                                e.furnaceBurnTime = getBurnTime(itemstack, e.recipeType) * e.getCookTime() / 200;
+                                furnaceTile.furnaceBurnTime = getBurnTime(itemstack, furnaceTile.recipeType) * furnaceTile.getCookTime() / 200;
                             }
-                            e.recipesUsed = e.furnaceBurnTime;
+                            furnaceTile.recipesUsed = furnaceTile.furnaceBurnTime;
                         }
-                        if (e.isBurning()) {
+                        if (furnaceTile.isBurning()) {
                             flag1 = true;
                             if (!(itemstack.getItem() instanceof ItemHeater)) {
                                 if (itemstack.hasCraftingRemainingItem())
-                                    e.setItem(FUEL, itemstack.getCraftingRemainingItem());
+                                    furnaceTile.setItem(FUEL, itemstack.getCraftingRemainingItem());
                                 else if (!itemstack.isEmpty()) {
                                     itemstack.shrink(1);
                                     if (itemstack.isEmpty()) {
-                                        e.setItem(FUEL, itemstack.getCraftingRemainingItem());
+                                        furnaceTile.setItem(FUEL, itemstack.getCraftingRemainingItem());
                                     }
                                 }
                             }
                         }
                     }
-                    if (e.isBurning() && valid) {
-                        ++e.cookTime;
-                        if (e.cookTime >= e.totalCookTime) {
-                            e.cookTime = 0;
-                            e.totalCookTime = e.getCookTime();
-                            e.smelt(irecipe.orElse(null));
-                            e.autoIO();
+                    if (furnaceTile.isBurning() && valid) {
+                        ++furnaceTile.cookTime;
+                        if (furnaceTile.cookTime >= furnaceTile.totalCookTime) {
+                            furnaceTile.cookTime = 0;
+                            furnaceTile.totalCookTime = furnaceTile.getCookTime();
+                            furnaceTile.smelt(irecipe.orElse(null));
+                            furnaceTile.autoIO();
                             flag1 = true;
                         }
                     } else {
-                        e.cookTime = 0;
+                        furnaceTile.cookTime = 0;
                     }
-                } else if (!e.isBurning() && e.cookTime > 0) {
-                    e.cookTime = clamp(e.cookTime - 2, 0, e.totalCookTime);
+                } else if (!furnaceTile.isBurning() && furnaceTile.cookTime > 0) {
+                    furnaceTile.cookTime = clamp(furnaceTile.cookTime - 2, 0, furnaceTile.totalCookTime);
                 }
-                if (e.level.getGameTime() % 24 == 0) {
+                if (furnaceTile.level.getGameTime() % 24 == 0) {
 
-                    if (e.cookTime <= 0) {
+                    if (furnaceTile.cookTime <= 0) {
 
-                        if (e.getItem(INPUT).isEmpty()) {
-                            e.autoIO();
+                        if (furnaceTile.getItem(INPUT).isEmpty()) {
+                            furnaceTile.autoIO();
                             flag1 = true;
-                        } else if (e.getItem(INPUT).getCount() < e.getItem(INPUT).getMaxStackSize()) {
-                            e.autoIO();
+                        } else if (furnaceTile.getItem(INPUT).getCount() < furnaceTile.getItem(INPUT).getMaxStackSize()) {
+                            furnaceTile.autoIO();
                             flag1 = true;
                         }
-                        if (e.getItem(FUEL).isEmpty()) {
-                            e.autoIO();
+                        if (furnaceTile.getItem(FUEL).isEmpty()) {
+                            furnaceTile.autoIO();
                             flag1 = true;
-                        } else if (e.getItem(FUEL).getCount() < e.getItem(FUEL).getMaxStackSize()) {
-                            e.autoIO();
+                        } else if (furnaceTile.getItem(FUEL).getCount() < furnaceTile.getItem(FUEL).getMaxStackSize()) {
+                            furnaceTile.autoIO();
                             flag1 = true;
                         }
 
-                        if (!e.getItem(OUTPUT).isEmpty() && e.getItem(OUTPUT).getCount() >= 64)
+                        if (!furnaceTile.getItem(OUTPUT).isEmpty() && furnaceTile.getItem(OUTPUT).getCount() >= 64)
                         {
-                            e.autoIO();
+                            furnaceTile.autoIO();
                         }
                     }
 
 
                 }
             }
-            if (wasBurning != e.isBurning()) {
-                level.setBlock(worldPosition, level.getBlockState(e.worldPosition).setValue(BlockStateProperties.LIT, e.isBurning()), 3);
+            if (wasBurning != furnaceTile.isBurning()) {
+                level.setBlock(worldPosition, level.getBlockState(furnaceTile.worldPosition).setValue(BlockStateProperties.LIT, furnaceTile.isBurning()), 3);
             }
-            if (e.level.getGameTime() % 24 == 0) {
+            if (furnaceTile.level.getGameTime() % 24 == 0) {
                 BlockState state = level.getBlockState(worldPosition);
-                if (state.getValue(BlockIronFurnaceBase.TYPE) != e.getStateType()) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, e.getStateType()), 3);
+                if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
+                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
                 }
-                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != e.jovial) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, e.jovial), 3);
+                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
+                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
                 }
             }
 
             if (flag1) {
-                e.setChanged();
+                furnaceTile.setChanged();
             }
 
 
@@ -1641,9 +1563,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
     protected int getStateType() {
-        if (this.getItem(3).getItem() == Registration.SMOKING_AUGMENT.get()) {
+        if (this.getItem(3).getItem() == ModItems.SMOKING_AUGMENT.get()) {
             return 1;
-        } else if (this.getItem(3).getItem() == Registration.BLASTING_AUGMENT.get()) {
+        } else if (this.getItem(3).getItem() == ModItems.BLASTING_AUGMENT.get()) {
             return 2;
         } else {
             return 0;
@@ -1655,165 +1577,125 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public boolean isRainbowFurnace() {
-        return this instanceof BlockMillionFurnaceTile;
+        return this.self().getIdentifier().equals(BlockMillionFurnace.ID);
     }
 
     protected void smelt(@Nullable Recipe<?> recipe) {
-        if (this instanceof BlockMillionFurnaceTile) {
-            smeltItemMult(recipe, 64);
-        } else if (this instanceof BlockAllthemodiumFurnaceTile) {
-            smeltItemMult(recipe, Config.allthemodiumFurnaceSmeltMult.get());
-        } else if (this instanceof BlockVibraniumFurnaceTile) {
-            smeltItemMult(recipe, Config.vibraniumFurnaceSmeltMult.get());
-        } else if (this instanceof BlockUnobtainiumFurnaceTile) {
-            smeltItemMult(recipe, Config.unobtainiumFurnaceSmeltMult.get());
-        } else {
-            smeltItem(recipe);
-        }
+        smeltItem(recipe, this.self().getMaxSmeltItemNumberOnSingleOp());
     }
 
     protected void factorySmelt(@Nullable Recipe<?> recipe, int slot) {
-        if (this instanceof BlockMillionFurnaceTile) {
-            smeltFactoryItemMult(recipe, slot, 64);
-        } else if (this instanceof BlockAllthemodiumFurnaceTile) {
-            smeltFactoryItemMult(recipe, slot, Config.allthemodiumFurnaceSmeltMult.get());
-        } else if (this instanceof BlockVibraniumFurnaceTile) {
-            smeltFactoryItemMult(recipe, slot, Config.vibraniumFurnaceSmeltMult.get());
-        } else if (this instanceof BlockUnobtainiumFurnaceTile) {
-            smeltFactoryItemMult(recipe, slot, Config.unobtainiumFurnaceSmeltMult.get());
-        } else {
-            smeltFactoryItem(recipe, slot);
-        }
+        smeltFactoryItem(recipe, slot, this.self().getMaxSmeltItemNumberOnSingleOp());
     }
+
     protected boolean canSmelt(@Nullable Recipe<?> recipe) {
-        if (!this.getItem(0).isEmpty() && recipe != null) {
-            ItemStack recipeOutput = recipe.getResultItem(RegistryAccess.EMPTY);
-            if (!recipeOutput.isEmpty()) {
-                ItemStack output = this.getItem(OUTPUT);
-                if (output.isEmpty()) return true;
-                else if (!ItemStack.isSameItemSameTags(output, recipeOutput)) return false;
-                else return output.getCount() + recipeOutput.getCount() <= Math.min(output.getMaxStackSize(), 64);
-            }
-        }
-        return false;
+        return canSmeltInternal(recipe, 0, OUTPUT, true);
     }
 
-    protected void smeltItem(@Nullable Recipe<?> recipe) {
-        if (recipe != null && this.canSmelt(recipe)) {
-            ItemStack itemstack = this.getItem(INPUT);
-            ItemStack itemstack1 = recipe.getResultItem(RegistryAccess.EMPTY);
-            ItemStack itemstack2 = this.getItem(OUTPUT);
-            if (itemstack2.isEmpty()) {
-                this.setItem(OUTPUT, itemstack1.copy());
-            } else if (itemstack2.getItem() == itemstack1.getItem()) {
-                itemstack2.grow(itemstack1.getCount());
-            }
-            if (!this.level.isClientSide) {
-                this.setRecipeUsed(recipe);
-            }
-
-            if (itemstack.getItem() == Blocks.WET_SPONGE.asItem() && !this.getItem(FUEL).isEmpty() && this.getItem(FUEL).getItem() == Items.BUCKET) {
-                this.setItem(FUEL, new ItemStack(Items.WATER_BUCKET));
-            }
-            if (ModList.get().isLoaded("pmmo")) {
-                handleSmeltedPMMO(itemstack, level, worldPosition);
-            }
-            itemstack.shrink(1);
-        }
-    }
 
     protected boolean canFactorySmelt(@Nullable Recipe<?> recipe, int slot) {
-        int outputSlot = slot + 6;
-        if (!this.getItem(slot).isEmpty() && recipe != null) {
-            ItemStack recipeOutput = recipe.getResultItem(RegistryAccess.EMPTY);
-            if (!recipeOutput.isEmpty()) {
-                ItemStack output = this.getItem(outputSlot);
-                if (output.isEmpty()) return true;
-                else if (!ItemStack.isSameItemSameTags(output, recipeOutput)) return false;
-                else return output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize();
-            }
-        }
-        return false;
+        return canSmeltInternal(recipe, 0, OUTPUT, false);
     }
 
-    protected void smeltFactoryItem(@Nullable Recipe<?> recipe, int slot) {
-        int outputSlot = slot + 6;
-        if (recipe != null && this.canFactorySmelt(recipe, slot)) {
-            ItemStack itemstack = this.getItem(slot);
-            ItemStack itemstack1 = recipe.getResultItem(RegistryAccess.EMPTY);
-            ItemStack itemstack2 = this.getItem(outputSlot);
-            if (itemstack2.isEmpty()) {
-                this.setItem(outputSlot, itemstack1.copy());
-            } else if (itemstack2.getItem() == itemstack1.getItem()) {
-                itemstack2.grow(itemstack1.getCount());
-            }
-            if (!this.level.isClientSide) {
+    protected boolean canSmeltInternal(
+            @Nullable Recipe<?> recipe,
+            int inputSlot,
+            int outputSlot,
+            boolean limitTo64
+    ) {
+        ItemStack input = this.getItem(inputSlot);
+        if (input.isEmpty() || recipe == null) {
+            return false;
+        }
+
+        ItemStack recipeOutput = recipe.getResultItem(RegistryAccess.EMPTY);
+        if (recipeOutput.isEmpty()) {
+            return false;
+        }
+
+        ItemStack output = this.getItem(outputSlot);
+
+        if (output.isEmpty()) {
+            return true;
+        }
+
+        if (!ItemStack.isSameItemSameTags(output, recipeOutput)) {
+            return false;
+        }
+
+        int maxStack = limitTo64
+                ? Math.min(output.getMaxStackSize(), 64)
+                : output.getMaxStackSize();
+
+        return output.getCount() + recipeOutput.getCount() <= maxStack;
+    }
+
+
+    protected void smeltItem(@Nullable Recipe<?> recipe, int maxOperations) {
+        smeltInternal(recipe, INPUT, OUTPUT, maxOperations,
+                (r, slot) -> this.canSmelt(r));
+    }
+
+    protected void smeltFactoryItem(@Nullable Recipe<?> recipe,
+                                    int slot,
+                                    int maxOperations) {
+        smeltInternal(recipe, slot, slot + 6, maxOperations,
+                this::canFactorySmelt);
+    }
+
+    private void smeltInternal(
+            @Nullable Recipe<?> recipe,
+            int inputSlot,
+            int outputSlot,
+            int maxOperations,
+            BiPredicate<Recipe<?>, Integer> canSmeltCheck
+    ) {
+        if (recipe == null || !canSmeltCheck.test(recipe, inputSlot)) {
+            return;
+        }
+
+        ItemStack input = this.getItem(inputSlot);
+        ItemStack result = recipe.getResultItem(RegistryAccess.EMPTY);
+        ItemStack output = this.getItem(outputSlot);
+
+        int maxByOutput =
+                (64 - output.getCount()) / result.getCount();
+
+        int operations =
+                Math.min(Math.min(maxOperations, maxByOutput), input.getCount());
+
+        if (operations <= 0) {
+            return;
+        }
+
+        int totalOutput = result.getCount() * operations;
+
+        if (output.isEmpty()) {
+            this.setItem(outputSlot, result.copyWithCount(totalOutput));
+        } else if (output.getItem() == result.getItem()) {
+            output.grow(totalOutput);
+        }
+
+        if (!this.level.isClientSide) {
+            for (int i = 0; i < operations; i++) {
                 this.setRecipeUsed(recipe);
             }
-            if (ModList.get().isLoaded("pmmo")) {
-                handleSmeltedPMMO(itemstack, level, worldPosition);
-            }
-            itemstack.shrink(1);
         }
+
+        if (input.getItem() == Blocks.WET_SPONGE.asItem()
+                && inputSlot == INPUT
+                && !this.getItem(FUEL).isEmpty()
+                && this.getItem(FUEL).getItem() == Items.BUCKET) {
+            this.setItem(FUEL, new ItemStack(Items.WATER_BUCKET));
+        }
+
+        if (ModList.get().isLoaded("pmmo")) {
+            handleSmeltedPMMO(input, level, worldPosition);
+        }
+
+        input.shrink(operations);
     }
 
-    protected void smeltItemMult(@Nullable Recipe<?> recipe, int div) {
-        if (recipe != null && this.canSmelt(recipe)) {
-            ItemStack itemstack = this.getItem(INPUT);
-            ItemStack itemstack1 = recipe.getResultItem(RegistryAccess.EMPTY);
-            ItemStack itemstack2 = this.getItem(OUTPUT);
-            int maxCanSmelt = (64 - itemstack2.getCount()) / itemstack1.getCount();
-            int wantToSmeltCount = Math.min(Math.min(div, maxCanSmelt), itemstack.getCount());
-            int whenSmelted = itemstack1.getCount() * wantToSmeltCount;
-            int decrement = whenSmelted / itemstack1.getCount();
-            if (itemstack2.isEmpty()) {
-                this.setItem(OUTPUT, new ItemStack(itemstack1.copy().getItem(), whenSmelted));
-            } else if (itemstack2.getItem() == itemstack1.getItem()) {
-                itemstack2.grow(whenSmelted);
-            }
-            if (!this.level.isClientSide) {
-                for (int i = 0; i < decrement; i++) {
-                    this.setRecipeUsed(recipe);
-                }
-            }
-
-            if (itemstack.getItem() == Blocks.WET_SPONGE.asItem() && !this.getItem(FUEL).isEmpty() && this.getItem(FUEL).getItem() == Items.BUCKET) {
-                this.setItem(FUEL, new ItemStack(Items.WATER_BUCKET));
-            }
-            if (ModList.get().isLoaded("pmmo")) {
-                handleSmeltedPMMO(itemstack, level, worldPosition);
-            }
-
-            itemstack.shrink(decrement);
-        }
-    }
-
-    protected void smeltFactoryItemMult(@Nullable Recipe<?> recipe, int slot, int div) {
-        int outputSlot = slot + 6;
-        if (recipe != null && this.canFactorySmelt(recipe, slot)) {
-            ItemStack itemstack = this.getItem(slot);
-            ItemStack itemstack1 = recipe.getResultItem(RegistryAccess.EMPTY);
-            ItemStack itemstack2 = this.getItem(outputSlot);
-            int maxCanSmelt = (64 - itemstack2.getCount()) / itemstack1.getCount();
-            int wantToSmeltCount = Math.min(Math.min(div, maxCanSmelt), itemstack.getCount());
-            int whenSmelted = itemstack1.getCount() * wantToSmeltCount;
-            int decrement = whenSmelted / itemstack1.getCount();
-            if (itemstack2.isEmpty()) {
-                this.setItem(outputSlot, new ItemStack(itemstack1.copy().getItem(), whenSmelted));
-            } else if (itemstack2.getItem() == itemstack1.getItem()) {
-                itemstack2.grow(whenSmelted);
-            }
-            if (!this.level.isClientSide) {
-                for (int i = 0; i < decrement; i++) {
-                    this.setRecipeUsed(recipe);
-                }
-            }
-            if (ModList.get().isLoaded("pmmo")) {
-                handleSmeltedPMMO(itemstack, level, worldPosition);
-            }
-            itemstack.shrink(decrement);
-        }
-    }
 
     private void handleSmeltedPMMO(ItemStack stack, Level level, BlockPos pos) {
         FurnaceHandler.handle(new FurnaceBurnEvent(stack, level, pos));
@@ -1931,12 +1813,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         return stack.getItem() instanceof ItemAugment;
     }
 
-    net.minecraftforge.common.util.LazyOptional<? extends net.minecraftforge.items.IItemHandler>[] invHandlers =
-            net.minecraftforge.items.wrapper.SidedInvWrapper.create(this, Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
+    LazyOptional<? extends IItemHandler>[] invHandlers =
+            SidedInvWrapper.create(this, Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
 
     @Nonnull
     @Override
-    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable Direction facing) {
+    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
 
         if (!this.isRemoved() && facing != null && capability == ForgeCapabilities.ITEM_HANDLER) {
             if (facing == Direction.DOWN)
