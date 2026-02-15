@@ -4,7 +4,6 @@ package ironfurnaces.loaders.forge;
 import ironfurnaces.Config;
 import ironfurnaces.init.ClientSetup;
 import ironfurnaces.init.ModSetup;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
 import ironfurnaces.registration.*;
@@ -35,15 +34,14 @@ public class ForgeEntrypoint {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ModSetup::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
 
-        MOD_EVENT_BUS.register(Registration.class);
 
         ModMenus.register();
         ModRecipeTypes.register();
         ModBlocks.register();
         ModItems.register();
         LegacyFurnaceBlocks.register();
-        Registration.init();
         ModItemGroups.register();
+        ModLangs.register();
 
         Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces-client.toml"));
         Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces.toml"));

@@ -132,12 +132,7 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
             stack.setCount(this.getMaxStackSize());
         }
     }
-/*
-    @Override
-    public int getMaxStackSize() {
-        return WorldlyContainer.super.getMaxStackSize();
-    }
-*/
+
 
 
 

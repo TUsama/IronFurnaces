@@ -1,9 +1,10 @@
 package ironfurnaces.blocks;
 
-import ironfurnaces.init.Registration;
 import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -25,8 +26,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.List;
 
 public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
@@ -101,8 +100,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     private void interactWith(Level world, BlockPos pos, Player player) {
         BlockEntity tileEntity = world.getBlockEntity(pos);
         if (tileEntity instanceof MenuProvider) {
-            NetworkHooks.openScreen((ServerPlayer) player, (MenuProvider)tileEntity, tileEntity.getBlockPos());
-
+            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"), buf -> buf.writeBlockPos(tileEntity.getBlockPos()));
         }
     }
 

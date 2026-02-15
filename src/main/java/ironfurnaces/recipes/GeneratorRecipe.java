@@ -1,7 +1,6 @@
 package ironfurnaces.recipes;
 
 import com.google.gson.JsonObject;
-import ironfurnaces.init.Registration;
 import ironfurnaces.registration.ModRecipeTypes;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;

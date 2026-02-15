@@ -18,6 +18,7 @@ import ironfurnaces.registration.util.LangUtils;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -30,6 +31,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -37,10 +39,13 @@ import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+import static ironfurnaces.blocks.furnaces.BlockIronFurnaceBase.JOVIAL;
+import static ironfurnaces.blocks.furnaces.BlockIronFurnaceBase.TYPE;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class LegacyFurnaceBlocks {
@@ -477,8 +482,61 @@ public class LegacyFurnaceBlocks {
         return REGISTRATE
                 .block(name, factory)
                 .initialProperties(baseBlock)
-                .blockstate((ctx, provider) -> {
-                })
+                .blockstate((ctx, prov) ->
+                        prov.getVariantBuilder(ctx.get())
+                                .forAllStates(state -> {
+
+                                    Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+                                    int jovial = state.getValue(JOVIAL);
+                                    boolean lit = state.getValue(BlockStateProperties.LIT);
+                                    int type = state.getValue(TYPE);
+
+                                    String prefix = switch (jovial) {
+                                        case 1 -> "spooky_furnace";
+                                        case 2 -> "xmas_furnace";
+                                        default -> ctx.getName();
+                                    };
+
+                                    String litPart = lit ? "_on" : "";
+
+                                    String typePart = switch (type) {
+                                        case 1 -> "_smoke";
+                                        case 2 -> "_blast";
+                                        default -> "";
+                                    };
+
+                                    String modelName = "block/" + prefix + litPart + typePart;
+
+                                    int yRot = switch (facing) {
+                                        case SOUTH -> 180;
+                                        case WEST -> 270;
+                                        case EAST -> 90;
+                                        default -> 0;
+                                    };
+                                    ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
+                                            .rotationY(yRot);
+                                    if (type == 1){
+                                        builder.modelFile(prov.models()
+                                                .orientableWithBottom(modelName,
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_front" + litPart + typePart),
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_top_smoke"))
+                                        );
+
+                                    } else {
+                                        builder.modelFile(prov.models()
+                                                .orientable(modelName,
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_front" + litPart + typePart),
+                                                        IronFurnaces.id("block/" + prefix + "_side"))
+                                        );
+                                    }
+
+                                    return builder.build();
+                                })
+
+                )
                 .addMiscData(ProviderType.LANG, x -> {
                     x.add("container.ironfurnaces." + name, LangUtils.snakeToTitleWithSpace(name).replace("Million", "Rainbow"));
                 })

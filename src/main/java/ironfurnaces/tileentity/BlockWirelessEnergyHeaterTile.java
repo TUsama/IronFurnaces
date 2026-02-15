@@ -2,7 +2,6 @@ package ironfurnaces.tileentity;
 
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.energy.FEnergyStorage;
-import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
 import net.minecraft.core.BlockPos;

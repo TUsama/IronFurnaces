@@ -4,14 +4,10 @@ import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
-import ironfurnaces.blocks.BlockWirelessEnergyHeater;
-import ironfurnaces.blocks.furnaces.BlockItemHeater;
-import ironfurnaces.init.Registration;
 import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.*;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.RegistryObject;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 

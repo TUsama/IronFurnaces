@@ -1,10 +1,9 @@
 package ironfurnaces.compat.jei;
 
-import com.mojang.blaze3d.platform.InputConstants;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.registration.ModItems;
+import ironfurnaces.registration.ModRecipeTypes;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -52,7 +51,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public RecipeType<GeneratorRecipe> getRecipeType() {
-        return Registration.RecipeTypes.GENERATOR_BLASTING;
+        return ModRecipeTypes.GENERATOR_RECIPE.asJEIRecipeType().get();
     }
 
     @Override

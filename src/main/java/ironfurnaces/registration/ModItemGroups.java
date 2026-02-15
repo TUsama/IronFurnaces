@@ -1,7 +1,6 @@
 package ironfurnaces.registration;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;

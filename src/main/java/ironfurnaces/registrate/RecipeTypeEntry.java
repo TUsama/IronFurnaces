@@ -11,16 +11,30 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class RecipeTypeEntry<T extends Recipe<?>> extends RegistryEntry<RecipeType<?>> {
     private final RecipeSerializerEntry serializer;
+    private JEIRecipeTypeWrapper<T> jeiRecipeType;
 
-    public RecipeTypeEntry(AbstractRegistrate<?> owner, RegistryObject<RecipeType<?>> delegate, RecipeSerializerEntry serializer) {
+    public RecipeTypeEntry(AbstractRegistrate<?> owner, RegistryObject<RecipeType<?>> delegate, RecipeSerializerEntry serializer, JEIRecipeTypeWrapper<T> jeiRecipeType) {
         super(owner, delegate);
         this.serializer = serializer;
+        this.jeiRecipeType = jeiRecipeType;
     }
-
 
     public RecipeSerializer<T> asSerializer() {
 
         return (RecipeSerializer<T>) serializer.get();
+    }
+
+    public JEIRecipeTypeWrapper<T> asJEIRecipeType(){
+        if (jeiRecipeType != null){
+            return jeiRecipeType;
+        }
+        throw new NullPointerException("You can't access the JEIRecipeTypeWrapper without create it!");
+    }
+
+    protected void registerJEIRecipeType(){
+        if (this.jeiRecipeType != null) {
+            this.jeiRecipeType.register();
+        }
     }
 
 

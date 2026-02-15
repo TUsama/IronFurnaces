@@ -6,13 +6,7 @@ import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
 import ironfurnaces.gui.BlockWirelessEnergyHeaterScreen;
 import ironfurnaces.gui.furnaces.LegacyUnifiedMenuScreen;
-import ironfurnaces.init.Registration;
 import ironfurnaces.loaders.IronFurnaces;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.registries.RegistryObject;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 

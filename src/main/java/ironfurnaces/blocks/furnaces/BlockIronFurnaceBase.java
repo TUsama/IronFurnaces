@@ -10,9 +10,11 @@ import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.util.DirectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,6 +48,8 @@ import net.minecraftforge.network.NetworkHooks;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.minecraft.network.chat.Component.translatable;
 
 public abstract class BlockIronFurnaceBase extends Block implements EntityBlock {
 
@@ -140,35 +144,71 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         {
             settings[i] = ((BlockIronFurnaceTileBase) te).furnaceSettings.get(i);
         }
-        stack.getOrCreateTag().putIntArray("settings", settings);
-
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putIntArray("settings", settings);
+        tag.putInt("direction", DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
         ((BlockIronFurnaceTileBase)te).onUpdateSent();
-        player.sendSystemMessage(Component.literal("Settings copied"));
+
+
+        player.sendSystemMessage(translatable("ironfurnaces.item.item_copy.tip.setting_copied"));
         return InteractionResult.SUCCESS;
     }
     private InteractionResult interactAugment(Level world, BlockPos pos, Player player, InteractionHand handIn, ItemStack stack) {
-        if (!(player.getItemInHand(handIn).getItem() instanceof ItemAugment)) {
+        ItemStack held = player.getItemInHand(handIn);
+        if (!(held.getItem() instanceof ItemAugment)) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity te = world.getBlockEntity(pos);
-        if (!(te instanceof BlockIronFurnaceTileBase)) {
+
+        BlockEntity be = world.getBlockEntity(pos);
+        if (!(be instanceof BlockIronFurnaceTileBase furnace)) {
             return InteractionResult.SUCCESS;
         }
-        int slot = player.getItemInHand(handIn).getItem() instanceof ItemAugmentRed ? 3 : player.getItemInHand(handIn).getItem() instanceof ItemAugmentGreen ? 4 : 5;
-        if (!(((WorldlyContainer) te).getItem(slot).isEmpty())) {
-            if (!player.isCreative()) {
-                world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY() + 1, pos.getZ(), ((WorldlyContainer) te).getItem(slot)));
-            }
+
+        int slot;
+        if (held.getItem() instanceof ItemAugmentRed) {
+            slot = 3;
+        } else if (held.getItem() instanceof ItemAugmentGreen) {
+            slot = 4;
+        } else {
+            slot = 5;
         }
-        ItemStack newStack = new ItemStack(stack.getItem(), 1);
-        newStack.setTag(stack.getTag());
-        ((WorldlyContainer) te).setItem(slot, newStack);
-        world.playSound(null, te.getBlockPos(), SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.05F, 1.0F);
+
+        WorldlyContainer container = (WorldlyContainer) furnace;
+
+        ItemStack old = container.removeItemNoUpdate(slot);
+
+        if (!old.isEmpty() && !player.isCreative()) {
+            ItemEntity entity = new ItemEntity(
+                    world,
+                    pos.getX() + 0.5,
+                    pos.getY() + 1,
+                    pos.getZ() + 0.5,
+                    old
+            );
+            world.addFreshEntity(entity);
+        }
+
+        ItemStack newStack = held.copyWithCount(1);
+        container.setItem(slot, newStack);
+
         if (!player.isCreative()) {
-            player.getItemInHand(handIn).shrink(1);
+            held.shrink(1);
         }
-        ((BlockIronFurnaceTileBase)te).onUpdateSent();
-        te.getLevel().markAndNotifyBlock(pos, player.level().getChunkAt(pos), te.getLevel().getBlockState(pos).getBlock().defaultBlockState(), te.getLevel().getBlockState(pos), 2, 0);
+
+        furnace.setChanged();
+        furnace.onUpdateSent();
+
+        world.playSound(
+                null,
+                pos,
+                SoundEvents.ANVIL_USE,
+                SoundSource.BLOCKS,
+                0.05F,
+                1.0F
+        );
+
+        furnace.getLevel().markAndNotifyBlock(pos, player.level().getChunkAt(pos), furnace.getLevel().getBlockState(pos).getBlock().defaultBlockState(), furnace.getLevel().getBlockState(pos), 2, 0);
+
         return InteractionResult.SUCCESS;
     }
     private InteractionResult interactJovial(Level world, BlockPos pos, Player player, InteractionHand handIn, int jovial) {

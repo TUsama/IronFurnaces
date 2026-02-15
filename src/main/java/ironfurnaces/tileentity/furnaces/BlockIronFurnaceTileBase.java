@@ -9,7 +9,6 @@ import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
 import ironfurnaces.energy.FEnergyStorage;
-import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
@@ -306,10 +305,18 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     protected int getSpeed() {
         int regular = getCookTimeConfig().get();
-        int recipe = getCache().computeIfAbsent(getItem(INPUT).getItem(), (item) -> getRecipeNonCached(new ItemStack(item))).map(AbstractCookingRecipe::getCookingTime).orElse(0);
-        double div = 200.0 / recipe;
-        double i = regular / div;
-        return (int)Math.max(1, i);
+        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(INPUT));
+        if (recipe.isPresent()) {
+            AbstractCookingRecipe abstractCookingRecipe = recipe.get();
+            int recipe_cooktime = abstractCookingRecipe.getCookingTime();
+            double div = 200.0 / recipe_cooktime;
+            double i = regular / div;
+            return (int)Math.max(1, i);
+        }
+        else
+        {
+            return 0;
+        }
 
     }
 
@@ -332,10 +339,18 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     protected int getFactorySpeed(int slot) {
         int regular = getCookTimeConfig().get();
-        int recipe = getFactoryCache().get(slot - FACTORY_INPUT[0]).computeIfAbsent(getItem(slot).getItem(), (item) -> getRecipeNonCached(new ItemStack(item))).map(AbstractCookingRecipe::getCookingTime).orElse(0);
-        double div = 200.0 / recipe;
-        double i = regular / div;
-        return (int)Math.max(1, i);
+        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(slot - FACTORY_INPUT[0]));
+        if (recipe.isPresent()) {
+            AbstractCookingRecipe abstractCookingRecipe = recipe.get();
+            int recipe_cooktime = abstractCookingRecipe.getCookingTime();
+            double div = 200.0 / recipe_cooktime;
+            double i = regular / div;
+            return (int)Math.max(1, i);
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     public abstract ForgeConfigSpec.IntValue getCookTimeConfig();
@@ -511,7 +526,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     getItem(FACTORY_INPUT[j]).shrink(amount);
                     for (int i = start; i < size; i++) {
                         if (getItem(FACTORY_INPUT[i]).isEmpty() && amount > 0) {
-                            setItem(FACTORY_INPUT[i], stack.copy());
+                            setItem(FACTORY_INPUT[i], stack.copyWithCount(1));
                             amount--;
                             setChanged();
                         }
