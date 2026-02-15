@@ -193,7 +193,7 @@ public class ModLangs {
             REGISTRATE.addRawLang("tooltip.ironfurnaces.gui_input_output", "Input/Output");
 
     public static final Component GUI_FUEL =
-            REGISTRATE.addRawLang("tooltip.ironfurnaces.gui_fuel", "Fuel Input");
+            REGISTRATE.addRawLang("tooltip.ironfurnaces.gui_fuel", "Fuel Input/Eject");
 
     public static final Component GUI_RESET =
             REGISTRATE.addRawLang("tooltip.ironfurnaces.gui_reset", "Reset All");

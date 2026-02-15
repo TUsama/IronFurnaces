@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -618,6 +619,213 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
     }
 
     @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) return ItemStack.EMPTY;
+
+        ItemStack stack = slot.getItem();
+        ItemStack copy = stack.copy();
+
+        boolean moved = false;
+
+        if (te.isGenerator()) {
+            moved = handleGenerator(index, stack);
+        } else if (te.isFactory()) {
+            moved = handleFactory(index, stack, slot, copy);
+        } else if (te.isFurnace()) {
+            moved = handleFurnace(index, stack, slot, copy);
+        }
+
+        if (!moved) return ItemStack.EMPTY;
+
+        finalizeSlot(player, slot, stack, copy);
+        return copy;
+    }
+    private boolean handleGenerator(int index, ItemStack stack) {
+
+        if (isGeneratorInternalSlot(index)) {
+            return moveTo(stack, 19, 55);
+        }
+
+        if (tryMoveGeneratorInput(stack)) {
+            return true;
+        }
+
+        if (handleAugment(stack)) {
+            return true;
+        }
+
+        return moveBetweenPlayerSections(index, stack);
+    }
+
+    private boolean tryMoveGeneratorInput(ItemStack stack) {
+
+        ItemStack augment = te.getItem(3);
+
+        // Smoking
+        if (augment.getItem() instanceof ItemAugmentSmoking) {
+            if (te.getSmokingBurn(stack) <= 0) return false;
+            if (stack.hasCraftingRemainingItem() && stack.getCount() > 1){
+                ItemStack singleItem = stack.copyWithCount(1);
+                if (moveTo(singleItem, 6, 7)){
+                    stack.shrink(1);
+                    return true;
+                }
+                return false;
+            }
+            return moveTo(stack, 6, 7);
+        }
+
+        // Blasting
+        if (augment.getItem() instanceof ItemAugmentBlasting) {
+            return te.hasGeneratorBlastingRecipe(stack)
+                    && moveTo(stack, 6, 7);
+        }
+
+        // Default fuel
+        return BlockIronFurnaceTileBase.isItemFuel(stack, RecipeType.SMELTING)
+                && !(stack.getItem() instanceof ItemHeater)
+                && moveTo(stack, 6, 7);
+    }
+
+    private boolean isGeneratorInternalSlot(int index) {
+        return index == 3 || index == 4 || index == 5 || index == 6;
+    }
+
+    private boolean handleFactory(int index, ItemStack stack, Slot slot, ItemStack original) {
+
+        if (isFactoryOutputSlot(index)) {
+            if (!moveToPlayer(stack, true)) {
+                return false;
+            }
+
+            slot.onQuickCraft(stack, original);
+            return true;
+        }
+
+        if (isPlayerInventory(index)) {
+
+            if (tryMoveFactoryInput(stack)) return true;
+
+            if (handleAugment(stack)) return true;
+
+            return moveBetweenPlayerSections(index, stack);
+        }
+
+        return moveToPlayer(stack, false);
+    }
+
+    private boolean isFactoryOutputSlot(int index) {
+        return index > 12 && index <= 18;
+    }
+
+    private boolean isPlayerInventory(int index) {
+        return index >= 19;
+    }
+
+    private boolean tryMoveFactoryInput(ItemStack stack) {
+
+        if (!te.hasRecipe(stack)) {
+            return false;
+        }
+
+        int tier = getTier();
+
+        if (tier == 2) {
+            return moveTo(stack, 7, 13);
+        }
+        if (tier == 1) {
+            return moveTo(stack, 8, 12);
+        }
+
+        return moveTo(stack, 9, 11);
+    }
+
+    private boolean handleFurnace(int index, ItemStack stack, Slot slot, ItemStack original) {
+
+        if (index == 2) {
+            if (!moveToPlayer(stack, true)) {
+                return false;
+            }
+
+            slot.onQuickCraft(stack, original);
+            return true;
+        }
+
+        if (isPlayerInventory(index)) {
+
+            if (tryMoveFurnaceInput(stack)) return true;
+
+            if (tryMoveFurnaceFuel(stack)) return true;
+
+            if (handleAugment(stack)) return true;
+
+            return moveBetweenPlayerSections(index, stack);
+        }
+
+        return moveToPlayer(stack, false);
+    }
+
+
+    private boolean tryMoveFurnaceInput(ItemStack stack) {
+        if (te.hasRecipe(stack)) {
+            return moveTo(stack, 0, 1);
+        }
+        return false;
+    }
+
+    private boolean tryMoveFurnaceFuel(ItemStack stack) {
+        if (BlockIronFurnaceTileBase.isItemFuel(stack, RecipeType.SMELTING)) {
+            return moveTo(stack, 1, 2);
+        }
+        return false;
+    }
+
+
+
+
+    private boolean moveTo(ItemStack stack, int start, int end) {
+        return this.moveItemStackTo(stack, start, end, false);
+    }
+
+    private boolean moveToPlayer(ItemStack stack, boolean reverse) {
+        return this.moveItemStackTo(stack, 19, 55, reverse);
+    }
+
+    private boolean handleAugment(ItemStack stack) {
+        for (int i = 0; i < 3; i++) {
+            if (BlockIronFurnaceTileBase.isItemAugment(stack, i)) {
+                return moveTo(stack, 3 + i, 4 + i);
+            }
+        }
+        return false;
+    }
+
+
+    private boolean moveBetweenPlayerSections(int index, ItemStack stack) {
+        if (index >= 19 && index <= 45)
+            return moveTo(stack, 46, 55);
+        if (index >= 45 && index < 55)
+            return moveTo(stack, 19, 46);
+        return false;
+    }
+
+    private ItemStack finalizeSlot(Player player, Slot slot, ItemStack stack, ItemStack copy) {
+        if (stack.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        if (stack.getCount() == copy.getCount()) {
+            return ItemStack.EMPTY;
+        }
+
+        slot.onTake(player, stack);
+        return copy;
+    }
+/*
+    @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -632,6 +840,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
                     if (te.getItem(3).getItem() instanceof ItemAugmentSmoking)
                     {
                         if (te.getSmokingBurn(itemstack1) > 0) {
+                            itemstack1.hasCraftingRemainingItem()
                             if (!this.moveItemStackTo(itemstack1, 6, 7, false)) {
                                 return ItemStack.EMPTY;
                             }
@@ -786,7 +995,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
         return itemstack;
     }
-
+*/
 
     private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {

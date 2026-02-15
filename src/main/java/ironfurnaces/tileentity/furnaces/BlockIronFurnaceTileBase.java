@@ -832,6 +832,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                         furnaceTile.split(true, start, size);
                                     }
                                     furnaceTile.factorySmelt(irecipe.orElse(null), slot);
+                                    furnaceTile.autoFactoryIO();
                                     furnaceTile.setChanged();
                                 }
                             }

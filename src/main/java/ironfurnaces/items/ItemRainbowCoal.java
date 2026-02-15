@@ -9,10 +9,11 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import javax.annotation.Nullable;
 
 public class ItemRainbowCoal extends Item {
+    private static final int DURABILITY = 5120;
 
     public ItemRainbowCoal(Properties properties)
     {
-        super(properties);
+        super(properties.durability(DURABILITY));
     }
 
     @Override
@@ -22,12 +23,12 @@ public class ItemRainbowCoal extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return (int) ((int)13 * (1 - (double) stack.getDamageValue() / (double) 5120));
+        return (int) ((int)13 * (1 - (double) stack.getDamageValue() / (double) DURABILITY));
     }
 
     @Override
     public int getBarColor(ItemStack p_150901_) {
-        float f = Math.max(0.0F, ((float)5120 - (float)p_150901_.getDamageValue()) / (float)5120);
+        float f = Math.max(0.0F, ((float)DURABILITY - (float)p_150901_.getDamageValue()) / (float)DURABILITY);
         return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
     }
 
@@ -47,7 +48,7 @@ public class ItemRainbowCoal extends Item {
     public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
         ItemStack stack = new ItemStack(this);
         stack.setDamageValue(this.getDamage(itemStack) + 1);
-        if (stack.getDamageValue() >= 5120)
+        if (stack.getDamageValue() >= DURABILITY)
         {
             stack = ItemStack.EMPTY;
         }

@@ -3,6 +3,7 @@ package ironfurnaces.registration;
 import com.google.common.collect.Lists;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -20,6 +21,7 @@ import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +30,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -40,6 +43,9 @@ import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.common.crafting.ConditionalRecipe;
+import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
+import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -60,7 +66,7 @@ public class LegacyFurnaceBlocks {
                         .define('#', bindForge("ingots/iron"))
                         .define('X', bindC("player_workstations/furnaces"))
                         .unlockedBy("has_iron", RegistrateRecipeProvider.has(Items.IRON_INGOT))
-                        .save(provider, BlockIronFurnace.ID);
+                        .save(provider, provider.safeId(ctx.getEntry()));
 
                 ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                         .pattern("YYY")
@@ -71,7 +77,7 @@ public class LegacyFurnaceBlocks {
                         .define('Y', bindForge("ingots/iron"))
                         .unlockedBy("has_iron_ingot",
                                 RegistrateRecipeProvider.has(Items.IRON_INGOT))
-                        .save(provider, BlockIronFurnace.ID + "2");
+                        .save(provider, IronFurnaces.id(ctx.getName() + "2"));
 
 
             })
@@ -95,7 +101,7 @@ public class LegacyFurnaceBlocks {
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold_ingot",
                                         RegistrateRecipeProvider.has(Items.GOLD_INGOT))
-                                .save(provider, BlockGoldFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
 
                         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
@@ -107,7 +113,7 @@ public class LegacyFurnaceBlocks {
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold_block",
                                         RegistrateRecipeProvider.has(Items.GOLD_BLOCK))
-                                .save(provider, BlockGoldFurnace.ID + "2");
+                                .save(provider, IronFurnaces.id(ctx.getName() + "2"));
 
                     })
                     .tag(ModBlockTags.FURNACE_GOLD, ModBlockTags.C_FURNACE_GOLD)
@@ -131,7 +137,7 @@ public class LegacyFurnaceBlocks {
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond",
                                         RegistrateRecipeProvider.has(Items.DIAMOND))
-                                .save(provider, BlockDiamondFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
                     })
                     .tag(ModBlockTags.FURNACE_DIAMOND, ModBlockTags.C_FURNACE_DIAMOND)
@@ -153,7 +159,7 @@ public class LegacyFurnaceBlocks {
                                 .define('X', bindForge("furnaces/diamond"))
                                 .unlockedBy("has_emerald",
                                         RegistrateRecipeProvider.has(Items.EMERALD))
-                                .save(provider, BlockEmeraldFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
 
                     })
@@ -176,7 +182,7 @@ public class LegacyFurnaceBlocks {
                                 .define('X', Items.FURNACE)
                                 .unlockedBy("has_copper_ingot",
                                         RegistrateRecipeProvider.has(Items.COPPER_INGOT))
-                                .save(provider, BlockCopperFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
                     })
                     .tag(ModBlockTags.FURNACE_COPPER, ModBlockTags.C_FURNACE_COPPER)
                     .item()
@@ -189,29 +195,28 @@ public class LegacyFurnaceBlocks {
 
     public static final BlockEntry<BlockSilverFurnace> SILVER_FURNACE =
             furnace(BlockSilverFurnace.ID, BlockSilverFurnace::new, () -> Blocks.IRON_BLOCK).recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                                .pattern("#G#")
-                                .pattern("GXG")
-                                .pattern("#G#")
-                                .define('#', bindForge("ingots/silver"))
-                                .define('X', bindForge("furnaces/iron"))
-                                .define('G', bindForge("glass"))
-                                .unlockedBy("has_silver_ingot",
-                                        RegistrateRecipeProvider.has(bindForge("ingots/silver")))
-                                .save(provider, BlockSilverFurnace.ID);
+                        TagKey<Item> silver = bindForge("ingots/silver");
+                        whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        .pattern("#G#")
+                        .pattern("GXG")
+                        .pattern("#G#")
+                        .define('#', silver)
+                        .define('X', bindForge("furnaces/iron"))
+                        .define('G', bindForge("glass"))
+                        .unlockedBy("has_silver_ingot",
+                                RegistrateRecipeProvider.has(silver))
+                        .save(x, provider.safeId(ctx.getEntry())), ctx, provider, provider.safeId(ctx.getEntry()), silver);
 
 
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")
-                                .define('#', bindForge("ingots/silver"))
+                                .define('#', silver)
                                 .define('X', bindForge("furnaces/copper"))
                                 .unlockedBy("has_silver_ingot",
-                                        RegistrateRecipeProvider.has(bindForge("ingots/silver")))
-                                .save(provider,
-                                        BlockSilverFurnace.ID + "2");
-
+                                        RegistrateRecipeProvider.has(silver))
+                                .save(x, IronFurnaces.id(ctx.getName() + "2")), ctx, provider, IronFurnaces.id(ctx.getName() + "2"), silver);
 
                     })
                     .tag(ModBlockTags.FURNACE_SILVER, ModBlockTags.C_FURNACE_SILVER)
@@ -235,8 +240,7 @@ public class LegacyFurnaceBlocks {
                                 .define('#', ModItems.RAINBOW_PLATING.get())
                                 .unlockedBy("has_rainbow_core",
                                         RegistrateRecipeProvider.has(ModItems.RAINBOW_CORE.get()))
-                                .save(provider,
-                                        BlockMillionFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
                     })
                     .tag(ModBlockTags.FURNACE_RAINBOW, ModBlockTags.C_FURNACE_RAINBOW)
@@ -285,7 +289,7 @@ public class LegacyFurnaceBlocks {
     public static final BlockEntry<BlockAllthemodiumFurnace> ALLTHEMODIUM_FURNACE =
             furnace(BlockAllthemodiumFurnace.ID, BlockAllthemodiumFurnace::new, () -> Blocks.GOLD_BLOCK)
                     .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("B#B")
                                 .pattern("#X#")
                                 .pattern("B#B")
@@ -294,15 +298,14 @@ public class LegacyFurnaceBlocks {
                                 .define('B', bindForge("storage_blocks/allthemodium"))
                                 .unlockedBy("has_allthemodium_ingot",
                                         RegistrateRecipeProvider.has(bindForge("ingots/allthemodium")))
-                                .save(provider, BlockAllthemodiumFurnace.ID);
-
+                                .save(x, BlockAllthemodiumFurnace.ID), ctx, provider);
 
                     })
                     .tag(ModBlockTags.FURNACE_ALLTHEMODIUM, ModBlockTags.C_FURNACE_ALLTHEMODIUM)
                     .item()
                     .tag(ModItemTags.FURNACE_ALLTHEMODIUM, ModItemTags.C_FURNACE_ALLTHEMODIUM)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.allthemodiumFurnaceSpeed, Config.allthemodiumFurnaceTier, Config.allthemodiumGeneration, BlockAllthemodiumFurnace.ID){
+                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.allthemodiumFurnaceSpeed, Config.allthemodiumFurnaceTier, Config.allthemodiumGeneration, BlockAllthemodiumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.allthemodiumFurnaceSmeltMult.get();
@@ -315,7 +318,7 @@ public class LegacyFurnaceBlocks {
     public static final BlockEntry<BlockVibraniumFurnace> VIBRANIUM_FURNACE =
             furnace(BlockVibraniumFurnace.ID, BlockVibraniumFurnace::new, () -> Blocks.DIAMOND_BLOCK)
                     .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("B#B")
                                 .pattern("#X#")
                                 .pattern("B#B")
@@ -324,15 +327,13 @@ public class LegacyFurnaceBlocks {
                                 .define('B', bindForge("storage_blocks/vibranium"))
                                 .unlockedBy("has_vibranium_ingot",
                                         RegistrateRecipeProvider.has(bindForge("ingots/vibranium")))
-                                .save(provider, BlockVibraniumFurnace.ID);
-
-
+                                .save(x, BlockVibraniumFurnace.ID), ctx, provider);
                     })
                     .tag(ModBlockTags.FURNACE_VIBRANIUM, ModBlockTags.C_FURNACE_VIBRANIUM)
                     .item()
                     .tag(ModItemTags.FURNACE_VIBRANIUM, ModItemTags.C_FURNACE_VIBRANIUM)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.vibraniumFurnaceSpeed, Config.vibraniumFurnaceTier, Config.vibraniumGeneration, BlockVibraniumFurnace.ID){
+                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.vibraniumFurnaceSpeed, Config.vibraniumFurnaceTier, Config.vibraniumGeneration, BlockVibraniumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.vibraniumFurnaceSmeltMult.get();
@@ -345,24 +346,24 @@ public class LegacyFurnaceBlocks {
     public static final BlockEntry<BlockUnobtainiumFurnace> UNOBTAINIUM_FURNACE =
             furnace(BlockUnobtainiumFurnace.ID, BlockUnobtainiumFurnace::new, () -> Blocks.NETHERITE_BLOCK)
                     .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                                .pattern("B#B")
-                                .pattern("#X#")
-                                .pattern("B#B")
-                                .define('#', bindForge("ingots/unobtainium"))
-                                .define('X', bindForge("furnaces/vibranium"))
-                                .define('B', bindForge("storage_blocks/unobtainium"))
-                                .unlockedBy("has_unobtainium_ingot",
-                                        RegistrateRecipeProvider.has(bindForge("ingots/unobtainium")))
-                                .save(provider, BlockUnobtainiumFurnace.ID);
-
-
+                        whenAllthemodium(x -> {
+                            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                                    .pattern("B#B")
+                                    .pattern("#X#")
+                                    .pattern("B#B")
+                                    .define('#', bindForge("ingots/unobtainium"))
+                                    .define('X', bindForge("furnaces/vibranium"))
+                                    .define('B', bindForge("storage_blocks/unobtainium"))
+                                    .unlockedBy("has_unobtainium_ingot",
+                                            RegistrateRecipeProvider.has(bindForge("ingots/unobtainium")))
+                                    .save(x, BlockUnobtainiumFurnace.ID);
+                        }, ctx, provider);
                     })
                     .tag(ModBlockTags.FURNACE_UNOBTAINIUM, ModBlockTags.C_FURNACE_UNOBTAINIUM)
                     .item()
                     .tag(ModItemTags.FURNACE_UNOBTAINIUM, ModItemTags.C_FURNACE_UNOBTAINIUM)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration, BlockUnobtainiumFurnace.ID){
+                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration, BlockUnobtainiumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.unobtainiumFurnaceSmeltMult.get();
@@ -388,7 +389,7 @@ public class LegacyFurnaceBlocks {
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian",
                                         RegistrateRecipeProvider.has(Blocks.OBSIDIAN))
-                                .save(provider, BlockObsidianFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
                         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("#Y#")
@@ -399,7 +400,7 @@ public class LegacyFurnaceBlocks {
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian",
                                         RegistrateRecipeProvider.has(Blocks.OBSIDIAN))
-                                .save(provider, BlockObsidianFurnace.ID + "2");
+                                .save(provider, IronFurnaces.id(ctx.getName() + "2"));
 
                     })
                     .tag(ModBlockTags.FURNACE_OBSIDIAN, ModBlockTags.C_FURNACE_OBSIDIAN)
@@ -431,7 +432,7 @@ public class LegacyFurnaceBlocks {
                                 .define('E', Items.ENDER_EYE)
                                 .unlockedBy("has_diamond_furnace",
                                         RegistrateRecipeProvider.has(Items.DIAMOND))
-                                .save(provider, BlockCrystalFurnace.ID);
+                                .save(provider, provider.safeId(ctx.getEntry()));
 
 
                     })
@@ -461,9 +462,7 @@ public class LegacyFurnaceBlocks {
                                 .define('N', Items.NETHERITE_INGOT)
                                 .unlockedBy("has_obsidian_furnace",
                                         RegistrateRecipeProvider.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE))
-                                .save(provider, BlockNetheriteFurnace.ID);
-
-
+                                .save(provider, provider.safeId(ctx.getEntry()));
                     })
                     .tag(ModBlockTags.FURNACE_NETHERITE, ModBlockTags.C_FURNACE_NETHERITE)
                     .item()
@@ -515,7 +514,7 @@ public class LegacyFurnaceBlocks {
                                     };
                                     ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
                                             .rotationY(yRot);
-                                    if (type == 1){
+                                    if (type == 1) {
                                         builder.modelFile(prov.models()
                                                 .orientableWithBottom(modelName,
                                                         IronFurnaces.id("block/" + prefix + "_side"),
@@ -580,6 +579,20 @@ public class LegacyFurnaceBlocks {
 
     }
 
+    private static <E extends Block> void  whenAllthemodium(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<Block, E> ctx, RegistrateRecipeProvider provider) {
+        consumer.accept(x -> ConditionalRecipe.builder()
+                .addCondition(new ModLoadedCondition("allthemodium"))
+                .addRecipe(x).build(provider, provider.safeId(ctx.getEntry())));
+    }
+
+    @SafeVarargs
+    private static <E extends Block> void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<Block, E> ctx, RegistrateRecipeProvider provider, ResourceLocation id, TagKey<Item>... tags) {
+        ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
+        for (TagKey<Item> itemTagKey : tags) {
+            builder.addCondition(new TagEmptyCondition(itemTagKey.location()));
+        }
+        consumer.accept(x -> builder.addRecipe(x).build(provider, id));
+    }
 
     private static TagKey<Item> bindC(String id) {
         return ModBlockTags.of(Registries.ITEM, new ResourceLocation("c", id));
