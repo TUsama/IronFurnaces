@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 public class BlockMillionFurnace extends BlockIronFurnaceBase {
 
     public static final String ID = "million_furnace";
-    public static final BooleanProperty RAINBOW_GENERATING = BooleanProperty.create("rainbow");
+    private static final BooleanProperty RAINBOW_GENERATING = BooleanProperty.create("rainbow");
 
 
     public BlockMillionFurnace(Properties properties) {
@@ -66,6 +66,15 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
         }
         super.animateTick(state, world, pos, rand);
 
+    }
+
+    public static boolean isGenerating(BlockState state){
+        return state.getValue(RAINBOW_GENERATING);
+    }
+
+    public static BlockState modifyGenerating(BlockState state, boolean b){
+        state.setValue(RAINBOW_GENERATING, b);
+        return state;
     }
 
     @Override

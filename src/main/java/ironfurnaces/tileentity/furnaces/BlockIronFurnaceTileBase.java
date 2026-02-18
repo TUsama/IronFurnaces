@@ -690,8 +690,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         ) {
                             furnaceTile.rainbowGenerating = flag3;
                             BlockState state = level.getBlockState(worldPosition);
-                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != furnaceTile.rainbowGenerating) {
-                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, furnaceTile.rainbowGenerating), 3);
+                            if (BlockMillionFurnace.isGenerating(state) != furnaceTile.rainbowGenerating) {
+                                level.setBlock(worldPosition, BlockMillionFurnace.modifyGenerating(state, furnaceTile.rainbowGenerating), 3);
                             }
                             furnaceTile.rainbowEnergyOut();
                         }
@@ -699,8 +699,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         {
                             furnaceTile.rainbowGenerating = false;
                             BlockState state = level.getBlockState(worldPosition);
-                            if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING) != furnaceTile.rainbowGenerating) {
-                                level.setBlock(worldPosition, state.setValue(BlockMillionFurnace.RAINBOW_GENERATING, furnaceTile.rainbowGenerating), 3);
+                            if (BlockMillionFurnace.isGenerating(state) != furnaceTile.rainbowGenerating) {
+                                level.setBlock(worldPosition, BlockMillionFurnace.modifyGenerating(state, furnaceTile.rainbowGenerating), 3);
                             }
                         }
                     }

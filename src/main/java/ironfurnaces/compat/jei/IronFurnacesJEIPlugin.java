@@ -34,10 +34,6 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 		return new ResourceLocation(IronFurnaces.MOD_ID, "plugin_" + IronFurnaces.MOD_ID);
 	}
 
-	@Override
-	public void registerAdvanced(IAdvancedRegistration registration) {
-
-	}
 
 
     @Override

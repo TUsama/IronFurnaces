@@ -3,9 +3,13 @@ fix a bug that high max stack size will cause the furnace run out of memory
 add jei bookmark compat
 fix bugs that follow to Iron Furnaces 4.3.2
 fix a bug that rainbow coal will be duped in the repair recipe
-rework, breaking changes below(only for dev):
+the furnace speed now will be correctly synced from server when player join the world.
+
+rework many things, breaking changes below(only for dev):
 1. remove item tag forge:furnaces, all furnaces provided by this mod use c:player_workstations/furnaces, add vanilla furnace into the c:player_workstations/furnaces
 2. now furnace support both ItemStack and Tag, you might need to check out the new datapack format if you've modified the generator_blasting craft. Also add a bunch of new tag-support recipes.
+
+for players if you meet anything different with the original mod pls consider open an issue on GitHub
 
 4.1.6
 +Fixed getBurnTime now uses ForgeHooks.getBurnTime

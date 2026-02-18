@@ -13,6 +13,8 @@ object ForgeDeps {
             modstitchLegacyModRuntimeOnly ("curse.maven:cloth-config-348521:5729105")
             modstitchLegacyModRuntimeOnly ("curse.maven:crafttweaker-239197:5880672")
 
+            modstitchLegacyModRuntimeOnly("curse.maven:thirst-was-taken-679270:6660408")
+
             modstitchLegacyModImplementation ("com.tterrag.registrate:Registrate:MC1.20-1.3.11")
             modstitchJiJ ("com.tterrag.registrate:Registrate:MC1.20-1.3.11")
 
