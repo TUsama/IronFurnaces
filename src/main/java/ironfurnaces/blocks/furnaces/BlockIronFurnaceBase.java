@@ -2,6 +2,7 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.client.data.FurnaceWorkSpeedDataStorage;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
 import ironfurnaces.items.ItemXmas;
@@ -11,6 +12,7 @@ import ironfurnaces.items.augments.ItemAugmentRed;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.util.DirectionUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,6 +30,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -78,6 +81,15 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return (BlockState) this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @org.jetbrains.annotations.Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        int speed = FurnaceWorkSpeedDataStorage.getInstance().getSpeed(this);
+        if (speed != 0){
+            tooltip.add(translatable("ironfurnaces.block.furnace.work_speed", Component.literal("" + speed).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
+        }
     }
 
     @Override
@@ -455,5 +467,6 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         return ID;
     }
 
+    public abstract String getId();
 
 }

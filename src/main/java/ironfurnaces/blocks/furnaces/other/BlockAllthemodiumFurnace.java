@@ -32,6 +32,11 @@ public class BlockAllthemodiumFurnace extends BlockIronFurnaceBase {
         return "furnace_allthemodium";
     }
 
+    @Override
+    public String getId() {
+        return ID;
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {

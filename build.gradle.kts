@@ -128,17 +128,17 @@ modstitch {
                 if(minecraftVersionSplit[2].toInt() >= 4 ){
                     register("clientData") {
                         clientData()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
 
                     register("serverData") {
                         serverData()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
                 } else {
                     register("data") {
                         data()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
                 }
 
@@ -194,6 +194,7 @@ stonecutter {
 
 }
 
+sourceSets["main"].resources.srcDir("../../src/generated/resources")
 
 dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)
@@ -287,8 +288,6 @@ dependencies {
 
 
 }
-
-println("path: " + project.extensions.getByType<SourceSetContainer>()["main"].resources.asPath)
 
 publishMods {
 

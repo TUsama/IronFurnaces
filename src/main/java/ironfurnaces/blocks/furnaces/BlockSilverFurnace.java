@@ -22,6 +22,11 @@ public class BlockSilverFurnace extends BlockIronFurnaceBase {
     }
 
 
+    @Override
+    public String getId() {
+        return ID;
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {

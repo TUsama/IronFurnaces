@@ -38,7 +38,10 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(TYPE, 0).setValue(JOVIAL, 0).setValue(WATERLOGGED, Boolean.valueOf(false)));
     }
-
+    @Override
+    public String getId() {
+        return ID;
+    }
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {

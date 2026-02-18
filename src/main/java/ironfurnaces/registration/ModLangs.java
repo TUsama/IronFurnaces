@@ -24,6 +24,8 @@ public class ModLangs {
     public static final Component TIP_SETTING_APPLIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_applied", "Settings Applied");
     public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");                public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "faced_direction", "Faced Direction: %s");
 
+    public static final Component WORK_SPEED = REGISTRATE.addRawLang("ironfurnaces.block.furnace." + "work_speed", "Base Cook Time: %s tick/per item");
+
     public static final Component UPGRADE_RIGHT_CLICK =
             REGISTRATE.addRawLang("tooltip.ironfurnaces.upgrade_right_click", "Sneak & right-click to upgrade");
 

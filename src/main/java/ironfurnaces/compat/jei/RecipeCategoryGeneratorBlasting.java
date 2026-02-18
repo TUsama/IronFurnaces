@@ -3,7 +3,7 @@ package ironfurnaces.compat.jei;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.registration.ModItems;
-import ironfurnaces.registration.ModRecipeTypes;
+import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -51,7 +51,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public RecipeType<GeneratorRecipe> getRecipeType() {
-        return ModRecipeTypes.GENERATOR_RECIPE.asJEIRecipeType().get();
+        return ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get();
     }
 
     @Override
@@ -72,7 +72,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneratorRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(INPUT, 1, 18)
-                .addIngredients(Ingredient.of(recipe.getIngredient().getItem()));
+                .addIngredients(recipe.getIngredient());
     }
 
     @Override

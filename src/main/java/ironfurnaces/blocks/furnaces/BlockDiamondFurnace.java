@@ -26,7 +26,10 @@ public class BlockDiamondFurnace extends BlockIronFurnaceBase {
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
         return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.DIAMOND_FURNACE), p_153215_, p_153216_, Config.diamondFurnaceSpeed, Config.diamondFurnaceTier, Config.diamondFurnaceGeneration,BlockDiamondFurnace.ID);
     }
-
+    @Override
+    public String getId() {
+        return ID;
+    }
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {

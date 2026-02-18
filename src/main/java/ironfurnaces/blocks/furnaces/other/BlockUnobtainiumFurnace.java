@@ -23,6 +23,11 @@ public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
     }
 
 
+    @Override
+    public String getId() {
+        return ID;
+    }
+
 
     @Nullable
     @Override

@@ -1,51 +1,42 @@
 package ironfurnaces.recipes;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import ironfurnaces.registration.ModRecipeTypes;
+import ironfurnaces.registration.ModCustomRecipe;
+import lombok.Getter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class GeneratorRecipe implements Recipe<Container> {
 
-    private final ResourceLocation recipeId;
+    private ResourceLocation recipeId;
+    @Getter
     private int energy;
-    private ItemStack stack;
+    @Getter
+    private Ingredient ingredient;
 
-    public GeneratorRecipe(ResourceLocation recipeId, int energy, ItemStack stack)
+    public GeneratorRecipe(ResourceLocation recipeId, int energy, Ingredient stack)
     {
         this.recipeId = recipeId;
         this.energy = energy;
-        this.stack = stack;
+        this.ingredient = stack;
     }
 
     @Override
     public boolean isIncomplete() {
-        return stack.isEmpty();
+        return ingredient.isEmpty();
     }
 
-    public ItemStack getIngredient()
-    {
-        return stack;
-    }
-
-    public int getEnergy()
-    {
-        return energy;
-    }
-
-    public static int getTotalCount(Container inventory, ItemStack input) {
+    public static int getTotalCount(Container inventory, Ingredient input) {
         ItemStack stack = inventory.getItem(0);
-        if (!stack.isEmpty() && stack.getItem() == input.getItem()) {
+        if (!stack.isEmpty() && input.test(stack)) {
             return stack.getCount();
         }
         return 0;
@@ -54,8 +45,8 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     @Override
     public boolean matches(Container inv, Level level) {
-        int required = stack.getCount();
-        int found = getTotalCount(inv, stack);
+        int required = ingredient.getItems().length;
+        int found = getTotalCount(inv, ingredient);
         return found >= required;
     }
 
@@ -70,7 +61,7 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     @Override
     public ItemStack getResultItem(RegistryAccess p_267052_) {
-        return stack;
+        return ItemStack.EMPTY;
     }
     @Override
     public boolean isSpecial() {
@@ -84,34 +75,38 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.GENERATOR_RECIPE.asSerializer();
+        return ModCustomRecipe.GENERATOR_RECIPE.asSerializer();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.GENERATOR_RECIPE.get();
+        return ModCustomRecipe.GENERATOR_RECIPE.get();
     }
 
     public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
         @Override
         public GeneratorRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             int energy = GsonHelper.getAsInt(json, "energy", 10000);
-            ItemStack input = ShapedRecipe.itemStackFromJson(json);
-            GeneratorRecipe recipe = new GeneratorRecipe(recipeId, energy, input);
-            return recipe;
+            JsonElement ingredient = json.get("ingredient");
+            if (ingredient != null){
+                Ingredient ingredient1 = Ingredient.fromJson(ingredient);
+                GeneratorRecipe recipe = new GeneratorRecipe(recipeId, energy, ingredient1);
+                return recipe;
+            }
+            throw new RuntimeException("invalid Generator recipe: " + recipeId);
         }
 
         @Nullable
         @Override
         public GeneratorRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-            GeneratorRecipe recipe = new GeneratorRecipe(recipeId, buffer.readVarInt(), buffer.readItem());
+            GeneratorRecipe recipe = new GeneratorRecipe(recipeId, buffer.readVarInt(), Ingredient.fromNetwork(buffer));
             return recipe;
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, GeneratorRecipe recipe) {
             buffer.writeVarInt(recipe.energy);
-            buffer.writeItem(recipe.stack);
+            recipe.ingredient.toNetwork(buffer);
         }
     }
 }

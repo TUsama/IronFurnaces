@@ -21,6 +21,11 @@ public class BlockCopperFurnace extends BlockIronFurnaceBase {
         super(properties);
     }
 
+    @Override
+    public String getId() {
+        return ID;
+    }
+
 
     @Nullable
     @Override

@@ -3,7 +3,7 @@ package ironfurnaces.compat.jei;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.registration.ModItems;
-import ironfurnaces.registration.ModRecipeTypes;
+import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -51,7 +51,7 @@ public class RecipeCategoryGeneratorSmoking implements IRecipeCategory<SimpleGen
 
     @Override
     public RecipeType<SimpleGeneratorRecipe> getRecipeType() {
-        return ModRecipeTypes.GENERATOR_SMOKING;
+        return ModCustomRecipe.GENERATOR_SMOKING;
     }
 
     @Override

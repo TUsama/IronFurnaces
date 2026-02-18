@@ -9,6 +9,7 @@
   "client": [
   ],
   "mixins": [
-    "DummyMixin"
+    "AdvancementBuilderMixin",
+    "FixInfiniteRainbowCoalMixin"
   ]
 }

@@ -26,9 +26,6 @@ public class ModSetup {
     public static final Map<Holder.Reference<Item>, Boolean> HAS_RECIPE_SMOKING = new HashMap<>();
     public static final Map<Holder.Reference<Item>, Boolean> HAS_RECIPE_BLASTING = new HashMap<>();
 
-    public static void init(final FMLCommonSetupEvent event) {
-        CraftingHelper.register(RainbowEnabledCondition.Serializer.INSTANCE);
-    }
 
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event)

@@ -1,18 +1,27 @@
 package ironfurnaces.registration;
 
+import com.tterrag.registrate.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Items;
+
+import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModItemTags {
-    public static final TagKey<Item> PLAYER_WORKSTATIONS_CRAFTING_TABLES = bindC(
-            "player_workstations/furnaces"
-    );
+    public static final TagKey<Item> PLAYER_WORKSTATIONS_CRAFTING_TABLES = Util.make(() -> {
+        TagKey<Item> itemTagKey = bindC(
+                "player_workstations/furnaces"
+        );
+        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, x -> x.addTag(itemTagKey).add(Items.FURNACE));
+        return itemTagKey;
+    });
+
     public static final TagKey<Item> FURNACE_ALLTHEMODIUM = bindForge(
             "furnaces/allthemodium"
     );
@@ -93,7 +102,18 @@ public class ModItemTags {
             "furnaces/vibranium"
     );
 
+    public static final TagKey<Item> NETHERITE_UPGRADE = Util.make(() -> {
+        TagKey<Item> itemTagKey = TagKey.create(Registries.ITEM, IronFurnaces.id("netherite_upgrade_crafting"));
+        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
+            registrateItemTagsProvider.addTag(itemTagKey)
+                    .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP);
+        });
+        return itemTagKey;
+    });
 
+
+
+    public static final TagKey<Item> SILVER = bindForge("ingots/silver");
 
     protected static <T> TagKey<T> of(ResourceKey<? extends Registry<T>> registry, ResourceLocation location){
         return TagKey.create(registry, location);

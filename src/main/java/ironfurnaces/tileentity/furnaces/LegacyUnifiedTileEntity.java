@@ -1,5 +1,6 @@
 package ironfurnaces.tileentity.furnaces;
 
+import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
 import ironfurnaces.registration.ModMenus;
 import lombok.Getter;

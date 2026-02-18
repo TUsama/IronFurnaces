@@ -13,7 +13,7 @@ import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.registration.ModItems;
-import ironfurnaces.registration.ModRecipeTypes;
+import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.TileEntityInventory;
 import ironfurnaces.util.DirectionUtil;
@@ -242,7 +242,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     protected Optional<GeneratorRecipe> getRecipeGeneratorBlasting(ItemStack item) {
         return (item.getItem() instanceof AirItem)
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(ModRecipeTypes.GENERATOR_RECIPE.get(), new SimpleContainer(item), this.level).orElse(null));
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(ModCustomRecipe.GENERATOR_RECIPE.get(), new SimpleContainer(item), this.level).orElse(null));
     }
 
     protected void checkRecipeType() {
@@ -339,7 +339,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     protected int getFactorySpeed(int slot) {
         int regular = getCookTimeConfig().get();
-        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(slot - FACTORY_INPUT[0]));
+        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(slot));
         if (recipe.isPresent()) {
             AbstractCookingRecipe abstractCookingRecipe = recipe.get();
             int recipe_cooktime = abstractCookingRecipe.getCookingTime();
@@ -807,6 +807,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     }
                     if (!furnaceTile.getItem(slot).isEmpty()) {
                         Optional<AbstractCookingRecipe> irecipe = furnaceTile.getRecipeFactory(slot, furnaceTile.getItem(slot));
+
                         boolean valid = furnaceTile.canFactorySmelt(irecipe.orElse(null), slot);
                         if (valid) {
                             int energyRecipe = irecipe.get().getCookingTime() * 20;
@@ -831,6 +832,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     if (furnaceTile.isAutoSplit()) {
                                         furnaceTile.split(true, start, size);
                                     }
+
                                     furnaceTile.factorySmelt(irecipe.orElse(null), slot);
                                     furnaceTile.autoFactoryIO();
                                     furnaceTile.setChanged();
@@ -1610,7 +1612,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
     protected boolean canFactorySmelt(@Nullable Recipe<?> recipe, int slot) {
-        return canSmeltInternal(recipe, 0, OUTPUT, false);
+        return canSmeltInternal(recipe, slot, OUTPUT, false);
     }
 
     protected boolean canSmeltInternal(

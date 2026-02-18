@@ -2,13 +2,14 @@ package ironfurnaces.util;
 
 import com.google.gson.JsonObject;
 import ironfurnaces.Config;
+import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
 public class RainbowEnabledCondition implements ICondition
 {
-    private static final ResourceLocation NAME = new ResourceLocation("ironfurnaces", "rainbow");
+    private static final ResourceLocation NAME = IronFurnaces.id("rainbow");
     public RainbowEnabledCondition()
     {
     }

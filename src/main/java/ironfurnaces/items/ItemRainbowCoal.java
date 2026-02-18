@@ -13,7 +13,7 @@ public class ItemRainbowCoal extends Item {
 
     public ItemRainbowCoal(Properties properties)
     {
-        super(properties.durability(DURABILITY));
+        super(properties.durability(5120));
     }
 
     @Override
@@ -23,12 +23,12 @@ public class ItemRainbowCoal extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return (int) ((int)13 * (1 - (double) stack.getDamageValue() / (double) DURABILITY));
+        return (int) ((int)13 * (1 - (double) stack.getDamageValue() / (double) getDurability()));
     }
 
     @Override
     public int getBarColor(ItemStack p_150901_) {
-        float f = Math.max(0.0F, ((float)DURABILITY - (float)p_150901_.getDamageValue()) / (float)DURABILITY);
+        float f = Math.max(0.0F, ((float)getDurability() - (float)p_150901_.getDamageValue()) / (float)getDurability());
         return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
     }
 
@@ -48,11 +48,15 @@ public class ItemRainbowCoal extends Item {
     public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
         ItemStack stack = new ItemStack(this);
         stack.setDamageValue(this.getDamage(itemStack) + 1);
-        if (stack.getDamageValue() >= DURABILITY)
+        if (stack.getDamageValue() >= getDurability())
         {
             stack = ItemStack.EMPTY;
         }
         return stack;
+    }
+
+    private int getDurability(){
+        return 5120;
     }
 
     @Override

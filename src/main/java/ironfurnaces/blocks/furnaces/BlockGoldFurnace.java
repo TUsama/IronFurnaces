@@ -27,6 +27,11 @@ public class BlockGoldFurnace extends BlockIronFurnaceBase {
         return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.GOLD_FURNACE), p_153215_, p_153216_, Config.goldFurnaceSpeed, Config.goldFurnaceSpeed, Config.goldFurnaceGeneration,BlockGoldFurnace.ID);
     }
 
+    @Override
+    public String getId() {
+        return ID;
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
