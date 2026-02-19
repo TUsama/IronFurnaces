@@ -15,6 +15,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+//? forge {
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -22,14 +23,22 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
+//?}
+
+//? if neoforge {
+/*import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.common.ForgeConfigSpec;
+*///?}
 
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.UUID;
-
+//? forge
 @Mod.EventBusSubscriber
+//? neoforge
+//@EventBusSubscriber(modid = IronFurnaces.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class Config {
 
 
@@ -148,7 +157,6 @@ public class Config {
 
 
         CLIENT_BUILDER.comment("Misc").push(CATEGORY_MISC);
-
 
 
         enableRainbowContent = CLIENT_BUILDER
@@ -386,7 +394,7 @@ public class Config {
                 .define("check_updates.updates", true);
 
     }
-
+    //? forge {
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
         IronFurnaces.LOGGER.debug("Loading config file {}", path);
 
@@ -402,15 +410,6 @@ public class Config {
         spec.setConfig(configData);
     }
 
-    @SubscribeEvent
-    public static void onLoad(final ModConfigEvent.Loading configEvent) {
-
-    }
-
-    @SubscribeEvent
-    public static void onReload(final ModConfigEvent.Reloading configEvent) {
-
-    }
 
     @SubscribeEvent
     public static void onWorldLoad(final LevelEvent.Load event) {
@@ -423,21 +422,17 @@ public class Config {
     @SubscribeEvent
     public static void player(final TickEvent.PlayerTickEvent event) {
 
-        if (Config.disableWebContent.get())
-        {
+        if (Config.disableWebContent.get()) {
             return;
         }
 
-        if (!run)
-        {
+        if (!run) {
             return;
         }
         if (!event.player.level().isClientSide) {
-            if (event.player.getServer().getAdvancements() != null)
-            {
+            if (event.player.getServer().getAdvancements() != null) {
                 Advancement adv = event.player.getServer().getAdvancements().getAdvancement(new ResourceLocation(IronFurnaces.MOD_ID, "coal"));
-                if (adv != null)
-                {
+                if (adv != null) {
                     if (!((ServerPlayer) event.player).getAdvancements().getOrStartProgress(adv).isDone()) {
                         Player player = getPlayer(event.player.level());
                         if (player != null && player == event.player) {
@@ -449,14 +444,12 @@ public class Config {
             }
 
 
-
-
         }
         run = false;
 
 
     }
-
+//?}
 
     @Nullable
     public static Player getPlayer(Level world) {

@@ -5,7 +5,7 @@ import ironfurnaces.registration.LegacyFurnaceBlocks;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -32,7 +32,7 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
         super(properties);
     }
     public BlockEntity newBlockEntity(BlockPos p_153277_, BlockState p_153278_) {
-        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.MILLION_FURNACE), p_153277_, p_153278_, Config.millionFurnaceSpeed, Config.millionFurnaceTier, Config.millionFurnaceGeneration,BlockMillionFurnace.ID);    }
+        return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.MILLION_FURNACE), p_153277_, p_153278_, Config.millionFurnaceSpeed, Config.millionFurnaceTier, Config.millionFurnaceGeneration,BlockMillionFurnace.ID);    }
 
     @Override
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {

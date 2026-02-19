@@ -4,7 +4,7 @@ import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
 import ironfurnaces.registration.ModBlocks;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,7 +32,7 @@ public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE), p_153215_, p_153216_, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration,BlockUnobtainiumFurnace.ID);       }
+        return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE), p_153215_, p_153216_, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration,BlockUnobtainiumFurnace.ID);       }
 
     @Override
     public String getBackgroundID() {

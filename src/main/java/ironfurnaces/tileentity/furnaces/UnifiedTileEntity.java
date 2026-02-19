@@ -1,6 +1,5 @@
 package ironfurnaces.tileentity.furnaces;
 
-import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
 import ironfurnaces.registration.ModMenus;
 import lombok.Getter;
@@ -13,14 +12,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class LegacyUnifiedTileEntity extends BlockIronFurnaceTileBase{
+public class UnifiedTileEntity extends BlockIronFurnaceTileBase{
     private ForgeConfigSpec.IntValue furnaceSpeed;
     @Getter
     private String identifier;
     private ForgeConfigSpec.IntValue tier;
     private ForgeConfigSpec.IntValue generationPerTick;
 
-    public LegacyUnifiedTileEntity(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state, ForgeConfigSpec.IntValue furnaceSpeed, ForgeConfigSpec.IntValue tier, ForgeConfigSpec.IntValue generationPerTick, String identifier) {
+    public UnifiedTileEntity(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state, ForgeConfigSpec.IntValue furnaceSpeed, ForgeConfigSpec.IntValue tier, ForgeConfigSpec.IntValue generationPerTick, String identifier) {
         super(tileentitytypeIn, pos, state);
         this.furnaceSpeed = furnaceSpeed;
         this.identifier = identifier;
@@ -43,7 +42,7 @@ public class LegacyUnifiedTileEntity extends BlockIronFurnaceTileBase{
     }
 
     public static boolean isRainbow(BlockEntity blockEntity){
-        return blockEntity instanceof LegacyUnifiedTileEntity && ((LegacyUnifiedTileEntity) blockEntity).isRainbowFurnace();
+        return blockEntity instanceof UnifiedTileEntity && ((UnifiedTileEntity) blockEntity).isRainbowFurnace();
     }
 
     @Override

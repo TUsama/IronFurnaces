@@ -3,7 +3,7 @@ package ironfurnaces.blocks.furnaces;
 import ironfurnaces.Config;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
 import ironfurnaces.registration.ModBlocks;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,7 +24,7 @@ public class BlockDiamondFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.DIAMOND_FURNACE), p_153215_, p_153216_, Config.diamondFurnaceSpeed, Config.diamondFurnaceTier, Config.diamondFurnaceGeneration,BlockDiamondFurnace.ID);
+        return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.DIAMOND_FURNACE), p_153215_, p_153216_, Config.diamondFurnaceSpeed, Config.diamondFurnaceTier, Config.diamondFurnaceGeneration,BlockDiamondFurnace.ID);
     }
     @Override
     public String getId() {

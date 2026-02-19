@@ -1,13 +1,13 @@
 package ironfurnaces.container.furnaces;
 
 import ironfurnaces.container.slots.*;
-import ironfurnaces.energy.FEnergyStorage;
+import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.ItemAugmentBlasting;
 import ironfurnaces.items.augments.ItemAugmentSmoking;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import ironfurnaces.util.container.FactoryDataSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -41,7 +40,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
         this.playerEntity = player;
         this.playerInventory = new InvWrapper(playerInventory);
         this.world = playerInventory.player.level();
-        this.te = ((LegacyUnifiedTileEntity) world.getBlockEntity(pos));
+        this.te = ((UnifiedTileEntity) world.getBlockEntity(pos));
 
         //FURNACE
         this.addSlot(new SlotIronFurnaceInput(te, 0, 56, 17));

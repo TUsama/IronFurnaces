@@ -1,5 +1,6 @@
 package ironfurnaces.registrate;
 
+import com.clefal.nirvana_lib.utils.ModUtils;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.AbstractBuilder;
 import com.tterrag.registrate.builders.BuilderCallback;
@@ -28,7 +29,9 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
     }
 
     public CustomRecipeBuilder<T, P> jei(Class<T> recipeClass) {
-        this.jeiRecipeTypeClass = recipeClass;
+        if (ModUtils.isModLoaded("jei")){
+            this.jeiRecipeTypeClass = recipeClass;
+        }
         return this;
     }
 

@@ -31,7 +31,7 @@ public class FixInfiniteRainbowCoalMixin {
             cancellable = true
     )
 
-    private <C extends Container, T extends Recipe<C>> void fix(RecipeType<T> recipeType, C inventory, Level level, CallbackInfoReturnable<NonNullList<ItemStack>> cir, Optional optional) {
+    private <C extends Container, T extends Recipe<C>> void ironfurnace$fixInfiniteCoal(RecipeType<T> recipeType, C inventory, Level level, CallbackInfoReturnable<NonNullList<ItemStack>> cir, Optional optional) {
         if (optional.isPresent() && optional.get() instanceof RepairItemRecipe){
             List<ItemStack> list = Lists.newArrayList();
             int containerSize = inventory.getContainerSize();

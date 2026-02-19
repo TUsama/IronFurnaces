@@ -1,7 +1,7 @@
 package ironfurnaces.container;
 
 import ironfurnaces.container.slots.SlotHeater;
-import ironfurnaces.energy.FEnergyStorage;
+import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;

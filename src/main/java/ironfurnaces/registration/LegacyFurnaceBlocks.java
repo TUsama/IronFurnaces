@@ -17,8 +17,7 @@ import ironfurnaces.blocks.furnaces.other.BlockVibraniumFurnace;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.LangUtils;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
-import lombok.experimental.FieldNameConstants;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -31,7 +30,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -87,7 +85,7 @@ public class LegacyFurnaceBlocks {
             .item()
             .tag(ModItemTags.FURNACE_IRON, ModItemTags.C_FURNACE_IRON, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
             .build()
-            .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.ironFurnaceSpeed, Config.ironFurnaceTier, Config.ironFurnaceGeneration, BlockIronFurnace.ID))
+            .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.ironFurnaceSpeed, Config.ironFurnaceTier, Config.ironFurnaceGeneration, BlockIronFurnace.ID))
             .build()
             .register();
 
@@ -122,7 +120,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_GOLD, ModItemTags.C_FURNACE_GOLD, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.goldFurnaceSpeed, Config.goldFurnaceTier, Config.goldFurnaceGeneration, BlockGoldFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.goldFurnaceSpeed, Config.goldFurnaceTier, Config.goldFurnaceGeneration, BlockGoldFurnace.ID))
                     .build()
                     .register();
 
@@ -146,7 +144,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_DIAMOND, ModItemTags.C_FURNACE_DIAMOND, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.diamondFurnaceSpeed, Config.diamondFurnaceTier, Config.diamondFurnaceGeneration, BlockDiamondFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.diamondFurnaceSpeed, Config.diamondFurnaceTier, Config.diamondFurnaceGeneration, BlockDiamondFurnace.ID))
                     .build()
                     .register();
 
@@ -169,7 +167,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_EMERALD, ModItemTags.C_FURNACE_EMERALD, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.emeraldFurnaceSpeed, Config.emeraldFurnaceTier, Config.emeraldFurnaceGeneration, BlockEmeraldFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.emeraldFurnaceSpeed, Config.emeraldFurnaceTier, Config.emeraldFurnaceGeneration, BlockEmeraldFurnace.ID))
                     .build()
                     .register();
 
@@ -190,7 +188,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_COPPER, ModItemTags.C_FURNACE_COPPER, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.copperFurnaceSpeed, Config.copperFurnaceTier, Config.copperFurnaceGeneration, BlockCopperFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.copperFurnaceSpeed, Config.copperFurnaceTier, Config.copperFurnaceGeneration, BlockCopperFurnace.ID))
                     .build()
                     .register();
 
@@ -225,7 +223,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_SILVER, ModItemTags.C_FURNACE_SILVER, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.silverFurnaceSpeed, Config.silverFurnaceTier, Config.silverFurnaceGeneration, BlockSilverFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.silverFurnaceSpeed, Config.silverFurnaceTier, Config.silverFurnaceGeneration, BlockSilverFurnace.ID))
                     .build()
                     .register();
 
@@ -249,7 +247,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_RAINBOW, ModItemTags.C_FURNACE_RAINBOW, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.millionFurnaceSpeed, Config.millionFurnaceTier, Config.millionFurnaceGeneration, BlockMillionFurnace.ID) {
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.millionFurnaceSpeed, Config.millionFurnaceTier, Config.millionFurnaceGeneration, BlockMillionFurnace.ID) {
                                 public List<BlockIronFurnaceTileBase> furnaces = Lists.newArrayList();
                                 public List<BlockPos> furnaces_to_load = Lists.newArrayList();
 
@@ -307,7 +305,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_ALLTHEMODIUM, ModItemTags.C_FURNACE_ALLTHEMODIUM, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.allthemodiumFurnaceSpeed, Config.allthemodiumFurnaceTier, Config.allthemodiumGeneration, BlockAllthemodiumFurnace.ID) {
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.allthemodiumFurnaceSpeed, Config.allthemodiumFurnaceTier, Config.allthemodiumGeneration, BlockAllthemodiumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.allthemodiumFurnaceSmeltMult.get();
@@ -335,7 +333,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_VIBRANIUM, ModItemTags.C_FURNACE_VIBRANIUM, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.vibraniumFurnaceSpeed, Config.vibraniumFurnaceTier, Config.vibraniumGeneration, BlockVibraniumFurnace.ID) {
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.vibraniumFurnaceSpeed, Config.vibraniumFurnaceTier, Config.vibraniumGeneration, BlockVibraniumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.vibraniumFurnaceSmeltMult.get();
@@ -365,7 +363,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_UNOBTAINIUM, ModItemTags.C_FURNACE_UNOBTAINIUM, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration, BlockUnobtainiumFurnace.ID) {
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.unobtainiumFurnaceSpeed, Config.unobtainiumFurnaceTier, Config.unobtainiumGeneration, BlockUnobtainiumFurnace.ID) {
                         @Override
                         public int getMaxSmeltItemNumberOnSingleOp() {
                             return Config.unobtainiumFurnaceSmeltMult.get();
@@ -409,7 +407,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_OBSIDIAN, ModItemTags.C_FURNACE_OBSIDIAN, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.obsidianFurnaceSpeed, Config.obsidianFurnaceTier, Config.obsidianFurnaceGeneration, BlockObsidianFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.obsidianFurnaceSpeed, Config.obsidianFurnaceTier, Config.obsidianFurnaceGeneration, BlockObsidianFurnace.ID))
                     .build()
                     .register();
 
@@ -442,7 +440,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_CRYSTAL, ModItemTags.C_FURNACE_CRYSTAL, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.crystalFurnaceSpeed, Config.crystalFurnaceTier, Config.crystalFurnaceGeneration, BlockCrystalFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.crystalFurnaceSpeed, Config.crystalFurnaceTier, Config.crystalFurnaceGeneration, BlockCrystalFurnace.ID))
                     .build()
                     .register();
 
@@ -470,7 +468,7 @@ public class LegacyFurnaceBlocks {
                     .item()
                     .tag(ModItemTags.FURNACE_NETHERITE, ModItemTags.C_FURNACE_NETHERITE, ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
                     .build()
-                    .blockEntity((type, pos, state) -> new LegacyUnifiedTileEntity(type, pos, state, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID))
+                    .blockEntity((type, pos, state) -> new UnifiedTileEntity(type, pos, state, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID))
                     .build()
                     .register();
 

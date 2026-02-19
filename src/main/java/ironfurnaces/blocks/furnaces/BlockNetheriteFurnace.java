@@ -5,7 +5,7 @@ import ironfurnaces.registration.LegacyFurnaceBlocks;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -90,5 +90,5 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-        return new LegacyUnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE), p_153215_, p_153216_, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID);    }
+        return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE), p_153215_, p_153216_, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID);    }
 }

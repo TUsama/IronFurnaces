@@ -2,6 +2,7 @@
   "package": "ironfurnaces.mixin",
   "required": true,
   "minVersion": "0.8",
+  "refmap": "ironfurnaces.refmap.json",
   "injectors": {
     "defaultRequire": 1
   },

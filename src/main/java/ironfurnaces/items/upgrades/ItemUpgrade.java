@@ -1,6 +1,6 @@
 package ironfurnaces.items.upgrades;
 
-import ironfurnaces.energy.FEnergyStorage;
+import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.util.FurnaceSettings;

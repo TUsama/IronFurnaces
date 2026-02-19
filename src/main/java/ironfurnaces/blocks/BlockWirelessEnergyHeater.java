@@ -1,5 +1,6 @@
 package ironfurnaces.blocks;
 
+import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
@@ -22,9 +23,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
+//? forge {
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkHooks;
-
+//?}
 import javax.annotation.Nullable;
 
 public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
@@ -63,23 +65,29 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
         if (!world.isClientSide) {
             BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
             ItemStack stack = new ItemStack(ModBlocks.HEATER.get());
-            if (te.hasCustomName()) {
-                stack.setHoverName(te.getDisplayName());
-            }
-            if (te.getEnergy() > 0) {
-                stack.getOrCreateTag().putInt("Energy", te.getEnergy());
+            setNameIfCustomNameExist(te, stack);
+            EnergyWrapper wrapper = te.getWrapper();
+            if (wrapper.getEnergy() > 0) {
+                stack.getOrCreateTag().putInt("Energy", wrapper.getEnergy());
             }
             if (!player.isCreative()) Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
         }
-        return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);    }
+        return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
+    }
+
+    private static void setNameIfCustomNameExist(BlockWirelessEnergyHeaterTile te, ItemStack stack) {
+        if (te.hasCustomName()) {
+
+            stack.setHoverName(te.getDisplayName());
+        }
+    }
+
 
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
         if (entity != null) {
             BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
-            if (stack.hasCustomHoverName()) {
-                te.setCustomName(stack.getDisplayName());
-            }
+            setNameIfCustomNameExist(te, stack);
             if (stack.hasTag()) {
                 te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
                     h.receiveEnergy(stack.getTag().getInt("Energy"), false);

@@ -1,7 +1,8 @@
 package ironfurnaces.tileentity;
 
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
-import ironfurnaces.energy.FEnergyStorage;
+import ironfurnaces.adaptor.energy.EnergyWrapper;
+import ironfurnaces.adaptor.energy.IEnergyWrapperHolder;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -14,14 +15,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+//? forge {
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
+//?}
 
 import javax.annotation.Nullable;
 
-public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
+public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implements IEnergyWrapperHolder {
 
+    private final EnergyWrapper energy;
 
     public BlockWirelessEnergyHeaterTile(BlockPos pos, BlockState state) {
         this(ModBlocks.asGenericBlockEntityType(ModBlocks.HEATER), pos, state);
@@ -29,18 +34,10 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
 
     public BlockWirelessEnergyHeaterTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
         super(tileEntityTypeIn, pos, state, 1);
+        this.energy = new EnergyWrapper(1000000, 1000000, 0);
     }
 
-    private LazyOptional<IEnergyStorage> energy = LazyOptional.of(this::createEnergy);
 
-    private FEnergyStorage createEnergy() {
-        return new FEnergyStorage(1000000, 1000000, 0) {
-            @Override
-            protected void onEnergyChanged() {
-                setChanged();
-            }
-        };
-    }
 
 
     public static void tick(Level level, BlockPos worldPosition, BlockState blockState, BlockWirelessEnergyHeaterTile e) {
@@ -55,45 +52,18 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
 
     }
 
-    public int getEnergy() {
-        return this.getCapability(ForgeCapabilities.ENERGY).map(h -> h.getEnergyStored()).orElse(0);
-    }
 
-    public int getCapacity() {
-        return this.getCapability(ForgeCapabilities.ENERGY).map(h -> h.getMaxEnergyStored()).orElse(0);
-    }
-
-    public void setEnergy(int energy) {
-        this.energy.ifPresent(h -> {
-            ((FEnergyStorage) h).setEnergy(energy);
-        });
-    }
-
-    public void setMaxEnergy(int energy) {
-        this.energy.ifPresent(h -> {
-            ((FEnergyStorage) h).setCapacity(energy);
-        });
-    }
-
-    public void removeEnergy(int energy) {
-        this.energy.ifPresent(h -> {
-            ((FEnergyStorage) h).setEnergy(h.getEnergyStored() - energy);
-        });
-    }
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-        this.energy.ifPresent(h -> {
-            ((FEnergyStorage) h).setEnergy(nbt.getInt("Energy"));
-        });
-
+        this.getWrapper().setEnergy(nbt.getInt("Energy"));
     }
 
     @Override
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
-        nbt.putInt("Energy", getEnergy());
+        nbt.putInt("Energy", getWrapper().getEnergy());
     }
 
     @Override
@@ -121,11 +91,12 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
         return new BlockWirelessEnergyHeaterContainer(i, level, worldPosition, playerInventory, playerEntity);
     }
 
-    net.minecraftforge.common.util.LazyOptional<? extends net.minecraftforge.items.IItemHandler>[] handlers =
-            net.minecraftforge.items.wrapper.SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
+    //? forge {
+
+    LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
 
     @Override
-    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable Direction facing) {
+    public <T> LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable Direction facing) {
         //world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), 2);
         if (!this.isRemoved() && facing != null && capability == ForgeCapabilities.ITEM_HANDLER) {
             if (facing == Direction.UP)
@@ -136,15 +107,23 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory {
                 return handlers[2].cast();
         }
         if (!this.isRemoved() && capability == ForgeCapabilities.ENERGY) {
-            return energy.cast();
+            return energy.getStorage().cast();
         }
         return super.getCapability(capability, facing);
     }
+//?}
+
+
 
     @Override
     public void setRemoved() {
         energy.invalidate();
         super.setRemoved();
 
+    }
+
+    @Override
+    public EnergyWrapper getWrapper() {
+        return energy;
     }
 }

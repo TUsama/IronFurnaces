@@ -1,8 +1,14 @@
 package ironfurnaces.capability;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
+import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
@@ -12,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabilitySerializable<CompoundTag> {
 
-    public PlayerFurnacesList furnacesList = new PlayerFurnacesList();
-    private LazyOptional<PlayerFurnacesList> lazyList = LazyOptional.of(() -> furnacesList);
+    public PlayerFurnacesList furnaces = new PlayerFurnacesList();
+    private LazyOptional<PlayerFurnacesList> lazyList = LazyOptional.of(() -> furnaces);
 
     @NotNull
     @Override
@@ -31,31 +37,32 @@ public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabil
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        CompoundTag furnaces = new CompoundTag();
-        for (int i = 0; i < furnacesList.listFurances.size(); i++)
-        {
-            CompoundTag blockpos = new CompoundTag();
-            blockpos.putInt("X", furnacesList.listFurances.get(i).getX());
-            blockpos.putInt("Y", furnacesList.listFurances.get(i).getY());
-            blockpos.putInt("Z", furnacesList.listFurances.get(i).getZ());
-            furnaces.put("furnace" + i, blockpos);
-        }
-
-
-        tag.put("furnaces", furnaces);
-        tag.putInt("count", furnacesList.listFurances.size());
+        tag.put("furnace_data", PlayerFurnacesList.CODEC.encode(this.furnaces, NbtOps.INSTANCE, tag)
+                .result()
+                .get());
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
-        int size = tag.getInt("count");
-        CompoundTag furances = tag.getCompound("furnaces");
-        for (int i = 0; i < size; i++)
-        {
-            CompoundTag furance = furances.getCompound("furnace" + i);
-            BlockPos pos = new BlockPos(furance.getInt("X"), furance.getInt("Y"), furance.getInt("Z"));
-            furnacesList.listFurances.add(pos);
+        DataResult<Pair<PlayerFurnacesList, Tag>> result = PlayerFurnacesList.CODEC.decode(NbtOps.INSTANCE, tag.get("furnace_data"));
+
+        if (result.error().isPresent()) {
+            IronFurnaces.LOGGER.warn(
+                    "Failed to read player furnace data, fallback to old deserialization: {}",
+                    result.error().get().message()
+            );
+
+            int size = tag.getInt("count");
+            CompoundTag furances = tag.getCompound("furnaces");
+            for (int i = 0; i < size; i++)
+            {
+                CompoundTag furance = furances.getCompound("furnace" + i);
+                BlockPos pos = new BlockPos(furance.getInt("X"), furance.getInt("Y"), furance.getInt("Z"));
+                furnaces.add(Level.OVERWORLD, pos);
+            }
+        } else {
+            this.furnaces = result.result().get().getFirst();
         }
     }
 }

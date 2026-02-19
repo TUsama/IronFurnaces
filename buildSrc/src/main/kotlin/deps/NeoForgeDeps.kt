@@ -12,8 +12,7 @@ object NeoForgeDeps {
                 }
 
                 "1.21.4" -> {
-                    modstitchModCompileOnly ("maven.modrinth:curios:10.0.1+1.21.4")
-                    //modstitchModCompileOnly ("maven.modrinth:subtle-effects:bAQ7woyE")
+
                 }
             }
         }

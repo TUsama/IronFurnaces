@@ -8,7 +8,7 @@ import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
-import ironfurnaces.energy.FEnergyStorage;
+import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
@@ -23,8 +23,10 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -355,8 +357,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     public abstract ForgeConfigSpec.IntValue getCookTimeConfig();
 
-    public LegacyUnifiedTileEntity self(){
-        return ((LegacyUnifiedTileEntity) this);
+    public UnifiedTileEntity self(){
+        return ((UnifiedTileEntity) this);
     }
 
 
@@ -643,30 +645,25 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                             if (level.getPlayerByUUID(furnaceTile.owner) != null)
                             {
 
-                                List<BlockPos> furnacesBlockPos = level.getPlayerByUUID(furnaceTile.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).map(h -> h.get()).orElse(new ArrayList<>());
-                                if (!furnacesBlockPos.isEmpty())
+                                Set<GlobalPos> furnacesPos = level.getPlayerByUUID(furnaceTile.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).map(h -> h.get()).orElse(new LinkedHashSet<>());
+                                if (!furnacesPos.isEmpty())
                                 {
-
-                                    for (int i = 0; i < furnacesBlockPos.size(); i++)
-                                    {
-                                        level.getChunkAt(furnacesBlockPos.get(i)).setLoaded(true);
-                                        BlockEntity be = level.getBlockEntity(furnacesBlockPos.get(i));
-                                        if (be != null)
-                                        {
-                                            if (be instanceof BlockIronFurnaceTileBase te)
-                                            {
-                                                if (te instanceof LegacyUnifiedTileEntity unifiedTileEntity){
-                                                    if (unifiedTileEntity.getIdentifier().equals(BlockMillionFurnace.ID)) {
-                                                        rainbow.add(unifiedTileEntity);
-                                                    } else {
-                                                        nonRainbow.add(unifiedTileEntity);
-                                                    }
-
+                                    for (GlobalPos furnacesPo : furnacesPos) {
+                                        BlockPos pos = furnacesPo.pos();
+                                        ResourceKey<Level> dimension = furnacesPo.dimension();
+                                        ServerLevel targetLevel = level.getServer().getLevel(dimension);
+                                        if (targetLevel != null && targetLevel.isLoaded(pos)){
+                                            BlockEntity be = targetLevel.getBlockEntity(pos);
+                                            if (be instanceof UnifiedTileEntity unifiedTileEntity){
+                                                if (unifiedTileEntity.isRainbowFurnace()) {
+                                                    rainbow.add(unifiedTileEntity);
+                                                } else {
+                                                    nonRainbow.add(unifiedTileEntity);
                                                 }
-
                                             }
                                         }
                                     }
+
                                 }
                             }
                         }
@@ -998,8 +995,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                 int y = itemstack.getTag().getInt("Y");
                                 int z = itemstack.getTag().getInt("Z");
                                 BlockEntity te = level.getBlockEntity(new BlockPos(x, y, z));
-                                if (te instanceof BlockWirelessEnergyHeaterTile) {
-                                    int energy = ((BlockWirelessEnergyHeaterTile) te).getEnergy();
+                                if (te instanceof BlockWirelessEnergyHeaterTile heaterTile) {
+                                    int energy = heaterTile.getWrapper().getEnergy();
                                     if (energy >= 2000) {
                                         if (!furnaceTile.getItem(AUGMENT_GREEN).isEmpty() && furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel) {
                                             furnaceTile.furnaceBurnTime = 400 * furnaceTile.getCookTime() / 200;
@@ -1011,7 +1008,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                             furnaceTile.furnaceBurnTime = 200 * furnaceTile.getCookTime() / 200;
                                         }
                                         if (furnaceTile.furnaceBurnTime > 0)
-                                            ((BlockWirelessEnergyHeaterTile) te).removeEnergy(2000);
+                                            ((BlockWirelessEnergyHeaterTile) te).getWrapper().removeEnergy(2000);
 
                                         furnaceTile.recipesUsed = furnaceTile.furnaceBurnTime;
                                     }

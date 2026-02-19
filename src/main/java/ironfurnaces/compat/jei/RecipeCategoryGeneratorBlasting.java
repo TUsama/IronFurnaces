@@ -7,6 +7,7 @@ import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.util.StringHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
@@ -29,7 +30,7 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
 public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<GeneratorRecipe> {
 
-    public static final ResourceLocation UID = new ResourceLocation(IronFurnaces.MOD_ID, "category_generator_blasting");
+    public static final ResourceLocation UID = IronFurnaces.id("category_generator_blasting");
     public IGuiHelper guiHelper;
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
@@ -41,10 +42,10 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
     public RecipeCategoryGeneratorBlasting(IGuiHelper guiHelper)
     {
         this.guiHelper = guiHelper;
-        staticFlame = guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 68, 0, 14, 14);
+        staticFlame = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 68, 0, 14, 14);
         animatedFlame = guiHelper.createAnimatedDrawable(staticFlame, 300, IDrawableAnimated.StartDirection.TOP, true);
 
-        staticEnergy = guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 82, 0, 14, 42);
+        staticEnergy = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 82, 0, 14, 42);
         animatedEnergy = guiHelper.createAnimatedDrawable(staticEnergy, 300, IDrawableAnimated.StartDirection.BOTTOM, false);
 
     }
@@ -61,7 +62,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public IDrawable getBackground() {
-        return guiHelper.createDrawable(new ResourceLocation(IronFurnaces.MOD_ID, "textures/gui/jei.png"), 0, 0, 68, 42);
+        return guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 0, 0, 68, 42);
     }
 
     @Override
@@ -81,16 +82,14 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
          animatedEnergy.draw(stack, 54, 0);
     }
 
+
     @Override
-    public List<Component> getTooltipStrings(GeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
-        List<Component> list = Lists.newArrayList();
+    public void getTooltip(ITooltipBuilder tooltip, GeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         if (mouseX >= 55 && mouseX <= 68 && mouseY >= 1 && mouseY <= 42)
         {
-            list.add(Component.literal(StringHelper.displayEnergy(recipe.getEnergy()).get(0)));
+            tooltip.add(Component.literal(StringHelper.displayEnergy(recipe.getEnergy()).get(0)));
         }
-        return list;
     }
-
 
     @Override
     public boolean isHandled(GeneratorRecipe recipe) {

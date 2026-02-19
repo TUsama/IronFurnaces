@@ -107,7 +107,8 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             if (entity instanceof Player)
             {
                 Player player = (Player)entity;
-                player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.add(pos));
+
+                player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.add(player.level().dimension(), pos));
                 if (te.isRainbowFurnace())
                 {
                     te.owner = player.getUUID();
@@ -252,7 +253,6 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         if (state.getValue(BlockStateProperties.LIT)) {
             if (world.getBlockEntity(pos) == null)
@@ -329,7 +329,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 {
                     if (world.getPlayerByUUID(furnace.owner) != null)
                     {
-                        world.getPlayerByUUID(furnace.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.remove(te.getBlockPos()));
+                        world.getPlayerByUUID(furnace.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.remove(te.getLevel().dimension(), te.getBlockPos()));
                     }
                 }
                 Containers.dropContents(world, pos, furnace);

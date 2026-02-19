@@ -191,7 +191,10 @@ stonecutter {
         "vanilla" to loader.equals("vanilla")
 
     ))
-
+    replacements.string(current.version >= "1.20.1" && loader.equals("neoforge")) {
+        replace("ForgeConfigSpec", "ModConfigSpec")
+        replace("net.minecraftforge", "net.neoforged.neoforge")
+    }
 }
 
 sourceSets["main"].resources.srcDir("../../src/generated/resources")

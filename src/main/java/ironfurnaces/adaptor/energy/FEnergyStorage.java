@@ -1,6 +1,9 @@
-package ironfurnaces.energy;
+package ironfurnaces.adaptor.energy;
 
+import lombok.Setter;
 import net.minecraftforge.energy.EnergyStorage;
+
+import java.util.function.Consumer;
 
 public class FEnergyStorage extends EnergyStorage {
 
@@ -20,8 +23,13 @@ public class FEnergyStorage extends EnergyStorage {
         super(capacity, maxReceive, maxExtract, energy);
     }
 
-    protected void onEnergyChanged() {
+    @Setter
+    private Consumer<FEnergyStorage> callback;
 
+    protected void onEnergyChanged() {
+        if (callback != null){
+            callback.accept(this);
+        }
     }
 
     public int getEnergy() {

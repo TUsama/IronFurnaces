@@ -1,8 +1,6 @@
 package ironfurnaces.container.furnaces;
 
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;

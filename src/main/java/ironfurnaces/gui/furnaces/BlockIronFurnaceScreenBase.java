@@ -4,12 +4,10 @@ import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import ironfurnaces.capability.ClientShowConfig;
 import ironfurnaces.container.furnaces.BlockIronFurnaceContainerBase;
 import ironfurnaces.items.ItemMillionFurnace;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.network.C2SSettingsButtonPacket;
-import ironfurnaces.network.C2SShowConfigButtonPacket;
 import ironfurnaces.util.StringHelper;
 import ironfurnaces.util.gui.FurnaceGuiButton;
 import ironfurnaces.util.gui.FurnaceGuiEnergy;
@@ -113,21 +111,18 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         sideButtons.add(rightButton = new FurnaceGuiButton(left, top, -20,  43, 10, 10));
     }
 
+    public boolean showConfig = false;
 
     public boolean showInventoryButtons() {
-        return getShowConfig() == 1;
+        return showConfig;
     }
 
     public void setShowConfig(int value)
     {
-        ClientShowConfig.set(value);
-        NetworkUtils.sendToServer(new C2SShowConfigButtonPacket(value));
+        this.showConfig = value != 0;
     }
 
-    public int getShowConfig()
-    {
-        return ClientShowConfig.getShowConfig();
-    }
+
 
     @Override
     protected void renderLabels(GuiGraphics matrix, int mouseX, int mouseY) {

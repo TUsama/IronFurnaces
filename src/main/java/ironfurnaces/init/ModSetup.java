@@ -1,18 +1,11 @@
 package ironfurnaces.init;
 
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
-import ironfurnaces.capability.CapabilityPlayerShowConfig;
-import ironfurnaces.util.RainbowEnabledCondition;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +23,6 @@ public class ModSetup {
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event)
     {
-        CapabilityPlayerShowConfig.register(event);
         CapabilityPlayerFurnacesList.register(event);
     }
 

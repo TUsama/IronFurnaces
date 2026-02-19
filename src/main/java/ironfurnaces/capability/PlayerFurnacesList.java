@@ -1,49 +1,52 @@
 package ironfurnaces.capability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlayerFurnacesList implements IPlayerFurnacesList {
+    public static final Codec<PlayerFurnacesList> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                    GlobalPos.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("furnaces").forGetter(x -> x.posLinkedHashSet)
+            ).apply(instance, PlayerFurnacesList::new)
+    );
 
-    public List<BlockPos> listFurances;
+    private LinkedHashSet<GlobalPos> posLinkedHashSet;
 
-    public PlayerFurnacesList()
-    {
-        listFurances = new ArrayList<>();
+    public PlayerFurnacesList() {
+        posLinkedHashSet = new LinkedHashSet<>();
     }
 
-
-    @Override
-    public List<BlockPos> get() {
-        return listFurances;
-    }
-
-    @Override
-    public void add(BlockPos pos) {
-        int check = 0;
-        for (int i = 0; i < listFurances.size(); i++)
-        {
-            if (listFurances.get(i).getX() == pos.getX() && listFurances.get(i).getY() == pos.getY() && listFurances.get(i).getZ() == pos.getZ())
-            {
-                check++;
-            }
-        }
-        if (check == 0)
-        {
-            listFurances.add(pos);
-        }
+    private PlayerFurnacesList(LinkedHashSet<GlobalPos> posLinkedHashSet) {
+        this.posLinkedHashSet = posLinkedHashSet;
     }
 
     @Override
-    public void remove(BlockPos pos) {
-        for (int i = 0; i < listFurances.size(); i++)
-        {
-            if (listFurances.get(i).getX() == pos.getX() && listFurances.get(i).getY() == pos.getY() && listFurances.get(i).getZ() == pos.getZ())
-            {
-                listFurances.remove(i);
-            }
-        }
+    public Set<GlobalPos> get() {
+        return posLinkedHashSet;
     }
+
+    @Override
+    public void add(ResourceKey<Level> key, BlockPos pos) {
+        System.out.println("add one: " + pos.toShortString());
+        this.posLinkedHashSet.add(GlobalPos.of(key, pos));
+    }
+
+    @Override
+    public void remove(ResourceKey<Level> key, BlockPos pos) {
+        this.posLinkedHashSet.remove(GlobalPos.of(key, pos));
+    }
+
+    public boolean isEmpty(){
+        return this.posLinkedHashSet.isEmpty();
+    }
+
+
 }

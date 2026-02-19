@@ -2,10 +2,9 @@ package ironfurnaces.util;
 
 
 import ironfurnaces.capability.PlayerFurnacesListProvider;
-import ironfurnaces.capability.PlayerShowConfigProvider;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModItems;
-import ironfurnaces.tileentity.furnaces.LegacyUnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +27,6 @@ public class EventHandler {
     {
         if (event.getObject() instanceof Player)
         {
-            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "show_config"), new PlayerShowConfigProvider());
             event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
         }
     }
@@ -40,7 +38,7 @@ public class EventHandler {
         for (BlockPos pos : list)
         {
             Level world = event.getLevel();
-            if (LegacyUnifiedTileEntity.isRainbow(world.getBlockEntity(pos)))
+            if (UnifiedTileEntity.isRainbow(world.getBlockEntity(pos)))
             {
                 event.getExplosion().getToBlow().remove(pos);
                 world.removeBlockEntity(pos);
