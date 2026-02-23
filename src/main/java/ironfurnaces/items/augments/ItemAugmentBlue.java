@@ -1,12 +1,15 @@
 package ironfurnaces.items.augments;
 
-public class ItemAugmentBlue extends ItemAugment {
+import ironfurnaces.tileentity.furnaces.FurnaceMode;
+
+public abstract class ItemAugmentBlue extends ItemAugment {
 
 
     public ItemAugmentBlue(Properties properties) {
         super(properties);
     }
 
+    public abstract FurnaceMode getMode();
 
 
 }

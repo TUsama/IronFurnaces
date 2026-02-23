@@ -1,11 +1,15 @@
 package ironfurnaces.adaptor.energy;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.minecraftforge.energy.EnergyStorage;
 
 import java.util.function.Consumer;
 
 public class FEnergyStorage extends EnergyStorage {
+
+    @Setter
+    private Consumer<FEnergyStorage> callback;
 
     public FEnergyStorage(int capacity) {
         super(capacity);
@@ -23,11 +27,8 @@ public class FEnergyStorage extends EnergyStorage {
         super(capacity, maxReceive, maxExtract, energy);
     }
 
-    @Setter
-    private Consumer<FEnergyStorage> callback;
-
     protected void onEnergyChanged() {
-        if (callback != null){
+        if (callback != null) {
             callback.accept(this);
         }
     }
@@ -36,18 +37,38 @@ public class FEnergyStorage extends EnergyStorage {
         return this.getEnergyStored();
     }
 
+    public void setEnergy(int energy) {
+        int oldEnergy = this.energy;
+
+        if (oldEnergy != energy){
+            this.energy = energy;
+            onEnergyChanged();
+        }
+
+        if (this.energy > capacity) {
+            this.energy = capacity;
+        } else if (this.energy < 0) {
+            this.energy = 0;
+        }
+
+
+    }
+
     public int getCapacity() {
         return this.getMaxEnergyStored();
     }
 
     public EnergyStorage setCapacity(int capacity) {
-
-        this.capacity = capacity;
+        int old = this.capacity;
+        if (old != capacity){
+            this.capacity = capacity;
+            onEnergyChanged();
+        }
 
         if (energy > capacity) {
             energy = capacity;
         }
-        onEnergyChanged();
+
         return this;
     }
 
@@ -80,25 +101,11 @@ public class FEnergyStorage extends EnergyStorage {
         return maxExtract;
     }
 
-    public void setEnergy(int energy) {
-
-        this.energy = energy;
-
-        if (this.energy > capacity) {
-            this.energy = capacity;
-        } else if (this.energy < 0) {
-            this.energy = 0;
-        }
-        onEnergyChanged();
-    }
-
-    public void setCapacityDirectly(int capacity)
-    {
+    public void setCapacityDirectly(int capacity) {
         this.capacity = capacity;
     }
 
-    public void setEnergyDirectly(int energy)
-    {
+    public void setEnergyDirectly(int energy) {
         this.energy = energy;
     }
 }

@@ -1,6 +1,7 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -17,6 +18,11 @@ public class ItemAugmentFactory extends ItemAugmentBlue {
 
     public ItemAugmentFactory(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public FurnaceMode getMode() {
+        return FurnaceMode.FACTORY;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -1,10 +1,12 @@
 package ironfurnaces.tileentity.furnaces;
 
+import com.clefal.nirvana_lib.utils.ModUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import harmonised.pmmo.api.events.FurnaceBurnEvent;
 import harmonised.pmmo.events.impl.FurnaceHandler;
 import ironfurnaces.Config;
+import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
@@ -139,30 +141,22 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             LRUCache.newInstance(Config.cache_capacity.get()));
 
 
-
-
-    public FEnergyStorage energyStorage = new FEnergyStorage(Config.furnaceEnergyCapacityTier2.get()) {
-        @Override
-        protected void onEnergyChanged() {
-            if (level != null && level.getBlockEntity(getBlockPos()) != null)
+    public EnergyWrapper energyStorage = new EnergyWrapper(Config.furnaceEnergyCapacityTier2.get()).withCallback(fEnergyStorage -> {
+        if (level != null && level.getBlockEntity(getBlockPos()) != null)
+        {
+            if (lastGameTickEnergyUpdated <= 0)
             {
-                if (lastGameTickEnergyUpdated <= 0)
-                {
-                    setChanged();
-                    lastGameTickEnergyUpdated = level.getGameTime();
-                }
-                else if (level.getGameTime() - lastGameTickEnergyUpdated >= 20)
-                {
-                    setChanged();
-                    lastGameTickEnergyUpdated = level.getGameTime();
-                }
+                setChanged();
+                lastGameTickEnergyUpdated = level.getGameTime();
             }
-
-
-
+            else if (level.getGameTime() - lastGameTickEnergyUpdated >= 20)
+            {
+                setChanged();
+                lastGameTickEnergyUpdated = level.getGameTime();
+            }
         }
-    };
-    public LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
+    });
+
 
     public BlockIronFurnaceTileBase(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state) {
         super(tileentitytypeIn, pos, state, 19);
@@ -184,7 +178,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public int getCapacity() {
-        return energyStorage.getCapacity();
+        return energyStorage.getEnergyCapacity();
     }
 
     public void setEnergy(int energy) {
@@ -192,11 +186,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public void setMaxEnergy(int energy) {
-        energyStorage.setCapacity(energy);
+        energyStorage.setEnergy(energy);
     }
 
     public void removeEnergy(int energy) {
-        energyStorage.setEnergy(energyStorage.getEnergy() - energy);
+        energyStorage.removeEnergy(energy);
     }
 
     public boolean hasRecipe(ItemStack stack) {
@@ -652,7 +646,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                         BlockPos pos = furnacesPo.pos();
                                         ResourceKey<Level> dimension = furnacesPo.dimension();
                                         ServerLevel targetLevel = level.getServer().getLevel(dimension);
-                                        if (targetLevel != null && targetLevel.isLoaded(pos)){
+                                        if (targetLevel != null){
+                                            targetLevel.getChunkAt(pos).setLoaded(true);
                                             BlockEntity be = targetLevel.getBlockEntity(pos);
                                             if (be instanceof UnifiedTileEntity unifiedTileEntity){
                                                 if (unifiedTileEntity.isRainbowFurnace()) {
@@ -1704,7 +1699,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             this.setItem(FUEL, new ItemStack(Items.WATER_BUCKET));
         }
 
-        if (ModList.get().isLoaded("pmmo")) {
+        if (ModUtils.isModLoaded("pmmo")) {
             handleSmeltedPMMO(input, level, worldPosition);
         }
 
@@ -1850,7 +1845,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 return invHandlers[5].cast();
         }
         if (!this.isRemoved() && capability == ForgeCapabilities.ENERGY && (isGenerator() || isFactory())) {
-            return energy.cast();
+            return energyStorage.getStorage().cast();
         }
         return super.getCapability(capability, facing);
     }
@@ -2108,7 +2103,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     @Override
     public void setRemoved() {
-        energy.invalidate();
+        energyStorage.invalidate();
         super.setRemoved();
 
     }

@@ -34,7 +34,7 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     public BlockWirelessEnergyHeaterTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
         super(tileEntityTypeIn, pos, state, 1);
-        this.energy = new EnergyWrapper(1000000, 1000000, 0);
+        this.energy = new EnergyWrapper(1000000, 1000000, 0).withCallback(fEnergyStorage -> setChanged());
     }
 
 

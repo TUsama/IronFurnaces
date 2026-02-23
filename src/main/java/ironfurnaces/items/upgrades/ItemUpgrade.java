@@ -1,5 +1,6 @@
 package ironfurnaces.items.upgrades;
 
+import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
@@ -76,7 +77,7 @@ public class ItemUpgrade extends Item {
                 }
             }
             if (te instanceof BlockIronFurnaceTileBase) {
-                FEnergyStorage energyStorage = ((BlockIronFurnaceTileBase) te).energyStorage;
+                EnergyWrapper energyStorage = ((BlockIronFurnaceTileBase) te).energyStorage;
                 int[] FACTORY_COOKTIME = ((BlockIronFurnaceTileBase) te).factoryCookTime;
                 int[] FACTORY_TOTALCOOKTIME = ((BlockIronFurnaceTileBase) te).factoryTotalCookTime;
                 double[] usedRF = ((BlockIronFurnaceTileBase) te).usedRF;

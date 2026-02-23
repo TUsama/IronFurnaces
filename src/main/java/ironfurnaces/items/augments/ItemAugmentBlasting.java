@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,6 +18,11 @@ public class ItemAugmentBlasting extends ItemAugmentRed {
 
     public ItemAugmentBlasting(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public RecipeType<?> getRecipeType() {
+        return RecipeType.BLASTING;
     }
 
     @OnlyIn(Dist.CLIENT)

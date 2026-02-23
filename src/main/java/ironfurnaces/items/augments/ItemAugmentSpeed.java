@@ -1,6 +1,7 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -13,11 +14,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.IntUnaryOperator;
 
 public class ItemAugmentSpeed extends ItemAugmentGreen {
 
     public ItemAugmentSpeed(Item.Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public AugmentCache.GreenAugmentModifier getModifier() {
+        return AugmentCache.GreenAugmentModifier.SPEED;
     }
 
     @OnlyIn(Dist.CLIENT)

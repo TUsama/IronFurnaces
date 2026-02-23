@@ -29,7 +29,6 @@ public class EnergyWrapper
     @Getter
     private final LazyOptional<FEnergyStorage> storage;
 
-    private Consumer<FEnergyStorage> callback;
 
     @Override
     public int getEnergy() {
@@ -50,8 +49,9 @@ public class EnergyWrapper
         storage.invalidate();
     }
 
-    public void withCallback(Consumer<FEnergyStorage> callback){
+    public EnergyWrapper withCallback(Consumer<FEnergyStorage> callback){
         this.storage.ifPresent(x -> x.setCallback(callback));
+        return this;
     }
 
 
