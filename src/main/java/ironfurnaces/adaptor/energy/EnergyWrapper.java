@@ -27,7 +27,7 @@ public class EnergyWrapper
     }
 
     @Getter
-    private final LazyOptional<FEnergyStorage> storage;
+    private LazyOptional<FEnergyStorage> storage;
 
 
     @Override

@@ -57,5 +57,6 @@ public class ProcessingInstanceManager implements IModeSensitive {
             ProcessingInstance next = iterator.next();
             if (!next.getRecipeType().equals(tile.getAugments().getCurrentRecipeType())) iterator.remove();
         }
+        refreshBlockingState();
     }
 }

@@ -1,58 +1,99 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import ironfurnaces.adaptor.energy.EnergyWrapper;
-import ironfurnaces.adaptor.energy.IEnergyWrapperHolder;
+import ironfurnaces.adaptor.energy.FEnergyStorage;
+import ironfurnaces.items.ItemHeater;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.With;
+import lombok.experimental.Accessors;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.EnergyStorage;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 
-public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive{
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+@Accessors(fluent = true, chain = true)
+public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex {
+    private final static int[] cacheIndex = new int[0];
+    private final BlockIronFurnaceTileBaseV2 tile;
+    @Setter
+    protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
     @Getter
-    private EnergyWrapper energy;
+    private FEnergyStorage energy;
     private FurnaceMode mode;
+    @Setter
+    private Consumer<FuelCache> contentChangeCallback;
 
-    public FuelCache(EnergyWrapper energy, FurnaceMode mode) {
+    public FuelCache(BlockIronFurnaceTileBaseV2 tile, FEnergyStorage energy, FurnaceMode mode) {
+        this.tile = tile;
         this.energy = energy;
         this.mode = mode;
     }
 
+    public FuelCache(BlockIronFurnaceTileBaseV2 tile, FEnergyStorage energy, FurnaceMode mode, Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback) {
+        this(tile, energy, mode);
+        this.grabRecipeCallback = grabRecipeCallback;
+    }
+
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
-        return energy.getStorage().lazyMap(x -> x.receiveEnergy(maxReceive, simulate)).orElse(0);
+        return energy.receiveEnergy(maxReceive, simulate);
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
-        return energy.getStorage().lazyMap(x -> x.extractEnergy(maxExtract, simulate)).orElse(0);
+        return energy.extractEnergy(maxExtract, simulate);
     }
 
     @Override
     public int getEnergyStored() {
-        return energy.getStorage().lazyMap(EnergyStorage::getEnergyStored).orElse(0);
+        return energy.getEnergyStored();
     }
 
     @Override
     public int getMaxEnergyStored() {
-        return energy.getStorage().lazyMap(EnergyStorage::getMaxEnergyStored).orElse(0);
+        return energy.getMaxEnergyStored();
     }
 
     @Override
     public boolean canExtract() {
-        return energy.getStorage().lazyMap(EnergyStorage::canExtract).orElse(false);
+        return energy.canExtract();
     }
 
     @Override
     public boolean canReceive() {
-        return energy.getStorage().lazyMap(EnergyStorage::canReceive).orElse(false);
+        return energy.canReceive();
     }
 
+    public boolean canReceive(int energy) {
+        return (getEnergyStored() + energy) <= getMaxEnergyStored();
+    }
 
+    @Override
+    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+        return grabRecipeCallback.apply(stack).isPresent() || stack.getItem() instanceof ItemHeater;
+    }
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode) {
         this.mode = mode;
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        if (contentChangeCallback != null) {
+            contentChangeCallback.accept(this);
+        }
+    }
+
+    @Override
+    public int[] getCacheIndex() {
+        return cacheIndex;
     }
 }

@@ -8,7 +8,7 @@ the furnace speed now will be correctly synced from server when player join the 
 rework many things, breaking changes below(only for dev):
 1. remove item tag forge:furnaces, all furnaces provided by this mod use c:player_workstations/furnaces, add vanilla furnace into the c:player_workstations/furnaces
 2. now furnace support both ItemStack and Tag, you might need to check out the new datapack format if you've modified the generator_blasting craft. Also add a bunch of new tag-support recipes.
-3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check.
+3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check. After this update, all old recorded FurnaceList position will be considered as overworld position.
 
 for players if you meet anything different with the original mod pls consider open an issue on GitHub
 

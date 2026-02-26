@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public interface IPlayerFurnacesList {
 
@@ -17,4 +18,7 @@ public interface IPlayerFurnacesList {
 
     void remove(ResourceKey<Level> key, BlockPos pos);
 
+    void whenUpgradeFromLegacy(Consumer<IPlayerFurnacesList> handler);
+
+    void resetUpgradeMark();
 }

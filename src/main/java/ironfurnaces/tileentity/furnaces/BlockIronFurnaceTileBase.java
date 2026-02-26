@@ -1164,7 +1164,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
         }
         for (Map.Entry<BlockEntity, Direction> entry : tiles.entrySet()) {
-            int energy = Math.min(getCapability(ForgeCapabilities.ENERGY).map(h -> ((FEnergyStorage) h).getMaxExtract()).orElse(0), getEnergy()) / tiles.size();
+            int energy = Math.min(getCapability(ForgeCapabilities.ENERGY).map(h -> ((FEnergyStorage) h).getMaxEnergyStored()).orElse(0), getEnergy()) / tiles.size();
             entry.getKey().getCapability(ForgeCapabilities.ENERGY, entry.getValue()).ifPresent(
                     h -> {
                         removeEnergy(h.receiveEnergy(energy, false));
@@ -2011,10 +2011,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
         if (recipe != null) {
             ResourceLocation resourcelocation = recipe.getId();
-            float xpRecipe = ((AbstractCookingRecipe)recipe).getExperience();
-            if ( ((recipes.getInt(resourcelocation) + 1) * xpRecipe) <= getXpNeededForLevel(Config.recipeMaxXPLevel.get()) + 1)
-            {
-                recipes.addTo(resourcelocation, 1);
+            if (recipe instanceof AbstractCookingRecipe cookingRecipe) {
+                float xpRecipe = cookingRecipe.getExperience();
+                if ( ((recipes.getInt(resourcelocation) + 1) * xpRecipe) <= getXpNeededForLevel(Config.recipeMaxXPLevel.get()) + 1)
+                {
+                    recipes.addTo(resourcelocation, 1);
+                }
             }
         }
     }

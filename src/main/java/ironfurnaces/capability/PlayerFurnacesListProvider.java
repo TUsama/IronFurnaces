@@ -61,6 +61,7 @@ public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabil
                 BlockPos pos = new BlockPos(furance.getInt("X"), furance.getInt("Y"), furance.getInt("Z"));
                 furnaces.add(Level.OVERWORLD, pos);
             }
+            this.furnaces.setAsLegacy();
         } else {
             this.furnaces = result.result().get().getFirst();
         }

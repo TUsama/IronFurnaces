@@ -38,15 +38,17 @@ public class Generate extends ProcessingInstance{
     @Override
     public TickResult whenTick(BlockIronFurnaceTileBaseV2 tile) {
         FuelCache fuel = tile.getFuel();
-        if (fuel.canReceive()){
-            int min = Math.min(eachTickOutPut, expectedTotalOutput - currentOutput);
+        int min = Math.min(eachTickOutPut, expectedTotalOutput - currentOutput);
+        if (fuel.canReceive(min)){
             fuel.receiveEnergy(min, false);
             currentOutput += min;
+            if (currentOutput >= expectedTotalOutput) {
+                return TickResult.DISCARD;
+            }
+            return TickResult.SUCCESS;
+        } else {
+            return TickResult.BLOCKED;
         }
-        if (currentOutput >= expectedTotalOutput) {
-            return TickResult.DISCARD;
-        }
-        return TickResult.SUCCESS;
     }
 
 

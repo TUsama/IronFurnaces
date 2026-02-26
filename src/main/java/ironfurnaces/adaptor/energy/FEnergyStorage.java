@@ -1,6 +1,7 @@
 package ironfurnaces.adaptor.energy;
 
 import lombok.Setter;
+import lombok.With;
 import lombok.experimental.Accessors;
 import net.minecraftforge.energy.EnergyStorage;
 
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 
 public class FEnergyStorage extends EnergyStorage {
 
+    @With
     @Setter
     private Consumer<FEnergyStorage> callback;
 
@@ -89,23 +91,5 @@ public class FEnergyStorage extends EnergyStorage {
 
         this.maxExtract = maxExtract;
         return this;
-    }
-
-    public int getMaxReceive() {
-
-        return maxReceive;
-    }
-
-    public int getMaxExtract() {
-
-        return maxExtract;
-    }
-
-    public void setCapacityDirectly(int capacity) {
-        this.capacity = capacity;
-    }
-
-    public void setEnergyDirectly(int energy) {
-        this.energy = energy;
     }
 }

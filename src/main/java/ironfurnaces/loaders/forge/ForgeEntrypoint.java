@@ -3,14 +3,17 @@ package ironfurnaces.loaders.forge;
 
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
+import ironfurnaces.capability.LegacyPlayerFurnacesListChecker;
 import ironfurnaces.init.ClientSetup;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
 import ironfurnaces.registration.*;
 import ironfurnaces.update.UpdateChecker;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -33,9 +36,10 @@ public class ForgeEntrypoint {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
 
-        MinecraftForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(x -> {
-            if (x.getEntity() instanceof ServerPlayer player){
+        MinecraftForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
+            if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level){
                 BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
+                LegacyPlayerFurnacesListChecker.validateFurnacesList(player, level);
             }
         });
 
