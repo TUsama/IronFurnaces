@@ -1,5 +1,6 @@
 package ironfurnaces.registration;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import com.tterrag.registrate.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.Util;
@@ -14,7 +15,7 @@ import net.minecraft.world.item.Items;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModItemTags {
-    public static final TagKey<Item> PLAYER_WORKSTATIONS_CRAFTING_TABLES = Util.make(() -> {
+    public static final TagKey<Item> PLAYER_WORKSTATIONS_FURNACE = Util.make(() -> {
         TagKey<Item> itemTagKey = bindC(
                 "player_workstations/furnaces"
         );
@@ -105,8 +106,10 @@ public class ModItemTags {
     public static final TagKey<Item> NETHERITE_UPGRADE = Util.make(() -> {
         TagKey<Item> itemTagKey = TagKey.create(Registries.ITEM, IronFurnaces.id("netherite_upgrade_crafting"));
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
-            registrateItemTagsProvider.addTag(itemTagKey)
-                    .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP);
+            registrateItemTagsProvider
+                    .addTag(itemTagKey)
+                    .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP)
+                    .addOptionalTags(bindC("ingots/netherite"), bindC("ores/netherite_scrap"));
         });
         return itemTagKey;
     });
@@ -120,14 +123,18 @@ public class ModItemTags {
     }
 
     protected static TagKey<Item> bindC(String id) {
-        return of(Registries.ITEM, new ResourceLocation("c", id));
+        return of(Registries.ITEM, ResourceLocationUtils.make("c", id));
     }
 
     protected static TagKey<Item> bindForge(String id) {
-        return of(Registries.ITEM, new ResourceLocation("forge", id));
+        return of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
     }
 
     protected static TagKey<Item> bind(String id) {
         return of(Registries.ITEM, IronFurnaces.id(id));
+    }
+
+    protected static TagKey<Item> bindVanilla(String id) {
+        return of(Registries.ITEM, ResourceLocationUtils.make("minecraft", id));
     }
 }

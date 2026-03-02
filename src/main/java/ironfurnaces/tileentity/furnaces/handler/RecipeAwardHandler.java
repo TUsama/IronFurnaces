@@ -1,5 +1,6 @@
 package ironfurnaces.tileentity.furnaces.handler;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -7,13 +8,19 @@ import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -45,13 +52,7 @@ public final class RecipeAwardHandler {
         }
 
         ResourceLocation id = cookingRecipe.getId();
-/*
 
-        if (hasExperienceFluid()) {
-            recipesUsed.addTo(id, 1);
-            return;
-        }
-*/
         float xpPerRecipe = cookingRecipe.getExperience();
         int xpCap = computeTotalXpToReachLevel(maxXpLevelConfig) + 1;
 
@@ -62,12 +63,6 @@ public final class RecipeAwardHandler {
         }
     }
 
-/*
-    public static boolean hasExperienceFluid() {
-        var tag = BuiltInRegistries.FLUID.getTagOrEmpty(EXPERIENCE_FLUID_TAG);
-        return tag.iterator().hasNext();
-    }
-  */
 
     public static int computeTotalXpToReachLevel(int level) {
         int xpNeeded = 0;
@@ -91,6 +86,36 @@ public final class RecipeAwardHandler {
         }
 
         return xpNeeded;
+    }
+
+    public void unlockRecipes(ServerPlayer player) {
+        List<Recipe<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
+        player.awardRecipes(list);
+        recipesUsed.clear();
+    }
+
+    public List<Recipe<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
+        List<Recipe<?>> list = Lists.newArrayList();
+
+        for (Object2IntMap.Entry<ResourceLocation> entry : recipesUsed.object2IntEntrySet()) {
+            level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
+                list.add(h);
+                splitAndSpawnExperience(level, worldPosition, entry.getIntValue(), ((AbstractCookingRecipe) h).getExperience());
+            });
+        }
+
+
+        return list;
+    }
+
+    private static void splitAndSpawnExperience(ServerLevel level, Vec3 worldPosition, int craftedAmount, float experience) {
+        int i = Mth.floor((float) craftedAmount * experience);
+        float f = Mth.frac((float) craftedAmount * experience);
+        if (f != 0.0F && Math.random() < (double) f) {
+            ++i;
+        }
+        ExperienceOrb.award(level, worldPosition, i);
+
     }
 
     /* -----------------------------

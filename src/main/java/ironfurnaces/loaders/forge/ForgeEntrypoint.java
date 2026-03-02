@@ -8,10 +8,13 @@ import ironfurnaces.init.ClientSetup;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
 import ironfurnaces.registration.*;
+import ironfurnaces.tileentity.furnaces.tier.FurnacePatternReloadListener;
+import ironfurnaces.tileentity.furnaces.tier.upgrade.TierUpgradeRuleReloadListener;
 import ironfurnaces.update.UpdateChecker;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -43,10 +46,16 @@ public class ForgeEntrypoint {
             }
         });
 
+        MinecraftForge.EVENT_BUS.<AddReloadListenerEvent>addListener(EventPriority.LOWEST, x -> {
+            x.addListener(new FurnacePatternReloadListener());
+            x.addListener(new TierUpgradeRuleReloadListener());
+        });
+
         ModMenus.register();
         ModCustomRecipe.register();
         ModBlocks.register();
         ModItems.register();
+        ModNewFurnace.register();
         LegacyFurnaceBlocks.register();
         ModItemGroups.register();
         ModAdvancements.register();

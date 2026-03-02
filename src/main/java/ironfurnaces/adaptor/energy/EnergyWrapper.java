@@ -50,7 +50,7 @@ public class EnergyWrapper
     }
 
     public EnergyWrapper withCallback(Consumer<FEnergyStorage> callback){
-        this.storage.ifPresent(x -> x.setCallback(callback));
+        this.storage.ifPresent(x -> x.callback(callback));
         return this;
     }
 

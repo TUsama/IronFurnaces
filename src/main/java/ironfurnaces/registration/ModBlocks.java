@@ -37,7 +37,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("#C#")
                         .define('#', bindForge("stone"))
-                        .define('C', ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+                        .define('C', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                         .define('F', Items.COMPARATOR)
                         .define('X', bindForge("storage_blocks/redstone"))
                         .unlockedBy("has_comparator", RegistrateRecipeProvider.has(Items.COMPARATOR))

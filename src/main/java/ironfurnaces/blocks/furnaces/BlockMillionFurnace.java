@@ -2,6 +2,7 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
@@ -90,6 +91,6 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, TYPE, JOVIAL, RAINBOW_GENERATING);
+        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, ModBlockState.TYPE, ModBlockState.JOVIAL, RAINBOW_GENERATING);
     }
 }

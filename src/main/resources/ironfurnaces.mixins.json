@@ -11,6 +11,8 @@
   ],
   "mixins": [
     "AdvancementBuilderMixin",
-    "FixInfiniteRainbowCoalMixin"
+    "FixInfiniteRainbowCoalMixin",
+    "ShapedRecipeBuilderMixin",
+    "ShapedRecipeBuilderResultAccessor"
   ]
 }

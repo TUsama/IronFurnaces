@@ -2,6 +2,7 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
+import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
@@ -36,7 +37,7 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
 
     public BlockCrystalFurnace(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(TYPE, 0).setValue(JOVIAL, 0).setValue(WATERLOGGED, Boolean.valueOf(false)));
+        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(ModBlockState.TYPE, 0).setValue(ModBlockState.JOVIAL, 0).setValue(WATERLOGGED, Boolean.valueOf(false)));
     }
     @Override
     public String getId() {

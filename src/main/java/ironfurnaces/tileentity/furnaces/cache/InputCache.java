@@ -1,70 +1,83 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
+import com.mojang.serialization.Codec;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
-import ironfurnaces.tileentity.furnaces.process.Generate;
-import ironfurnaces.tileentity.furnaces.process.ProcessingInstance;
+import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
+import ironfurnaces.tileentity.furnaces.tier.FurnacePattern;
 import lombok.Setter;
-import lombok.With;
 import lombok.experimental.Accessors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-import java.lang.module.InvalidModuleDescriptorException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 @Accessors(fluent = true, chain = true)
-public class InputCache extends TieredCache {
+public class InputCache extends TieredCache implements ICacheFillStats{
 
-    private NonNullList<SlotState> slotState;
-    @With
+    private final FillStats fill_stats = new FillStats();
+    @Setter
     protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
+    private NonNullList<SlotState> slotState;
     @Setter
     private Consumer<InputCache> contentChangeCallback;
 
-    public InputCache(FurnaceMode mode, ForgeConfigSpec.IntValue tier) {
-        this(1, mode, tier);
-    }
 
-    public InputCache(int size, FurnaceMode mode, ForgeConfigSpec.IntValue tier) {
-        super(size, mode, tier);
-        this.slotState = NonNullList.withSize(size, SlotState.IDLE);
+    public InputCache(FurnaceMode mode, FurnacePattern tier) {
+        super(tier.inputSlotAmount(), mode, tier);
+        this.slotState = NonNullList.withSize(tier.inputSlotAmount(), SlotState.IDLE);
     }
-
 
     @Override
     public int getSlots() {
         int slots = super.getSlots();
         for (int i = 0; i < slots; i++) {
-            if (slotState.get(i).equals(SlotState.UNAVAILABLE)){
+            if (slotState.get(i).equals(SlotState.UNAVAILABLE)) {
                 slotState.set(i, SlotState.IDLE);
             }
         }
         return slots;
     }
 
-    public void dropStacksInUnavailableSlots(Level level, BlockPos pos){
+    public void dropStacksInUnavailableSlots(Level level, BlockPos pos) {
         for (int i = stacks.size(); i > getSlots(); i--) {
             ItemStack stackInSlot = getStackInSlot(i);
-            if (!stackInSlot.isEmpty()){
+            if (!stackInSlot.isEmpty()) {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stackInSlot);
                 slotState.set(i, SlotState.UNAVAILABLE);
             }
         }
     }
 
-    public boolean isSlotIdle(int index){
+
+    public void recomputeFillStats() {
+        int slots = getSlots();
+        fill_stats.slot_count = slots;
+        fill_stats.fill_sum = 0.0f;
+        fill_stats.non_empty = 0;
+
+        for (int i = 0; i < slots; i++) {
+            ItemStack s = getStackInSlot(i);
+            if (s.isEmpty()) continue;
+
+            fill_stats.non_empty++;
+            int cap = Math.min(getSlotLimit(i), s.getMaxStackSize());
+            if (cap > 0) {
+                fill_stats.fill_sum += (float) s.getCount() / (float) cap;
+            }
+        }
+    }
+
+    public boolean isSlotIdle(int index) {
         return slotState.get(index).equals(SlotState.IDLE);
     }
 
@@ -73,11 +86,13 @@ public class InputCache extends TieredCache {
         return grabRecipeCallback.apply(stack).isPresent();
     }
 
+
     @Override
     protected void onContentsChanged(int slot) {
         if (contentChangeCallback != null) {
             contentChangeCallback.accept(this);
         }
+        recomputeFillStats();
     }
 
     @Override
@@ -86,13 +101,6 @@ public class InputCache extends TieredCache {
     }
 
 
-    /**
-     * 对当前所有可操作输入槽（[0, getSlots())）进行“同物品均分”。
-     *
-     * @param force
-     *  - true: 强制执行均分
-     *  - false: 仅当存在空槽时执行（原 fullCheck=false 的语义）
-     */
     public void splitStacks(boolean force) {
         int slots = getSlots();
         if (slots <= 1) return; // 0/1 槽无意义（GENERATOR/FURNACE 基本不会用到）
@@ -182,10 +190,66 @@ public class InputCache extends TieredCache {
         }
     }
 
-    private enum SlotState {
-        WORKING,
-        UNAVAILABLE,
-        IDLE;
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag compoundTag = super.serializeNBT();
+        ListTag tags = new ListTag();
+        for (int i = 0; i < slotState.size(); i++) {
+            CompoundTag compoundTag1 = new CompoundTag();
+            compoundTag1.putInt("Index", i);
+            compoundTag1.putString("Value", slotState.get(i).toString());
+            tags.add(compoundTag1);
+        }
+        compoundTag.put("SlotState", tags);
+        return compoundTag;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        super.deserializeNBT(nbt);
+
+        if (!nbt.contains("SlotState", net.minecraft.nbt.Tag.TAG_LIST)) {
+            return;
+        }
+
+        ListTag list = nbt.getList("SlotState", net.minecraft.nbt.Tag.TAG_COMPOUND);
+
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag entry = list.getCompound(i);
+
+            int index = entry.getInt("Index");
+            String value = entry.getString("Value");
+
+            if (index >= 0 && index < slotState.size()) {
+                slotState.set(index, SlotState.valueOf(value));
+            }
+        }
+    }
+
+    @Override
+    public FillStats getFillStats() {
+        return fill_stats;
+    }
+
+
+
+    private enum SlotState implements StringRepresentable {
+        WORKING("working"),
+        UNAVAILABLE("unavailable"),
+        IDLE("idle");
+
+        public static final Codec<SlotState> CODEC = StringRepresentable.fromEnum(SlotState::values);
+
+        private final String name;
+
+        SlotState(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
     }
 
 }

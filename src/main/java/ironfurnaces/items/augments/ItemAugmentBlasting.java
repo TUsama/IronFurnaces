@@ -25,6 +25,11 @@ public class ItemAugmentBlasting extends ItemAugmentRed {
         return RecipeType.BLASTING;
     }
 
+    @Override
+    public int getType() {
+        return 2;
+    }
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {

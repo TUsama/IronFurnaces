@@ -4,7 +4,6 @@ import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -14,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemXmas extends Item {
+public class ItemXmas extends ItemJovial implements IJovialSetter{
 
 
     public ItemXmas(Properties properties) {
@@ -29,4 +28,9 @@ public class ItemXmas extends Item {
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".xmas2").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
     }
 
+
+    @Override
+    public JovialState getJovialState() {
+        return JovialState.XMAS;
+    }
 }

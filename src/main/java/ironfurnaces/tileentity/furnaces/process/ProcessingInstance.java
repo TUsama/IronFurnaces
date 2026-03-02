@@ -1,35 +1,42 @@
 package ironfurnaces.tileentity.furnaces.process;
 
+import com.clefal.nirvana_lib.relocated.io.vavr.API;
+import com.clefal.nirvana_lib.relocated.io.vavr.collection.Map;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
-import lombok.Getter;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
 
 public abstract class ProcessingInstance {
+    private static final Map<String, MapCodec<? extends ProcessingInstance>> codecMap = API.Map(
+            Burn.Smelting.TYPE, Burn.Smelting.CODEC,
+            Burn.Blasting.TYPE, Burn.Blasting.CODEC,
+            Burn.Smoking.TYPE, Burn.Smoking.CODEC,
+            Generate.SmeltGenerate.TYPE, Generate.SmeltGenerate.CODEC,
+            Generate.BlastGenerate.TYPE, Generate.BlastGenerate.CODEC
+    );
 
-    @Getter
-    protected final RecipeType<?> recipeType;
+    public static final Codec<ProcessingInstance> DISPATCH_CODEC = Codec.STRING.dispatch(
+            ProcessingInstance::getType,
+            string -> codecMap.get(string).getOrElseThrow(() -> new IllegalArgumentException("can't find a Codec with type: " + string))
+                    //? 1.20.1
+                    .codec()
+    );
+
     private boolean handledStart = false;
-    protected final Recipe<?> recipe;
 
-    public ProcessingInstance(Recipe<?> recipe) {
-        this.recipe = recipe;
-        this.recipeType = recipe.getType();
+    public ProcessingInstance() {
     }
 
-    public abstract boolean validate();
+    public abstract String getType();
 
     public abstract void whenStart(BlockIronFurnaceTileBaseV2 tile);
 
-    public void whenDone(BlockIronFurnaceTileBaseV2 tile){
-        tile.setRecipeUsed(recipe);
+    public void whenDone(BlockIronFurnaceTileBaseV2 tile) {
         tile.setChanged();
     }
 
 
     public TickResult tick(BlockIronFurnaceTileBaseV2 tile) {
-        if (!validate()) return TickResult.DISCARD;
         if (!handledStart) {
             whenStart(tile);
             handledStart = true;

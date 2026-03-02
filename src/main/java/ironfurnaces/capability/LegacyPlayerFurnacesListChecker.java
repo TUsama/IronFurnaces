@@ -3,6 +3,7 @@ package ironfurnaces.capability;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import lombok.experimental.UtilityClass;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,11 +17,13 @@ public class LegacyPlayerFurnacesListChecker {
     public void validateFurnacesList(ServerPlayer player, ServerLevel level) {
         player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(list -> {
             list.whenUpgradeFromLegacy(fList -> {
-                if (level.dimension().equals(Level.OVERWORLD)) return;
+                if (!level.dimension().equals(Level.OVERWORLD)) return;
                 for (GlobalPos globalPos : new HashSet<>(fList.get())) {
-                    BlockEntity blockEntity = level.getBlockEntity(globalPos.pos());
+                    BlockPos pos = globalPos.pos();
+                    level.getChunkAt(pos).setLoaded(true);
+                    BlockEntity blockEntity = level.getBlockEntity(pos);
                     if (!(blockEntity instanceof BlockIronFurnaceTileBase || blockEntity instanceof BlockIronFurnaceTileBaseV2)){
-                        fList.remove(globalPos.dimension(), globalPos.pos());
+                        fList.remove(globalPos.dimension(), pos);
                     }
                 }
                 fList.resetUpgradeMark();

@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 @With
 public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean autoInput, boolean autoOutput,
-                                RedStoneMode redStoneMode, int substractionNumber, boolean augmentGui,
+                                RedStoneMode redStoneMode, int subtractionNumber, boolean augmentGui,
                                 boolean autoSplit) {
     public static final Codec<FurnaceSettingsV2> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -25,7 +25,7 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
                     Codec.BOOL.fieldOf("auto_input").forGetter(x -> x.autoInput),
                     Codec.BOOL.fieldOf("auto_output").forGetter(x -> x.autoOutput),
                     RedStoneMode.CODEC.fieldOf("redstone_mode").forGetter(x -> x.redStoneMode),
-                    Codec.INT.fieldOf("substraction_number").forGetter(x -> x.substractionNumber),
+                    Codec.INT.fieldOf("subtraction_number").forGetter(x -> x.subtractionNumber),
                     Codec.BOOL.fieldOf("augment_gui").forGetter(x -> x.augmentGui),
                     Codec.BOOL.fieldOf("auto_split").forGetter(x -> x.autoSplit)
     ).apply(instance, FurnaceSettingsV2::new)
@@ -54,19 +54,21 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
     }
 
     public enum IOMode implements StringRepresentable{
-        NONE("none", x -> ((IItemHandlerModifiable) EmptyHandler.INSTANCE)),
-        INPUT("input", BlockIronFurnaceTileBaseV2::getInput),
-        OUTPUT("output", BlockIronFurnaceTileBaseV2::getAllOutput),
-        FUEL("fuel", BlockIronFurnaceTileBaseV2::getFuel),
-        ALL("all", BlockIronFurnaceTileBaseV2::getAllInv);
+        NONE("none", x -> ((IItemHandlerModifiable) EmptyHandler.INSTANCE), "ironfurnaces.furnace_setting.io_mode.none"),
+        INPUT("input", BlockIronFurnaceTileBaseV2::getInput, "ironfurnaces.furnace_setting.io_mode.none"),
+        OUTPUT("output", BlockIronFurnaceTileBaseV2::getAllOutput, "ironfurnaces.furnace_setting.io_mode.input"),
+        FUEL("fuel", BlockIronFurnaceTileBaseV2::getFuel, "ironfurnaces.furnace_setting.io_mode.output"),
+        ALL("all", BlockIronFurnaceTileBaseV2::getAllInv, "ironfurnaces.furnace_setting.io_mode.all");
         public static final EnumCodec<IOMode> CODEC = StringRepresentable.fromEnum(IOMode::values);
         public final String name;
         public final Function<BlockIronFurnaceTileBaseV2, IItemHandlerModifiable> handlerSelector;
+        public final String translationKey;
 
-        IOMode(String name, Function<BlockIronFurnaceTileBaseV2, IItemHandlerModifiable> handlerSelector) {
+
+        IOMode(String name, Function<BlockIronFurnaceTileBaseV2, IItemHandlerModifiable> handlerSelector, String translationKey) {
             this.name = name;
             this.handlerSelector = handlerSelector;
-
+            this.translationKey = translationKey;
         }
 
         @Override
@@ -76,15 +78,17 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
     }
 
     public enum RedStoneMode implements StringRepresentable{
-        IGNORE("ignore"),
-        HIGH_SIGNAL("high_signal"),
-        LOW_SIGNAL("low_signal"),
-        COMPARATOR("comparator"),
-        COMPARATOR_SUBSTRACTION("comparator_substraction");
+        IGNORE("ignore", "ironfurnaces.furnace_setting.redstone_mode.ignore"),
+        HIGH_SIGNAL("high_signal", "ironfurnaces.furnace_setting.redstone_mode.high_signal"),
+        LOW_SIGNAL("low_signal", "ironfurnaces.furnace_setting.redstone_mode.low_signal"),
+        COMPARATOR("comparator", "ironfurnaces.furnace_setting.redstone_mode.comparator"),
+        COMPARATOR_SUBTRACTION("comparator_subtraction", "ironfurnaces.furnace_setting.redstone_mode.comparator_subtraction");
         public final String name;
+        public final String translationKey;
 
-        RedStoneMode(String name) {
+        RedStoneMode(String name, String translationKey) {
             this.name = name;
+            this.translationKey = translationKey;
         }
 
         public static final EnumCodec<RedStoneMode> CODEC = StringRepresentable.fromEnum(RedStoneMode::values);

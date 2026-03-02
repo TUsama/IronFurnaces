@@ -4,9 +4,9 @@ import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.With;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -19,9 +19,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Accessors(fluent = true, chain = true)
-public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex {
+public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex, ICacheFillStats {
     private final static int[] cacheIndex = new int[0];
-    private final BlockIronFurnaceTileBaseV2 tile;
+    private BlockIronFurnaceTileBaseV2 tile;
     @Setter
     protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
     @Getter
@@ -90,10 +90,39 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
         if (contentChangeCallback != null) {
             contentChangeCallback.accept(this);
         }
+        recomputeFillStats();
     }
 
     @Override
     public int[] getCacheIndex() {
         return cacheIndex;
     }
+
+    private final FillStats fill_stats = new FillStats();
+
+    @Override
+    public FillStats getFillStats() {
+        return fill_stats;
+    }
+
+    /** 模式/tier改变、NBT load 后、或你不确定时调用 */
+    public void recomputeFillStats() {
+        int slots = getSlots();
+        fill_stats.slot_count = slots;
+        fill_stats.fill_sum = 0.0f;
+        fill_stats.non_empty = 0;
+
+        for (int i = 0; i < slots; i++) {
+            ItemStack s = getStackInSlot(i);
+            if (s.isEmpty()) continue;
+
+            fill_stats.non_empty++;
+            int cap = Math.min(getSlotLimit(i), s.getMaxStackSize());
+            if (cap > 0) {
+                fill_stats.fill_sum += (float) s.getCount() / (float) cap;
+            }
+        }
+    }
+
+
 }

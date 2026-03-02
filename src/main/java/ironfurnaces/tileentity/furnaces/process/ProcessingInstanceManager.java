@@ -1,5 +1,7 @@
 package ironfurnaces.tileentity.furnaces.process;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.IModeSensitive;
@@ -10,17 +12,27 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ProcessingInstanceManager implements IModeSensitive {
+
+    public static final Codec<ProcessingInstanceManager> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    ProcessingInstance.DISPATCH_CODEC.listOf().fieldOf("instances").forGetter(x -> x.instances),
+                    Codec.BOOL.fieldOf("blocking").forGetter(x -> x.isBlocking)
+            ).apply(instance, ProcessingInstanceManager::new));
+
     private final List<ProcessingInstance> instances;
     @Getter
     private boolean isBlocking;
-    private final BlockIronFurnaceTileBaseV2 tile;
 
-    public ProcessingInstanceManager(List<ProcessingInstance> instances, BlockIronFurnaceTileBaseV2 tile) {
+    public ProcessingInstanceManager(List<ProcessingInstance> instances) {
         this.instances = instances;
-        this.tile = tile;
     }
 
-    public void manage(){
+    private ProcessingInstanceManager(List<ProcessingInstance> instances, boolean isBlocking) {
+        this.instances = instances;
+        this.isBlocking = isBlocking;
+    }
+
+    public void manage(BlockIronFurnaceTileBaseV2 tile){
         if (isBlocking) return;
         Iterator<ProcessingInstance> iterator = instances.iterator();
         while (iterator.hasNext()){
@@ -52,11 +64,7 @@ public class ProcessingInstanceManager implements IModeSensitive {
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode) {
-        Iterator<ProcessingInstance> iterator = this.instances.iterator();
-        while (iterator.hasNext()){
-            ProcessingInstance next = iterator.next();
-            if (!next.getRecipeType().equals(tile.getAugments().getCurrentRecipeType())) iterator.remove();
-        }
+        this.instances.clear();
         refreshBlockingState();
     }
 }

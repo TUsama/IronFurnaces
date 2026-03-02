@@ -5,11 +5,13 @@ import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
-import ironfurnaces.Config;
 import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.*;
+import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
+import ironfurnaces.items.upgrades.furnace_upgrade.recipe.TierUpgradeRecipeBuilder;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.tileentity.furnaces.tier.upgrade.TierUpgradeRule;
 import ironfurnaces.util.RainbowEnabledCondition;
 import net.minecraft.Util;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -24,8 +26,7 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
-import static ironfurnaces.registration.ModItemTags.bind;
-import static ironfurnaces.registration.ModItemTags.bindForge;
+import static ironfurnaces.registration.ModItemTags.*;
 
 public class ModItems {
 
@@ -38,7 +39,7 @@ public class ModItems {
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("ingots/iron"))
-                                .define('X', bind("stone_tool_materials"))
+                                .define('X', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_iron", RegistrateRecipeProvider.has(bindForge("ingots/iron")))
                                 .save(provider, IronFurnaces.id("upgrades/" + ctx.getName()));
                     })
@@ -124,7 +125,7 @@ public class ModItems {
                                 .pattern("NSN")
                                 .define('#', Items.MAGMA_CREAM)
                                 .define('X', bindForge("furnaces/obsidian"))
-                                .define('S', bind("soul_fire_base_blocks"))
+                                .define('S', bindVanilla("soul_fire_base_blocks"))
                                 .define('N', Items.NETHERITE_INGOT)
                                 .unlockedBy("has_netherite", RegistrateRecipeProvider.has(Items.NETHERITE_INGOT))
                                 .save(provider, IronFurnaces.id("upgrades/" + ctx.getName()));
@@ -139,7 +140,7 @@ public class ModItems {
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("ingots/copper"))
-                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_copper", RegistrateRecipeProvider.has(bindForge("ingots/copper")))
                                 .save(provider, IronFurnaces.id("upgrades/" + ctx.getName()));
                     })
@@ -153,7 +154,7 @@ public class ModItems {
                                 .pattern("#X#")
                                 .define('#', bindForge("ingots/silver"))
                                 .define('X', bindForge("ingots/copper"))
-                                .define('S', bind("stone_tool_materials"))
+                                .define('S', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_silver", RegistrateRecipeProvider.has(bindForge("ingots/silver")))
                                 .save(x, IronFurnaces.id("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
 
@@ -175,7 +176,19 @@ public class ModItems {
                     .register();
 
     public static final ItemEntry<ItemUpgradeIron2> IRON2_UPGRADE =
-            registerItem("upgrade_iron2", "Upgrade: Copper -> Iron", ItemUpgradeIron2::new).register();
+            registerItem("upgrade_iron2", "Upgrade: Copper -> Iron", ItemUpgradeIron2::new)
+                    .recipe((ctx, provider) -> {
+                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                                .pattern("###")
+                                .pattern("GXG")
+                                .pattern("###")
+                                .define('#', bindForge("ingots/iron"))
+                                .define('X', bindForge("ingots/copper"))
+                                .define('G', bindForge("glass"))
+                                .unlockedBy("has_diamond", RegistrateRecipeProvider.has(bindForge("gems/diamond")))
+                                .save(provider, IronFurnaces.id("upgrades/" + ctx.getName()));
+                    })
+                    .register();
 
     public static final ItemEntry<ItemUpgradeGold2> GOLD2_UPGRADE =
             registerItem("upgrade_gold2", "Upgrade: Silver -> Gold", ItemUpgradeGold2::new)
@@ -218,7 +231,7 @@ public class ModItems {
                                 .pattern("B#B")
                                 .define('#', bindForge("ingots/allthemodium"))
                                 .define('B', bindForge("storage_blocks/allthemodium"))
-                                .define('X', bind("netherite_upgrade_crafting"))
+                                .define('X', ModItemTags.NETHERITE_UPGRADE)
                                 .unlockedBy("has_allthemodium", RegistrateRecipeProvider.has(bindForge("ingots/allthemodium")))
                                 .save(x, IronFurnaces.id("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
                     })
@@ -374,8 +387,8 @@ public class ModItems {
             registerItem("item_spooky", ItemSpooky::new).recipe((ctx, provider) -> {
                         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
                                 .requires(Items.CARVED_PUMPKIN)
-                                .requires(ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
-                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES))
+                                .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
+                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE))
                                 .save(provider, IronFurnaces.id(ctx.getName()));
                     })
                     .register();
@@ -386,8 +399,8 @@ public class ModItems {
                                 .requires(Items.YELLOW_DYE)
                                 .requires(Items.RED_DYE)
                                 .requires(Items.PAPER)
-                                .requires(ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
-                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES))
+                                .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
+                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE))
                                 .save(provider, IronFurnaces.id(ctx.getName()));
                     })
                     .register();
@@ -400,10 +413,25 @@ public class ModItems {
                                 .pattern("#X#")
                                 .pattern(" # ")
                                 .define('#', Items.PAPER)
-                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
-                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES))
+                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
+                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE))
                                 .save(provider, IronFurnaces.id(ctx.getName()));
                     })
+                    .register();
+
+    public static final ItemEntry<ItemFurnaceCopyV2> ITEM_COPY_V2 =
+            registerItem("item_copy", p -> new ItemFurnaceCopyV2(p.stacksTo(1)))
+                    .recipe((ctx, provider) -> {
+                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', Items.PAPER)
+                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
+                                .unlockedBy("has_furnace", RegistrateRecipeProvider.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE))
+                                .save(provider, IronFurnaces.id(ctx.getName()));
+                    })
+                    .lang("Copy Tool")
                     .register();
 
     public static final ItemEntry<Item> RAINBOW_CORE =
@@ -474,6 +502,191 @@ public class ModItems {
                         .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
                         .save(provider, IronFurnaces.id(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
             }).register();
+
+    public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
+            registerItem("upgrade_tool", ItemUpgradeTool::new)
+                    .recipe((ctx, provider) -> {
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_gold"))
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("#Y#")
+                                .define('#', bindForge("ingots/gold"))
+                                .define('X', bindForge("ingots/iron"))
+                                .define('Y', bindForge("storage_blocks/gold"))
+                                .unlockedBy("has_gold", RegistrateRecipeProvider.has(bindForge("ingots/gold")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_gold")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_iron"))
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', bindForge("ingots/iron"))
+                                .define('X', bindVanilla("stone_tool_materials"))
+                                .unlockedBy("has_iron", RegistrateRecipeProvider.has(bindForge("ingots/iron")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_iron")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_diamond"))
+                                .pattern("###")
+                                .pattern("GXG")
+                                .pattern("###")
+                                .define('#', bindForge("gems/diamond"))
+                                .define('X', bindForge("ingots/gold"))
+                                .define('G', bindForge("glass"))
+                                .unlockedBy("has_diamond", RegistrateRecipeProvider.has(bindForge("gems/diamond")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_diamond")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_emerald"))
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', bindForge("gems/emerald"))
+                                .define('X', bindForge("gems/diamond"))
+                                .unlockedBy("has_emerald", RegistrateRecipeProvider.has(bindForge("gems/emerald")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_emerald")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_obsidian"))
+                                .pattern("#Y#")
+                                .pattern("YXY")
+                                .pattern("#Y#")
+                                .define('#', bindForge("obsidian"))
+                                .define('X', bindForge("gems/emerald"))
+                                .define('Y', bindForge("rods/blaze"))
+                                .unlockedBy("has_obsidian", RegistrateRecipeProvider.has(bindForge("obsidian")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_obsidian")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_crystal"))
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', bindForge("glass"))
+                                .define('X', bindForge("gems/diamond"))
+                                .unlockedBy("has_glass", RegistrateRecipeProvider.has(bindForge("glass")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_crystal")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_netherite"))
+                                .pattern("N#N")
+                                .pattern("#X#")
+                                .pattern("NSN")
+                                .define('#', Items.MAGMA_CREAM)
+                                .define('X', bindForge("furnaces/obsidian"))
+                                .define('S', bindVanilla("soul_fire_base_blocks"))
+                                .define('N', Items.NETHERITE_INGOT)
+                                .unlockedBy("has_netherite", RegistrateRecipeProvider.has(Items.NETHERITE_INGOT))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_netherite")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_copper"))
+                                .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', bindForge("ingots/copper"))
+                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
+                                .unlockedBy("has_copper", RegistrateRecipeProvider.has(bindForge("ingots/copper")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_copper")));
+
+                        LegacyFurnaceBlocks.whenHasTags(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_silver"))
+                                                .pattern("###")
+                                                .pattern("#S#")
+                                                .pattern("#X#")
+                                                .define('#', bindForge("ingots/silver"))
+                                                .define('X', bindForge("ingots/copper"))
+                                                .define('S', bindVanilla("stone_tool_materials"))
+                                                .unlockedBy("has_silver", RegistrateRecipeProvider.has(bindForge("ingots/silver")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_silver"))),
+                                ctx, provider, "new_upgrades", "upgrade_silver", ModItemTags.SILVER
+                        );
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_obsidian2"))
+                                .pattern("#Y#")
+                                .pattern("YXY")
+                                .pattern("#Y#")
+                                .define('#', bindForge("obsidian"))
+                                .define('X', bindForge("glass"))
+                                .define('Y', bindForge("rods/blaze"))
+                                .unlockedBy("has_obsidian", RegistrateRecipeProvider.has(bindForge("obsidian")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_obsidian2")));
+
+                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_iron2"))
+                                .pattern("###")
+                                .pattern("GXG")
+                                .pattern("###")
+                                .define('#', bindForge("ingots/iron"))
+                                .define('X', bindForge("ingots/copper"))
+                                .define('G', bindForge("glass"))
+                                .unlockedBy("has_diamond", RegistrateRecipeProvider.has(bindForge("gems/diamond")))
+                                .save(provider, newUpgrade(IronFurnaces.id("upgrade_iron2")));
+
+                        LegacyFurnaceBlocks.whenHasTags(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_gold2"))
+                                                .pattern("###")
+                                                .pattern("#X#")
+                                                .pattern("#Y#")
+                                                .define('#', bindForge("ingots/gold"))
+                                                .define('X', bindForge("ingots/silver"))
+                                                .define('Y', bindForge("storage_blocks/gold"))
+                                                .unlockedBy("has_gold", RegistrateRecipeProvider.has(bindForge("ingots/gold")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_gold2"))),
+                                ctx, provider, "new_upgrades", "upgrade_gold2", bindForge("ingots/silver")
+                        );
+
+                        LegacyFurnaceBlocks.whenHasTags(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_silver2"))
+                                                .pattern("#G#")
+                                                .pattern("GXG")
+                                                .pattern("#G#")
+                                                .define('#', bindForge("ingots/silver"))
+                                                .define('X', bindForge("ingots/iron"))
+                                                .define('G', bindForge("glass"))
+                                                .unlockedBy("has_silver", RegistrateRecipeProvider.has(bindForge("ingots/silver")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_silver2"))),
+                                ctx, provider, "new_upgrades", "upgrade_silver2", ModItemTags.SILVER
+                        );
+
+                        LegacyFurnaceBlocks.whenAllthemodium(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_allthemodium"))
+                                                .pattern("B#B")
+                                                .pattern("#X#")
+                                                .pattern("B#B")
+                                                .define('#', bindForge("ingots/allthemodium"))
+                                                .define('B', bindForge("storage_blocks/allthemodium"))
+                                                .define('X', ModItemTags.NETHERITE_UPGRADE)
+                                                .unlockedBy("has_allthemodium", RegistrateRecipeProvider.has(bindForge("ingots/allthemodium")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_allthemodium"))),
+                                ctx, "new_upgrades", "upgrade_allthemodium", provider
+                        );
+
+                        LegacyFurnaceBlocks.whenAllthemodium(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_vibranium"))
+                                                .pattern("B#B")
+                                                .pattern("#X#")
+                                                .pattern("B#B")
+                                                .define('#', bindForge("ingots/vibranium"))
+                                                .define('B', bindForge("storage_blocks/vibranium"))
+                                                .define('X', bindForge("ingots/allthemodium"))
+                                                .unlockedBy("has_vibranium", RegistrateRecipeProvider.has(bindForge("ingots/vibranium")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_vibranium"))),
+                                ctx, "new_upgrades", "upgrade_vibranium", provider
+                        );
+
+                        LegacyFurnaceBlocks.whenAllthemodium(x ->
+                                        TierUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_unobtainium"))
+                                                .pattern("B#B")
+                                                .pattern("#X#")
+                                                .pattern("B#B")
+                                                .define('#', bindForge("ingots/unobtainium"))
+                                                .define('B', bindForge("storage_blocks/unobtainium"))
+                                                .define('X', bindForge("ingots/vibranium"))
+                                                .unlockedBy("has_unobtainium", RegistrateRecipeProvider.has(bindForge("ingots/unobtainium")))
+                                                .save(x, newUpgrade(IronFurnaces.id("upgrade_unobtainium"))),
+                                ctx, "new_upgrades", "upgrade_unobtainium", provider
+                        );
+                    }).register();
+
+
+    private static ResourceLocation newUpgrade(ResourceLocation path){
+        return IronFurnaces.id("new_upgrades/" + path.getPath());
+    }
 
 
     private static <T extends Item> ItemBuilder<T, Registrate> registerItem(

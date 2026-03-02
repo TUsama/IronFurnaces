@@ -22,8 +22,74 @@ public class ModLangs {
     public static final Component USAGE_1 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.1", "Right-click to copy settings");
     public static final Component USAGE_2 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.2", "Sneak & right-click to apply settings");
     public static final Component TIP_SETTING_APPLIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_applied", "Settings Applied");
-    public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");                public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "faced_direction", "Faced Direction: %s");
+    public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");
+    public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "faced_direction", "Faced Direction: %s");
 
+    public static final Component ERROR_ON_PARSE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_parse", "Failed at parsing furnace setting on Copy Tool!");
+    public static final Component ERROR_ON_WRITE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_write", "Failed at writing furnace setting on Copy Tool! Please consider destroy the furnace you are coping and place it down again!");
+
+    public static final Component IO_MODE_NONE =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.none",
+                    "None"
+            );
+
+    public static final Component IO_MODE_INPUT =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.input",
+                    "Input"
+            );
+
+    public static final Component IO_MODE_OUTPUT =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.output",
+                    "Output"
+            );
+
+    public static final Component IO_MODE_FUEL =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.fuel",
+                    "Fuel"
+            );
+
+    public static final Component IO_MODE_ALL =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.all",
+                    "All"
+            );
+
+    public static final Component REDSTONE_MODE_IGNORE =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.redstone_mode.ignore",
+                    "Ignore"
+            );
+
+    public static final Component REDSTONE_MODE_HIGH_SIGNAL =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.redstone_mode.high_signal",
+                    "High Signal"
+            );
+
+    public static final Component REDSTONE_MODE_LOW_SIGNAL =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.redstone_mode.low_signal",
+                    "Low Signal"
+            );
+
+    public static final Component REDSTONE_MODE_COMPARATOR =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.redstone_mode.comparator",
+                    "Comparator"
+            );
+
+    public static final Component REDSTONE_MODE_COMPARATOR_SUBTRACTION =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.redstone_mode.comparator_subtraction",
+                    "Comparator Subtraction"
+            );
+
+    public static final Component SETTING_ENABLE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "setting_enable", "Enable");
+    public static final Component SETTING_DISABLE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "setting_disable", "Disable");
     public static final Component WORK_SPEED = REGISTRATE.addRawLang("ironfurnaces.block.furnace." + "work_speed", "Base Cook Time: %s tick/per item");
 
     public static final Component UPGRADE_RIGHT_CLICK =

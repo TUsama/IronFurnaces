@@ -24,6 +24,11 @@ public class ItemAugmentSmoking extends ItemAugmentRed {
         return RecipeType.SMOKING;
     }
 
+    @Override
+    public int getType() {
+        return 1;
+    }
+
 
     @OnlyIn(Dist.CLIENT)
     @Override

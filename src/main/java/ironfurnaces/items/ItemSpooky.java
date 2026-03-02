@@ -1,6 +1,7 @@
 package ironfurnaces.items;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -14,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemSpooky extends Item {
+public class ItemSpooky extends ItemJovial implements IJovialSetter{
 
 
     public ItemSpooky(Properties properties) {
@@ -27,5 +28,12 @@ public class ItemSpooky extends Item {
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky_right_click").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky2").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+    }
+
+
+
+    @Override
+    public JovialState getJovialState() {
+        return JovialState.SPOOKY;
     }
 }

@@ -9,6 +9,7 @@ import ironfurnaces.items.ItemXmas;
 import ironfurnaces.items.augments.ItemAugment;
 import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
+import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.util.DirectionUtil;
@@ -41,11 +42,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -56,12 +54,9 @@ import static net.minecraft.network.chat.Component.translatable;
 
 public abstract class BlockIronFurnaceBase extends Block implements EntityBlock {
 
-    public static final IntegerProperty TYPE = IntegerProperty.create("type", 0, 2);
-    public static final IntegerProperty JOVIAL = IntegerProperty.create("jovial", 0, 2);
-
     public BlockIronFurnaceBase(Properties properties) {
         super(properties.destroyTime(3F));
-        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(TYPE, 0).setValue(JOVIAL, 0));
+        this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(ModBlockState.TYPE, 0).setValue(ModBlockState.JOVIAL, 0));
     }
 
     public MenuProvider getMenuProvider(BlockState p_49234_, Level p_49235_, BlockPos p_49236_) {
@@ -450,7 +445,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, TYPE, JOVIAL);
+        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, ModBlockState.TYPE, ModBlockState.JOVIAL);
     }
 
     @Nullable

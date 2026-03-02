@@ -47,7 +47,7 @@ public class ModItemGroups {
                         entries.accept(ModItems.FUEL_AUGMENT.get());
                         entries.accept(ModItems.ITEM_SPOOKY.get());
                         entries.accept(ModItems.ITEM_XMAS.get());
-                        entries.accept(ModItems.ITEM_COPY.get());
+                        entries.accept(ModItems.ITEM_COPY_V2.get());
                         entries.accept(ModItems.RAINBOW_CORE.get());
                         entries.accept(ModItems.RAINBOW_PLATING.get());
 

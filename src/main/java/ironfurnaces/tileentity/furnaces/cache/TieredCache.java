@@ -1,28 +1,25 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.tier.FurnacePattern;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.function.Function;
 
-public abstract class TieredCache extends ItemStackHandler implements IModeSensitive, ICacheIndex{
+public abstract class TieredCache extends ItemStackHandler implements IModeSensitive, ICacheIndex {
     protected FurnaceMode mode;
-    private ForgeConfigSpec.IntValue tier;
+    private FurnacePattern tier;
     @Nullable
     private int[] cacheSlotArray;
 
-    public TieredCache(FurnaceMode mode, ForgeConfigSpec.IntValue tier) {
+    public TieredCache(FurnaceMode mode, FurnacePattern tier) {
         this.mode = mode;
         this.tier = tier;
     }
 
-    public TieredCache(int size, FurnaceMode mode, ForgeConfigSpec.IntValue tier) {
+    public TieredCache(int size, FurnaceMode mode, FurnacePattern tier) {
         super(size);
         this.mode = mode;
         this.tier = tier;
@@ -57,7 +54,7 @@ public abstract class TieredCache extends ItemStackHandler implements IModeSensi
         return switch (mode){
             case FURNACE -> 1;
             case GENERATOR -> 0;
-            case FACTORY -> Math.min(6, 2 * (tier.get() + 1));
+            case FACTORY -> tier.inputSlotAmount();
         };
     }
 

@@ -7,9 +7,9 @@ import net.minecraftforge.energy.EnergyStorage;
 
 import java.util.function.Consumer;
 
+@Accessors(fluent = true, chain = true)
 public class FEnergyStorage extends EnergyStorage {
 
-    @With
     @Setter
     private Consumer<FEnergyStorage> callback;
 

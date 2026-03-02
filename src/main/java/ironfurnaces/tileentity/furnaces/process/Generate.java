@@ -1,45 +1,39 @@
 package ironfurnaces.tileentity.furnaces.process;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
 
-public class Generate extends ProcessingInstance{
-    private final int expectedTotalOutput;
-    private int currentOutput;
-    private final ItemStack stack;
-    private final int eachTickOutPut;
-    private final AugmentCache augment;
+public abstract class Generate extends ProcessingInstance {
+    protected final int expectedTotalOutput;
+    protected final int eachTickOutPut;
+    protected int currentOutput;
 
 
-    public Generate(int expectedTotalOutput, Recipe<?> recipe, ItemStack stack, int eachTickOutPut, AugmentCache augment) {
-        super(recipe);
+    public Generate(int expectedTotalOutput, int eachTickOutPut) {
+        super();
         this.expectedTotalOutput = expectedTotalOutput;
-        this.stack = stack;
         this.eachTickOutPut = eachTickOutPut;
-        this.augment = augment;
     }
 
-    @Override
-    public boolean validate() {
-        return true;
-    }
+
 
     @Override
     public void whenStart(BlockIronFurnaceTileBaseV2 tile) {
-        stack.shrink(1);
+        tile.getFuel().getStackInSlot(0).shrink(1);
     }
-
 
 
     @Override
     public TickResult whenTick(BlockIronFurnaceTileBaseV2 tile) {
         FuelCache fuel = tile.getFuel();
         int min = Math.min(eachTickOutPut, expectedTotalOutput - currentOutput);
-        if (fuel.canReceive(min)){
+        if (fuel.canReceive(min)) {
             fuel.receiveEnergy(min, false);
             currentOutput += min;
             if (currentOutput >= expectedTotalOutput) {
@@ -52,19 +46,49 @@ public class Generate extends ProcessingInstance{
     }
 
 
+    public static class SmeltGenerate extends Generate {
+        public static final MapCodec<SmeltGenerate> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        Codec.INT.fieldOf("expectedTotalOutput").forGetter(x -> x.expectedTotalOutput),
+                        Codec.INT.fieldOf("eachTickOutPut").forGetter(x -> x.eachTickOutPut),
+                        Codec.INT.fieldOf("currentOutput").forGetter(x -> x.currentOutput)
+                ).apply(instance, (a, b, c) -> {
+                    SmeltGenerate smeltGenerate = new SmeltGenerate(a, b);
+                    smeltGenerate.currentOutput = c;
+                    return smeltGenerate;
+                }));
+        public static final String TYPE = "generator_smelt";
 
-    public static class SmeltGenerate extends Generate{
+        public SmeltGenerate(int expectedTotalOutput, int eachTickOutPut) {
+            super(expectedTotalOutput, eachTickOutPut);
+        }
 
-
-        public SmeltGenerate(int expectedTotalOutput, Recipe<?> recipe, ItemStack stack, int eachTickOutPut, AugmentCache augment) {
-            super(expectedTotalOutput, recipe, stack, eachTickOutPut, augment);
+        @Override
+        public String getType() {
+            return TYPE;
         }
     }
 
-    public static class BlastGenerate extends Generate{
+    public static class BlastGenerate extends Generate {
+        public static final MapCodec<BlastGenerate> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        Codec.INT.fieldOf("expectedTotalOutput").forGetter(x -> x.expectedTotalOutput),
+                        Codec.INT.fieldOf("eachTickOutPut").forGetter(x -> x.eachTickOutPut),
+                        Codec.INT.fieldOf("currentOutput").forGetter(x -> x.currentOutput)
+                ).apply(instance, (a, b, c) -> {
+                    BlastGenerate blastGenerate = new BlastGenerate(a, b);
+                    blastGenerate.currentOutput = c;
+                    return blastGenerate;
+                }));
+        public static final String TYPE = "generator_blast";
 
-        public BlastGenerate(int expectedTotalOutput, Recipe<?> recipe, ItemStack stack, int eachTickOutPut, AugmentCache augment) {
-            super(expectedTotalOutput, recipe, stack, eachTickOutPut, augment);
+        public BlastGenerate(int expectedTotalOutput, int eachTickOutPut) {
+            super(expectedTotalOutput,eachTickOutPut);
+        }
+
+        @Override
+        public String getType() {
+            return TYPE;
         }
     }
 }

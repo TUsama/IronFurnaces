@@ -10,5 +10,6 @@ public abstract class ItemAugmentRed extends ItemAugment {
     }
 
     public abstract RecipeType<?> getRecipeType();
+    public abstract int getType();
 
 }

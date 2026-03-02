@@ -7,13 +7,13 @@ import harmonised.pmmo.api.events.FurnaceBurnEvent;
 import harmonised.pmmo.events.impl.FurnaceHandler;
 import ironfurnaces.Config;
 import ironfurnaces.adaptor.energy.EnergyWrapper;
-import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
+import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
@@ -59,7 +59,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
@@ -378,11 +377,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         if (state.getValue(BlockStateProperties.LIT) != this.isBurning()) {
             level.setBlock(worldPosition, state.setValue(BlockStateProperties.LIT, this.isBurning()), 3);
         }
-        if (state.getValue(BlockIronFurnaceBase.TYPE) != this.getStateType()) {
-            level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, this.getStateType()), 3);
+        if (state.getValue(ModBlockState.TYPE) != this.getStateType()) {
+            level.setBlock(worldPosition, state.setValue(ModBlockState.TYPE, this.getStateType()), 3);
         }
-        if (state.getValue(BlockIronFurnaceBase.JOVIAL) != jovial) {
-            level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, jovial), 3);
+        if (state.getValue(ModBlockState.JOVIAL) != jovial) {
+            level.setBlock(worldPosition, state.setValue(ModBlockState.JOVIAL, jovial), 3);
         }
     }
 
@@ -841,11 +840,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 }
                 if (furnaceTile.level.getGameTime() % 24 == 0) {
                     BlockState state = level.getBlockState(worldPosition);
-                    if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
-                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
+                    if (state.getValue(ModBlockState.TYPE) != furnaceTile.getStateType()) {
+                        level.setBlock(worldPosition, state.setValue(ModBlockState.TYPE, furnaceTile.getStateType()), 3);
                     }
-                    if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
-                        level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
+                    if (state.getValue(ModBlockState.JOVIAL) != furnaceTile.jovial) {
+                        level.setBlock(worldPosition, state.setValue(ModBlockState.JOVIAL, furnaceTile.jovial), 3);
                     }
                     for (int i = 0; i < furnaceTile.factoryCookTime.length; i++) {
                         if (furnaceTile.factoryCookTime[i] <= 0) {
@@ -950,11 +949,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
             if (furnaceTile.level.getGameTime() % 24 == 0) {
                 BlockState state = level.getBlockState(worldPosition);
-                if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
+                if (state.getValue(ModBlockState.TYPE) != furnaceTile.getStateType()) {
+                    level.setBlock(worldPosition, state.setValue(ModBlockState.TYPE, furnaceTile.getStateType()), 3);
                 }
-                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
+                if (state.getValue(ModBlockState.JOVIAL) != furnaceTile.jovial) {
+                    level.setBlock(worldPosition, state.setValue(ModBlockState.JOVIAL, furnaceTile.jovial), 3);
                 }
             }
 
@@ -1090,11 +1089,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
             if (furnaceTile.level.getGameTime() % 24 == 0) {
                 BlockState state = level.getBlockState(worldPosition);
-                if (state.getValue(BlockIronFurnaceBase.TYPE) != furnaceTile.getStateType()) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.TYPE, furnaceTile.getStateType()), 3);
+                if (state.getValue(ModBlockState.TYPE) != furnaceTile.getStateType()) {
+                    level.setBlock(worldPosition, state.setValue(ModBlockState.TYPE, furnaceTile.getStateType()), 3);
                 }
-                if (state.getValue(BlockIronFurnaceBase.JOVIAL) != furnaceTile.jovial) {
-                    level.setBlock(worldPosition, state.setValue(BlockIronFurnaceBase.JOVIAL, furnaceTile.jovial), 3);
+                if (state.getValue(ModBlockState.JOVIAL) != furnaceTile.jovial) {
+                    level.setBlock(worldPosition, state.setValue(ModBlockState.JOVIAL, furnaceTile.jovial), 3);
                 }
             }
 
