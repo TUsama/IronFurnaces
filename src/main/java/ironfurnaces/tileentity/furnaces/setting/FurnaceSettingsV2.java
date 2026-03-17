@@ -2,7 +2,7 @@ package ironfurnaces.tileentity.furnaces.setting;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.With;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
@@ -17,8 +17,8 @@ import java.util.function.Function;
 
 @With
 public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean autoInput, boolean autoOutput,
-                                RedStoneMode redStoneMode, int subtractionNumber, boolean augmentGui,
-                                boolean autoSplit) {
+                                RedStoneMode redStoneMode, int subtractionNumber,
+                                boolean autoFill) {
     public static final Codec<FurnaceSettingsV2> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.unboundedMap(Direction.CODEC, IOMode.CODEC).xmap(EnumMap::new, HashMap::new).fieldOf("io_setting").forGetter(x -> x.IOSetting),
@@ -26,8 +26,7 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
                     Codec.BOOL.fieldOf("auto_output").forGetter(x -> x.autoOutput),
                     RedStoneMode.CODEC.fieldOf("redstone_mode").forGetter(x -> x.redStoneMode),
                     Codec.INT.fieldOf("subtraction_number").forGetter(x -> x.subtractionNumber),
-                    Codec.BOOL.fieldOf("augment_gui").forGetter(x -> x.augmentGui),
-                    Codec.BOOL.fieldOf("auto_split").forGetter(x -> x.autoSplit)
+                    Codec.BOOL.fieldOf("auto_fill").forGetter(x -> x.autoFill)
     ).apply(instance, FurnaceSettingsV2::new)
 );
     public static final FurnaceSettingsV2 DEFAULT = Util.make(() -> {
@@ -39,11 +38,14 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
                 Direction.NORTH, IOMode.FUEL,
                 Direction.SOUTH, IOMode.FUEL
         ));
-        return new FurnaceSettingsV2(directionIOModeEnumMap, false, false, RedStoneMode.IGNORE, 0, false, false);
+        return new FurnaceSettingsV2(directionIOModeEnumMap, false, false, RedStoneMode.IGNORE, 0, false);
     });
+
+    public static final String NBT_KEY = "furnace_setting";
 
     public FurnaceSettingsV2 withDirectionChanged(Direction direction, IOMode ioMode){
         EnumMap<Direction, IOMode> directionIOModeEnumMap = new EnumMap<>(this.IOSetting);
+        directionIOModeEnumMap.remove(direction);
         directionIOModeEnumMap.put(direction, ioMode);
         return this.withIOSetting(directionIOModeEnumMap);
     }
@@ -55,17 +57,18 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
 
     public enum IOMode implements StringRepresentable{
         NONE("none", x -> ((IItemHandlerModifiable) EmptyHandler.INSTANCE), "ironfurnaces.furnace_setting.io_mode.none"),
-        INPUT("input", BlockIronFurnaceTileBaseV2::getInput, "ironfurnaces.furnace_setting.io_mode.none"),
-        OUTPUT("output", BlockIronFurnaceTileBaseV2::getAllOutput, "ironfurnaces.furnace_setting.io_mode.input"),
-        FUEL("fuel", BlockIronFurnaceTileBaseV2::getFuel, "ironfurnaces.furnace_setting.io_mode.output"),
-        ALL("all", BlockIronFurnaceTileBaseV2::getAllInv, "ironfurnaces.furnace_setting.io_mode.all");
+        INPUT("input", FurnacePatternBlockEntity::getInput, "ironfurnaces.furnace_setting.io_mode.input"),
+        OUTPUT("output", FurnacePatternBlockEntity::getAllOutput, "ironfurnaces.furnace_setting.io_mode.output"),
+        INPUT_AND_OUTPUT("input_and_output", FurnacePatternBlockEntity::getAllOutput, "ironfurnaces.furnace_setting.io_mode.input_and_output"),
+        FUEL("fuel", FurnacePatternBlockEntity::getFuel, "ironfurnaces.furnace_setting.io_mode.fuel"),
+        ALL("all", FurnacePatternBlockEntity::getAllInvForAutomation, "ironfurnaces.furnace_setting.io_mode.all");
         public static final EnumCodec<IOMode> CODEC = StringRepresentable.fromEnum(IOMode::values);
         public final String name;
-        public final Function<BlockIronFurnaceTileBaseV2, IItemHandlerModifiable> handlerSelector;
+        public final Function<FurnacePatternBlockEntity, IItemHandlerModifiable> handlerSelector;
         public final String translationKey;
 
 
-        IOMode(String name, Function<BlockIronFurnaceTileBaseV2, IItemHandlerModifiable> handlerSelector, String translationKey) {
+        IOMode(String name, Function<FurnacePatternBlockEntity, IItemHandlerModifiable> handlerSelector, String translationKey) {
             this.name = name;
             this.handlerSelector = handlerSelector;
             this.translationKey = translationKey;
@@ -74,6 +77,14 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         @Override
         public String getSerializedName() {
             return this.name;
+        }
+
+        public IOMode next() {
+            return values()[(this.ordinal() + 1) % values().length];
+        }
+
+        public IOMode previous() {
+            return values()[Math.floorMod(this.ordinal() - 1, values().length)];
         }
     }
 
@@ -96,6 +107,14 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         @Override
         public String getSerializedName() {
             return this.name;
+        }
+
+        public RedStoneMode next() {
+            return values()[(this.ordinal() + 1) % values().length];
+        }
+
+        public RedStoneMode previous() {
+            return values()[Math.floorMod(this.ordinal() - 1, values().length)];
         }
     }
 }

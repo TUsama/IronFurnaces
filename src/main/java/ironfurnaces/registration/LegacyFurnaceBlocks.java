@@ -541,7 +541,7 @@ public class LegacyFurnaceBlocks {
                     x.add("container.ironfurnaces." + name, LangUtils.snakeToTitleWithSpace(name).replace("Million", "Rainbow"));
                 })
                 .lang(Block::getDescriptionId, LangUtils.snakeToTitleWithSpace(name).replace("Million", "Rainbow"))
-                .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+                .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_FURNACE)
                 .loot((ctx, furnace) -> {
                     LootTable.Builder builder = LootTable.lootTable()
                             .withPool(

@@ -3,13 +3,20 @@ package ironfurnaces.tileentity.furnaces.cache;
 import ironfurnaces.items.augments.ItemAugmentBlue;
 import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
+import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
+import it.unimi.dsi.fastutil.ints.Int2FloatFunction;
 import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -19,54 +26,63 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Predicate;
 
 public class AugmentCache extends CombinedInvWrapper implements INBTSerializable<CompoundTag> {
     private final Consumer<FurnaceMode> updateFurnaceModeCallback;
     @Getter
-    private RecipeType<?> currentRecipeType;
+    @Setter
+    private HandlingRecipeType currentRecipeType;
     private GreenAugmentModifier greenAugmentModifier;
-    @Getter
-    private int currentType;
+    private Runnable updateRecipeType;
 
-    public AugmentCache(Consumer<FurnaceMode> updateFurnaceModeCallback) {
-        super(new ItemStackHandler(1) {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return stack.getItem() instanceof ItemAugmentRed;
-            }
-        }, new ItemStackHandler(1) {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return stack.getItem() instanceof ItemAugmentGreen;
-            }
-        }, new ItemStackHandler(1) {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return stack.getItem() instanceof ItemAugmentBlue;
-            }
-        });
+    public AugmentCache(Consumer<FurnaceMode> updateFurnaceModeCallback, Runnable updateRecipeType) {
+        super(new AugmentCacheHandler(),
+                new AugmentCacheHandler(),
+                new AugmentCacheHandler());
         this.updateFurnaceModeCallback = updateFurnaceModeCallback;
         this.greenAugmentModifier = GreenAugmentModifier.NONE;
-        refreshState();
+        this.updateRecipeType = updateRecipeType;
+        ((AugmentCacheHandler) getHandlerFromIndex(0))
+                .onChange(i -> {
+                    var item = getHandlerFromIndex(0).getStackInSlot(i);
+                    if (item.isEmpty()) {
+                        this.currentRecipeType = HandlingRecipeType.NORMAL;
+                    } else if (item.getItem() instanceof ItemAugmentRed red) {
+                        this.currentRecipeType = red.getRecipeType();
+                    }
+                    updateRecipeType.run();
+                })
+                .validator((i, stack )-> stack.getItem() instanceof ItemAugmentRed);
+
+        ((AugmentCacheHandler) getHandlerFromIndex(1))
+                .onChange(i -> {
+                    ItemStack buff = getHandlerFromIndex(1).getStackInSlot(i);
+                    if (buff.isEmpty()) {
+                        this.greenAugmentModifier = GreenAugmentModifier.NONE;
+                    } else if (buff.getItem() instanceof ItemAugmentGreen green) {
+                        this.greenAugmentModifier = green.getModifier();
+                    }
+                })
+                .validator((i, stack )-> stack.getItem() instanceof ItemAugmentGreen);
+
+        ((AugmentCacheHandler) getHandlerFromIndex(2))
+                .onChange(i -> {
+                    ItemStack mode = getHandlerFromIndex(2).getStackInSlot(i);
+                    if (mode.isEmpty()) {
+                        this.updateFurnaceModeCallback.accept(FurnaceMode.FURNACE);
+                    } else if (mode.getItem() instanceof ItemAugmentBlue blue) {
+                        FurnaceMode mode1 = blue.getMode();
+                        this.updateFurnaceModeCallback.accept(mode1);
+                    }
+                })
+                .validator((i, stack)-> stack.getItem() instanceof ItemAugmentBlue);
     }
 
-    @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        ItemStack itemStack = super.insertItem(slot, stack, simulate);
-        if (ItemStack.matches(stack, itemStack)) refreshState();
-        return itemStack;
-    }
 
-    @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        ItemStack itemStack = super.extractItem(slot, amount, simulate);
-        if (!itemStack.isEmpty()) refreshState();
-        return itemStack;
-    }
+
 
     public void refreshState() {
-
-
         ItemStack buff = this.itemHandler[1].getStackInSlot(0);
         if (buff.isEmpty()) {
             this.greenAugmentModifier = GreenAugmentModifier.NONE;
@@ -84,12 +100,11 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
 
         var item = this.itemHandler[0].getStackInSlot(0);
         if (item.isEmpty()) {
-            this.currentRecipeType = RecipeType.SMELTING;
-            this.currentType = 0;
+            this.currentRecipeType = HandlingRecipeType.NORMAL;
         } else if (item.getItem() instanceof ItemAugmentRed red) {
             this.currentRecipeType = red.getRecipeType();
-            this.currentType = red.getType();
         }
+        updateRecipeType.run();
 
     }
 
@@ -128,7 +143,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
 
     public enum GreenAugmentModifier {
         SPEED(new Modifiers(
-                x -> x / 2,
+                x -> x + 1,
                 totalBurnTime -> totalBurnTime / 2,
                 IntUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
@@ -136,19 +151,19 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 x -> 2 * x
         )),
         FUEL_EFFICIENCY(new Modifiers(
-                x -> (int) (x * 1.25f),
+                x -> x + 0.25f,
                 totalBurnTime -> totalBurnTime * 2,
                 IntUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
-                x -> (int) (x * 0.75f),
+                x -> x * 0.75f,
                 x -> x / 2
         )),
         NONE(new Modifiers(
+                FloatUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
-                IntUnaryOperator.identity(),
-                IntUnaryOperator.identity(),
+                x -> x,
                 IntUnaryOperator.identity()
         ));
 
@@ -159,13 +174,50 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
         }
 
         public record Modifiers(
-                IntUnaryOperator normalWorkTimeModifier,
+                FloatUnaryOperator normalWorkTimeModifier,
                 IntUnaryOperator normalBurnTimeModifier,
                 IntUnaryOperator energyWorkTimeModifier,
                 IntUnaryOperator energyBurnTimeModifier,
-                IntUnaryOperator generateOutputModifier,
+                Int2FloatFunction generateOutputModifier,
                 IntUnaryOperator energyWorkCostModifier
         ) {
+        }
+    }
+
+    public enum HandlingRecipeType implements StringRepresentable {
+        NORMAL("normal", RecipeType.SMELTING),
+        SMOKE("smoke", RecipeType.SMOKING),
+        BLAST("blast", RecipeType.BLASTING);
+        public final String name;
+        public final RecipeType<?> recipeType;
+
+        HandlingRecipeType(String name, RecipeType<?> recipeType) {
+            this.name = name;
+            this.recipeType = recipeType;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
+    }
+
+    private class AugmentSlotHandler extends ItemStackHandler {
+        private final Predicate<ItemStack> validator;
+
+        public AugmentSlotHandler(Predicate<ItemStack> validator) {
+            super(1);
+            this.validator = validator;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return validator.test(stack);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            refreshState();
         }
     }
 }

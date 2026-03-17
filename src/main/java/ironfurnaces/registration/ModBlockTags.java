@@ -1,7 +1,6 @@
 package ironfurnaces.registration;
 
 import ironfurnaces.loaders.IronFurnaces;
-import lombok.experimental.UtilityClass;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -10,7 +9,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 public class ModBlockTags {
-    public static final TagKey<Block> PLAYER_WORKSTATIONS_CRAFTING_TABLES = bindC(
+    public static final TagKey<Block> PLAYER_WORKSTATIONS_FURNACE = bindC(
             "player_workstations/furnaces"
     );
     public static final TagKey<Block> FURNACE_ALLTHEMODIUM = bindForge(

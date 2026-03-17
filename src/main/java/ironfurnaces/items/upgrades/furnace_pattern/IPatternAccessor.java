@@ -1,19 +1,21 @@
 package ironfurnaces.items.upgrades.furnace_pattern;
 
-import ironfurnaces.tileentity.furnaces.tier.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.tier.FurnacePatternManager;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
 public interface IPatternAccessor {
+    //todo potential bug: server added new pattern without sync to client, resulting this method return null.
     @Nullable
     static FurnacePattern getFurnacePatternFromTag(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains(FurnacePattern.NBT_ID)){
-            ResourceLocation resourceLocation = ResourceLocation.tryParse(tag.getString(FurnacePattern.NBT_ID));
+        CompoundTag tag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        if (tag != null && tag.contains(FurnacePattern.NBT_KEY)){
+            ResourceLocation resourceLocation = ResourceLocation.tryParse(tag.getString(FurnacePattern.NBT_KEY));
             if (resourceLocation != null){
                 return FurnacePatternManager.get(resourceLocation);
             }
@@ -24,7 +26,7 @@ public interface IPatternAccessor {
 
     static void writePatternToItemStack(ItemStack stack, FurnacePattern pattern){
         CompoundTag tag = stack.getOrCreateTag();
-        String key = FurnacePattern.NBT_ID;
+        String key = FurnacePattern.NBT_KEY;
         if (tag.contains(key)) {
             tag.remove(key);
 

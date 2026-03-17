@@ -1,11 +1,12 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -40,19 +41,10 @@ public class ItemAugment extends Item {
         }
         BlockPos pos = context.getClickedPos();
         var blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof BlockIronFurnaceTileBaseV2 v2) {
-            for (ItemStack itemStack : v2.insertAugment(context.getItemInHand())) {
-                Player player = context.getPlayer();
-                ItemHandlerHelper.giveItemToPlayer(player, itemStack, player.getInventory().selected);
-            }
-            level.playSound(
-                    null,
-                    pos,
-                    SoundEvents.EXPERIENCE_ORB_PICKUP,
-                    SoundSource.BLOCKS,
-                    0.05F,
-                    1.0F
-            );
+        if (blockEntity instanceof FurnacePatternBlockEntity v2) {
+            v2.insertAugmentFromHand(((ServerPlayer) context.getPlayer()));
+
+
             return InteractionResult.CONSUME;
 
         }

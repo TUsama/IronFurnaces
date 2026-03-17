@@ -37,17 +37,17 @@ public class ItemFurnaceCopy extends Item {
             if (stack.getTag().getIntArray("settings").length >= 10)
             {
 
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.down", stack.getTag().getIntArray("settings")[0]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.up", stack.getTag().getIntArray("settings")[1]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.north", stack.getTag().getIntArray("settings")[2]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.south", stack.getTag().getIntArray("settings")[3]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.west", stack.getTag().getIntArray("settings")[4]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction.east", stack.getTag().getIntArray("settings")[5]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.auto_input", stack.getTag().getIntArray("settings")[6]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.auto_output", stack.getTag().getIntArray("settings")[7]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.redstone_mode", stack.getTag().getIntArray("settings")[8]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.redstone_value", stack.getTag().getIntArray("settings")[9]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-                tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.faced_direction", DirectionUtil.fromId(stack.getTag().getInt("direction"))).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.down", stack.getTag().getIntArray("settings")[0]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.up", stack.getTag().getIntArray("settings")[1]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.north", stack.getTag().getIntArray("settings")[2]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.south", stack.getTag().getIntArray("settings")[3]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.west", stack.getTag().getIntArray("settings")[4]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.east", stack.getTag().getIntArray("settings")[5]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_input", stack.getTag().getIntArray("settings")[6]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_output", stack.getTag().getIntArray("settings")[7]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", stack.getTag().getIntArray("settings")[8]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_value", stack.getTag().getIntArray("settings")[9]).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", DirectionUtil.fromId(stack.getTag().getInt("direction"))).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
             }
         }
         

@@ -4,8 +4,13 @@ import com.clefal.nirvana_lib.relocated.io.vavr.API;
 import com.clefal.nirvana_lib.relocated.io.vavr.collection.Map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.cache.InputCache;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import lombok.AccessLevel;
+import lombok.Getter;
 
+@Getter(value = AccessLevel.PROTECTED)
 public abstract class ProcessingInstance {
     private static final Map<String, MapCodec<? extends ProcessingInstance>> codecMap = API.Map(
             Burn.Smelting.TYPE, Burn.Smelting.CODEC,
@@ -23,20 +28,31 @@ public abstract class ProcessingInstance {
     );
 
     private boolean handledStart = false;
+    public final int fromIndex;
 
-    public ProcessingInstance() {
+    public ProcessingInstance(int fromIndex) {
+        this.fromIndex = fromIndex;
+    }
+
+    protected ProcessingInstance(int fromIndex, boolean handledStart) {
+        this.fromIndex = fromIndex;
+        this.handledStart = handledStart;
     }
 
     public abstract String getType();
 
-    public abstract void whenStart(BlockIronFurnaceTileBaseV2 tile);
+    public abstract void whenStart(FurnacePatternBlockEntity tile);
+    public abstract float getDoneProgress();
 
-    public void whenDone(BlockIronFurnaceTileBaseV2 tile) {
+    public void whenDone(FurnacePatternBlockEntity tile) {
         tile.setChanged();
+    }
+    public void whenChangePattern(FurnacePattern pattern){
+
     }
 
 
-    public TickResult tick(BlockIronFurnaceTileBaseV2 tile) {
+    public TickResult tick(FurnacePatternBlockEntity tile) {
         if (!handledStart) {
             whenStart(tile);
             handledStart = true;
@@ -44,7 +60,7 @@ public abstract class ProcessingInstance {
         return whenTick(tile);
     }
 
-    public TickResult whenTick(BlockIronFurnaceTileBaseV2 tile) {
+    public TickResult whenTick(FurnacePatternBlockEntity tile) {
         return TickResult.SUCCESS;
     }
 

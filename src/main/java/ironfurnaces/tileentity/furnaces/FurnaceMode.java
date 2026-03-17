@@ -11,21 +11,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public enum FurnaceMode implements StringRepresentable {
     FURNACE("furnace", ItemFuelLitHandler::new),
-    GENERATOR("generator", EnergyLitHandler::new),
-    FACTORY("factory", GeneratorLitHandler::new);
+    GENERATOR("generator", GeneratorLitHandler::new),
+    FACTORY("factory", EnergyLitHandler::new);
     public final String name;
-    public final Function<BlockIronFurnaceTileBaseV2, IFurnaceLitHandler> litHandlerSelector;
+    public final Supplier<IFurnaceLitHandler> litHandlerSelector;
 
-    FurnaceMode(String name, Function<BlockIronFurnaceTileBaseV2, IFurnaceLitHandler> litHandlerSelector) {
+    FurnaceMode(String name, Supplier<IFurnaceLitHandler> litHandlerSelector) {
         this.name = name;
         this.litHandlerSelector = litHandlerSelector;
     }
 
     public void setFurnaceModeBlockState(BlockPos pos, BlockState state, Level level){
-        if (!state.getValue(ModBlockState.FURNACE_MODE).equals(this.ordinal())) {
+        if (!state.getValue(ModBlockState.FURNACE_MODE).equals(this)) {
             level.setBlock(pos, state.setValue(ModBlockState.FURNACE_MODE, this), 3);
         }
     }

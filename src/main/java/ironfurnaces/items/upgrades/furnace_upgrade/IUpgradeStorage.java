@@ -1,66 +1,69 @@
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.tier.upgrade.TierUpgradeRule;
-import ironfurnaces.tileentity.furnaces.tier.upgrade.TierUpgradeRuleManager;
+import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
+import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
+
 public interface IUpgradeStorage {
 
-    static TierUpgradeRule get(ItemStack stack) {
+    @Nullable
+    static PatternUpgradeRule get(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains(TierUpgradeRule.KEY, Tag.TAG_STRING)) {
-            return TierUpgradeRule.backup;
+        if (tag == null || !tag.contains(PatternUpgradeRule.KEY, Tag.TAG_STRING)) {
+            return null;
         }
 
-        String s = tag.getString(TierUpgradeRule.KEY);
+        String s = tag.getString(PatternUpgradeRule.KEY);
         ResourceLocation id = ResourceLocation.tryParse(s);
         if (id == null) {
-            IronFurnaces.LOGGER.warn("Invalid TierUpgradeRule id string: {}", s);
-            return TierUpgradeRule.backup;
+            IronFurnaces.LOGGER.warn("Invalid PatternUpgradeRule id string: {}", s);
+            return null;
         }
 
-        if (!TierUpgradeRuleManager.isValidRuleId(id)) {
+        if (!PatternUpgradeRuleManager.isValidRuleId(id)) {
             IronFurnaces.LOGGER.warn("Found unregistered rule: {}", id);
-            return TierUpgradeRule.backup;
+            return null;
         }
 
-        return TierUpgradeRuleManager.get(id);
+        return PatternUpgradeRuleManager.get(id);
     }
 
-    static void writeRule(ItemStack stack, TierUpgradeRule rule) {
-        if (rule == null || rule == TierUpgradeRule.backup) {
+    static void writeRule(ItemStack stack, PatternUpgradeRule rule) {
+        if (rule == null) {
             CompoundTag tag = stack.getTag();
             if (tag != null) {
-                tag.remove(TierUpgradeRule.KEY);
+                tag.remove(PatternUpgradeRule.KEY);
                 if (tag.isEmpty()) {
                     stack.setTag(null);
                 }
             }
-
+            return;
         }
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putString(TierUpgradeRule.KEY, rule.id().toString());
 
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString(PatternUpgradeRule.KEY, rule.id().toString());
     }
 
     static void writeRule(ItemStack stack, ResourceLocation rule) {
-        if (rule == null || rule == TierUpgradeRule.backup.id()) {
+        if (rule == null || rule.equals(PatternUpgradeRule.backup.id())) {
             CompoundTag tag = stack.getTag();
             if (tag != null) {
-                tag.remove(TierUpgradeRule.KEY);
+                tag.remove(PatternUpgradeRule.KEY);
                 if (tag.isEmpty()) {
                     stack.setTag(null);
                 }
             }
-
+            return;
         }
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putString(TierUpgradeRule.KEY, rule.toString());
 
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString(PatternUpgradeRule.KEY, rule.toString());
     }
 
 }

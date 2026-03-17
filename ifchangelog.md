@@ -7,8 +7,10 @@ the furnace speed now will be correctly synced from server when player join the 
 
 rework many things, breaking changes below(only for dev):
 1. remove item tag forge:furnaces, all furnaces provided by this mod use c:player_workstations/furnaces, add vanilla furnace into the c:player_workstations/furnaces
-2. now furnace support both ItemStack and Tag, you might need to check out the new datapack format if you've modified the generator_blasting craft. Also add a bunch of new tag-support recipes.
-3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check. After this update, all old recorded FurnaceList position will be considered as overworld position.
+2. now blasting generator support both ItemStack and Tag recipe, you might need to check out the new datapack format if you've modified the generator_blasting craft. Also add a bunch of new tag-support recipes.
+3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check. After this update, all old recorded FurnaceList position will be considered as overworld position. This system will be abandoned on new furnace.
+4. new furnace system, completely data-drive. Dev can add or remove any patterns(the old "pattern" in the config), or modify the pattern data in the furnace_pattern folder. Also add upgrade rule which indicate how furnace upgrade, checkout furnace_pattern_upgrades folder.
+5. add new upgrade tool and the recipes, checkout the recipes/new_upgrades
 
 for players if you meet anything different with the original mod pls consider open an issue on GitHub
 
@@ -21,7 +23,7 @@ for players if you meet anything different with the original mod pls consider op
 +Fixed energy not being conserved when using furnace upgrades
 +Fixed hasRecipe() to consult it's own cache fixing Auto Input causing lag when interfacing with large inventories that contained unsmeltable items. https://github.com/Qelifern/IronFurnaces/issues/199 This fix adds 3 more caches to the furnaces, cache capacity can be modified through the config.
 4.1.4
-+Emerald and Diamond furnaces are now tier 2 by default (6 slots in factory)
++Emerald and Diamond furnaces are now pattern 2 by default (6 slots in factory)
 +Added blasting and smoking caches to factory furnaces, this fixes a blasting recipe being saved and used when there is no blasting augment in the furance
 +Added more info on how the Rainbow Furnace generates power
 4.1.3
@@ -95,7 +97,7 @@ for players if you meet anything different with the original mod pls consider op
 +Thank you for 10 million downloads
 +Refactoring and code cleanup
 +Revamped some textures
-+Fixed furnaces not using the correct container
++Fixed furnaces not using the correct handler
 +Fixed client <-> server syncing issues when syncing values greater than 32 767
 +Fixed absorption hearts being added when opening and closing GUI
 +Added Generator Augment

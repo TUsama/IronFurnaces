@@ -114,6 +114,16 @@ public class ModItemTags {
         return itemTagKey;
     });
 
+    public static final TagKey<Item> C_OBSIDIAN_NORMAL = Util.make(() -> {
+        TagKey<Item> itemTagKey = bindC("obsidians/normal");
+        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
+            registrateItemTagsProvider
+                    .addTag(itemTagKey)
+                    .add(Items.OBSIDIAN);
+        });
+        return itemTagKey;
+    });
+
 
 
     public static final TagKey<Item> SILVER = bindForge("ingots/silver");

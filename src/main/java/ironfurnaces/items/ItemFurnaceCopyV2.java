@@ -2,9 +2,8 @@ package ironfurnaces.items;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
-import ironfurnaces.util.DirectionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -49,19 +47,19 @@ public class ItemFurnaceCopyV2 extends Item {
                     .result()
                     .ifPresent(x -> {
                         x.settingsV2.IOSetting().forEach((direction, ioMode) -> {
-                            tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.direction." + direction.toString().toLowerCase(Locale.ROOT), Component.translatable(ioMode.translationKey))
+                            tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction." + direction.toString().toLowerCase(Locale.ROOT), Component.translatable(ioMode.translationKey))
                                     .withStyle(ChatFormatting.GRAY));
 
                         });
-                        MutableComponent enable = Component.translatable("ironfurnaces.item.item_copy.setting.setting_enable");
-                        MutableComponent disable = Component.translatable("ironfurnaces.item.item_copy.setting.setting_disable");
+                        MutableComponent enable = Component.translatable("ironfurnaces.furnace_setting.setting_enable");
+                        MutableComponent disable = Component.translatable("ironfurnaces.furnace_setting.setting_disable");
                         Function<Boolean, Component> choose = b -> b ? enable : disable;
 
-                        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.auto_input", choose.apply(x.settingsV2.autoInput())).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.auto_output", choose.apply(x.settingsV2.autoOutput())).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.redstone_mode", Component.translatable(x.settingsV2.redStoneMode().translationKey)).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.redstone_value", x.settingsV2.subtractionNumber()).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.setting.faced_direction", x.direction.toString().toLowerCase()).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_input", choose.apply(x.settingsV2.autoInput())).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_output", choose.apply(x.settingsV2.autoOutput())).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", Component.translatable(x.settingsV2.redStoneMode().translationKey)).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_value", x.settingsV2.subtractionNumber()).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", x.direction.toString().toLowerCase()).withStyle(ChatFormatting.GRAY));
                     });
 
 
@@ -79,7 +77,7 @@ public class ItemFurnaceCopyV2 extends Item {
         BlockPos pos = ctx.getClickedPos();
         Player player = ctx.getPlayer();
         ItemStack copyItem = ctx.getItemInHand();
-        if (!world.isClientSide && world.getBlockEntity(pos) instanceof BlockIronFurnaceTileBaseV2 v2 && !player.isCrouching()) {
+        if (!world.isClientSide && world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2 && !player.isCrouching()) {
             CompoundTag tag = copyItem.getTag();
             BlockState blockState = v2.getBlockState();
             if (tag != null && tag.contains(WHOLE_KEY)) {

@@ -1,7 +1,7 @@
 package ironfurnaces.capability;
 
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.experimental.UtilityClass;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -22,7 +22,7 @@ public class LegacyPlayerFurnacesListChecker {
                     BlockPos pos = globalPos.pos();
                     level.getChunkAt(pos).setLoaded(true);
                     BlockEntity blockEntity = level.getBlockEntity(pos);
-                    if (!(blockEntity instanceof BlockIronFurnaceTileBase || blockEntity instanceof BlockIronFurnaceTileBaseV2)){
+                    if (!(blockEntity instanceof BlockIronFurnaceTileBase || blockEntity instanceof FurnacePatternBlockEntity)){
                         fList.remove(globalPos.dimension(), pos);
                     }
                 }

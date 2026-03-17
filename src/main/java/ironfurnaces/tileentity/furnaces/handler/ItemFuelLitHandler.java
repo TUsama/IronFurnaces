@@ -3,28 +3,30 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
-import ironfurnaces.tileentity.furnaces.process.Burn;
-import ironfurnaces.tileentity.furnaces.process.ProcessingInstance;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.ForgeHooks;
-import org.checkerframework.checker.units.qual.C;
-
+import net.minecraftforge.items.ItemHandlerHelper;
+@Getter
 public class ItemFuelLitHandler implements IFurnaceLitHandler{
     public static final MapCodec<ItemFuelLitHandler> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    Codec.INT.fieldOf("litTime").forGetter(x -> x.litTime),
-                    Codec.INT.fieldOf("litDuration").forGetter(x -> x.litDuration)
+                    Codec.INT.fieldOf("litTime").forGetter(ItemFuelLitHandler::getLitTime),
+                    Codec.INT.fieldOf("litDuration").forGetter(ItemFuelLitHandler::getLitDuration)
             ).apply(instance, ItemFuelLitHandler::new));
     public static final String TYPE = "item";
     private int litTime;
     private int litDuration;
 
-    public ItemFuelLitHandler(BlockIronFurnaceTileBaseV2 tile) {
+    public ItemFuelLitHandler() {
+        this(0, 0);
     }
 
     private ItemFuelLitHandler(int litTime, int litDuration) {
@@ -33,7 +35,7 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler{
     }
 
     @Override
-    public void tick(BlockIronFurnaceTileBaseV2 tile) {
+    public void tick(FurnacePatternBlockEntity tile) {
         Level level = tile.getLevel();
         BlockPos blockPos = tile.getBlockPos();
         if (litTime > 0) {
@@ -45,14 +47,31 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler{
         }
 
         if (litTime == 0){
-            if (!tile.getInstanceManager().isBlocking()){
+            ProcessingInstanceManager instanceManager = tile.getInstanceManager();
+            boolean flag = false;
+            //确保至少有槽位不blocking
+            for (int i = 0; i < tile.getInput().getSlots(); i++) {
+                if (instanceManager.blockingIndexes().contains(i)) continue;
+                flag = true;
+                break;
+
+            }
+            if (instanceManager.isWaiting() && flag){
                 ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
-                int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(ForgeHooks.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType()));
+                int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(ForgeHooks.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType));
 
                 if (burnTime > 0) {
                     litTime = burnTime;
                     litDuration = burnTime;
+                    ItemStack copy1 = stackInSlot.copy();
                     stackInSlot.shrink(1);
+                    if (copy1.hasCraftingRemainingItem()){
+                        ItemStack copy = copy1.getCraftingRemainingItem().copy();
+                        ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy, false);
+                        if (level != null && !level.isClientSide){
+                            Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
+                        }
+                    }
                 }
             }
         }
@@ -64,12 +83,12 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler{
     }
 
     @Override
-    public void refresh(BlockIronFurnaceTileBaseV2 tile) {
+    public void refresh(FurnacePatternBlockEntity tile) {
 
     }
 
     @Override
-    public boolean isLit(BlockIronFurnaceTileBaseV2 tile) {
+    public boolean isLit(FurnacePatternBlockEntity tile) {
         return litTime > 0;
     }
 

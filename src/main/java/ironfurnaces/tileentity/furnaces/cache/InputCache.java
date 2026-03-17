@@ -1,16 +1,14 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import com.mojang.serialization.Codec;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.tier.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -22,39 +20,30 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Accessors(fluent = true, chain = true)
-public class InputCache extends TieredCache implements ICacheFillStats{
+public class InputCache extends PatternCache implements ICacheFillStats{
 
     private final FillStats fill_stats = new FillStats();
     @Setter
     protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
-    private NonNullList<SlotState> slotState;
     @Setter
     private Consumer<InputCache> contentChangeCallback;
 
 
     public InputCache(FurnaceMode mode, FurnacePattern tier) {
         super(tier.inputSlotAmount(), mode, tier);
-        this.slotState = NonNullList.withSize(tier.inputSlotAmount(), SlotState.IDLE);
     }
 
-    @Override
-    public int getSlots() {
-        int slots = super.getSlots();
-        for (int i = 0; i < slots; i++) {
-            if (slotState.get(i).equals(SlotState.UNAVAILABLE)) {
-                slotState.set(i, SlotState.IDLE);
-            }
-        }
-        return slots;
-    }
 
     public void dropStacksInUnavailableSlots(Level level, BlockPos pos) {
-        for (int i = stacks.size(); i > getSlots(); i--) {
-            ItemStack stackInSlot = getStackInSlot(i);
-            if (!stackInSlot.isEmpty()) {
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stackInSlot);
-                slotState.set(i, SlotState.UNAVAILABLE);
-            }
+        if (level == null) return;
+
+
+        for (int i = getSlots(); i < stacks.size(); i++) {
+            ItemStack stack = getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            setStackInSlot(i, ItemStack.EMPTY);
         }
     }
 
@@ -77,9 +66,6 @@ public class InputCache extends TieredCache implements ICacheFillStats{
         }
     }
 
-    public boolean isSlotIdle(int index) {
-        return slotState.get(index).equals(SlotState.IDLE);
-    }
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
@@ -103,7 +89,7 @@ public class InputCache extends TieredCache implements ICacheFillStats{
 
     public void splitStacks(boolean force) {
         int slots = getSlots();
-        if (slots <= 1) return; // 0/1 槽无意义（GENERATOR/FURNACE 基本不会用到）
+        if (slots <= 1) return;
 
         // force=false：没有空槽则不做
         if (!force) {
@@ -190,66 +176,25 @@ public class InputCache extends TieredCache implements ICacheFillStats{
         }
     }
 
-    @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compoundTag = super.serializeNBT();
-        ListTag tags = new ListTag();
-        for (int i = 0; i < slotState.size(); i++) {
-            CompoundTag compoundTag1 = new CompoundTag();
-            compoundTag1.putInt("Index", i);
-            compoundTag1.putString("Value", slotState.get(i).toString());
-            tags.add(compoundTag1);
-        }
-        compoundTag.put("SlotState", tags);
-        return compoundTag;
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
-
-        if (!nbt.contains("SlotState", net.minecraft.nbt.Tag.TAG_LIST)) {
-            return;
-        }
-
-        ListTag list = nbt.getList("SlotState", net.minecraft.nbt.Tag.TAG_COMPOUND);
-
-        for (int i = 0; i < list.size(); i++) {
-            CompoundTag entry = list.getCompound(i);
-
-            int index = entry.getInt("Index");
-            String value = entry.getString("Value");
-
-            if (index >= 0 && index < slotState.size()) {
-                slotState.set(index, SlotState.valueOf(value));
-            }
-        }
-    }
 
     @Override
     public FillStats getFillStats() {
         return fill_stats;
     }
 
-
-
-    private enum SlotState implements StringRepresentable {
-        WORKING("working"),
-        UNAVAILABLE("unavailable"),
-        IDLE("idle");
-
-        public static final Codec<SlotState> CODEC = StringRepresentable.fromEnum(SlotState::values);
-
-        private final String name;
-
-        SlotState(String name) {
-            this.name = name;
+    @Override
+    public void updateFurnacePattern(FurnacePattern pattern) {
+        int i = pattern.inputSlotAmount();
+        NonNullList<ItemStack> newList = NonNullList.withSize(i, ItemStack.EMPTY);
+        for (int i1 = 0; i1 < this.getSlots(); i1++) {
+            if (newList.size() - 1 >= i1) newList.set(i1, this.getStackInSlot(i1).copy());
         }
+        this.stacks = newList;
+        this.pattern = pattern;
 
-        @Override
-        public String getSerializedName() {
-            return this.name;
-        }
+        recomputeFillStats();
+
     }
+
 
 }

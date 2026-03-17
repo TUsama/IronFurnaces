@@ -1,6 +1,7 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -20,8 +21,8 @@ public class ItemAugmentSmoking extends ItemAugmentRed {
     }
 
     @Override
-    public RecipeType<?> getRecipeType() {
-        return RecipeType.SMOKING;
+    public AugmentCache.HandlingRecipeType getRecipeType() {
+        return AugmentCache.HandlingRecipeType.SMOKE;
     }
 
     @Override

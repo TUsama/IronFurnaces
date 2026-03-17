@@ -2,12 +2,11 @@ package ironfurnaces.tileentity.furnaces.handler;
 
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.cache.IPatternSensitive;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 
-import java.util.Map;
-
-public interface IFurnaceLitHandler {
+public interface IFurnaceLitHandler extends IPatternSensitive {
     Codec<IFurnaceLitHandler> CODEC = Codec.STRING.dispatch(IFurnaceLitHandler::getType, string ->
             {
                 var codec = switch (string) {
@@ -22,9 +21,16 @@ public interface IFurnaceLitHandler {
             }
     );
 
-    void tick(BlockIronFurnaceTileBaseV2 tile);
+    void tick(FurnacePatternBlockEntity tile);
 
-    void refresh(BlockIronFurnaceTileBaseV2 tile);
-    boolean isLit(BlockIronFurnaceTileBaseV2 tile);
+    void refresh(FurnacePatternBlockEntity tile);
+    boolean isLit(FurnacePatternBlockEntity tile);
     String getType();
+    int getLitDuration();
+    int getLitTime();
+
+    @Override
+    default void updateFurnacePattern(FurnacePattern pattern){
+
+    }
 }

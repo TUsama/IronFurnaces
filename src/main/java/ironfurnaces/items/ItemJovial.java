@@ -1,6 +1,6 @@
 package ironfurnaces.items;
 
-import ironfurnaces.blocks.furnaces.new_furnace.AbstractFurnacePatternHolder;
+import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -18,7 +18,7 @@ public abstract class ItemJovial extends Item implements IJovialSetter{
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
         BlockState blockState = level.getBlockState(clickedPos);
-        if (blockState.getBlock() instanceof AbstractFurnacePatternHolder) {
+        if (blockState.getBlock() instanceof FurnacePatternHolderBlock) {
             setJovial(level, clickedPos);
             return InteractionResult.CONSUME;
         }

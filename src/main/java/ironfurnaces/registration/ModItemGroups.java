@@ -4,6 +4,7 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
@@ -13,6 +14,7 @@ public class ModItemGroups {
                     .icon(LegacyFurnaceBlocks.IRON_FURNACE::asStack)
                     .withTabsBefore(CreativeModeTabs.COMBAT)
                     .displayItems((ctx, entries) -> {
+                        /*
                         entries.accept(LegacyFurnaceBlocks.IRON_FURNACE.get());
                         entries.accept(LegacyFurnaceBlocks.GOLD_FURNACE.get());
                         entries.accept(LegacyFurnaceBlocks.DIAMOND_FURNACE.get());
@@ -37,6 +39,9 @@ public class ModItemGroups {
                         entries.accept(ModItems.IRON2_UPGRADE.get());
                         entries.accept(ModItems.GOLD2_UPGRADE.get());
                         entries.accept(ModItems.SILVER2_UPGRADE.get());
+                        */
+                        entries.accept(ModBlocks.PATTERN_HOLDER.get());
+                        entries.accept(ModItems.UPGRADE_TOOL.get());
                         entries.accept(ModItems.ITEM_HEATER.get());
                         entries.accept(ModItems.BLASTING_AUGMENT.get());
                         entries.accept(ModItems.SMOKING_AUGMENT.get());

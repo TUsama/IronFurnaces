@@ -2,52 +2,63 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import it.unimi.dsi.fastutil.objects.Object2BooleanFunction;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
+import org.checkerframework.checker.guieffect.qual.SafeType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Accessors(fluent = true, chain = true)
-public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex, ICacheFillStats {
+public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex, ICacheFillStats, IPatternSensitive {
     private final static int[] cacheIndex = new int[0];
-    private BlockIronFurnaceTileBaseV2 tile;
-    @Setter
-    protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
-    @Getter
+        @Getter
     private FEnergyStorage energy;
     private FurnaceMode mode;
     @Setter
+    private Predicate<ItemStack> burnableFunction;
+    @Setter
     private Consumer<FuelCache> contentChangeCallback;
 
-    public FuelCache(BlockIronFurnaceTileBaseV2 tile, FEnergyStorage energy, FurnaceMode mode) {
-        this.tile = tile;
+    public FuelCache( FEnergyStorage energy, FurnaceMode mode) {
         this.energy = energy;
         this.mode = mode;
     }
 
-    public FuelCache(BlockIronFurnaceTileBaseV2 tile, FEnergyStorage energy, FurnaceMode mode, Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback) {
-        this(tile, energy, mode);
-        this.grabRecipeCallback = grabRecipeCallback;
-    }
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
+        if (!simulate) {
+            if (contentChangeCallback != null) {
+                contentChangeCallback.accept(this);
+            }
+        }
         return energy.receiveEnergy(maxReceive, simulate);
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
+        if (!simulate) {
+            if (contentChangeCallback != null) {
+                contentChangeCallback.accept(this);
+            }
+        }
         return energy.extractEnergy(maxExtract, simulate);
     }
 
@@ -77,7 +88,7 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return grabRecipeCallback.apply(stack).isPresent() || stack.getItem() instanceof ItemHeater;
+        return burnableFunction.test(stack) || stack.getItem() instanceof ItemHeater;
     }
 
     @Override
@@ -105,7 +116,6 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
         return fill_stats;
     }
 
-    /** 模式/tier改变、NBT load 后、或你不确定时调用 */
     public void recomputeFillStats() {
         int slots = getSlots();
         fill_stats.slot_count = slots;
@@ -124,5 +134,31 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
         }
     }
 
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
 
+        tag.put("Items", super.serializeNBT());
+        Tag tag1 = energy.serializeNBT();
+        tag.put("Energy", tag1);
+
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        if (nbt.contains("Items", Tag.TAG_COMPOUND)) {
+            super.deserializeNBT(nbt.getCompound("Items"));
+        }
+        if (nbt.contains("Energy")) {
+            energy.deserializeNBT(nbt.get("Energy"));
+        }
+
+        recomputeFillStats();
+    }
+
+    @Override
+    public void updateFurnacePattern(FurnacePattern pattern) {
+        this.energy.setCapacity(pattern.energyCapacity());
+    }
 }

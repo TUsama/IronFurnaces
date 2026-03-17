@@ -2,6 +2,7 @@ package ironfurnaces.registration;
 
 import ironfurnaces.items.JovialState;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
@@ -9,6 +10,8 @@ public class ModBlockState {
 
     public static final EnumProperty<JovialState> JOVIAL_STATE = EnumProperty.create("jovial", JovialState.class);
     public static final EnumProperty<FurnaceMode> FURNACE_MODE = EnumProperty.create("mode", FurnaceMode.class);
+    public static final EnumProperty<AugmentCache.HandlingRecipeType> HANDLING_RECIPE_TYPE = EnumProperty.create("mode", AugmentCache.HandlingRecipeType.class);
+
 
     // Legacy
     public static final IntegerProperty TYPE = IntegerProperty.create("type", 0, 2);

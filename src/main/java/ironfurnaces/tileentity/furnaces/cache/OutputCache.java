@@ -2,40 +2,40 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.tier.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 @Accessors(fluent = true, chain = true)
-public class OutputCache extends TieredCache implements ICacheFillStats{
+public class OutputCache extends PatternCache implements ICacheFillStats {
+    private final FillStats fill_stats = new FillStats();
     @Setter
-    private Consumer<OutputCache> contentChangeCallback;
-
+    private IntConsumer contentChangeCallback;
 
 
     public OutputCache(FurnaceMode mode, FurnacePattern tier) {
         super(tier.inputSlotAmount(), mode, tier);
     }
 
-
     @Override
     protected void onContentsChanged(int slot) {
         super.onContentsChanged(slot);
         if (contentChangeCallback != null) {
-            contentChangeCallback.accept(this);
+            contentChangeCallback.accept(slot);
         }
         recomputeFillStats();
     }
-    private final FillStats fill_stats = new FillStats();
 
     public FillStats getFillStats() {
         return fill_stats;
     }
 
-    /** 模式/tier改变、NBT load 后、或你不确定时调用 */
+
     public void recomputeFillStats() {
         int slots = getSlots();
         fill_stats.slot_count = slots;
@@ -54,4 +54,17 @@ public class OutputCache extends TieredCache implements ICacheFillStats{
         }
     }
 
+    @Override
+    public void updateFurnacePattern(FurnacePattern pattern) {
+        int i = pattern.inputSlotAmount();
+        NonNullList<ItemStack> newList = NonNullList.withSize(i, ItemStack.EMPTY);
+        for (int i1 = 0; i1 < this.getSlots(); i1++) {
+            if (newList.size() - 1 >= i1) newList.set(i1, this.getStackInSlot(i1).copy());
+        }
+        this.stacks = newList;
+        this.pattern = pattern;
+
+        recomputeFillStats();
+
+    }
 }

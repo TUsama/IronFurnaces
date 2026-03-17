@@ -6,24 +6,27 @@ import net.minecraft.network.chat.Component;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModLangs {
+    public static final Component WITHOUT_PATTERN = REGISTRATE.addRawLang("block.ironfurnaces.furnace_pattern_holder." + "without_pattern", "This furnace block haven't attach any patterns!");
+    public static final Component REFUSE_OPEN_EMPTY_PATTERN = REGISTRATE.addRawLang("block.ironfurnaces.furnace_pattern_holder." + "refuse_open_empty_pattern", "Can't open the menu, because the furnace haven't attach any patterns!");
+    public static final Component REFUSE_PLACE_EMPTY_TAG = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "refuse_place_empty_tag", "You can't place down this furnace because this item haven't attach any pattern tags!");
+    public static final Component READ_PATTERN_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_pattern_failed", "Failed at reading furnace pattern from furnace item!");
+    public static final Component DOWN = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "down", "Down: %s");
 
-    public static final Component DOWN = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "down", "Down: %s");
+    public static final Component UP = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "up", "Up: %s");
 
-    public static final Component UP = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "up", "Up: %s");
-
-    public static final Component NORTH = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "north", "North: %s");
-    public static final Component SOUTH = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "south", "South: %s");
-    public static final Component WEST = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "west", "West: %s");
-    public static final Component EAST = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting.direction." + "east", "East: %s");
-    public static final Component AUTO_INPUT = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "auto_input", "Auto Input: %s");
-    public static final Component AUTO_OUTPUT = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "auto_output", "Auto Input: %s");
-    public static final Component REDSTONE_MODE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "redstone_mode", "Redstone Mode: %s");
-    public static final Component REDSTONE_VALUE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "redstone_value", "Redstone Value: %s");
+    public static final Component NORTH = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "north", "North: %s");
+    public static final Component SOUTH = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "south", "South: %s");
+    public static final Component WEST = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "west", "West: %s");
+    public static final Component EAST = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "east", "East: %s");
+    public static final Component AUTO_INPUT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "auto_input", "Auto Input: %s");
+    public static final Component AUTO_OUTPUT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "auto_output", "Auto Output: %s");
+    public static final Component REDSTONE_MODE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "redstone_mode", "Redstone Mode: %s");
+    public static final Component REDSTONE_VALUE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "redstone_value", "Subtraction Value: %s");
     public static final Component USAGE_1 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.1", "Right-click to copy settings");
     public static final Component USAGE_2 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.2", "Sneak & right-click to apply settings");
     public static final Component TIP_SETTING_APPLIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_applied", "Settings Applied");
     public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");
-    public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "faced_direction", "Faced Direction: %s");
+    public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "faced_direction", "Faced Direction: %s");
 
     public static final Component ERROR_ON_PARSE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_parse", "Failed at parsing furnace setting on Copy Tool!");
     public static final Component ERROR_ON_WRITE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_write", "Failed at writing furnace setting on Copy Tool! Please consider destroy the furnace you are coping and place it down again!");
@@ -44,6 +47,12 @@ public class ModLangs {
             REGISTRATE.addRawLang(
                     "ironfurnaces.furnace_setting.io_mode.output",
                     "Output"
+            );
+
+    public static final Component IO_MODE_INPUT_AND_OUTPUT =
+            REGISTRATE.addRawLang(
+                    "ironfurnaces.furnace_setting.io_mode.input_and_output",
+                    "Input And Output"
             );
 
     public static final Component IO_MODE_FUEL =
@@ -88,9 +97,22 @@ public class ModLangs {
                     "Comparator Subtraction"
             );
 
-    public static final Component SETTING_ENABLE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "setting_enable", "Enable");
-    public static final Component SETTING_DISABLE = REGISTRATE.addRawLang("ironfurnaces.item.item_copy.setting." + "setting_disable", "Disable");
+    public static final Component INVALIDED_UPGRADE_TOOL = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "invalided_upgrade_tool", "Found Invalided Upgrade Tool!");
+
+    public static final Component MISMATCH_PATTERN = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "mismatch_pattern", "This upgrade tool can only be used to %1$s, but the furnace you targeted is %2$s.");
+    public static final Component BROKEN_UPGRADE_TOOL = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "broken_upgrade_tool", "Broken");
+
+    public static final Component UPGRADE_RULE = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "upgrade_rule", "%1$s -> %2$s");
+
+    public static final Component SUCCESS = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "success", "Upgrade successfully!");
+
+    public static final Component READ_SETTING_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_setting_failed", "Failed at reading furnace setting from furnace item!");
+
+    public static final Component SETTING_ENABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_enable", "Enable");
+    public static final Component SETTING_DISABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_disable", "Disable");
     public static final Component WORK_SPEED = REGISTRATE.addRawLang("ironfurnaces.block.furnace." + "work_speed", "Base Cook Time: %s tick/per item");
+
+
 
     public static final Component UPGRADE_RIGHT_CLICK =
             REGISTRATE.addRawLang("tooltip.ironfurnaces.upgrade_right_click", "Sneak & right-click to upgrade");
@@ -330,6 +352,10 @@ public class ModLangs {
             REGISTRATE.addRawLang("ironfurnaces.update.failed",
                     "[{\"text\":\"The Update Check for \"},{\"text\":\"Iron Furnaces \",\"color\":\"dark_green\"},{\"text\":\"failed! Check Logs for more Info!\",\"color\":\"none\"}]");
 
+
+    public static final Component AUTO_SPLIT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "auto_fill", "Auto Fill Empty Slot: %s");
+
+    public static final Component ENERGY_SLOT = REGISTRATE.addRawLang("screen.ironfurnaces." + "energy_slot", "Energy: %1$s/%2$s");
 
     public static void register(){
 

@@ -1,29 +1,30 @@
 package ironfurnaces.tileentity.furnaces.process;
 
-import com.mojang.datafixers.kinds.App;
+import com.mojang.datafixers.util.Function5;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBaseV2;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
-import ironfurnaces.tileentity.furnaces.cache.InputCache;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.BiFunction;
 
+@Getter(value = AccessLevel.PROTECTED)
 public abstract class Burn extends ProcessingInstance {
     private static final Map<RecipeType<?>, Factory> idMap = Util.make(() -> Map.of(
             RecipeType.BLASTING, Blasting::new,
@@ -32,20 +33,37 @@ public abstract class Burn extends ProcessingInstance {
     ));
 
     protected final int expectedTick;
-    protected final int inputIndex;
     protected int currentTick = 0;
+    private float partialProgress = 0.0f;
 
-    public Burn(int expectedTick, int inputIndex) {
-        super();
-        this.expectedTick = expectedTick;
-        this.inputIndex = inputIndex;
+    protected Burn(int inputIndex, int expectedTick) {
+        this(inputIndex, false, expectedTick, 0, 0.0f);
 
     }
+
+    private Burn(int fromIndex, boolean handledStart, int expectedTick, int currentTick, float partialProgress) {
+        super(fromIndex, handledStart);
+        this.expectedTick = expectedTick;
+        this.currentTick = currentTick;
+        this.partialProgress = partialProgress;
+    }
+
+    protected static <T extends Burn> MapCodec<T> simpleBurnCodec(Function5<Integer, Boolean, Integer, Integer, Float, T> factory) {
+        return RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        ExtraCodecs.POSITIVE_INT.fieldOf("fromIndex").forGetter(Burn::getFromIndex),
+                        Codec.BOOL.fieldOf("handledStart").forGetter(Burn::isHandledStart),
+                        ExtraCodecs.POSITIVE_INT.fieldOf("expectedTick").forGetter(Burn::getExpectedTick),
+                        ExtraCodecs.POSITIVE_INT.fieldOf("currentTick").forGetter(Burn::getCurrentTick),
+                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("partialProgress").forGetter(Burn::getPartialProgress)
+                ).apply(instance, factory));
+    }
+
 
     public static Burn create(int expectedTick, int inputIndex, Recipe<Container> recipe) {
         Factory factory = idMap.get(recipe.getType());
         if (factory != null) {
-            return factory.create(expectedTick, inputIndex);
+            return factory.create(inputIndex, expectedTick);
         }
         throw new RuntimeException("fail at creating Burn instance with RecipeType: " + recipe.getType());
     }
@@ -53,76 +71,76 @@ public abstract class Burn extends ProcessingInstance {
 
 
     @Override
-    public void whenStart(BlockIronFurnaceTileBaseV2 tile) {
+    public void whenStart(FurnacePatternBlockEntity tile) {
 
     }
 
     @Override
-    public void whenDone(BlockIronFurnaceTileBaseV2 tile) {
+    public void whenDone(FurnacePatternBlockEntity tile) {
         super.whenDone(tile);
         Level level = tile.getLevel();
-        tile.getRecipe(tile.getInput().getStackInSlot(inputIndex)).ifPresent(x -> {
-            ItemStack resultItem = x.getResultItem(level.registryAccess());
-            tile.getOutput().insertItem(inputIndex, resultItem, false);
-            ItemStack currentItem = tile.getInput().getStackInSlot(inputIndex);
-            currentItem.shrink(1);
+        tile.getRecipe(tile.getInput().getStackInSlot(fromIndex)).ifPresent(x -> {
+            ItemStack resultItem = x.getResultItem(level.registryAccess()).copy();
+            //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
+            tile.getOutput().insertItem(fromIndex, resultItem, false);
+            ItemStack currentItem = tile.getInput().getStackInSlot(fromIndex);
+            tile.getInput().extractItem(fromIndex, 1, false);
             if (currentItem.hasCraftingRemainingItem()){
-                ItemStack craftingRemainingItem = currentItem.getCraftingRemainingItem();
-                boolean inserted = false;
-                for (int i = 0; i < tile.getRemaining().getSlots(); i++) {
-                    ItemStack itemStack = tile.getRemaining().insertItem(i, craftingRemainingItem, false);
-                    if (itemStack.isEmpty()) {
-                        inserted = true;
-                        break;
-                    }
-                }
-                if (!inserted){
-                    BlockPos blockPos = tile.getBlockPos();
-                    Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), craftingRemainingItem);
-                }
+                ItemStack craftingRemainingItem = currentItem.getCraftingRemainingItem().copy();
+                BlockPos blockPos1 = tile.getBlockPos();
+                Containers.dropItemStack(tile.getLevel(), blockPos1.getX(), blockPos1.getY(), blockPos1.getZ(), ItemHandlerHelper.insertItem(tile.getRemaining(), craftingRemainingItem, false));
             }
         });
 
     }
 
     @Override
-    public TickResult whenTick(BlockIronFurnaceTileBaseV2 tile) {
-        Optional<? extends Recipe> recipe = tile.getRecipe(tile.getInput().getStackInSlot(inputIndex));
+    public TickResult whenTick(FurnacePatternBlockEntity tile) {
+        ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
+        if (stackInSlot.isEmpty()) return TickResult.DISCARD;
+        Optional<? extends Recipe> recipe = tile.getRecipe(stackInSlot);
         if (recipe.isEmpty()) return TickResult.DISCARD;
+
         Recipe recipe1 = recipe.get();
         ItemStack resultItem = recipe1.getResultItem(tile.getLevel().registryAccess());
-        ItemStack itemStack = tile.getOutput().insertItem(inputIndex, resultItem, true);
+        ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
         if (itemStack.isEmpty()){
             currentTick++;
+            partialProgress = tile.getAugments().getCurrentModifiers().normalWorkTimeModifier().apply(partialProgress);
+            int whole = (int) partialProgress;
+            currentTick += whole;
+            partialProgress -= whole;
+            if (currentTick >= expectedTick){
+                return TickResult.DONE;
+            }
+            return TickResult.SUCCESS;
         } else {
             return TickResult.BLOCKED;
         }
-        if (currentTick >= expectedTick){
-            return TickResult.DONE;
-        }
-        return TickResult.SUCCESS;
+
+    }
+
+    @Override
+    public float getDoneProgress() {
+        return currentTick / (expectedTick * 1.0f);
     }
 
     @FunctionalInterface
     public interface Factory {
-        Burn create(int expectedTick, int inputIndex);
+        Burn create(int inputIndex, int expectedTick);
     }
 
     public static class Smelting extends Burn {
-        public static final MapCodec<Smelting> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        Codec.INT.fieldOf("expectedTick").forGetter(x -> x.expectedTick),
-                        Codec.INT.fieldOf("inputIndex").forGetter(x -> x.inputIndex),
-                        Codec.INT.fieldOf("currentOutput").forGetter(x -> x.currentTick)
-                ).apply(instance, (a, b, c) -> {
-                    Smelting smelting = new Smelting(a, b);
-                    smelting.currentTick = c;
-                    return smelting;
-                }));
+        public static final MapCodec<Smelting> CODEC = simpleBurnCodec(Smelting::new);
+
         public static final String TYPE = "smelting";
 
-        public Smelting(int expectedTick, int inputIndex) {
-            super(expectedTick, inputIndex);
+        private Smelting(int inputIndex, int expectedTick) {
+            super(inputIndex, expectedTick);
+        }
+
+        private Smelting(int fromIndex, boolean handledStart, int expectedTick, int currentTick, float partialProgress) {
+            super(fromIndex, handledStart, expectedTick, currentTick, partialProgress);
         }
 
         @Override
@@ -132,20 +150,18 @@ public abstract class Burn extends ProcessingInstance {
     }
 
     public static class Smoking extends Burn {
-        public static final MapCodec<Smoking> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        Codec.INT.fieldOf("expectedTick").forGetter(x -> x.expectedTick),
-                        Codec.INT.fieldOf("inputIndex").forGetter(x -> x.inputIndex),
-                        Codec.INT.fieldOf("currentOutput").forGetter(x -> x.currentTick)
-                ).apply(instance, (a, b, c) -> {
-                    Smoking smelting = new Smoking(a, b);
-                    smelting.currentTick = c;
-                    return smelting;
-                }));
+        public static final MapCodec<Smoking> CODEC = simpleBurnCodec(Smoking::new);
+
         public static final String TYPE = "smoking";
-        public Smoking(int expectedTick, int inputIndex) {
-            super(expectedTick, inputIndex);
+
+        private Smoking(int inputIndex, int expectedTick) {
+            super(inputIndex, expectedTick);
         }
+
+        private Smoking(int fromIndex, boolean handledStart, int expectedTick, int currentTick, float partialProgress) {
+            super(fromIndex, handledStart, expectedTick, currentTick, partialProgress);
+        }
+
         @Override
         public String getType() {
             return TYPE;
@@ -154,20 +170,16 @@ public abstract class Burn extends ProcessingInstance {
 
     public static class Blasting extends Burn {
 
-        public static final MapCodec<Blasting> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        Codec.INT.fieldOf("expectedTick").forGetter(x -> x.expectedTick),
-                        Codec.INT.fieldOf("inputIndex").forGetter(x -> x.inputIndex),
-                        Codec.INT.fieldOf("currentOutput").forGetter(x -> x.currentTick)
-                ).apply(instance, (a, b, c) -> {
-                    Blasting smelting = new Blasting(a, b);
-                    smelting.currentTick = c;
-                    return smelting;
-                }));
+        public static final MapCodec<Blasting> CODEC = simpleBurnCodec(Blasting::new);
 
         public static final String TYPE = "blasting";
-        public Blasting(int expectedTick, int inputIndex) {
-            super(expectedTick, inputIndex);
+
+        private Blasting(int inputIndex, int expectedTick) {
+            super(inputIndex, expectedTick);
+        }
+
+        private Blasting(int fromIndex, boolean handledStart, int expectedTick, int currentTick, float partialProgress) {
+            super(fromIndex, handledStart, expectedTick, currentTick, partialProgress);
         }
 
         @Override

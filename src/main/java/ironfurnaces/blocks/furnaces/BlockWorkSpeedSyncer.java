@@ -16,7 +16,6 @@ import java.util.HashMap;
 public class BlockWorkSpeedSyncer {
     
     public void syncWhenPlayerJoin(ServerPlayer player) {
-        System.out.println("sync!!!");
         HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
         stringIntegerHashMap.put(BlockCopperFurnace.ID, Config.copperFurnaceSpeed.get());
         stringIntegerHashMap.put(BlockCrystalFurnace.ID, Config.crystalFurnaceSpeed.get());
