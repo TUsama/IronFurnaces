@@ -36,7 +36,7 @@ public class ModMenus {
             .<FurnacePatternMenu, FurnacePatternScreen>menu(FurnacePatternMenu.ID,
 
                     (type, windowId, inv, buffer) -> {
-                        FurnacePattern pattern = buffer.readJsonWithCodec(FurnacePattern.CODEC);
+                        FurnacePattern pattern = buffer.readJsonWithCodec(FurnacePattern.REF_CODEC);
                         BlockPos blockPos = buffer.readBlockPos();
                         FurnacePatternBlockEntity blockEntity = ((FurnacePatternBlockEntity) inv.player.level().getBlockEntity(blockPos));
                         blockEntity.updatePattern(pattern);

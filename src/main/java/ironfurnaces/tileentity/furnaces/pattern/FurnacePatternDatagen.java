@@ -5,68 +5,79 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePattern> {
+public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatternDefinition> {
+
     public FurnacePatternDatagen(PackOutput packOutput) {
-        super(packOutput, FurnacePatternManager.DIRECTORY, FurnacePattern.CODEC);
+        super(packOutput, FurnacePatternManager.DIRECTORY, FurnacePatternDefinition.CODEC);
     }
 
-    private static FurnacePattern pattern(
-            String name,
+    private static FurnacePatternDefinition definition(
             int smeltTickPerItem,
             int energyCapacity,
             int energyGenerationPerTick,
             int inputSlot
     ) {
         final int CONSUME = 20;
-        ResourceLocation id = new ResourceLocation(IronFurnaces.MOD_ID, name);
-        return new FurnacePattern(id, smeltTickPerItem, energyCapacity, energyGenerationPerTick, CONSUME, inputSlot);
-    }
-
-    public static final Map<ResourceLocation, FurnacePattern> DUMMY_FURNACE_PATTERNS =
-            Stream.of(
-                    pattern("copper_furnace", 180, 80_000, 40, 1),
-                    pattern("iron_furnace", 160, 80_000, 40,2),
-                    pattern("silver_furnace", 140, 200_000, 100,3),
-                    pattern("gold_furnace", 120, 200_000, 160,4),
-                    pattern("diamond_furnace", 80, 1_000_000, 240,5),
-                    pattern("emerald_furnace", 40, 1_000_000, 320,6),
-                    pattern("crystal_furnace", 40, 1_000_000, 360,7),
-                    pattern("obsidian_furnace", 20, 1_000_000, 500,8),
-                    pattern("netherite_furnace", 5, 1_000_000, 1000,9)
-            ).collect(Collectors.toUnmodifiableMap(FurnacePattern::id, Function.identity()));
-
-    @Override
-    protected void buildEntries() {
-        entries.putAll(DUMMY_FURNACE_PATTERNS);
-
-        //register("rainbow_furnace",    20, 1_000_000, 2000,   CONSUME, INPUT_SLOTS);
-    }
-
-    private void register(
-            String name,
-            int smeltTickPerItem,
-            int energyCapacity,
-            int energyGenerationPerTick,
-            int energyConsumerPerTick,
-            int inputSlotAmount
-    ) {
-        ResourceLocation id = new ResourceLocation(IronFurnaces.MOD_ID, name);
-        entries.put(id, new FurnacePattern(
-                id,
+        return FurnacePatternDefinition.normal(
                 smeltTickPerItem,
                 energyCapacity,
                 energyGenerationPerTick,
-                energyConsumerPerTick,
-                inputSlotAmount
-        ));
+                CONSUME,
+                inputSlot
+        );
+    }
+
+    public static final Map<ResourceLocation, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
+            Stream.of(
+                    Map.entry(IronFurnaces.id("copper_furnace"), definition(180, 80_000, 40, 1)),
+                    Map.entry(IronFurnaces.id("iron_furnace"), definition(160, 80_000, 40, 2)),
+                    Map.entry(IronFurnaces.id("silver_furnace"), definition(140, 200_000, 100, 3)),
+                    Map.entry(IronFurnaces.id("gold_furnace"), definition(120, 200_000, 160, 4)),
+                    Map.entry(IronFurnaces.id("diamond_furnace"), definition(80, 1_000_000, 240, 5)),
+                    Map.entry(IronFurnaces.id("emerald_furnace"), definition(40, 1_000_000, 320, 6)),
+                    Map.entry(IronFurnaces.id("crystal_furnace"), definition(40, 1_000_000, 360, 7)),
+                    Map.entry(IronFurnaces.id("obsidian_furnace"), definition(20, 1_000_000, 500, 8)),
+                    Map.entry(IronFurnaces.id("netherite_furnace"), definition(5, 1_000_000, 1000, 9))
+            ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    @Override
+    protected void buildEntries() {
+        entries.putAll(DUMMY_FURNACE_PATTERN_DEFINITIONS);
+
+        registerRainbow();
+    }
+
+    private void registerRainbow() {
+        RainbowFurnaceConfig config = new RainbowFurnaceConfig(
+                Map.of(
+                        IronFurnaces.id("copper_furnace"), new RainbowBonus(-5, 10_000, 10, 0, 0),
+                        IronFurnaces.id("iron_furnace"), new RainbowBonus(-10, 20_000, 20, 0, 0),
+                        IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 40_000, 40, 0, 1),
+                        IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 80_000, 60, 0, 1)
+                ),
+                20,
+                false,
+                java.util.Set.of(IronFurnaces.id("rainbow_furnace"))
+        );
+
+        entries.put(
+                IronFurnaces.id("rainbow_furnace"),
+                FurnacePatternDefinition.rainbow(
+                        200,
+                        100_000,
+                        60,
+                        20,
+                        1,
+                        config
+                )
+        );
     }
 
     @Override
     public String getName() {
-        return "Furnace Tiers";
+        return "Furnace Pattern Definitions";
     }
 }

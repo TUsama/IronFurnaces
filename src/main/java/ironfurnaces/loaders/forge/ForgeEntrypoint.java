@@ -1,19 +1,16 @@
 //? if forge {
 package ironfurnaces.loaders.forge;
 
-import com.mojang.datafixers.util.Unit;
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.capability.LegacyPlayerFurnacesListChecker;
 import ironfurnaces.init.ClientSetup;
+import ironfurnaces.loaders.CommonInit;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.loaders.PacketInit;
 import ironfurnaces.registration.*;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternReloadListener;
-import ironfurnaces.tileentity.furnaces.pattern.render.FurnaceCacheReloadListener;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternDefinitionReloadListener;
 import ironfurnaces.tileentity.furnaces.pattern.render.FurnaceTextureScanner;
-import ironfurnaces.tileentity.furnaces.pattern.render.PatternPreviewTextureResolver;
-import ironfurnaces.tileentity.furnaces.pattern.render.PatternRenderCache;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleReloadListener;
 import ironfurnaces.update.UpdateChecker;
 import net.minecraft.server.level.ServerLevel;
@@ -53,42 +50,28 @@ public class ForgeEntrypoint {
         });
 
         MinecraftForge.EVENT_BUS.<AddReloadListenerEvent>addListener(EventPriority.LOWEST, x -> {
-            x.addListener(new FurnacePatternReloadListener());
+            x.addListener(new FurnacePatternDefinitionReloadListener());
             x.addListener(new PatternUpgradeRuleReloadListener());
         });
 
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.<RegisterClientReloadListenersEvent>addListener(EventPriority.LOWEST, x -> {
-            x.registerReloadListener((barrier, manager, prepProfiler, applyProfiler, prepExecutor, applyExecutor) ->
-                    barrier.wait(Unit.INSTANCE).thenRunAsync(PatternRenderCache::clear, applyExecutor)
-            );
-
             x.registerReloadListener(FurnaceTextureScanner.INSTANCE);
         });
 
 
-
-        ModMenus.register();
-        ModCustomRecipe.register();
-        ModBlocks.register();
-        ModBlockEntities.register();
-        ModItems.register();
-        ModNewFurnace.register();
-        LegacyFurnaceBlocks.register();
-        ModItemGroups.register();
-        ModAdvancements.register();
-        ModLangs.register();
+        CommonInit.init();
 
         Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces-client.toml"));
         Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces.toml"));
 
-
+/*
         if (Config.checkUpdates.get()) {
             new UpdateChecker();
         } else {
             IronFurnaces.LOGGER.warn("You have disabled Iron Furnaces's Update Checker, to re-enable: change the value of Update Checker in .minecraft->config->ironfurnaces-client.toml to 'true'.");
-        }
+        }*/
     }
 }
 //?}

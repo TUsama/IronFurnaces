@@ -53,7 +53,7 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
 
     @Override
     protected RegistryEntry<RecipeType<?>> createEntryWrapper(RegistryObject<RecipeType<?>> delegate) {
-        return new CustomRecipeEntry<>(getOwner(), delegate, recipeSerializerBuilder.register(), JEIRecipeTypeWrapper.create(IronFurnaces.MOD_ID, getName(), jeiRecipeTypeClass));
+        return new CustomRecipeEntry<>(getOwner(), delegate, recipeSerializerBuilder.register(), JEIRecipeTypeEntry.create(IronFurnaces.MOD_ID, getName(), jeiRecipeTypeClass));
     }
 
     @Override

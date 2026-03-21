@@ -26,6 +26,7 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
     @Getter
     protected int sizeCount = 0;
     protected final List<QuickMoveRule> quickMoveRules = new ArrayList<>();
+    protected Runnable movedCallback;
 
     protected DistributePartitionContainerMenu(@Nullable MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
@@ -171,6 +172,10 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
 
         if (!moved) {
             return ItemStack.EMPTY;
+        } else {
+            if (movedCallback != null){
+                movedCallback.run();
+            }
         }
 
         if (sourceStack.isEmpty()) {

@@ -8,21 +8,16 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
-import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class Burn extends ProcessingInstance {
@@ -69,7 +64,6 @@ public abstract class Burn extends ProcessingInstance {
     }
 
 
-
     @Override
     public void whenStart(FurnacePatternBlockEntity tile) {
 
@@ -83,13 +77,8 @@ public abstract class Burn extends ProcessingInstance {
             ItemStack resultItem = x.getResultItem(level.registryAccess()).copy();
             //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
             tile.getOutput().insertItem(fromIndex, resultItem, false);
-            ItemStack currentItem = tile.getInput().getStackInSlot(fromIndex);
             tile.getInput().extractItem(fromIndex, 1, false);
-            if (currentItem.hasCraftingRemainingItem()){
-                ItemStack craftingRemainingItem = currentItem.getCraftingRemainingItem().copy();
-                BlockPos blockPos1 = tile.getBlockPos();
-                Containers.dropItemStack(tile.getLevel(), blockPos1.getX(), blockPos1.getY(), blockPos1.getZ(), ItemHandlerHelper.insertItem(tile.getRemaining(), craftingRemainingItem, false));
-            }
+            tile.setRecipeUsed(x);
         });
 
     }
@@ -98,19 +87,19 @@ public abstract class Burn extends ProcessingInstance {
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         if (stackInSlot.isEmpty()) return TickResult.DISCARD;
-        Optional<? extends Recipe> recipe = tile.getRecipe(stackInSlot);
-        if (recipe.isEmpty()) return TickResult.DISCARD;
+        Recipe recipe = tile.getInstanceManager()
+                .getCachedCookingRecipe(tile, this.fromIndex);
+        if (recipe == null) return TickResult.DISCARD;
 
-        Recipe recipe1 = recipe.get();
-        ItemStack resultItem = recipe1.getResultItem(tile.getLevel().registryAccess());
+        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
         ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
-        if (itemStack.isEmpty()){
+        if (itemStack.isEmpty()) {
             currentTick++;
             partialProgress = tile.getAugments().getCurrentModifiers().normalWorkTimeModifier().apply(partialProgress);
             int whole = (int) partialProgress;
             currentTick += whole;
             partialProgress -= whole;
-            if (currentTick >= expectedTick){
+            if (currentTick >= expectedTick) {
                 return TickResult.DONE;
             }
             return TickResult.SUCCESS;

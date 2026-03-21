@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 
 @Accessors(fluent = true, chain = true)
 public class InputCache extends PatternCache implements ICacheFillStats{
@@ -26,7 +27,7 @@ public class InputCache extends PatternCache implements ICacheFillStats{
     @Setter
     protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
     @Setter
-    private Consumer<InputCache> contentChangeCallback;
+    private IntConsumer contentChangeCallback;
 
 
     public InputCache(FurnaceMode mode, FurnacePattern tier) {
@@ -76,7 +77,7 @@ public class InputCache extends PatternCache implements ICacheFillStats{
     @Override
     protected void onContentsChanged(int slot) {
         if (contentChangeCallback != null) {
-            contentChangeCallback.accept(this);
+            contentChangeCallback.accept(slot);
         }
         recomputeFillStats();
     }
@@ -84,96 +85,6 @@ public class InputCache extends PatternCache implements ICacheFillStats{
     @Override
     public void updateFurnaceMode(FurnaceMode mode) {
         super.updateFurnaceMode(mode);
-    }
-
-
-    public void splitStacks(boolean force) {
-        int slots = getSlots();
-        if (slots <= 1) return;
-
-        // force=false：没有空槽则不做
-        if (!force) {
-            boolean has_empty = false;
-            for (int i = 0; i < slots; i++) {
-                if (getStackInSlot(i).isEmpty()) {
-                    has_empty = true;
-                    break;
-                }
-            }
-            if (!has_empty) return;
-        }
-
-        // 找一个参考物品（第一个非空）
-        ItemStack reference = ItemStack.EMPTY;
-        for (int i = 0; i < slots; i++) {
-            ItemStack s = getStackInSlot(i);
-            if (!s.isEmpty()) {
-                reference = s;
-                break;
-            }
-        }
-        if (reference.isEmpty()) return;
-
-        // 参与均分的槽：空槽 + 同 Item 槽；并统计同 Item 总数量
-        int[] participants = new int[slots];
-        int p_count = 0;
-        int total = 0;
-
-        for (int i = 0; i < slots; i++) {
-            ItemStack s = getStackInSlot(i);
-            if (s.isEmpty()) {
-                participants[p_count++] = i;
-                continue;
-            }
-
-            // 与旧版一致：只按 Item 比较，不比较 NBT
-            if (s.getItem() == reference.getItem()) {
-                participants[p_count++] = i;
-                total += s.getCount();
-            }
-        }
-
-        if (p_count == 0 || total == 0) return;
-
-        // 防溢出：总量不能超过“参与槽数 * 单堆最大值”
-        // 否则会出现无法分配的问题（旧版多半也会出怪行为）
-        int max_stack = reference.getMaxStackSize();
-        int capacity = max_stack * p_count;
-        if (total > capacity) {
-            // 保守策略：不改动。若你希望“尽量填满，其余维持原堆”，我可以给另一策略实现。
-            return;
-        }
-
-        int base = total / p_count;
-        int rem = total % p_count;
-
-        // 若已经均分则不做（避免无意义 setStackInSlot）
-        boolean already_balanced = true;
-        for (int idx = 0; idx < p_count; idx++) {
-            int slot = participants[idx];
-            int target = base + (idx < rem ? 1 : 0);
-
-            ItemStack cur = getStackInSlot(slot);
-            int cur_count = cur.isEmpty() ? 0 : cur.getCount();
-
-            if (cur_count != target) {
-                already_balanced = false;
-                break;
-            }
-        }
-        if (already_balanced) return;
-
-        // 应用分配：只改参与槽；其他物品槽保持不动
-        for (int idx = 0; idx < p_count; idx++) {
-            int slot = participants[idx];
-            int target = base + (idx < rem ? 1 : 0);
-
-            if (target <= 0) {
-                setStackInSlot(slot, ItemStack.EMPTY);
-            } else {
-                setStackInSlot(slot, reference.copyWithCount(target));
-            }
-        }
     }
 
 

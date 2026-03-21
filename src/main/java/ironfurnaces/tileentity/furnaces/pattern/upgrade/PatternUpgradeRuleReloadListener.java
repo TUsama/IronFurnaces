@@ -66,7 +66,6 @@ public final class PatternUpgradeRuleReloadListener extends SimpleJsonResourceRe
         }
 
         PatternUpgradeRuleManager.setAll(loaded);
-        FurnacePatternManager.sortPatternsByRules(loaded.values());
         LOGGER.info("Loaded TierUpgradeRule(s): ok={}, failed={}, total={}", ok, failed, jsonMap.size());
     }
 

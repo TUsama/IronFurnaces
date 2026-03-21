@@ -11,9 +11,9 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class CustomRecipeEntry<T extends Recipe<?>> extends RegistryEntry<RecipeType<?>> {
     private final RecipeSerializerEntry serializer;
-    private JEIRecipeTypeWrapper<T> jeiRecipeType;
+    private JEIRecipeTypeEntry<T> jeiRecipeType;
 
-    public CustomRecipeEntry(AbstractRegistrate<?> owner, RegistryObject<RecipeType<?>> delegate, RecipeSerializerEntry serializer, JEIRecipeTypeWrapper<T> jeiRecipeType) {
+    public CustomRecipeEntry(AbstractRegistrate<?> owner, RegistryObject<RecipeType<?>> delegate, RecipeSerializerEntry serializer, JEIRecipeTypeEntry<T> jeiRecipeType) {
         super(owner, delegate);
         this.serializer = serializer;
         this.jeiRecipeType = jeiRecipeType;
@@ -23,7 +23,7 @@ public class CustomRecipeEntry<T extends Recipe<?>> extends RegistryEntry<Recipe
         return (RecipeSerializer<T>) serializer.get();
     }
 
-    public JEIRecipeTypeWrapper<T> asJEIRecipeType(){
+    public JEIRecipeTypeEntry<T> asJEIRecipeType(){
         if (jeiRecipeType != null){
             return jeiRecipeType;
         }

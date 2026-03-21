@@ -1,6 +1,7 @@
 package ironfurnaces.registration;
 
 import com.google.gson.JsonObject;
+import com.tterrag.registrate.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
@@ -24,6 +25,9 @@ public class ModCustomRecipe {
     public static final CustomRecipeEntry<GeneratorRecipe> GENERATOR_RECIPE = REGISTRATE
             .entry(GENERATOR_ID, builderCallback -> new CustomRecipeBuilder<>(REGISTRATE, REGISTRATE, GENERATOR_ID, builderCallback, GeneratorRecipe.Serializer::new))
             .jei(GeneratorRecipe.class)
+            .addMiscData(ProviderType.LANG, x -> {
+                x.add(IronFurnaces.MOD_ID + ".jei_" + "category_blasting", "Blasting Generation");
+            })
             .recipe((ctx, provider) -> {
                 provider.accept(new Result("amethyst", 40000, bindC("gems/amethyst")));
                 provider.accept(new Result("copper", 10000, bindC("ingots/copper")));

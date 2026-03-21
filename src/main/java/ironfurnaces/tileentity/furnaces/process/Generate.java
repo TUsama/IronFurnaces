@@ -1,11 +1,12 @@
 package ironfurnaces.tileentity.furnaces.process;
 
-import com.mojang.datafixers.util.Function3;
+import com.mojang.datafixers.util.Function5;
 import com.mojang.datafixers.util.Function6;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import lombok.AccessLevel;
@@ -17,36 +18,33 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import java.util.function.BiFunction;
 @Getter(AccessLevel.PRIVATE)
 public abstract class Generate extends ProcessingInstance {
-    protected final int expectedTotalOutput;
-    protected int eachTickOutPut;
-    protected int currentOutput;
-    protected float partialProgress;
+    protected final float expectedTotalOutput;
+    protected float eachTickOutPut;
+    protected float currentOutput;
 
 
     public Generate(int index, int expectedTotalOutput, int eachTickOutPut) {
-        this(index, false, expectedTotalOutput, eachTickOutPut, 0, 0.0f);
+        this(index, false, expectedTotalOutput, eachTickOutPut, 0);
     }
 
-    protected Generate(int fromIndex, boolean handledStart, int expectedTotalOutput, int eachTickOutPut, int currentOutput, float partialProgress) {
+    protected Generate(int fromIndex, boolean handledStart, float expectedTotalOutput, float eachTickOutPut, float currentOutput) {
         super(fromIndex, handledStart);
         this.expectedTotalOutput = expectedTotalOutput;
         this.eachTickOutPut = eachTickOutPut;
         this.currentOutput = currentOutput;
-        this.partialProgress = partialProgress;
+
     }
 
-    protected static <T extends Generate> MapCodec<T> simpleGenerateCodec(Function6<Integer, Boolean, Integer, Integer,Integer,Float,T> factory) {
+    protected static <T extends Generate> MapCodec<T> simpleGenerateCodec(Function5<Integer, Boolean, Float, Float, Float,T> factory) {
         return RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
                         ExtraCodecs.POSITIVE_INT.fieldOf("fromIndex").forGetter(Generate::getFromIndex),
                         Codec.BOOL.fieldOf("handledStart").forGetter(Generate::isHandledStart),
-                        ExtraCodecs.POSITIVE_INT.fieldOf("expectedTick").forGetter(Generate::getExpectedTotalOutput),
-                        ExtraCodecs.POSITIVE_INT.fieldOf("currentTick").forGetter(Generate::getEachTickOutPut),
-                        ExtraCodecs.POSITIVE_INT.fieldOf("partialProgress").forGetter(Generate::getCurrentOutput),
-                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("currentTick").forGetter(Generate::getPartialProgress)
+                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("expectedTick").forGetter(Generate::getExpectedTotalOutput),
+                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("currentTick").forGetter(Generate::getEachTickOutPut),
+                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("partialProgress").forGetter(Generate::getCurrentOutput)
                 ).apply(instance, factory));
     }
 
@@ -69,13 +67,14 @@ public abstract class Generate extends ProcessingInstance {
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
         FuelCache fuel = tile.getFuel();
-        partialProgress += tile.getAugments().getCurrentModifiers().generateOutputModifier().get(eachTickOutPut);
-        int actualGeneration = (int) partialProgress;
-        int min = Math.min(actualGeneration, expectedTotalOutput - currentOutput);
-        partialProgress -= actualGeneration;
+        AugmentCache.GreenAugmentModifier.Modifiers currentModifiers = tile.getAugments().getCurrentModifiers();
+
+        float actualGeneration = currentModifiers.generatePerTickOutputModifier().get(eachTickOutPut);
+        int min = (int) Math.ceil(Math.min(actualGeneration, expectedTotalOutput - currentOutput));
+
         if (fuel.canReceive(min)) {
             fuel.receiveEnergy(min, false);
-            currentOutput += min;
+            currentOutput += currentModifiers.generateCurrentOutputModifier().get(min);
             if (currentOutput >= expectedTotalOutput) {
                 return TickResult.DONE;
             }
@@ -93,7 +92,7 @@ public abstract class Generate extends ProcessingInstance {
 
     @Override
     public float getDoneProgress() {
-        return currentOutput / (expectedTotalOutput * 1.0f);
+        return currentOutput / (expectedTotalOutput);
     }
 
     public static class SmeltGenerate extends Generate {
@@ -104,8 +103,8 @@ public abstract class Generate extends ProcessingInstance {
             super(index, expectedTotalOutput, eachTickOutPut);
         }
 
-        private SmeltGenerate(int fromIndex, boolean handledStart, int expectedTotalOutput, int eachTickOutPut, int currentOutput, float partialProgress) {
-            super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput, partialProgress);
+        private SmeltGenerate(int fromIndex, boolean handledStart, float expectedTotalOutput, float eachTickOutPut, float currentOutput) {
+            super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput);
         }
 
         @Override
@@ -122,8 +121,8 @@ public abstract class Generate extends ProcessingInstance {
             super(index, expectedTotalOutput, eachTickOutPut);
         }
 
-        private BlastGenerate(int fromIndex, boolean handledStart, int expectedTotalOutput, int eachTickOutPut, int currentOutput, float partialProgress) {
-            super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput, partialProgress);
+        private BlastGenerate(int fromIndex, boolean handledStart, float expectedTotalOutput, float eachTickOutPut, float currentOutput) {
+            super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput);
         }
 
         @Override

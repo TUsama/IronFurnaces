@@ -422,7 +422,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         if (this.menu.isLit()) {
             int k = this.menu.getLitProgress();
-            guiGraphics.blit(texture, i + 57, j + 36 - k, 176, 12 - k, 14, k + 1);
+            guiGraphics.blit(texture, i + 57 + 32, j + 36 - k + 15, 176, 12 - k, 14, k + 1);
         }
 
         int barHeight = 42;

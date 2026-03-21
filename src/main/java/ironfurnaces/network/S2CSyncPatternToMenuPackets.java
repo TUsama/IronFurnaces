@@ -26,10 +26,8 @@ public class S2CSyncPatternToMenuPackets implements S2CModPacket<S2CSyncPatternT
     @Override
     public void handleClient() {
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.containerMenu instanceof FurnacePatternMenu furnacePatternMenu) {
-            System.out.println("received!");
             FurnacePattern furnacePattern = furnacePatternMenu.blockEntity.getPattern();
             if (furnacePattern != pattern){
-                System.out.println("update!");
                 furnacePatternMenu.blockEntity.updatePattern(pattern);
             }
 
@@ -40,13 +38,13 @@ public class S2CSyncPatternToMenuPackets implements S2CModPacket<S2CSyncPatternT
     @Override
     public void write(FriendlyByteBuf friendlyByteBuf) {
 
-        friendlyByteBuf.writeJsonWithCodec(FurnacePattern.CODEC, pattern);
+        friendlyByteBuf.writeJsonWithCodec(FurnacePattern.REF_CODEC, pattern);
     }
 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
 
-        this.pattern = friendlyByteBuf.readJsonWithCodec(FurnacePattern.CODEC);
+        this.pattern = friendlyByteBuf.readJsonWithCodec(FurnacePattern.REF_CODEC);
     }
 
     @Override

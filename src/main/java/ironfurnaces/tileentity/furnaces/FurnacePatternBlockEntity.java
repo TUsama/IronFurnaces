@@ -4,6 +4,7 @@ import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.Config;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
+import ironfurnaces.config.IronFurnacesConfig;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternToMenuPackets;
 import ironfurnaces.recipes.GeneratorRecipe;
@@ -13,6 +14,7 @@ import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
 import ironfurnaces.tileentity.furnaces.handler.IFurnaceLitHandler;
 import ironfurnaces.tileentity.furnaces.handler.RecipeAwardHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
+import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
@@ -88,7 +90,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private Set<UUID> viewers = new HashSet<>();
     private int lastProcessedDirection = 0;
     private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
-    private boolean shouldAutoSplit = false;
+    private boolean shouldAutoFill = false;
 
     @Getter
     private final ContainerData dataAccess = Util.make(() -> {
@@ -145,11 +147,18 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                     .boolValue(
                             () -> be.getSettingsV2().autoFill(),
                             v -> be.setWholeSettingV2(be.getSettingsV2().withAutoFill(v))
-                    );
+                    )
+                    .enumValue(AugmentCache.HandlingRecipeType.class,
+                            () -> getAugments().getCurrentRecipeType(),
+                            v -> getAugments().setCurrentRecipeType(v)
+                            );
 
             return builder.build();
         }
     });
+
+    private UUID ownerUuid;
+    private RainbowRuntimeState rainbowState;
 
     public FurnacePatternBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -162,6 +171,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         Function<ItemStack, Optional<? extends Recipe>> callback = Util.memoize(this::getRecipe);
 
         this.input = new InputCache(this.mode, pattern).grabRecipeCallback(callback).contentChangeCallback(x -> {
+            this.instanceManager.invalidateRecipeCache(x);
             setChanged();
         });
 
@@ -199,25 +209,69 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         recalcSideIOCap();
         markForClientUpdate();
     }
+    private int getInputRedstoneSignal() {
+        return level == null ? 0 : level.getBestNeighborSignal(worldPosition);
+    }
+
+    private boolean shouldWorkByRedstone() {
+        FurnaceSettingsV2.RedStoneMode mode = settingsV2.redStoneMode();
+        int signal = getInputRedstoneSignal();
+
+        return switch (mode) {
+            case IGNORE, COMPARATOR, COMPARATOR_SUBTRACTION -> true;
+            case HIGH_SIGNAL -> signal >= 8;
+            case LOW_SIGNAL -> signal > 0 && signal <= 7;
+        };
+    }
+
+
+    private RainbowRuntimeState rainbowState() {
+        if (rainbowState == null) {
+            rainbowState = new RainbowRuntimeState(this);
+        }
+        return rainbowState;
+    }
+
+    public EffectiveFurnaceStats getEffectiveStats() {
+        if (pattern != null && pattern.isRainbow()) {
+            return rainbowState().getCachedStats();
+        }
+        return EffectiveFurnaceStats.fromBase(pattern == null ? FurnacePattern.FALLBACK : pattern);
+    }
+
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FurnacePatternBlockEntity blockEntity) {
+
         if (level.getGameTime() % 20 == 0 && blockEntity.settingsV2.autoFill() && blockEntity.mode.equals(FurnaceMode.FACTORY)) {
             blockEntity.checkIfInputHasEmptySlot();
         }
 
-        if (blockEntity.shouldAutoSplit) {
+        if (blockEntity.shouldAutoFill) {
             HandlerRebalanceUtil.rebalanceForProcessing(blockEntity.input);
-            blockEntity.shouldAutoSplit = false;
+            blockEntity.shouldAutoFill = false;
         }
-        blockEntity.tryProcessInput();
-        blockEntity.litHandler.tick(blockEntity);
-        if (blockEntity.litHandler.isLit(blockEntity)) {
-            blockEntity.getInstanceManager().manage(blockEntity);
+
+        boolean allowWork = blockEntity.shouldWorkByRedstone();
+
+        if (allowWork) {
+            blockEntity.tryProcessInput();
+
+            blockEntity.litHandler.tick(blockEntity);
+            if (blockEntity.litHandler.isLit(blockEntity)) {
+                blockEntity.getInstanceManager().manage(blockEntity);
+            }
         }
         blockEntity.autoIO();
         blockEntity.energyOutPerTick();
         blockEntity.updateHandleTick();
+
+        if (!level.isClientSide && blockEntity.pattern != null && blockEntity.pattern.isRainbow()) {
+            blockEntity.rainbowState().tickServer();
+        }
+
         blockEntity.syncProcessingInstancesManagerToViewers();
+
+
     }
 
     private void checkIfInputHasEmptySlot(){
@@ -227,7 +281,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             ItemStack stackInSlot = input.getStackInSlot(i);
             if (stackInSlot.isEmpty()) emptyTime++;
         }
-        if (emptyTime != 0 && emptyTime != slots) shouldAutoSplit = true;
+        if (emptyTime != 0 && emptyTime != slots) shouldAutoFill = true;
     }
 
     public void addPlayer(ServerPlayer player) {
@@ -244,6 +298,14 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         tag.put("Fuel", fuel.serializeNBT());
         tag.put("Remaining", remaining.serializeNBT());
         tag.put("Augments", augments.serializeNBT());
+
+        if (ownerUuid != null) {
+            tag.putUUID("OwnerUUID", ownerUuid);
+        }
+
+        if (pattern != null && pattern.isRainbow()) {
+            rainbowState().saveToTag(tag);
+        }
 
         // 2) instanceManager via Codec
         ProcessingInstanceManager.CODEC
@@ -262,7 +324,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .result()
                 .ifPresent(nbt -> tag.put(FurnaceSettingsV2.NBT_KEY, nbt));
 
-        FurnacePattern.CODEC
+        FurnacePattern.REF_CODEC
                 .encodeStart(NbtOps.INSTANCE, pattern)
                 .result()
                 .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
@@ -301,6 +363,16 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             augments.deserializeNBT(tag.getCompound("Augments"));
         }
 
+        if (tag.hasUUID("OwnerUUID")) {
+            this.ownerUuid = tag.getUUID("OwnerUUID");
+        } else {
+            this.ownerUuid = null;
+        }
+
+        if (this.pattern != null && this.pattern.isRainbow()) {
+            rainbowState().loadFromTag(tag);
+        }
+
         // 2) instanceManager
         if (tag.contains("InstanceManager")) {
             ProcessingInstanceManager.CODEC
@@ -330,11 +402,13 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
         if (tag.contains(FurnacePattern.NBT_KEY)) {
-            FurnacePattern.CODEC
+            FurnacePattern.REF_CODEC
                     .parse(NbtOps.INSTANCE, tag.get(FurnacePattern.NBT_KEY))
                     .result()
                     .ifPresent(parsed -> {
-                        if (!parsed.equals(pattern)) updatePattern(parsed);
+                        if (!parsed.equals(pattern)) {
+                            updatePattern(parsed);
+                        }
                     });
         }
 
@@ -344,7 +418,40 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     }
 
-    private void recomputeFillStat() {
+    public @Nullable UUID getOwnerUuid() {
+        return ownerUuid;
+    }
+
+    public void setOwner(@Nullable UUID ownerUuid) {
+        if (!Objects.equals(this.ownerUuid, ownerUuid)) {
+            this.ownerUuid = ownerUuid;
+            setChanged();
+        }
+    }
+
+    public void ensureOwner(@Nullable Player player) {
+        if (player != null && this.ownerUuid == null) {
+            this.ownerUuid = player.getUUID();
+            setChanged();
+        }
+    }
+
+    public boolean isActiveForRainbowCount() {
+        if (this.isRemoved()) return false;
+        if (this.pattern == null) return false;
+        if (this.pattern.isRainbow()) return false;
+        if (this.level == null || this.level.isClientSide) return false;
+        if (!this.level.isLoaded(this.worldPosition)) return false;
+        if (!this.shouldWorkByRedstone()) return false;
+        if (!this.litHandler.isLit(this)) return false;
+
+        return switch (this.mode) {
+            case FURNACE, FACTORY -> this.instanceManager.isWaiting();
+            case GENERATOR -> this.instanceManager.isGeneratingEnergy();
+        };
+    }
+
+    public void recomputeFillStat() {
         input.recomputeFillStats();
         output.recomputeFillStats();
         fuel.recomputeFillStats();
@@ -398,7 +505,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
     public void setRecipeUsed(@Nullable Recipe<?> recipe) {
-        recipeAwardHandler.record(recipe, Config.recipeMaxXPLevel.get());
+        recipeAwardHandler.record(recipe, IronFurnacesConfig.config.stored_xp_level.get());
     }
 
     @Override
@@ -505,11 +612,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
                     neighbor.getCapability(ForgeCapabilities.ITEM_HANDLER, dir.getOpposite())
                             .ifPresent(x -> {
-                                // 输出阶段（优先）
                                 if (settingsV2.autoOutput()) {
-                                    // 输出只推 OUTPUT 或 FUEL
                                     IItemHandler outputHandler = switch (mode) {
-                                        case OUTPUT, FUEL, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
+                                        case OUTPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
                                         case ALL -> FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
                                         default -> EmptyHandler.INSTANCE;
                                     };
@@ -522,7 +627,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                                 if (settingsV2.autoInput()) {
                                     // 输入只拉 INPUT 或 FUEL
                                     IItemHandler inputHandler = switch (mode) {
-                                        case INPUT, FUEL, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
+                                        case INPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
                                         case ALL -> FurnaceSettingsV2.IOMode.INPUT.handlerSelector.apply(this);
                                         default -> EmptyHandler.INSTANCE;
                                     };
@@ -541,9 +646,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         lastProcessedDirection = (lastProcessedDirection + 1) % Direction.values().length;
     }
 
-    /**
-     * 统一 transfer 函数：将 from 中可提取物品插入到 to
-     */
+
     private void transfer(IItemHandler from, IItemHandler to) {
         if (from == null || to == null) return;
 
@@ -564,28 +667,40 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     protected void energyOutPerTick() {
         Direction[] dirs = Direction.values();
-        Direction dir = dirs[lastProcessedDirection]; // 本 tick 处理的方向
+        Direction dir = dirs[lastProcessedDirection];
 
-        BlockEntity tile = level.getBlockEntity(worldPosition.relative(dir));
-        if (tile != null) {
-            FurnaceSettingsV2.IOMode mode = settingsV2.IOSetting().get(dir);
-            if (mode == FurnaceSettingsV2.IOMode.OUTPUT || mode == FurnaceSettingsV2.IOMode.ALL || mode == FurnaceSettingsV2.IOMode.INPUT_AND_OUTPUT) {
-                tile.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).ifPresent(other -> {
-                    if (other.canReceive() && other.getEnergyStored() < other.getMaxEnergyStored()) {
-                        // 计算可输出能量
-                        int maxExtract = getCapability(ForgeCapabilities.ENERGY)
-                                .map(IEnergyStorage::getEnergyStored)
-                                .orElse(0);
-                        int energyToSend = Math.min(maxExtract, fuel.getEnergyStored());
+        Optional.of(dir)
+                .ifPresent(direction -> {
+                    FurnaceSettingsV2.IOMode mode = settingsV2.IOSetting().get(direction);
+                    if (mode == null) return;
 
-                        // 输出能量，并从自己减少
-                        int accepted = other.receiveEnergy(energyToSend, false);
-                        fuel.extractEnergy(accepted, false);
+                    // 能量输出只允许“具备输出语义”的模式
+                    if (mode != FurnaceSettingsV2.IOMode.OUTPUT
+                            && mode != FurnaceSettingsV2.IOMode.ALL
+                            && mode != FurnaceSettingsV2.IOMode.INPUT_AND_OUTPUT) {
+                        return;
                     }
-                });
-            }
-        }
 
+                    BlockEntity neighbor = level.getBlockEntity(worldPosition.relative(direction));
+                    if (neighbor == null) return;
+
+                    neighbor.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite())
+                            .ifPresent(other -> {
+                                if (!other.canReceive()) return;
+
+                                int stored = fuel.getEnergyStored();
+                                if (stored <= 0) return;
+
+                                // 先模拟对方最多能收多少，再实际扣自己，避免无意义调用
+                                int accepted = other.receiveEnergy(stored, true);
+                                if (accepted <= 0) return;
+
+                                int extracted = fuel.extractEnergy(accepted, false);
+                                if (extracted > 0) {
+                                    other.receiveEnergy(extracted, false);
+                                }
+                            });
+                });
     }
 
     public int getSideRedstoneSignal(Direction side) {
@@ -703,6 +818,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         this.allInv.updateFurnacePattern(pattern);
         this.allInvForAutomation.updateFurnacePattern(pattern);
         this.inputAndOutput.updateFurnacePattern(pattern);
+        if (this.pattern != null && this.pattern.isRainbow()) {
+            rainbowState().onPatternChanged();
+        } else if (this.rainbowState != null) {
+            this.rainbowState.onPatternChanged();
+        }
         syncPatternToViewers();
         setChanged();
         markForClientUpdate();
@@ -798,7 +918,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        System.out.println("set!!");
         this.allInv.setStackInSlot(slot, stack);
     }
 

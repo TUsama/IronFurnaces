@@ -59,7 +59,6 @@ public final class PatternPreviewTextureResolver {
 
         var base = makeRL(key.patternPath(), key.jovial(), key.lit(), key.type());
 
-        System.out.println(Arrays.toString(base));
         ResourceLocation front = rl("block/" + base[0] + "_front" + base[1]);
 
         ResourceLocation side = fallback(

@@ -12,7 +12,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 @Accessors(fluent = true, chain = true)
@@ -30,6 +34,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     @Setter
     private Consumer<ProcessingInstanceManager> clearInstanceCallback;
     private IntSet filledIndex = new IntOpenHashSet();
+    private final Int2ObjectMap<CachedRecipeEntry> recipeCache = new Int2ObjectOpenHashMap<>();
 
     public ProcessingInstanceManager(List<ProcessingInstance> instances) {
         this.instances = instances;
@@ -50,29 +55,25 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         while (iterator.hasNext()){
             ProcessingInstance next = iterator.next();
             int fromIndex = next.fromIndex;
-            System.out.println("ready to test contains for " + fromIndex);
             if (this.blockingIndexes.contains(fromIndex)) {
-                System.out.println(fromIndex + "is blocking!");
                 continue;
             }
 
             switch (next.tick(tile)){
                 case SUCCESS -> {}
-                case BLOCKED -> {
-
-                    this.blockingIndexes.add(fromIndex);
-
-                }
+                case BLOCKED -> this.blockingIndexes.add(fromIndex);
                 case DISCARD -> {
                     iterator.remove();
                     this.blockingIndexes.remove(fromIndex);
                     this.filledIndex.remove(fromIndex);
+                    recipeCache.remove(fromIndex);
                 }
                 case DONE -> {
                     next.whenDone(tile);
                     iterator.remove();
                     this.blockingIndexes.remove(fromIndex);
                     this.filledIndex.remove(fromIndex);
+                    recipeCache.remove(fromIndex);
                 }
             }
         }
@@ -85,6 +86,38 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     public void addInstance(ProcessingInstance instance){
         this.instances.add(instance);
         filledIndex.add(instance.fromIndex);
+    }
+
+    private CachedRecipeEntry getOrCreateCache(int fromIndex) {
+        return recipeCache.computeIfAbsent(fromIndex, i -> new CachedRecipeEntry());
+    }
+
+    @Nullable
+    public Recipe getCachedCookingRecipe(FurnacePatternBlockEntity tile, int fromIndex) {
+        ItemStack current = tile.getInput().getStackInSlot(fromIndex);
+        CachedRecipeEntry entry = getOrCreateCache(fromIndex);
+
+        if (current.isEmpty()) {
+            entry.clear();
+            return null;
+        }
+
+        if (!entry.dirty() && entry.matches(current)) {
+            return entry.recipe();
+        }
+
+        var lookedUp = tile.getRecipe(current)
+                .orElse(null);
+
+        entry.update(current, lookedUp);
+        return lookedUp;
+    }
+
+    public void invalidateRecipeCache(int index) {
+        CachedRecipeEntry entry = recipeCache.get(index);
+        if (entry != null) {
+            entry.invalidate();
+        }
     }
 
     public boolean isWaiting(){
@@ -123,12 +156,53 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         if (clearInstanceCallback != null){
             clearInstanceCallback.accept(this);
         }
+        recipeCache.clear();
     }
 
     @Override
     public void updateFurnacePattern(FurnacePattern pattern) {
         for (ProcessingInstance instance : this.instances) {
             instance.whenChangePattern(pattern);
+        }
+        for (CachedRecipeEntry entry : recipeCache.values()) {
+            entry.invalidate();
+        }
+    }
+
+    public static class CachedRecipeEntry {
+        private ItemStack fingerprint = ItemStack.EMPTY;
+        @Nullable
+        private Recipe recipe;
+        private boolean dirty = true;
+
+        public boolean matches(ItemStack current) {
+            if (fingerprint.isEmpty() || current.isEmpty()) return false;
+            return ItemStack.isSameItemSameTags(fingerprint, current);
+        }
+
+        public void update(ItemStack current, @Nullable Recipe recipe) {
+            this.fingerprint = current.copy();
+            this.recipe = recipe;
+            this.dirty = false;
+        }
+
+        public void invalidate() {
+            this.dirty = true;
+        }
+
+        public void clear() {
+            this.fingerprint = ItemStack.EMPTY;
+            this.recipe = null;
+            this.dirty = true;
+        }
+
+        @Nullable
+        public Recipe recipe() {
+            return recipe;
+        }
+
+        public boolean dirty() {
+            return dirty;
         }
     }
 }

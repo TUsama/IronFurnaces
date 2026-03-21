@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabilitySerializable<CompoundTag> {
 
-    public PlayerFurnacesList furnaces = new PlayerFurnacesList();
+    private PlayerFurnacesList furnaces = new PlayerFurnacesList();
     private LazyOptional<PlayerFurnacesList> lazyList = LazyOptional.of(() -> furnaces);
 
     @NotNull
@@ -33,37 +33,56 @@ public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabil
         return cap == CapabilityPlayerFurnacesList.FURNACES_LIST ? lazyList.cast() : LazyOptional.empty();
     }
 
-
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.put("furnace_data", PlayerFurnacesList.CODEC.encode(this.furnaces, NbtOps.INSTANCE, tag)
+        PlayerFurnacesList.CODEC.encodeStart(NbtOps.INSTANCE, this.furnaces)
                 .result()
-                .get());
+                .ifPresent(nbt -> tag.put("furnace_data", nbt));
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
-        DataResult<Pair<PlayerFurnacesList, Tag>> result = PlayerFurnacesList.CODEC.decode(NbtOps.INSTANCE, tag.get("furnace_data"));
+        this.furnaces.clear();
+
+        if (!tag.contains("furnace_data")) {
+            deserializeLegacy(tag);
+            rebuildLazyOptional();
+            return;
+        }
+
+        DataResult<Pair<PlayerFurnacesList, Tag>> result =
+                PlayerFurnacesList.CODEC.decode(NbtOps.INSTANCE, tag.get("furnace_data"));
 
         if (result.error().isPresent()) {
             IronFurnaces.LOGGER.warn(
                     "Failed to read player furnace data, fallback to old deserialization: {}",
                     result.error().get().message()
             );
-
-            int size = tag.getInt("count");
-            CompoundTag furances = tag.getCompound("furnaces");
-            for (int i = 0; i < size; i++)
-            {
-                CompoundTag furance = furances.getCompound("furnace" + i);
-                BlockPos pos = new BlockPos(furance.getInt("X"), furance.getInt("Y"), furance.getInt("Z"));
-                furnaces.add(Level.OVERWORLD, pos);
-            }
-            this.furnaces.setAsLegacy();
-        } else {
-            this.furnaces = result.result().get().getFirst();
+            deserializeLegacy(tag);
+            rebuildLazyOptional();
+            return;
         }
+
+        PlayerFurnacesList decoded = result.result().orElseThrow().getFirst();
+        this.furnaces.copyFrom(decoded);
+        rebuildLazyOptional();
+    }
+
+    private void deserializeLegacy(CompoundTag tag) {
+        int size = tag.getInt("count");
+        CompoundTag furnacesTag = tag.getCompound("furnaces");
+        for (int i = 0; i < size; i++) {
+            CompoundTag furnace = furnacesTag.getCompound("furnace" + i);
+            BlockPos pos = new BlockPos(furnace.getInt("X"), furnace.getInt("Y"), furnace.getInt("Z"));
+            furnaces.add(Level.OVERWORLD, pos);
+        }
+        this.furnaces.setAsLegacy();
+    }
+
+    private void rebuildLazyOptional() {
+        lazyList.invalidate();
+        lazyList = LazyOptional.of(() -> furnaces);
     }
 }

@@ -357,6 +357,8 @@ public class ModLangs {
 
     public static final Component ENERGY_SLOT = REGISTRATE.addRawLang("screen.ironfurnaces." + "energy_slot", "Energy: %1$s/%2$s");
 
+    public static final Component RAINBOW_LIMIT_REACHED = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "rainbow_limit_reached", "You have reached the maximum number of Rainbow Furnaces: %s");
+
     public static void register(){
 
     }

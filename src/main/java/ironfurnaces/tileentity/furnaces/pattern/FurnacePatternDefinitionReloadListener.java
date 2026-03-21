@@ -12,11 +12,11 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FurnacePatternReloadListener extends SimpleJsonResourceReloadListener {
+public class FurnacePatternDefinitionReloadListener extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = new GsonBuilder().create();
 
-    public FurnacePatternReloadListener() {
+    public FurnacePatternDefinitionReloadListener() {
         super(GSON, FurnacePatternManager.DIRECTORY);
     }
 
@@ -26,21 +26,21 @@ public class FurnacePatternReloadListener extends SimpleJsonResourceReloadListen
             ResourceManager resourceManager,
             ProfilerFiller profiler
     ) {
-        Map<ResourceLocation, FurnacePattern> loaded = new HashMap<>();
+        Map<ResourceLocation, FurnacePatternDefinition> loaded = new HashMap<>();
 
         for (Map.Entry<ResourceLocation, JsonElement> entry : jsonMap.entrySet()) {
             ResourceLocation id = entry.getKey();
             JsonElement json = entry.getValue();
 
-            FurnacePattern tier = FurnacePattern.CODEC
+            FurnacePatternDefinition definition = FurnacePatternDefinition.CODEC
                     .parse(JsonOps.INSTANCE, json)
                     .getOrThrow(false, msg -> {
-                        throw new IllegalStateException("Failed to parse tier " + id + ": " + msg);
+                        throw new IllegalStateException("Failed to parse pattern definition " + id + ": " + msg);
                     });
 
-            loaded.put(id, tier);
+            loaded.put(id, definition);
         }
 
-        FurnacePatternManager.setAll(loaded);
+        FurnacePatternManager.setAllDefinitions(loaded);
     }
 }

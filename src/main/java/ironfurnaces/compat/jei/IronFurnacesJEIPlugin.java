@@ -3,14 +3,13 @@ package ironfurnaces.compat.jei;
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
 import ironfurnaces.compat.jei.gui.FurnacesGuiHandler;
+import ironfurnaces.compat.jei.gui.FurnacesGuiHandlerForNewSet;
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
+import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
-import ironfurnaces.registration.JEICompat;
-import ironfurnaces.registration.LegacyFurnaceBlocks;
-import ironfurnaces.registration.ModItems;
-import ironfurnaces.registration.ModCustomRecipe;
+import ironfurnaces.registration.*;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -36,6 +35,10 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 	}
 
 
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+
+    }
 
     @Override
 	public void registerCategories(IRecipeCategoryRegistration registration) {
@@ -94,14 +97,6 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registry) {
 		if (Config.enableJeiPlugin.get() && Config.enableJeiCatalysts.get()) {
-			registry.addRecipeCatalyst(new ItemStack(ModItems.BLASTING_AUGMENT.get()), RecipeTypes.BLASTING);
-			registry.addRecipeCatalyst(new ItemStack(ModItems.SMOKING_AUGMENT.get()), RecipeTypes.SMOKING);
-
-			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), JEICompat.GENERATOR_REGULAR);
-			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get());
-			registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), JEICompat.GENERATOR_SMOKING);
-
-			registry.addRecipeCatalyst(new ItemStack(ModItems.FACTORY_AUGMENT.get()), RecipeTypes.SMELTING);
 
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.IRON_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.GOLD_FURNACE.get()), RecipeTypes.SMELTING);
@@ -131,9 +126,6 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.FUELING);
 			}
 
-			registry.addRecipeCatalyst(new ItemStack(ModItems.BLASTING_AUGMENT.get()), ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get());
-			registry.addRecipeCatalyst(new ItemStack(ModItems.SMOKING_AUGMENT.get()), JEICompat.GENERATOR_SMOKING);
-
 
 
 			if (ModList.get().isLoaded("allthemodium"))
@@ -145,12 +137,22 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.VIBRANIUM_FURNACE.get()), RecipeTypes.FUELING);
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.UNOBTAINIUM_FURNACE.get()), RecipeTypes.FUELING);
 			}
+
+
 		}
+
+        registry.addRecipeCatalyst(new ItemStack(ModItems.BLASTING_AUGMENT.get()), ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get(), RecipeTypes.BLASTING);
+        registry.addRecipeCatalyst(new ItemStack(ModItems.SMOKING_AUGMENT.get()), JEICompat.GENERATOR_SMOKING, RecipeTypes.SMOKING);
+        registry.addRecipeCatalyst(ModBlocks.PATTERN_HOLDER, RecipeTypes.SMELTING, RecipeTypes.FUELING);
+
+        registry.addRecipeCatalyst(new ItemStack(ModItems.GENERATOR_AUGMENT.get()), JEICompat.GENERATOR_REGULAR, ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get(), JEICompat.GENERATOR_SMOKING);
+        registry.addRecipeCatalyst(new ItemStack(ModItems.FACTORY_AUGMENT.get()), RecipeTypes.SMELTING);
 	}
 
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registry) {
         registry.addGenericGuiContainerHandler(BlockIronFurnaceScreenBase.class, new FurnacesGuiHandler());
+        registry.addGuiContainerHandler(FurnacePatternScreen.class, new FurnacesGuiHandlerForNewSet());
 	}
 
 }

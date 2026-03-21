@@ -10,13 +10,11 @@ public class FurnaceCacheReloadListener extends SimplePreparableReloadListener<V
 
     @Override
     protected Void prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
-        // 不需要准备阶段
         return null;
     }
 
     @Override
     protected void apply(Void object, ResourceManager resourceManager, ProfilerFiller profiler) {
         PatternPreviewTextureResolver.clear();
-        PatternRenderCache.clear();
     }
 }

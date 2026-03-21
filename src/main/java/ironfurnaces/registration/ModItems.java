@@ -19,6 +19,7 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -504,8 +505,9 @@ public class ModItems {
 
     public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
             registerItem("upgrade_tool", ItemUpgradeTool::new)
+                    .model((ctx, prov) -> prov.getBuilder(ctx.getName())
+                            .parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity")))
                     .recipe((ctx, provider) -> {
-
                         PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IronFurnaces.id("upgrade_gold"))
                                 .pattern("###")
                                 .pattern("#X#")

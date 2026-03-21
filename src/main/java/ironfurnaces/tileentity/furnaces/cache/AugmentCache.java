@@ -3,23 +3,20 @@ package ironfurnaces.tileentity.furnaces.cache;
 import ironfurnaces.items.augments.ItemAugmentBlue;
 import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
-import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import it.unimi.dsi.fastutil.ints.Int2FloatFunction;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -146,7 +143,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 x -> x + 1,
                 totalBurnTime -> totalBurnTime / 2,
                 IntUnaryOperator.identity(),
-                IntUnaryOperator.identity(),
+                x -> x * 2,
                 x -> 2 * x,
                 x -> 2 * x
         )),
@@ -154,7 +151,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 x -> x + 0.25f,
                 totalBurnTime -> totalBurnTime * 2,
                 IntUnaryOperator.identity(),
-                IntUnaryOperator.identity(),
+                x -> x / 2.0f,
                 x -> x * 0.75f,
                 x -> x / 2
         )),
@@ -162,7 +159,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 FloatUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
                 IntUnaryOperator.identity(),
-                IntUnaryOperator.identity(),
+                x -> x,
                 x -> x,
                 IntUnaryOperator.identity()
         ));
@@ -176,9 +173,9 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
         public record Modifiers(
                 FloatUnaryOperator normalWorkTimeModifier,
                 IntUnaryOperator normalBurnTimeModifier,
-                IntUnaryOperator energyWorkTimeModifier,
                 IntUnaryOperator energyBurnTimeModifier,
-                Int2FloatFunction generateOutputModifier,
+                Float2FloatFunction generateCurrentOutputModifier,
+                Float2FloatFunction generatePerTickOutputModifier,
                 IntUnaryOperator energyWorkCostModifier
         ) {
         }

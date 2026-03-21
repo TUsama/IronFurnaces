@@ -1,13 +1,13 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import ironfurnaces.Config;
+import ironfurnaces.capability.CapabilityPlayerFurnacesList;
 import ironfurnaces.items.IJovialSetter;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
@@ -49,6 +49,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 import static net.minecraft.network.chat.Component.translatable;
 
@@ -103,20 +104,21 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
-        FurnacePatternBlockEntity te = (FurnacePatternBlockEntity) level.getBlockEntity(pos);
-        if (entity != null) {
-            if (stack.hasCustomHoverName()) {
-                if (!(stack.getDisplayName().getString().contains("["))) {
-                    te.setCustomName(stack.getDisplayName());
-                }
-            }
-            /*
-            if (entity instanceof Player)
-            {
-                Player player = (Player)entity;
+        super.setPlacedBy(level, pos, state, entity, stack);
 
-                player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.add(player.level().dimension(), pos));
-            }*/
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof FurnacePatternBlockEntity te)) {
+            return;
+        }
+
+        if (stack.hasCustomHoverName() && !stack.getDisplayName().getString().contains("[")) {
+            te.setCustomName(stack.getDisplayName());
+        }
+
+        if (!level.isClientSide && entity instanceof Player player) {
+            te.setOwner(player.getUUID());
+            player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+                    .ifPresent(h -> h.add(level.dimension(), pos));
         }
     }
 
@@ -145,7 +147,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 }
             }, buf -> {
 
-                buf.writeJsonWithCodec(FurnacePattern.CODEC, furnacePatternBlockEntity.getPattern());
+                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
                 buf.writeBlockPos(pos);
             });
             player.awardStat(Stats.INTERACT_WITH_FURNACE);
@@ -217,17 +219,30 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean p_196243_5_) {
-        if (state.getBlock() != oldState.getBlock()) {
+    public void onRemove(BlockState oldState, Level world, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (oldState.getBlock() != newState.getBlock()) {
             BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof FurnacePatternBlockEntity v2) {
-                Containers.dropContents(world, pos, v2);
-                v2.getRecipeAwardHandler().grantStoredRecipeExperience((ServerLevel) world, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
-                world.updateNeighbourForOutputSignal(pos, this);
+            if (te instanceof FurnacePatternBlockEntity furnace) {
 
+                if (!world.isClientSide) {
+                    UUID ownerUuid = furnace.getOwnerUuid();
+                    if (ownerUuid != null && world.getServer() != null) {
+                        Player owner = world.getServer().getPlayerList().getPlayer(ownerUuid);
+                        if (owner != null) {
+                            owner.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+                                    .ifPresent(h -> h.remove(world.dimension(), pos));
+                        }
+                    }
+                }
+
+                Containers.dropContents(world, pos, furnace);
+                if (world instanceof ServerLevel serverLevel) {
+                    furnace.getRecipeAwardHandler().grantStoredRecipeExperience(serverLevel, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
+                }
+                world.updateNeighbourForOutputSignal(pos, this);
             }
 
-            super.onRemove(state, world, pos, oldState, p_196243_5_);
+            super.onRemove(oldState, world, pos, newState, movedByPiston);
         }
     }
 

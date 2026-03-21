@@ -218,31 +218,20 @@ dependencies {
         modstitchModCompileOnly(this)
     }
 
-    val fzzyConfigVersion = findProperty("deps.fzzy_config_version")
-    val fzzyMinecraftVersion = when (minecraft) {
-        "1.21.1" -> "1.21"
-        "1.21.4" -> "1.21.3"
-        "1.21.8" -> "1.21.6"
-        "1.21.10" -> "1.21.9"
-        else -> minecraft
-    }
-    var fzzyString : String = "";
 
-    modstitch.loom{
-    prop("deps.fabric_api"){
-        ("net.fabricmc.fabric-api:fabric-api:$it+${minecraft}").implementation()
-    }
-    }
-
-    propLib{
-        "maven.modrinth:nirvana-library:$loader-$minecraft-$it".implementation()
-        "mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}".runtimeOnly()
-        modstitchModCompileOnly ("mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}")
-    }
 
     prop("deps.fzzy_config_version"){
-        modstitch.loom {
+        val fzzyConfigVersion = findProperty("deps.fzzy_config_version")
+        val fzzyMinecraftVersion = when (minecraft) {
+            "1.21.1" -> "1.21"
+            "1.21.4" -> "1.21.3"
+            "1.21.8" -> "1.21.6"
+            "1.21.10" -> "1.21.9"
+            else -> minecraft
+        }
+        var fzzyString : String = "";
 
+        modstitch.loom {
             fzzyString = "me.fzzyhmstrs:fzzy_config:${fzzyConfigVersion}+${fzzyMinecraftVersion}";
 
         }
@@ -263,11 +252,20 @@ dependencies {
 
         modstitchModCompileOnly(fzzyString)
         (fzzyString).runtimeOnly()
-
-        prop("deps.kotlin"){
-            "thedarkcolour:kotlinforforge:${it}".runtimeOnly()
-        }
     }
+
+    modstitch.loom{
+    prop("deps.fabric_api"){
+        ("net.fabricmc.fabric-api:fabric-api:$it+${minecraft}").implementation()
+    }
+    }
+
+    propLib{
+        "maven.modrinth:nirvana-library:$loader-$minecraft-$it".implementation()
+        "mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}".runtimeOnly()
+        modstitchModCompileOnly ("mysticdrew:common-networking-$loader:${property("deps.common_networking") as String}")
+    }
+
 
     modstitchModCompileOnly ("curse.maven:project-mmo-353935:5075049")
     //("curse.maven:project-mmo-353935:5075049").runtimeOnly()

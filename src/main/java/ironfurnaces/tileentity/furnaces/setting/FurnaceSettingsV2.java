@@ -55,6 +55,18 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
 
     }
 
+    public static boolean isLowSignal(int signal) {
+        return signal > 0 && signal <= 7;
+    }
+
+    public static boolean isHighSignal(int signal) {
+        return signal >= 8;
+    }
+
+    public static boolean hasSignal(int signal) {
+        return signal > 0;
+    }
+
     public enum IOMode implements StringRepresentable{
         NONE("none", x -> ((IItemHandlerModifiable) EmptyHandler.INSTANCE), "ironfurnaces.furnace_setting.io_mode.none"),
         INPUT("input", FurnacePatternBlockEntity::getInput, "ironfurnaces.furnace_setting.io_mode.input"),

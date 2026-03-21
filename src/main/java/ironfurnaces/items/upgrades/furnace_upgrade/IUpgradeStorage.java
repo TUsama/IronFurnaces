@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 public interface IUpgradeStorage {
 
+
     @Nullable
     static PatternUpgradeRule get(ItemStack stack) {
         CompoundTag tag = stack.getTag();
