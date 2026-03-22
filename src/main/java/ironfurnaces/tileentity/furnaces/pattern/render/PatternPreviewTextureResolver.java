@@ -96,9 +96,9 @@ public final class PatternPreviewTextureResolver {
         }
 
         switch (type){
-            case NORMAL -> {}
             case BLAST -> s.append("_blast");
             case SMOKE -> s.append("_smoke");
+            default -> {}
         }
         strings[1] = s.toString();
         return strings;

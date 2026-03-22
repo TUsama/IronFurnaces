@@ -6,14 +6,13 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.IModeSensitive;
 import ironfurnaces.tileentity.furnaces.cache.IPatternSensitive;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import it.unimi.dsi.fastutil.ints.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 
 import javax.annotation.Nullable;
@@ -25,7 +24,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     public static final Codec<ProcessingInstanceManager> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ProcessingInstance.DISPATCH_CODEC.listOf().fieldOf("instances").forGetter(ProcessingInstanceManager::instances),
-                    ExtraCodecs.POSITIVE_INT.listOf().xmap(x -> ((IntSet) new IntOpenHashSet(x)), ArrayList::new).fieldOf("blockingIndexes").forGetter(ProcessingInstanceManager::blockingIndexes)
+                    ExtraCodecs.POSITIVE_INT.listOf().xmap(IntOpenHashSet::new, ArrayList::new).fieldOf("blockingIndexes").forGetter(x -> (IntOpenHashSet) x.blockingIndexes())
             ).apply(instance, ProcessingInstanceManager::new));
     @Getter
     private final List<ProcessingInstance> instances;
@@ -84,12 +83,23 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     public void addInstance(ProcessingInstance instance){
+
         this.instances.add(instance);
         filledIndex.add(instance.fromIndex);
     }
 
     private CachedRecipeEntry getOrCreateCache(int fromIndex) {
         return recipeCache.computeIfAbsent(fromIndex, i -> new CachedRecipeEntry());
+    }
+
+    public boolean needLit(FurnacePatternBlockEntity blockEntity) {
+        for (ProcessingInstance instance : this.instances) {
+            if (this.blockingIndexes.contains(instance.fromIndex)) continue;
+            if (instance.needLit(blockEntity)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nullable
@@ -129,6 +139,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     public boolean isGeneratingEnergy() {
+        //don't use getAllWorkingGenerateInstances().isEmpty()
         for (ProcessingInstance instance : instances) {
             if (blockingIndexes.contains(instance.fromIndex)) {
                 continue;
@@ -140,10 +151,20 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         return false;
     }
 
+
+
     public List<Generate> getAllGenerateInstances(){
         ArrayList<Generate> generates = new ArrayList<>();
         for (ProcessingInstance instance : instances) {
             if (instance instanceof Generate generateInstances) generates.add(generateInstances);
+        }
+        return generates;
+    }
+
+    public List<Generate> getAllWorkingGenerateInstances(){
+        ArrayList<Generate> generates = new ArrayList<>();
+        for (ProcessingInstance instance : instances) {
+            if (instance instanceof Generate generateInstances && !blockingIndexes.contains(instance.fromIndex)) generates.add(generateInstances);
         }
         return generates;
     }
@@ -160,9 +181,9 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     @Override
-    public void updateFurnacePattern(FurnacePattern pattern) {
+    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
         for (ProcessingInstance instance : this.instances) {
-            instance.whenChangePattern(pattern);
+            instance.whenChangePattern(stats);
         }
         for (CachedRecipeEntry entry : recipeCache.values()) {
             entry.invalidate();

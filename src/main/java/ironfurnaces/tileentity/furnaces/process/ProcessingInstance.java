@@ -5,7 +5,6 @@ import com.clefal.nirvana_lib.relocated.io.vavr.collection.Map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.cache.InputCache;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +16,8 @@ public abstract class ProcessingInstance {
             Burn.Blasting.TYPE, Burn.Blasting.CODEC,
             Burn.Smoking.TYPE, Burn.Smoking.CODEC,
             Generate.SmeltGenerate.TYPE, Generate.SmeltGenerate.CODEC,
-            Generate.BlastGenerate.TYPE, Generate.BlastGenerate.CODEC
+            Generate.BlastGenerate.TYPE, Generate.BlastGenerate.CODEC,
+            Generate.SmokingGenerate.TYPE, Generate.SmokingGenerate.CODEC
     );
 
     public static final Codec<ProcessingInstance> DISPATCH_CODEC = Codec.STRING.dispatch(
@@ -38,6 +38,8 @@ public abstract class ProcessingInstance {
         this.fromIndex = fromIndex;
         this.handledStart = handledStart;
     }
+
+    public abstract boolean needLit(FurnacePatternBlockEntity tile);
 
     public abstract String getType();
 

@@ -2,27 +2,20 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import it.unimi.dsi.fastutil.objects.Object2BooleanFunction;
+import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
-import org.checkerframework.checker.guieffect.qual.SafeType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Accessors(fluent = true, chain = true)
@@ -30,35 +23,24 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     private final static int[] cacheIndex = new int[0];
         @Getter
     private FEnergyStorage energy;
-    private FurnaceMode mode;
     @Setter
     private Predicate<ItemStack> burnableFunction;
     @Setter
     private Consumer<FuelCache> contentChangeCallback;
 
-    public FuelCache( FEnergyStorage energy, FurnaceMode mode) {
+
+    public FuelCache( FEnergyStorage energy) {
         this.energy = energy;
-        this.mode = mode;
     }
 
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
-        if (!simulate) {
-            if (contentChangeCallback != null) {
-                contentChangeCallback.accept(this);
-            }
-        }
         return energy.receiveEnergy(maxReceive, simulate);
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
-        if (!simulate) {
-            if (contentChangeCallback != null) {
-                contentChangeCallback.accept(this);
-            }
-        }
         return energy.extractEnergy(maxExtract, simulate);
     }
 
@@ -93,7 +75,6 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode) {
-        this.mode = mode;
     }
 
     @Override
@@ -102,6 +83,7 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
             contentChangeCallback.accept(this);
         }
         recomputeFillStats();
+
     }
 
     @Override
@@ -158,7 +140,8 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     }
 
     @Override
-    public void updateFurnacePattern(FurnacePattern pattern) {
-        this.energy.setCapacity(pattern.energyCapacity());
+    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+        this.energy.setCapacity(stats.energyCapacity());
+        this.energy.setMaxTransfer(stats.energyCapacity());
     }
 }

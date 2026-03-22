@@ -18,7 +18,6 @@ import org.joml.Vector2i;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class DistributePartitionContainerMenu extends AbstractContainerMenu {
     protected final ArrayList<Partition> partitions = new ArrayList<>();
@@ -26,7 +25,6 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
     @Getter
     protected int sizeCount = 0;
     protected final List<QuickMoveRule> quickMoveRules = new ArrayList<>();
-    protected Runnable movedCallback;
 
     protected DistributePartitionContainerMenu(@Nullable MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
@@ -46,6 +44,7 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
         this.sizeCount += partition.size;
         return partition;
     }
+
 
     protected QuickMoveRule[] addQuickMoveRule(QuickMoveRule... rule) {
         this.quickMoveRules.addAll(Arrays.asList(rule));
@@ -172,10 +171,6 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
 
         if (!moved) {
             return ItemStack.EMPTY;
-        } else {
-            if (movedCallback != null){
-                movedCallback.run();
-            }
         }
 
         if (sourceStack.isEmpty()) {

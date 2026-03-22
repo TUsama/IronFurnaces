@@ -1,7 +1,7 @@
 package ironfurnaces.tileentity.furnaces;
 
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
-import ironfurnaces.config.IronFurnacesConfig;
+import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.RainbowBonus;
@@ -52,13 +52,11 @@ public class RainbowRuntimeState {
         FurnacePattern pattern = owner.getPattern();
         if (pattern == null || !pattern.isRainbow()) return;
 
-        RainbowFurnaceConfig config = pattern.rainbowConfigOrEmpty();
         long gameTime = owner.getLevel().getGameTime();
 
         if (gameTime < nextRefreshGameTime) return;
 
         refreshNow();
-        nextRefreshGameTime = gameTime + Math.max(1, config.refreshInterval());
     }
 
     public void refreshNow() {
@@ -82,20 +80,16 @@ public class RainbowRuntimeState {
         }
 
         serverPlayer.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(list -> {
+            if (!list.isUpdated()) return;
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) continue;
 
-                if (!config.countSelf()
-                        && globalPos.dimension().equals(owner.getLevel().dimension())
-                        && globalPos.pos().equals(owner.getBlockPos())) {
-                    continue;
-                }
 
                 if (owner.getLevel().getServer() == null) continue;
                 ServerLevel targetLevel = owner.getLevel().getServer().getLevel(globalPos.dimension());
                 if (targetLevel == null) continue;
                 if (!targetLevel.isLoaded(globalPos.pos())) {
-                    if (IronFurnacesConfig.config.force_load_chunk_when_check_furnace_kind_for_rainbow_furnace) {
+                    if (GameplayConfig.config.force_load_chunk_when_check_furnace_kind_for_rainbow_furnace) {
                         targetLevel.getChunkAt(globalPos.pos()).setLoaded(true);
                     }
                     continue;
@@ -113,15 +107,22 @@ public class RainbowRuntimeState {
             }
         });
 
+        if (activeKinds.isEmpty()) return;
+
         RainbowBonus totalBonus = RainbowBonus.ZERO;
         for (ResourceLocation id : activeKinds) {
             totalBonus = totalBonus.add(config.bonusFor(id));
         }
+        EffectiveFurnaceStats apply = stats.apply(totalBonus);
+        if (!this.cachedStats.equals(apply)){
+            this.cachedStats = apply;
+            this.cachedActiveKinds.clear();
+            this.cachedActiveKinds.addAll(activeKinds);
+            owner.setChanged();
+            owner.updateEffectiveFurnaceStats(cachedStats);
+        }
 
-        this.cachedStats = stats.apply(totalBonus);
-        this.cachedActiveKinds.clear();
-        this.cachedActiveKinds.addAll(activeKinds);
-        owner.setChanged();
+        nextRefreshGameTime = owner.getLevel().getGameTime() + Math.max(1, config.refreshInterval());
     }
 
     @Nullable

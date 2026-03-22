@@ -25,12 +25,7 @@ public interface IPatternAccessor {
     }
 
     static void writePatternToItemStack(ItemStack stack, FurnacePattern pattern){
-        CompoundTag tag = stack.getOrCreateTag();
-        String key = FurnacePattern.NBT_KEY;
-        if (tag.contains(key)) {
-            tag.remove(key);
-
-        }
-        tag.putString(key, pattern.id().toString());
+        CompoundTag blockEntityTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        blockEntityTag.putString(FurnacePattern.NBT_KEY, pattern.id().toString());
     }
 }

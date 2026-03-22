@@ -23,6 +23,7 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
 
     private LinkedHashSet<GlobalPos> posLinkedHashSet;
     private boolean upgradeFromLegacy = false;
+    private boolean updated = false;
 
     public PlayerFurnacesList() {
         this.posLinkedHashSet = new LinkedHashSet<>();
@@ -40,11 +41,13 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
     @Override
     public void add(ResourceKey<Level> key, BlockPos pos) {
         this.posLinkedHashSet.add(GlobalPos.of(key, pos));
+        this.updated = true;
     }
 
     @Override
     public void remove(ResourceKey<Level> key, BlockPos pos) {
         this.posLinkedHashSet.remove(GlobalPos.of(key, pos));
+        this.updated = true;
     }
 
     @Override
@@ -57,6 +60,11 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
     @Override
     public void resetUpgradeMark() {
         this.upgradeFromLegacy = false;
+    }
+
+    @Override
+    public boolean isUpdated() {
+        return updated;
     }
 
     public boolean isEmpty() {

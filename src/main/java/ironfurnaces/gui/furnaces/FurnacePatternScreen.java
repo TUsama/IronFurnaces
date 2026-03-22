@@ -264,6 +264,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 this.menu::isOpenSetting
 
         ));
+        
+        this.settingsTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.setting")));
 
         this.addRenderableWidget(autoInputButton);
         this.addRenderableWidget(autoOutputButton);
@@ -298,6 +300,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 new SideTabPanel(this.remainingCachePanelGroup, positionContext, 1),
                 this.menu::isOpenRemaining
         ));
+        
+        this.remainingCacheTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.remaining_items")));
 
         this.remainingCachePanelGroup = new WidgetGroup();
 
@@ -321,6 +325,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 new SideTabPanel(this.augmentCachePanelGroup, positionContext, 2),
                 this.menu::isOpenAugment
         ));
+
+        this.augmentCacheTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.augment")));
 
         this.augmentCachePanelGroup = new WidgetGroup();
 

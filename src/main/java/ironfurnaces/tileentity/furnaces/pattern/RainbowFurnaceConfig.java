@@ -11,7 +11,6 @@ import java.util.Set;
 public record RainbowFurnaceConfig(
         Map<ResourceLocation, RainbowBonus> bonuses,
         int refreshInterval,
-        boolean countSelf,
         Set<ResourceLocation> ignorePatterns
 ) {
     public static final Codec<RainbowFurnaceConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -20,8 +19,6 @@ public record RainbowFurnaceConfig(
                     .forGetter(RainbowFurnaceConfig::bonuses),
             Codec.INT.optionalFieldOf("refresh_interval", 20)
                     .forGetter(RainbowFurnaceConfig::refreshInterval),
-            Codec.BOOL.optionalFieldOf("count_self", false)
-                    .forGetter(RainbowFurnaceConfig::countSelf),
             ResourceLocation.CODEC.listOf()
                     .xmap(Set::copyOf, List::copyOf)
                     .optionalFieldOf("ignore_patterns", Set.of())

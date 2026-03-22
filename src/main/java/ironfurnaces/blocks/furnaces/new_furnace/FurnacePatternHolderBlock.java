@@ -12,31 +12,44 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -44,12 +57,22 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static net.minecraft.network.chat.Component.translatable;
 
@@ -66,10 +89,131 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 .setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE));
     }
 
+    @Nullable
+    private FurnacePatternBlockEntity getPatternHolder(BlockGetter level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        return be instanceof FurnacePatternBlockEntity holder ? holder : null;
+    }
+
+    private Optional<Block> getReferenceBlock(BlockGetter level, BlockPos pos) {
+        FurnacePatternBlockEntity holder = getPatternHolder(level, pos);
+        if (holder == null) {
+            return Optional.empty();
+        }
+
+        FurnacePattern pattern = holder.getPattern();
+        if (pattern == null) {
+            return Optional.empty();
+        }
+
+        return pattern.referenceBlock()
+                .map(ForgeRegistries.BLOCKS::getValue)
+                .filter(block -> block != null && block != Blocks.AIR);
+    }
+
+    private BlockState getReferenceStateOrNull(BlockGetter level, BlockPos pos) {
+        return getReferenceBlock(level, pos)
+                .map(Block::defaultBlockState)
+                .orElse(null);
+    }
+
+    @Override
+    public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.getBlock().getExplosionResistance(reference, level, pos, explosion);
+        }
+        return super.getExplosionResistance(state, level, pos, explosion);
+    }
+
+    @Override
+    public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.getBlock().getDestroyProgress(reference, player, level, pos);
+        }
+        return super.getDestroyProgress(state, player, level, pos);
+    }
+
+    @Override
+    public int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.getLightBlock(level, pos);
+        }
+        return super.getLightBlock(state, level, pos);
+    }
+
+    @Override
+    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.propagatesSkylightDown(level, pos);
+        }
+        return super.propagatesSkylightDown(state, level, pos);
+    }
+
+    @Override
+    public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.getShadeBrightness(level, pos);
+        }
+        return super.getShadeBrightness(state, level, pos);
+    }
+
+    @Override
+    public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference != null) {
+            return reference.getSoundType(level, pos, entity);
+        }
+        return super.getSoundType(state, level, pos, entity);
+    }
+
+    @Override
+    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        BlockState particleState = reference != null ? reference : state;
+
+        level.levelEvent(player, 2001, pos, Block.getId(particleState));
+    }
+
+    @Override
+    public boolean addRunningEffects(BlockState state, Level level, BlockPos pos, Entity entity) {
+        BlockState reference = getReferenceStateOrNull(level, pos);
+        if (reference == null) {
+            return super.addRunningEffects(state, level, pos, entity);
+        }
+
+        Vec3 movement = entity.getDeltaMovement();
+        if (movement.x * movement.x + movement.z * movement.z < 1.0E-7D) {
+            return false;
+        }
+
+        RandomSource random = level.random;
+        double x = entity.getX() + (random.nextDouble() - 0.5D) * (double) entity.getBbWidth();
+        double y = entity.getY() + 0.1D;
+        double z = entity.getZ() + (random.nextDouble() - 0.5D) * (double) entity.getBbWidth();
+
+        level.addParticle(
+                new BlockParticleOption(ParticleTypes.BLOCK, reference),
+                x, y, z,
+                movement.x * -4.0D,
+                1.5D,
+                movement.z * -4.0D
+        );
+        return true;
+    }
 
     @Nullable
     protected static <T extends BlockEntity> BlockEntityTicker<T> createFurnaceTicker(Level level, BlockEntityType<T> serverType, BlockEntityType<? extends FurnacePatternBlockEntity> clientType) {
         return level.isClientSide ? null : createTickerHelper(serverType, clientType, FurnacePatternBlockEntity::serverTick);
+    }
+
+    @Override
+    public boolean isOcclusionShapeFullBlock(BlockState state, BlockGetter level, BlockPos pos) {
+        return super.isOcclusionShapeFullBlock(state, level, pos);
     }
 
     @Override
@@ -86,20 +230,100 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+        ItemStack stack = new ItemStack(this);
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof FurnacePatternBlockEntity furnace) {
+            FurnacePattern pattern = furnace.getPattern();
+            if (pattern != null && pattern != FurnacePattern.FALLBACK) {
+                IPatternAccessor.writePatternToItemStack(stack, pattern);
+            }
+
+            CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+
+            FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, furnace.getSettingsV2())
+                    .result()
+                    .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
+
+            if (furnace.hasCustomName()) {
+                stack.setHoverName(furnace.getCustomName());
+            }
+        }
+
+        return stack;
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return (BlockState) this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @org.jetbrains.annotations.Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
+
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
         if (furnacePatternFromTag != null) {
-            tooltip.add(translatable("ironfurnaces.block.furnace.work_speed", Component.literal("" + furnacePatternFromTag.smeltTickPerItem()).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(translatable(
+                    "ironfurnaces.block.furnace.work_speed",
+                    Component.literal(String.valueOf(furnacePatternFromTag.smeltTickPerItem()))
+                            .withStyle(ChatFormatting.GREEN)
+            ).withStyle(ChatFormatting.GRAY));
         } else {
-
-            tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern").withStyle(ChatFormatting.RED));
+            tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
+                    .withStyle(ChatFormatting.RED));
         }
+
+        CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+            return;
+        }
+
+        FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+                .result()
+                .ifPresent(settings -> {
+                    tooltip.add(Component.literal(""));
+
+                    settings.IOSetting().forEach((direction, ioMode) -> {
+                        tooltip.add(Component.translatable(
+                                "ironfurnaces.furnace_setting.direction." + direction.toString().toLowerCase(Locale.ROOT),
+                                Component.translatable(ioMode.translationKey).withStyle(ChatFormatting.GREEN)
+                        ).withStyle(ChatFormatting.GRAY));
+                    });
+
+                    MutableComponent enable = Component.translatable("ironfurnaces.furnace_setting.setting_enable");
+                    MutableComponent disable = Component.translatable("ironfurnaces.furnace_setting.setting_disable");
+                    Function<Boolean, MutableComponent> choose = b -> b ? enable.withStyle(ChatFormatting.GREEN) : disable.withStyle(ChatFormatting.RED);
+
+                    tooltip.add(Component.translatable(
+                            "ironfurnaces.furnace_setting.auto_input",
+                            choose.apply(settings.autoInput())
+                    ).withStyle(ChatFormatting.GRAY));
+
+                    tooltip.add(Component.translatable(
+                            "ironfurnaces.furnace_setting.auto_output",
+                            choose.apply(settings.autoOutput())
+                    ).withStyle(ChatFormatting.GRAY));
+
+                    tooltip.add(Component.translatable(
+                            "ironfurnaces.furnace_setting.redstone_mode",
+                            Component.translatable(settings.redStoneMode().translationKey).withStyle(ChatFormatting.GREEN)
+                    ).withStyle(ChatFormatting.GRAY));
+
+                    tooltip.add(Component.translatable(
+                            "ironfurnaces.furnace_setting.redstone_value",
+                            Component.literal(settings.subtractionNumber() + "").withStyle(ChatFormatting.GREEN)
+                    ).withStyle(ChatFormatting.GRAY));
+
+                    tooltip.add(Component.translatable(
+                            "ironfurnaces.furnace_setting.auto_fill",
+                            choose.apply(settings.autoFill())
+                    ).withStyle(ChatFormatting.GRAY));
+                });
+
+        tooltip.add(translatable("item.ironfurnaces.furnace_pattern_holder.reset_setting_hint"));
+
     }
 
     @Override
@@ -131,6 +355,8 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             IJovialSetter.clearJovial(level, pos);
             return InteractionResult.SUCCESS;
         }
+
+
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
             ModMenus.NEW_FURNACE_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
@@ -147,7 +373,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 }
             }, buf -> {
 
-                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
+                buf.writeJsonWithCodec(FurnacePattern.DIRECT_CODEC, furnacePatternBlockEntity.getEffectivePattern());
                 buf.writeBlockPos(pos);
             });
             player.awardStat(Stats.INTERACT_WITH_FURNACE);
@@ -167,7 +393,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             if (!(world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2)) {
                 return;
             }
-            RecipeType<?> currentRecipeType = v2.getAugments().getCurrentRecipeType().recipeType;
+            RecipeType<?> currentRecipeType = v2.getAugments().getCurrentRecipeType().recipeType.get();
             if (currentRecipeType == RecipeType.SMOKING) {
                 double lvt_5_1_ = (double) pos.getX() + 0.5D;
                 double lvt_7_1_ = (double) pos.getY();
@@ -299,5 +525,53 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     @Override
     public @org.jetbrains.annotations.Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PATTERN_HOLDER.create(pos, state);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
+        consumer.accept(new IClientBlockExtensions() {
+            @Override
+            public boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) {
+                if (!(target instanceof BlockHitResult blockHit)) {
+                    return false;
+                }
+                if (!(level instanceof ClientLevel clientLevel)) return false;
+
+                BlockPos pos = blockHit.getBlockPos();
+                BlockState reference = getReferenceStateOrNull(level, pos);
+                if (reference == null) {
+                    return false;
+                }
+
+                Direction face = blockHit.getDirection();
+                VoxelShape shape = reference.getShape(level, pos);
+                if (shape.isEmpty()) {
+                    shape = Shapes.block();
+                }
+
+                AABB aabb = shape.bounds();
+                RandomSource random = level.random;
+
+                double x = pos.getX() + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2D) + 0.1D + aabb.minX;
+                double y = pos.getY() + random.nextDouble() * (aabb.maxY - aabb.minY - 0.2D) + 0.1D + aabb.minY;
+                double z = pos.getZ() + random.nextDouble() * (aabb.maxZ - aabb.minZ - 0.2D) + 0.1D + aabb.minZ;
+
+                switch (face) {
+                    case DOWN -> y = pos.getY() + aabb.minY - 0.1D;
+                    case UP -> y = pos.getY() + aabb.maxY + 0.1D;
+                    case NORTH -> z = pos.getZ() + aabb.minZ - 0.1D;
+                    case SOUTH -> z = pos.getZ() + aabb.maxZ + 0.1D;
+                    case WEST -> x = pos.getX() + aabb.minX - 0.1D;
+                    case EAST -> x = pos.getX() + aabb.maxX + 0.1D;
+                }
+
+                manager.add(
+                        (new TerrainParticle(clientLevel, x, y, z, 0.0D, 0.0D, 0.0D, reference, pos))
+                                .setPower(0.2F)
+                                .scale(0.6F)
+                );
+                return true;
+            }
+        });
     }
 }

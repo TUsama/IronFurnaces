@@ -6,14 +6,22 @@ import ironfurnaces.compat.jei.gui.FurnacesGuiHandler;
 import ironfurnaces.compat.jei.gui.FurnacesGuiHandlerForNewSet;
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
+import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
+import ironfurnaces.items.upgrades.furnace_upgrade.IUpgradeStorage;
+import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.registration.*;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
+import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
+import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleManager;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -34,10 +42,55 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 		return new ResourceLocation(IronFurnaces.MOD_ID, "plugin_" + IronFurnaces.MOD_ID);
 	}
 
-
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
+        // pattern holder：按 pattern 区分
+        registration.registerSubtypeInterpreter(
+                ModBlocks.PATTERN_HOLDER.asItem(),
+                (stack, context) -> {
+                    FurnacePattern pattern = IPatternAccessor.getFurnacePatternFromTag(stack);
+                    return pattern == null ? "" : pattern.id().toString();
+                }
+        );
 
+        // upgrade tool：按 upgrade rule 区分
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
+            if (item instanceof ItemUpgradeTool) {
+                registration.registerSubtypeInterpreter(
+                        item,
+                        (stack, context) -> {
+                            PatternUpgradeRule rule = IUpgradeStorage.get(stack);
+                            return rule == null ? "" : rule.id().toString();
+                        }
+                );
+            }
+        }
+    }
+
+    @Override
+    public void registerExtraIngredients(IExtraIngredientRegistration registration) {
+
+        List<ItemStack> stacks = Lists.newArrayList();
+
+        // pattern holder
+        FurnacePatternManager.allPossiblePattern().forEach(pattern -> {
+            ItemStack stack = new ItemStack(ModBlocks.PATTERN_HOLDER.asItem());
+            IPatternAccessor.writePatternToItemStack(stack, pattern);
+            stacks.add(stack);
+        });
+
+        // upgrade tool
+        PatternUpgradeRuleManager.snapshot().values().forEach(rule -> {
+            for (Item item : ForgeRegistries.ITEMS.getValues()) {
+                if (item instanceof ItemUpgradeTool) {
+                    ItemStack stack = new ItemStack(item);
+                    IUpgradeStorage.writeRule(stack, rule);
+                    stacks.add(stack);
+                }
+            }
+        });
+
+        registration.addExtraItemStacks(stacks);
     }
 
     @Override

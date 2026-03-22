@@ -1,5 +1,6 @@
 package ironfurnaces.tileentity.furnaces.pattern;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -30,17 +31,52 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
         );
     }
 
+    private static FurnacePatternDefinition definition(
+            int smeltTickPerItem,
+            int energyCapacity,
+            int energyGenerationPerTick,
+            int inputSlot,
+            ResourceLocation referenceBlock
+    ) {
+        final int CONSUME = 20;
+        return FurnacePatternDefinition.normal(
+                smeltTickPerItem,
+                energyCapacity,
+                energyGenerationPerTick,
+                CONSUME,
+                inputSlot,
+                referenceBlock
+        );
+    }
+
     public static final Map<ResourceLocation, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
             Stream.of(
-                    Map.entry(IronFurnaces.id("copper_furnace"), definition(180, 80_000, 40, 1)),
-                    Map.entry(IronFurnaces.id("iron_furnace"), definition(160, 80_000, 40, 2)),
-                    Map.entry(IronFurnaces.id("silver_furnace"), definition(140, 200_000, 100, 3)),
-                    Map.entry(IronFurnaces.id("gold_furnace"), definition(120, 200_000, 160, 4)),
-                    Map.entry(IronFurnaces.id("diamond_furnace"), definition(80, 1_000_000, 240, 5)),
-                    Map.entry(IronFurnaces.id("emerald_furnace"), definition(40, 1_000_000, 320, 6)),
-                    Map.entry(IronFurnaces.id("crystal_furnace"), definition(40, 1_000_000, 360, 7)),
-                    Map.entry(IronFurnaces.id("obsidian_furnace"), definition(20, 1_000_000, 500, 8)),
-                    Map.entry(IronFurnaces.id("netherite_furnace"), definition(5, 1_000_000, 1000, 9))
+                    Map.entry(IronFurnaces.id("copper_furnace"),
+                            definition(180, 80_000, 40, 1, ResourceLocationUtils.make("minecraft", "copper_block"))),
+
+                    Map.entry(IronFurnaces.id("iron_furnace"),
+                            definition(160, 80_000, 40, 2, ResourceLocationUtils.make("minecraft", "iron_block"))),
+
+                    Map.entry(IronFurnaces.id("silver_furnace"),
+                            definition(140, 200_000, 100, 3, ResourceLocationUtils.make("minecraft", "iron_block"))),
+
+                    Map.entry(IronFurnaces.id("gold_furnace"),
+                            definition(120, 200_000, 160, 4, ResourceLocationUtils.make("minecraft", "gold_block"))),
+
+                    Map.entry(IronFurnaces.id("diamond_furnace"),
+                            definition(80, 1_000_000, 240, 5, ResourceLocationUtils.make("minecraft", "diamond_block"))),
+
+                    Map.entry(IronFurnaces.id("emerald_furnace"),
+                            definition(40, 1_000_000, 320, 6, ResourceLocationUtils.make("minecraft", "emerald_block"))),
+
+                    Map.entry(IronFurnaces.id("crystal_furnace"),
+                            definition(40, 1_000_000, 360, 7, ResourceLocationUtils.make("minecraft", "glass"))),
+
+                    Map.entry(IronFurnaces.id("obsidian_furnace"),
+                            definition(20, 1_000_000, 500, 8, ResourceLocationUtils.make("minecraft", "obsidian"))),
+
+                    Map.entry(IronFurnaces.id("netherite_furnace"),
+                            definition(5, 1_000_000, 1000, 9, ResourceLocationUtils.make("minecraft", "netherite_block")))
             ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @Override

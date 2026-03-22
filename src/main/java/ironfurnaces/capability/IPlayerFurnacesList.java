@@ -21,4 +21,6 @@ public interface IPlayerFurnacesList {
     void whenUpgradeFromLegacy(Consumer<IPlayerFurnacesList> handler);
 
     void resetUpgradeMark();
+
+    boolean isUpdated();
 }

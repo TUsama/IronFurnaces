@@ -1,7 +1,9 @@
 package ironfurnaces.loaders;
 
 import com.clefal.nirvana_lib.utils.ModUtils;
-import ironfurnaces.config.IronFurnacesConfig;
+import ironfurnaces.config.FurnaceConfig;
+import ironfurnaces.config.GameplayConfig;
+import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.registration.*;
 import lombok.experimental.UtilityClass;
 
@@ -23,6 +25,8 @@ public class CommonInit {
             JEICompat.register();
         }
 
-        IronFurnacesConfig.init();
+        RainbowConfig.init();
+        GameplayConfig.init();
+        FurnaceConfig.init();
     }
 }

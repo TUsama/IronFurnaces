@@ -43,8 +43,7 @@ public class ItemAugment extends Item {
         var blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof FurnacePatternBlockEntity v2) {
             v2.insertAugmentFromHand(((ServerPlayer) context.getPlayer()));
-
-
+            v2.transferStacksInUnavailableSlotsToPlayer(context.getPlayer());
             return InteractionResult.CONSUME;
 
         }

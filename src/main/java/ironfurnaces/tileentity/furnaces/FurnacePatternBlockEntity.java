@@ -4,10 +4,9 @@ import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.Config;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
-import ironfurnaces.config.IronFurnacesConfig;
+import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternToMenuPackets;
-import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.tileentity.furnaces.cache.*;
 import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
@@ -20,6 +19,7 @@ import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import net.minecraft.Util;
@@ -35,11 +35,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.RecipeHolder;
@@ -65,7 +67,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Getter
@@ -81,6 +85,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private final IFCombinedCache inputAndOutput;
     private final IFCombinedCache allOutput;
     private final RecipeAwardHandler recipeAwardHandler = new RecipeAwardHandler();
+    @Getter
+    private final ContainerData dataAccess;
     private FurnacePattern pattern;
     private ProcessingInstanceManager instanceManager;
     private FurnaceMode mode;
@@ -91,72 +97,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private int lastProcessedDirection = 0;
     private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
     private boolean shouldAutoFill = false;
-
-    @Getter
-    private final ContainerData dataAccess = Util.make(() -> {
-        {
-            FurnacePatternBlockEntity be = this;
-
-            ContainerDataBuilder builder = ContainerDataBuilder.create()
-                    .intValue(
-                            () -> be.getFuel().getEnergyStored(),
-                            v -> be.getFuel().energy().setEnergy(v)
-                    )
-                    .intValue(
-                            () -> be.getFuel().getMaxEnergyStored(),
-                            v -> be.getFuel().energy().setCapacity(v)
-                    )
-                    .enumValue(
-                            FurnaceMode.class,
-                            be::getMode,
-                            v -> {
-                                if (be.mode != v){
-                                    be.updateFurnaceMode(v);
-                                }
-
-                            }
-                    );
-
-            for (Direction direction : Direction.values()) {
-                builder.enumValue(
-                        FurnaceSettingsV2.IOMode.class,
-                        () -> be.getSettingsV2().IOSetting().get(direction),
-                        value -> be.setWholeSettingV2(
-                                be.getSettingsV2().withDirectionChanged(direction, value)
-                ));
-            }
-
-            builder
-                    .boolValue(
-                            () -> be.getSettingsV2().autoInput(),
-                            v -> be.setWholeSettingV2(be.getSettingsV2().withAutoInput(v))
-                    )
-                    .boolValue(
-                            () -> be.getSettingsV2().autoOutput(),
-                            v -> be.setWholeSettingV2(be.getSettingsV2().withAutoOutput(v))
-                    )
-                    .enumValue(
-                            FurnaceSettingsV2.RedStoneMode.class,
-                            () -> be.getSettingsV2().redStoneMode(),
-                            v -> be.setWholeSettingV2(be.getSettingsV2().withRedStoneMode(v))
-                    )
-                    .intValue(
-                            () -> be.getSettingsV2().subtractionNumber(),
-                            v -> be.setWholeSettingV2(be.getSettingsV2().withSubtractionNumber(v))
-                    )
-                    .boolValue(
-                            () -> be.getSettingsV2().autoFill(),
-                            v -> be.setWholeSettingV2(be.getSettingsV2().withAutoFill(v))
-                    )
-                    .enumValue(AugmentCache.HandlingRecipeType.class,
-                            () -> getAugments().getCurrentRecipeType(),
-                            v -> getAugments().setCurrentRecipeType(v)
-                            );
-
-            return builder.build();
-        }
-    });
-
     private UUID ownerUuid;
     private RainbowRuntimeState rainbowState;
 
@@ -181,9 +121,30 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                     setChanged();
                 });
 
-        this.fuel = new FuelCache(new FEnergyStorage(Config.furnaceEnergyCapacityTier2.get()).callback(fEnergyStorage -> setChanged()), mode).burnableFunction(x -> ForgeHooks.getBurnTime(x, getAugments().getCurrentRecipeType().recipeType) > 0).contentChangeCallback(x -> setChanged());
+
+
 
         this.instanceManager = new ProcessingInstanceManager(new ArrayList<>());
+        this.fuel = new FuelCache(new FEnergyStorage(pattern.energyCapacity()).callback(fEnergyStorage -> {
+                    setChanged();
+                    for (Generate allGenerateInstance : this.getInstanceManager().getAllGenerateInstances()) {
+                        IntSet integers = getInstanceManager().blockingIndexes();
+                        if (integers.contains(allGenerateInstance.fromIndex)) integers.remove(allGenerateInstance.fromIndex);
+                    }
+                }
+        )).burnableFunction(x -> {
+                    return switch (getAugments().getCurrentRecipeType()) {
+                        case NORMAL -> ForgeHooks.getBurnTime(x, getAugments().getCurrentRecipeType().recipeType.get()) > 0;
+                        case SMOKE -> {
+                            FoodProperties foodProperties = x.getItem().getFoodProperties(x, null);
+                            yield (foodProperties != null && foodProperties.getNutrition() > 0);
+                        }
+                        case GENERATE_BLAST -> getRecipe(x).isPresent();
+                        case BLAST -> false;
+                    };
+
+                })
+                .contentChangeCallback(x -> setChanged());
 
         this.litHandler = this.mode.litHandlerSelector.get();
 
@@ -206,39 +167,65 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         this.inputAndOutput = new IFCombinedCache(this.input, this.allOutput);
         this.augments.refreshState();
         this.sidedHandlers = new EnumMap<>(Direction.class);
+        ContainerDataBuilder builder = ContainerDataBuilder.create()
+                .intValue(
+                        () -> this.getFuel().getEnergyStored(),
+                        v -> this.getFuel().energy().setEnergy(v)
+                )
+                .intValue(
+                        () -> this.getFuel().getMaxEnergyStored(),
+                        v -> this.getFuel().energy().setCapacity(v)
+                )
+                .enumValue(
+                        FurnaceMode.class,
+                        this::getMode,
+                        v -> {
+                            if (this.mode != v) {
+                                this.updateFurnaceMode(v);
+                            }
+
+                        }
+                );
+
+        for (Direction direction : Direction.values()) {
+            builder.enumValue(
+                    FurnaceSettingsV2.IOMode.class,
+                    () -> this.getSettingsV2().IOSetting().get(direction),
+                    value -> this.setWholeSettingV2(
+                            this.getSettingsV2().withDirectionChanged(direction, value)
+                    ));
+        }
+
+        builder
+                .boolValue(
+                        () -> this.getSettingsV2().autoInput(),
+                        v -> this.setWholeSettingV2(this.getSettingsV2().withAutoInput(v))
+                )
+                .boolValue(
+                        () -> this.getSettingsV2().autoOutput(),
+                        v -> this.setWholeSettingV2(this.getSettingsV2().withAutoOutput(v))
+                )
+                .enumValue(
+                        FurnaceSettingsV2.RedStoneMode.class,
+                        () -> this.getSettingsV2().redStoneMode(),
+                        v -> this.setWholeSettingV2(this.getSettingsV2().withRedStoneMode(v))
+                )
+                .intValue(
+                        () -> this.getSettingsV2().subtractionNumber(),
+                        v -> this.setWholeSettingV2(this.getSettingsV2().withSubtractionNumber(v))
+                )
+                .boolValue(
+                        () -> this.getSettingsV2().autoFill(),
+                        v -> this.setWholeSettingV2(this.getSettingsV2().withAutoFill(v))
+                )
+                .enumValue(AugmentCache.HandlingRecipeType.class,
+                        () -> getAugments().getCurrentRecipeType(),
+                        v -> getAugments().setCurrentRecipeType(v)
+                );
+        this.dataAccess = builder.build();
         recalcSideIOCap();
         markForClientUpdate();
     }
-    private int getInputRedstoneSignal() {
-        return level == null ? 0 : level.getBestNeighborSignal(worldPosition);
-    }
-
-    private boolean shouldWorkByRedstone() {
-        FurnaceSettingsV2.RedStoneMode mode = settingsV2.redStoneMode();
-        int signal = getInputRedstoneSignal();
-
-        return switch (mode) {
-            case IGNORE, COMPARATOR, COMPARATOR_SUBTRACTION -> true;
-            case HIGH_SIGNAL -> signal >= 8;
-            case LOW_SIGNAL -> signal > 0 && signal <= 7;
-        };
-    }
-
-
-    private RainbowRuntimeState rainbowState() {
-        if (rainbowState == null) {
-            rainbowState = new RainbowRuntimeState(this);
-        }
-        return rainbowState;
-    }
-
-    public EffectiveFurnaceStats getEffectiveStats() {
-        if (pattern != null && pattern.isRainbow()) {
-            return rainbowState().getCachedStats();
-        }
-        return EffectiveFurnaceStats.fromBase(pattern == null ? FurnacePattern.FALLBACK : pattern);
-    }
-
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FurnacePatternBlockEntity blockEntity) {
 
@@ -255,7 +242,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
         if (allowWork) {
             blockEntity.tryProcessInput();
-
             blockEntity.litHandler.tick(blockEntity);
             if (blockEntity.litHandler.isLit(blockEntity)) {
                 blockEntity.getInstanceManager().manage(blockEntity);
@@ -274,7 +260,42 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     }
 
-    private void checkIfInputHasEmptySlot(){
+    private int getInputRedstoneSignal() {
+        return level == null ? 0 : level.getBestNeighborSignal(worldPosition);
+    }
+
+    private boolean shouldWorkByRedstone() {
+        FurnaceSettingsV2.RedStoneMode mode = settingsV2.redStoneMode();
+        int signal = getInputRedstoneSignal();
+
+        return switch (mode) {
+            case IGNORE, COMPARATOR, COMPARATOR_SUBTRACTION -> true;
+            case HIGH_SIGNAL -> signal >= 8;
+            case LOW_SIGNAL -> signal > 0 && signal <= 7;
+        };
+    }
+
+    private RainbowRuntimeState rainbowState() {
+        if (rainbowState == null) {
+            rainbowState = new RainbowRuntimeState(this);
+        }
+        return rainbowState;
+    }
+
+    public EffectiveFurnaceStats getEffectiveStats() {
+        if (pattern != null && pattern.isRainbow()) {
+            return rainbowState().getCachedStats();
+        }
+        return EffectiveFurnaceStats.fromBase(pattern == null ? FurnacePattern.FALLBACK : pattern);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        recomputeFillStat();
+    }
+
+    private void checkIfInputHasEmptySlot() {
         int slots = input.getSlots();
         int emptyTime = 0;
         for (int i = 0; i < slots; i++) {
@@ -324,7 +345,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .result()
                 .ifPresent(nbt -> tag.put(FurnaceSettingsV2.NBT_KEY, nbt));
 
-        FurnacePattern.REF_CODEC
+        FurnacePattern.DIRECT_CODEC
                 .encodeStart(NbtOps.INSTANCE, pattern)
                 .result()
                 .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
@@ -402,7 +423,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
         if (tag.contains(FurnacePattern.NBT_KEY)) {
-            FurnacePattern.REF_CODEC
+            FurnacePattern.DIRECT_CODEC
                     .parse(NbtOps.INSTANCE, tag.get(FurnacePattern.NBT_KEY))
                     .result()
                     .ifPresent(parsed -> {
@@ -461,7 +482,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     public void updateFurnaceMode(FurnaceMode mode) {
         this.mode = mode;
         input.updateFurnaceMode(mode);
-        input.dropStacksInUnavailableSlots(this.level, this.getBlockPos());
         output.updateFurnaceMode(mode);
         instanceManager.updateFurnaceMode(mode);
         fuel.updateFurnaceMode(mode);
@@ -473,6 +493,33 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     }
 
+    public void transferStacksInUnavailableSlotsToPlayer(Player player) {
+        BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> give = (item, map) -> {
+            for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
+                ItemHandlerHelper.giveItemToPlayer(player, itemStackEntry.getValue().copy());
+                itemStackEntry.getValue().setCount(0);
+                //item.setStackInSlot(itemStackEntry.getIntKey(), ItemStack.EMPTY);
+            }
+        };
+        BlockPos blockPos = this.getBlockPos();
+        BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> drop = (item, map) -> {
+            for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
+                Containers.dropItemStack(this.getLevel(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStackEntry.getValue().copy());
+                itemStackEntry.getValue().setCount(0);
+                //item.setStackInSlot(itemStackEntry.getIntKey(), ItemStack.EMPTY);
+            }
+        };
+
+        if (player != null) {
+            give.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
+            give.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
+        } else {
+            drop.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
+            drop.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
+        }
+
+    }
+
     private void syncProcessingInstancesManagerToViewers() {
         syncToViewer(new S2CSyncInstancesToMenuPackets(getInstanceManager().instances()));
     }
@@ -481,7 +528,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         syncToViewer(new S2CSyncPatternToMenuPackets(pattern));
     }
 
-    private void syncToViewer(S2CModPacket<?> packet){
+    private void syncToViewer(S2CModPacket<?> packet) {
         Iterator<UUID> iterator = viewers.iterator();
         while (iterator.hasNext()) {
             UUID next = iterator.next();
@@ -505,7 +552,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
     public void setRecipeUsed(@Nullable Recipe<?> recipe) {
-        recipeAwardHandler.record(recipe, IronFurnacesConfig.config.stored_xp_level.get());
+        recipeAwardHandler.record(recipe, GameplayConfig.config.stored_xp_level.get());
     }
 
     @Override
@@ -538,7 +585,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     public Optional<? extends Recipe> getRecipe(ItemStack stack) {
-        return quickCheck.apply(augments.getCurrentRecipeType().recipeType).getRecipeFor(new SimpleContainer(stack), level);
+        return quickCheck.apply(augments.getCurrentRecipeType().recipeType.get()).getRecipeFor(new SimpleContainer(stack), level);
     }
 
     private void tryProcessInput() {
@@ -563,24 +610,12 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 if (workingIndexes.contains(i)) continue;
                 ItemStack stackInSlot = fuel.getStackInSlot(i);
                 if (stackInSlot.isEmpty()) continue;
-                int finalI = i;
                 int generation = pattern.energyGenerationPerTick();
-
-                if (augments.getCurrentRecipeType().recipeType != RecipeType.BLASTING){
-                    int burnTime = ForgeHooks.getBurnTime(stackInSlot, augments.getCurrentRecipeType().recipeType);
-                    if (burnTime > 0){
-                        this.instanceManager.addInstance(new Generate.SmeltGenerate(finalI, burnTime * generation, generation));
-                    }
-                } else {
-                    getRecipe(stackInSlot)
-                            .ifPresent(x -> {
-                                if (this.mode.equals(FurnaceMode.GENERATOR)) {
-                                    if (x instanceof GeneratorRecipe generatorRecipe) {
-                                        this.instanceManager.addInstance(new Generate.BlastGenerate(finalI, generatorRecipe.getEnergy(), generation));
-                                    }
-                                }
-                            });
+                var instance = Generate.getGenerateInstance(i, generation, stackInSlot, this);
+                if (instance != null) {
+                    this.instanceManager.addInstance(instance);
                 }
+
 
             }
         }
@@ -662,7 +697,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             }
         }
     }
-
 
 
     protected void energyOutPerTick() {
@@ -787,7 +821,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             }
         }
 
-        if (slot != -1){
+        if (slot != -1) {
             ItemStack itemStack = augments.extractItem(slot, getMaxStackSize(), false);
             ItemStack remain = ItemHandlerHelper.insertItem(augments, held, false);
             player.setItemInHand(player.getUsedItemHand(), remain);
@@ -805,27 +839,40 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             return false;
         }
     }
+    //should only be used for opening menu.
+    //client should never calc effectiveStats cuz this will break the EffectivePattern;
+    public FurnacePattern getEffectivePattern(){
+        EffectiveFurnaceStats effectiveStats = getEffectiveStats();
+        return new FurnacePattern(pattern.id(), effectiveStats.smeltTickPerItem(), effectiveStats.energyCapacity(), effectiveStats.energyGenerationPerTick(), effectiveStats.energyConsumerPerTick(), effectiveStats.inputSlotAmount(), pattern.referenceBlock(), pattern.rainbow());
+    }
 
-
-    public void updatePattern(FurnacePattern pattern) {
-        this.pattern = pattern;
-        this.input.updateFurnacePattern(pattern);
-        this.output.updateFurnacePattern(pattern);
-        this.instanceManager.updateFurnacePattern(pattern);
-        this.fuel.updateFurnacePattern(pattern);
-        this.litHandler.updateFurnacePattern(pattern);
-        this.allOutput.updateFurnacePattern(pattern);
-        this.allInv.updateFurnacePattern(pattern);
-        this.allInvForAutomation.updateFurnacePattern(pattern);
-        this.inputAndOutput.updateFurnacePattern(pattern);
-        if (this.pattern != null && this.pattern.isRainbow()) {
+    public void updatePattern(@Nonnull FurnacePattern pattern) {
+        if (this.pattern.isRainbow()) {
             rainbowState().onPatternChanged();
+            rainbowState().refreshNow();
         } else if (this.rainbowState != null) {
             this.rainbowState.onPatternChanged();
+            this.rainbowState.refreshNow();
         }
+
+        EffectiveFurnaceStats effectiveStats = getEffectiveStats();
+        this.pattern = pattern;
+        updateEffectiveFurnaceStats(effectiveStats);
         syncPatternToViewers();
         setChanged();
         markForClientUpdate();
+    }
+
+    public void updateEffectiveFurnaceStats(EffectiveFurnaceStats effectiveStats){
+        this.input.updateFurnacePattern(effectiveStats);
+        this.output.updateFurnacePattern(effectiveStats);
+        this.instanceManager.updateFurnacePattern(effectiveStats);
+        this.fuel.updateFurnacePattern(effectiveStats);
+        this.litHandler.updateFurnacePattern(effectiveStats);
+        this.allOutput.updateFurnacePattern(effectiveStats);
+        this.allInv.updateFurnacePattern(effectiveStats);
+        this.allInvForAutomation.updateFurnacePattern(effectiveStats);
+        this.inputAndOutput.updateFurnacePattern(effectiveStats);
     }
 
     @Override

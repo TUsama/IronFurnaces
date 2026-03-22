@@ -2,32 +2,33 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import lombok.Setter;
-import net.minecraft.nbt.CompoundTag;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
-import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 public abstract class PatternCache extends ItemStackHandler implements IModeSensitive, ICacheIndex, IPatternSensitive{
     protected FurnaceMode mode;
-    protected FurnacePattern pattern;
+    protected int inputSlotAmount;
     @Nullable
     private int[] cacheSlotArray;
 
 
-    public PatternCache(FurnaceMode mode, FurnacePattern pattern) {
+    public PatternCache(FurnaceMode mode, int inputSlotAmount) {
         this.mode = mode;
-        this.pattern = pattern;
+        this.inputSlotAmount = inputSlotAmount;
     }
 
-    public PatternCache(int size, FurnaceMode mode, FurnacePattern pattern) {
+    public PatternCache(int size, FurnaceMode mode, int inputSlotAmount) {
         super(size);
         this.mode = mode;
-        this.pattern = pattern;
+        this.inputSlotAmount = inputSlotAmount;
     }
 
 
@@ -59,10 +60,27 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
         return switch (mode){
             case FURNACE -> 1;
             case GENERATOR -> 0;
-            case FACTORY -> pattern.inputSlotAmount();
+            case FACTORY -> inputSlotAmount;
         };
     }
 
+    public void handleStacksInUnavailableSlots(Level level, Consumer<Int2ObjectMap<ItemStack>> consumer) {
+        Int2ObjectMap<ItemStack> stacksInUnavailableSlots = findStacksInUnavailableSlots(level);
+        consumer.accept(stacksInUnavailableSlots);
+    }
+
+    public Int2ObjectMap<ItemStack> findStacksInUnavailableSlots(Level level) {
+        Int2ObjectOpenHashMap<ItemStack> objectInt2ObjectOpenHashMap = new Int2ObjectOpenHashMap<>();
+        if (level == null) return objectInt2ObjectOpenHashMap;
+
+
+        for (int i = getSlots(); i < stacks.size(); i++) {
+            ItemStack stack = getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            objectInt2ObjectOpenHashMap.put(i, stack);
+        }
+        return objectInt2ObjectOpenHashMap;
+    }
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode) {

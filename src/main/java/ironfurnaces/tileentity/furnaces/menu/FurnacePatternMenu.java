@@ -1,7 +1,5 @@
 package ironfurnaces.tileentity.furnaces.menu;
 
-import com.clefal.nirvana_lib.utils.NetworkUtils;
-import ironfurnaces.network.C2SRecalcFillStatsPacket;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.RemainingCache;
@@ -83,9 +81,9 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                     noPlace.accept(dynamicAccessSlot);
                     return dynamicAccessSlot;
                 }));
-        this.factoryInput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(36, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getInput(), 0, getPattern().inputSlotAmount()));
+        this.factoryInput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(36, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getInput(), 0, 3));
 
-        this.factoryOutput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(106, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getOutput(), 0, getPattern().inputSlotAmount()).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
+        this.factoryOutput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(106, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getOutput(), 0, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
             DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition) {
                 @Override
                 public void onTake(Player player, ItemStack stack) {
@@ -164,7 +162,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 .rule()
                 .oneWay(this.fuel, playerInv)
                 .rule()
-                .when(x -> ForgeHooks.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().recipeType) > 0 && this.fuel.isAvailable())
+                .when(x -> ForgeHooks.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().recipeType.get()) > 0 && this.fuel.isAvailable())
                 .oneWay(playerInv, fuel)
                 .rule()
                 .bidirectional(playerInv, augment)
@@ -211,7 +209,6 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
 
         addDataSlots(data);
 
-        this.movedCallback = () -> NetworkUtils.sendToServer(new C2SRecalcFillStatsPacket(pos));
     }
 
     public FurnaceMode getMode() {
@@ -241,7 +238,6 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     public void updateMode() {
         ((MovableGridPartition) this.fuel).handleSlot();
     }
-
 
     public int getBurnProgress(int index) {
         if (index >= this.instances.size()) {

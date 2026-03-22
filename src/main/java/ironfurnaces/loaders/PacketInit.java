@@ -13,7 +13,6 @@ public class PacketInit {
         NetworkUtils.registerPacket(S2CSyncPatternToMenuPackets::new);
         NetworkUtils.registerPacket(C2SUpdateMenuPacket::new);
         NetworkUtils.registerPacket(C2SUpdateFurnaceSettingPacket::new);
-        NetworkUtils.registerPacket(C2SRecalcFillStatsPacket::new);
     }
 
 }

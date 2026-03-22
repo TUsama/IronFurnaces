@@ -4,7 +4,7 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.Codec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.IPatternSensitive;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 
 public interface IFurnaceLitHandler extends IPatternSensitive {
     Codec<IFurnaceLitHandler> CODEC = Codec.STRING.dispatch(IFurnaceLitHandler::getType, string ->
@@ -30,7 +30,7 @@ public interface IFurnaceLitHandler extends IPatternSensitive {
     int getLitTime();
 
     @Override
-    default void updateFurnacePattern(FurnacePattern pattern){
+    default void updateFurnacePattern(EffectiveFurnaceStats stats){
 
     }
 }

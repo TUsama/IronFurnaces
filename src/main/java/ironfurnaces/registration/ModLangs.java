@@ -6,10 +6,16 @@ import net.minecraft.network.chat.Component;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModLangs {
+    public static final Component RESET_SETTING_HINT = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "reset_setting_hint", "Sneak + shift will reset the Furnace setting.");
+    public static final Component RESET_SETTING_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "reset_setting_failed", "Failed to reset settings!");
+    public static final Component RESET_SETTING_SUCCESS = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "reset_setting_success", "Reset Setting Successfully!");
+    public static final Component SETTING = REGISTRATE.addRawLang("screen.ironfurnaces.side_tab." + "setting", "Setting");
+    public static final Component REMAINING_ITEMS = REGISTRATE.addRawLang("screen.ironfurnaces.side_tab." + "remaining_items", "Remaining Cache");
+    public static final Component AUGMENT = REGISTRATE.addRawLang("screen.ironfurnaces.side_tab." + "augment", "Augments");
     public static final Component WITHOUT_PATTERN = REGISTRATE.addRawLang("block.ironfurnaces.furnace_pattern_holder." + "without_pattern", "This furnace block haven't attach any patterns!");
     public static final Component REFUSE_OPEN_EMPTY_PATTERN = REGISTRATE.addRawLang("block.ironfurnaces.furnace_pattern_holder." + "refuse_open_empty_pattern", "Can't open the menu, because the furnace haven't attach any patterns!");
     public static final Component REFUSE_PLACE_EMPTY_TAG = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "refuse_place_empty_tag", "You can't place down this furnace because this item haven't attach any pattern tags!");
-    public static final Component READ_PATTERN_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_pattern_failed", "Failed at reading furnace pattern from furnace item!");
+    public static final Component READ_PATTERN_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_pattern_failed", "Failed to reading furnace pattern from furnace item!");
     public static final Component DOWN = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "down", "Down: %s");
 
     public static final Component UP = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "up", "Up: %s");
@@ -28,8 +34,8 @@ public class ModLangs {
     public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");
     public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "faced_direction", "Faced Direction: %s");
 
-    public static final Component ERROR_ON_PARSE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_parse", "Failed at parsing furnace setting on Copy Tool!");
-    public static final Component ERROR_ON_WRITE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_write", "Failed at writing furnace setting on Copy Tool! Please consider destroy the furnace you are coping and place it down again!");
+    public static final Component ERROR_ON_PARSE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_parse", "Failed to parsing furnace setting on Copy Tool!");
+    public static final Component ERROR_ON_WRITE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_write", "Failed to writing furnace setting on Copy Tool! Please consider destroy the furnace you are coping and place it down again!");
 
     public static final Component IO_MODE_NONE =
             REGISTRATE.addRawLang(
@@ -106,7 +112,7 @@ public class ModLangs {
 
     public static final Component SUCCESS = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "success", "Upgrade successfully!");
 
-    public static final Component READ_SETTING_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_setting_failed", "Failed at reading furnace setting from furnace item!");
+    public static final Component READ_SETTING_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_setting_failed", "Failed to reading furnace setting from furnace item!");
 
     public static final Component SETTING_ENABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_enable", "Enable");
     public static final Component SETTING_DISABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_disable", "Disable");

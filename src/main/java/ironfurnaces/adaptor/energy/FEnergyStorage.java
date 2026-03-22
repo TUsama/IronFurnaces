@@ -39,11 +39,27 @@ public class FEnergyStorage extends EnergyStorage {
         return this.getEnergyStored();
     }
 
+    @Override
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        int i = super.receiveEnergy(maxReceive, simulate);
+        if (!simulate && i > 0) onEnergyChanged();
+        return i;
+    }
+
+    @Override
+    public int extractEnergy(int maxExtract, boolean simulate) {
+        int i = super.extractEnergy(maxExtract, simulate);
+        if (!simulate && i > 0) onEnergyChanged();
+        return i;
+    }
+
     public void setEnergy(int energy) {
+
         int oldEnergy = this.energy;
 
         if (oldEnergy != energy){
             this.energy = energy;
+
             onEnergyChanged();
         }
 

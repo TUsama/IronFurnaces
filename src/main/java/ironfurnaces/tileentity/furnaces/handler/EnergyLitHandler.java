@@ -5,8 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
+import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -45,17 +44,9 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
             }
         }
 
-        ProcessingInstanceManager instanceManager = tile.getInstanceManager();
-        boolean flag = false;
-        //确保至少有槽位不blocking
-        for (int i = 0; i < tile.getInput().getSlots(); i++) {
-            if (instanceManager.blockingIndexes().contains(i)) continue;
-            flag = true;
-            break;
 
-        }
         int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.getPattern().energyConsumerPerTick());
-        if (flag && tile.getInstanceManager().isWaiting() && fuel.getEnergyStored() >= cost){
+        if (tile.getInstanceManager().needLit(tile) && tile.getInstanceManager().isWaiting() && fuel.getEnergyStored() >= cost){
             fuel.extractEnergy(cost, false);
             isLit = true;
         } else {
@@ -89,7 +80,7 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
     }
 
     @Override
-    public void updateFurnacePattern(FurnacePattern pattern) {
+    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
 
     }
 

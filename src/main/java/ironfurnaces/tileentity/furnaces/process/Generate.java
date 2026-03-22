@@ -1,10 +1,11 @@
 package ironfurnaces.tileentity.furnaces.process;
 
 import com.mojang.datafixers.util.Function5;
-import com.mojang.datafixers.util.Function6;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import ironfurnaces.config.FurnaceConfig;
+import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
@@ -14,9 +15,15 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Containers;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import java.util.Optional;
 
 @Getter(AccessLevel.PRIVATE)
 public abstract class Generate extends ProcessingInstance {
@@ -63,6 +70,10 @@ public abstract class Generate extends ProcessingInstance {
         }
     }
 
+    @Override
+    public boolean needLit(FurnacePatternBlockEntity tile) {
+        return true;
+    }
 
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
@@ -75,6 +86,7 @@ public abstract class Generate extends ProcessingInstance {
         if (fuel.canReceive(min)) {
             fuel.receiveEnergy(min, false);
             currentOutput += currentModifiers.generateCurrentOutputModifier().get(min);
+
             if (currentOutput >= expectedTotalOutput) {
                 return TickResult.DONE;
             }
@@ -93,6 +105,33 @@ public abstract class Generate extends ProcessingInstance {
     @Override
     public float getDoneProgress() {
         return currentOutput / (expectedTotalOutput);
+    }
+    //better than map+static create()
+    public static Generate getGenerateInstance(int index, int eachTickOutPut, ItemStack stack, FurnacePatternBlockEntity blockEntity){
+        return switch (blockEntity.getAugments().getCurrentRecipeType()){
+            case NORMAL -> {
+                int burnTime = ForgeHooks.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().recipeType.get());
+                if (burnTime > 0) yield new SmeltGenerate(index, burnTime, eachTickOutPut);
+                yield null;
+            }
+            case SMOKE -> {
+                Item item = stack.getItem();
+                FoodProperties foodProperties = item.getFoodProperties(stack, null);
+                if (foodProperties != null && foodProperties.getNutrition() > 0) {
+                    yield new SmokingGenerate(index, foodProperties.getNutrition() * FurnaceConfig.config.nutrition_to_energy_factor, eachTickOutPut);
+                }
+                yield null;
+            }
+            case GENERATE_BLAST -> {
+                Optional<? extends Recipe> recipe = blockEntity.getRecipe(stack);
+                if (recipe.isPresent() && recipe.get() instanceof GeneratorRecipe generatorRecipe) {
+                    yield new BlastGenerate(index, generatorRecipe.getEnergy(), eachTickOutPut);
+                }
+
+                yield null;
+            }
+            case BLAST -> null;
+        };
     }
 
     public static class SmeltGenerate extends Generate {
@@ -123,6 +162,25 @@ public abstract class Generate extends ProcessingInstance {
 
         private BlastGenerate(int fromIndex, boolean handledStart, float expectedTotalOutput, float eachTickOutPut, float currentOutput) {
             super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput);
+        }
+
+        @Override
+        public String getType() {
+            return TYPE;
+        }
+    }
+
+
+    public static class SmokingGenerate extends Generate {
+        public static final MapCodec<SmokingGenerate> CODEC = simpleGenerateCodec(SmokingGenerate::new);
+        public static final String TYPE = "generator_smoking";
+
+        private SmokingGenerate(int fromIndex, boolean handledStart, float expectedTotalOutput, float eachTickOutPut, float currentOutput) {
+            super(fromIndex, handledStart, expectedTotalOutput, eachTickOutPut, currentOutput);
+        }
+
+        public SmokingGenerate(int index, int expectedTotalOutput, int eachTickOutPut) {
+            super(index, expectedTotalOutput, eachTickOutPut);
         }
 
         @Override

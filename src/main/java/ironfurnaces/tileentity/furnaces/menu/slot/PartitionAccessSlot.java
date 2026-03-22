@@ -4,10 +4,9 @@ import ironfurnaces.tileentity.furnaces.menu.Partition;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class PartitionAccessSlot extends SlotItemHandler {
+public class PartitionAccessSlot extends FurnaceSlotBase {
     private final Partition partition;
 
     public PartitionAccessSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, Partition partition) {

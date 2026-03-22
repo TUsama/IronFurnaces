@@ -268,7 +268,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
         // 适当给一个角度，避免 GUI 里完全正着看显得太死板
         poseStack.translate(0.5D, 0.5D, 0.5D);
         //poseStack.mulPose(Axis.XP.rotationDegrees(20.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(195.0F));
         poseStack.translate(-0.5D, -0.5D, -0.5D);
 
         dispatcher.renderSingleBlock(

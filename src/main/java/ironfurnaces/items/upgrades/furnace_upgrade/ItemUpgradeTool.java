@@ -1,7 +1,7 @@
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
 import ironfurnaces.capability.CapabilityPlayerFurnacesList;
-import ironfurnaces.config.IronFurnacesConfig;
+import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModBlocks;
@@ -91,14 +91,14 @@ public class ItemUpgradeTool extends Item {
                     level,
                     pos,
                     currentPatternBe,
-                    IronFurnacesConfig.config.max_rainbow_furnace_per_player.get()
+                    RainbowConfig.config.max_rainbow_furnace_per_player.get()
             );
 
             if (!allowed) {
                 if (player != null) {
                     player.sendSystemMessage(Component.translatable(
                             "item.ironfurnaces.upgrade_tool.rainbow_limit_reached",
-                            IronFurnacesConfig.config.max_rainbow_furnace_per_player.get()
+                            RainbowConfig.config.max_rainbow_furnace_per_player.get()
                     ));
                 }
                 return InteractionResult.FAIL;
@@ -126,7 +126,7 @@ public class ItemUpgradeTool extends Item {
             if (newBe instanceof FurnacePatternBlockEntity furnacePatternBlockEntity) {
                 furnacePatternBlockEntity.ensureOwner(player);
                 furnacePatternBlockEntity.updatePattern(to);
-
+                furnacePatternBlockEntity.transferStacksInUnavailableSlotsToPlayer(player);
                 if (!level.isClientSide && player != null) {
                     player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
                             .ifPresent(h -> h.add(level.dimension(), pos));

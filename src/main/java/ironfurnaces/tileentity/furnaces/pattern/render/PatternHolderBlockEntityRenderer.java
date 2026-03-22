@@ -45,26 +45,18 @@ public class PatternHolderBlockEntityRenderer implements BlockEntityRenderer<Fur
         Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         JovialState jovial = state.getValue(ModBlockState.JOVIAL_STATE);
 
-
-        CubeTextures textures = PatternPreviewTextureResolver.resolve(
-                pattern.id().getPath(),
-                lit,
-                jovial,
-                state.getValue(ModBlockState.HANDLING_RECIPE_TYPE)
-        );
-
         poseStack.pushPose();
 
-        // 如果你需要整体缩小、上移、居中，可在这里处理
-        // poseStack.translate(...);
-        // poseStack.scale(...);
-        int light = LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().above());
-        CubeRenderUtil.renderCube(
-                textures,
+        //int light = LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().above());
+        PatternHolderVisualRenderer.render(
+                pattern.id().getPath(),
+                lit,
                 facing,
+                jovial,
+                state.getValue(ModBlockState.HANDLING_RECIPE_TYPE),
                 poseStack,
                 buffers,
-                light,
+                packedLight,
                 packedOverlay
         );
 

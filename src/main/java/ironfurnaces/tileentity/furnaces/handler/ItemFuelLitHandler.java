@@ -4,8 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
@@ -14,8 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.ItemHandlerHelper;
+
 @Getter
-public class ItemFuelLitHandler implements IFurnaceLitHandler{
+public class ItemFuelLitHandler implements IFurnaceLitHandler {
     public static final MapCodec<ItemFuelLitHandler> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     Codec.INT.fieldOf("litTime").forGetter(ItemFuelLitHandler::getLitTime),
@@ -46,38 +45,28 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler{
             litTime--;
         }
 
-        if (litTime == 0){
-            ProcessingInstanceManager instanceManager = tile.getInstanceManager();
-            boolean flag = false;
-            //确保至少有槽位不blocking
-            for (int i = 0; i < tile.getInput().getSlots(); i++) {
-                if (instanceManager.blockingIndexes().contains(i)) continue;
-                flag = true;
-                break;
+        if (litTime == 0 && tile.getInstanceManager().needLit(tile)) {
 
-            }
-            if (instanceManager.isWaiting() && flag){
-                ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
-                int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(ForgeHooks.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType));
+            ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
+            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(ForgeHooks.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType.get()));
 
-                if (burnTime > 0) {
-                    litTime = burnTime;
-                    litDuration = burnTime;
-                    ItemStack copy1 = stackInSlot.copy();
-                    stackInSlot.shrink(1);
-                    if (copy1.hasCraftingRemainingItem()){
-                        ItemStack copy = copy1.getCraftingRemainingItem().copy();
-                        ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy, false);
-                        if (level != null && !level.isClientSide){
-                            Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
-                        }
+            if (burnTime > 0) {
+                litTime = burnTime;
+                litDuration = burnTime;
+                ItemStack copy1 = stackInSlot.copy();
+                stackInSlot.shrink(1);
+                if (copy1.hasCraftingRemainingItem()) {
+                    ItemStack copy = copy1.getCraftingRemainingItem().copy();
+                    ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy, false);
+                    if (level != null && !level.isClientSide) {
+                        Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
                     }
                 }
             }
         }
 
 
-         if (litTime == 0 && level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
+        if (litTime == 0 && level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
             level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
         }
     }

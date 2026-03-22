@@ -65,6 +65,16 @@ public abstract class Burn extends ProcessingInstance {
 
 
     @Override
+    public boolean needLit(FurnacePatternBlockEntity tile) {
+        Recipe recipe = tile.getInstanceManager()
+                .getCachedCookingRecipe(tile, this.fromIndex);
+        if (recipe == null) return false;
+        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
+        ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
+        return itemStack.isEmpty();
+    }
+
+    @Override
     public void whenStart(FurnacePatternBlockEntity tile) {
 
     }

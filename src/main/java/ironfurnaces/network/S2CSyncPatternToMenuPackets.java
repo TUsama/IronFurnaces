@@ -37,14 +37,12 @@ public class S2CSyncPatternToMenuPackets implements S2CModPacket<S2CSyncPatternT
 
     @Override
     public void write(FriendlyByteBuf friendlyByteBuf) {
-
-        friendlyByteBuf.writeJsonWithCodec(FurnacePattern.REF_CODEC, pattern);
+        friendlyByteBuf.writeJsonWithCodec(FurnacePattern.DIRECT_CODEC, pattern);
     }
 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
-
-        this.pattern = friendlyByteBuf.readJsonWithCodec(FurnacePattern.REF_CODEC);
+        this.pattern = friendlyByteBuf.readJsonWithCodec(FurnacePattern.DIRECT_CODEC);
     }
 
     @Override

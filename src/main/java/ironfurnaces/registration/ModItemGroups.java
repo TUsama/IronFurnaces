@@ -14,7 +14,7 @@ public class ModItemGroups {
                     .icon(LegacyFurnaceBlocks.IRON_FURNACE::asStack)
                     .withTabsBefore(CreativeModeTabs.COMBAT)
                     .displayItems((ctx, entries) -> {
-                        /*
+/*
                         entries.accept(LegacyFurnaceBlocks.IRON_FURNACE.get());
                         entries.accept(LegacyFurnaceBlocks.GOLD_FURNACE.get());
                         entries.accept(LegacyFurnaceBlocks.DIAMOND_FURNACE.get());
