@@ -1,7 +1,8 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import ironfurnaces.Config;
-import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
@@ -12,6 +13,8 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.RainbowFurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -30,7 +33,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -265,11 +267,20 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
         if (furnacePatternFromTag != null) {
-            tooltip.add(translatable(
-                    "ironfurnaces.block.furnace.work_speed",
-                    Component.literal(String.valueOf(furnacePatternFromTag.smeltTickPerItem()))
-                            .withStyle(ChatFormatting.GREEN)
-            ).withStyle(ChatFormatting.GRAY));
+            int s = 0;
+            if (furnacePatternFromTag instanceof IFurnaceStats stats){
+                s = stats.smeltTickPerItem();
+            } else if (furnacePatternFromTag instanceof RainbowFurnacePattern pattern){
+                s = pattern.baseSmeltTickPerItem();
+            }
+            if (s != 0){
+                tooltip.add(translatable(
+                        "ironfurnaces.block.furnace.work_speed",
+                        Component.literal(String.valueOf(s))
+                                .withStyle(ChatFormatting.GREEN)
+                ).withStyle(ChatFormatting.GRAY));
+            }
+
         } else {
             tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
                     .withStyle(ChatFormatting.RED));
@@ -341,7 +352,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
         if (!level.isClientSide && entity instanceof Player player) {
             te.setOwner(player.getUUID());
-            player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+            player.getCapability(ModCapabilities.FURNACES_LIST)
                     .ifPresent(h -> h.add(level.dimension(), pos));
         }
     }
@@ -373,7 +384,8 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 }
             }, buf -> {
 
-                buf.writeJsonWithCodec(FurnacePattern.DIRECT_CODEC, furnacePatternBlockEntity.getEffectivePattern());
+                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
+                buf.writeJsonWithCodec(IFurnaceStats.CODEC, furnacePatternBlockEntity.getUsedStats());
                 buf.writeBlockPos(pos);
             });
             player.awardStat(Stats.INTERACT_WITH_FURNACE);
@@ -455,7 +467,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                     if (ownerUuid != null && world.getServer() != null) {
                         Player owner = world.getServer().getPlayerList().getPlayer(ownerUuid);
                         if (owner != null) {
-                            owner.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+                            owner.getCapability(ModCapabilities.FURNACES_LIST)
                                     .ifPresent(h -> h.remove(world.dimension(), pos));
                         }
                     }
@@ -464,6 +476,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 Containers.dropContents(world, pos, furnace);
                 if (world instanceof ServerLevel serverLevel) {
                     furnace.getRecipeAwardHandler().grantStoredRecipeExperience(serverLevel, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
+                    OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, furnace.getOwnerUuid());
                 }
                 world.updateNeighbourForOutputSignal(pos, this);
             }

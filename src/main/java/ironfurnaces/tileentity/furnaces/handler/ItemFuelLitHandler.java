@@ -54,7 +54,12 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
                 litTime = burnTime;
                 litDuration = burnTime;
                 ItemStack copy1 = stackInSlot.copy();
-                stackInSlot.shrink(1);
+                if (stackInSlot.isDamageableItem()){
+                    stackInSlot.setDamageValue(stackInSlot.getDamageValue() + 1);
+                } else {
+                    stackInSlot.shrink(1);
+                }
+
                 if (copy1.hasCraftingRemainingItem()) {
                     ItemStack copy = copy1.getCraftingRemainingItem().copy();
                     ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy, false);

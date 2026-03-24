@@ -6,7 +6,8 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.IModeSensitive;
 import ironfurnaces.tileentity.furnaces.cache.IPatternSensitive;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
+import ironfurnaces.tileentity.furnaces.cache.InputCache;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import it.unimi.dsi.fastutil.ints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,8 +104,11 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     @Nullable
-    public Recipe getCachedCookingRecipe(FurnacePatternBlockEntity tile, int fromIndex) {
-        ItemStack current = tile.getInput().getStackInSlot(fromIndex);
+    public Recipe getCachedCookingRecipe(FurnacePatternBlockEntity tile, ProcessingInstance instance) {
+        int fromIndex = instance.fromIndex;
+        InputCache input = tile.getInput();
+        if (fromIndex >= input.getSlots()) return null;
+        ItemStack current = input.getStackInSlot(fromIndex);
         CachedRecipeEntry entry = getOrCreateCache(fromIndex);
 
         if (current.isEmpty()) {
@@ -181,9 +185,9 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     @Override
-    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats stats) {
         for (ProcessingInstance instance : this.instances) {
-            instance.whenChangePattern(stats);
+            instance.whenChangeStats(stats);
         }
         for (CachedRecipeEntry entry : recipeCache.values()) {
             entry.invalidate();

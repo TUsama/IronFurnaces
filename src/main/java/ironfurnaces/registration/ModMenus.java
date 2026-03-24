@@ -11,8 +11,8 @@ import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
@@ -36,10 +36,12 @@ public class ModMenus {
             .<FurnacePatternMenu, FurnacePatternScreen>menu(FurnacePatternMenu.ID,
 
                     (type, windowId, inv, buffer) -> {
-                        FurnacePattern pattern = buffer.readJsonWithCodec(FurnacePattern.DIRECT_CODEC);
+                        FurnacePattern pattern = buffer.readJsonWithCodec(FurnacePattern.REF_CODEC);
+                        IFurnaceStats iFurnaceStats = buffer.readJsonWithCodec(IFurnaceStats.CODEC);
                         BlockPos blockPos = buffer.readBlockPos();
                         FurnacePatternBlockEntity blockEntity = ((FurnacePatternBlockEntity) inv.player.level().getBlockEntity(blockPos));
                         blockEntity.updatePattern(pattern);
+                        blockEntity.updateFurnaceStats(iFurnaceStats, false);
                         return new FurnacePatternMenu(type, windowId, blockEntity, inv, blockPos, blockEntity.getDataAccess());
                     },
 

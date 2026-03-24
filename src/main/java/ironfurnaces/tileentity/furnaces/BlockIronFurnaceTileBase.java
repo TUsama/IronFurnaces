@@ -8,7 +8,7 @@ import harmonised.pmmo.events.impl.FurnaceHandler;
 import ironfurnaces.Config;
 import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
-import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.items.augments.*;
@@ -638,7 +638,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                             if (level.getPlayerByUUID(furnaceTile.owner) != null)
                             {
 
-                                Set<GlobalPos> furnacesPos = level.getPlayerByUUID(furnaceTile.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).map(h -> h.get()).orElse(new LinkedHashSet<>());
+                                Set<GlobalPos> furnacesPos = level.getPlayerByUUID(furnaceTile.owner).getCapability(ModCapabilities.FURNACES_LIST).map(h -> h.get()).orElse(new LinkedHashSet<>());
                                 if (!furnacesPos.isEmpty())
                                 {
                                     for (GlobalPos furnacesPo : furnacesPos) {

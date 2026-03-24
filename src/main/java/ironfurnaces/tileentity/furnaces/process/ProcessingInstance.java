@@ -5,9 +5,10 @@ import com.clefal.nirvana_lib.relocated.io.vavr.collection.Map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.AccessLevel;
 import lombok.Getter;
+import net.minecraftforge.items.IItemHandler;
 
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class ProcessingInstance {
@@ -49,7 +50,7 @@ public abstract class ProcessingInstance {
     public void whenDone(FurnacePatternBlockEntity tile) {
         tile.setChanged();
     }
-    public void whenChangePattern(FurnacePattern pattern){
+    public void whenChangeStats(IFurnaceStats stats){
 
     }
 
@@ -64,6 +65,10 @@ public abstract class ProcessingInstance {
 
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
         return TickResult.SUCCESS;
+    }
+
+    protected boolean validateSlot(IItemHandler handler){
+        return fromIndex >= 0 && fromIndex < handler.getSlots();
     }
 
 

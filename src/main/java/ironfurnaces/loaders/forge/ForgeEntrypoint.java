@@ -4,6 +4,7 @@ package ironfurnaces.loaders.forge;
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.capability.LegacyPlayerFurnacesListChecker;
+import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.init.ClientSetup;
 import ironfurnaces.loaders.CommonInit;
 import ironfurnaces.loaders.IronFurnaces;
@@ -18,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -40,8 +42,6 @@ public class ForgeEntrypoint {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.COMMON_CONFIG);
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-
         MinecraftForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
             if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level){
                 BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
@@ -58,6 +58,15 @@ public class ForgeEntrypoint {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.<RegisterClientReloadListenersEvent>addListener(EventPriority.LOWEST, x -> {
             x.registerReloadListener(FurnaceTextureScanner.INSTANCE);
+        });
+
+        MinecraftForge.EVENT_BUS.<TickEvent.PlayerTickEvent>addListener(event -> {
+            if (!(event.player instanceof ServerPlayer serverPlayer)) return;
+            if (event.phase != TickEvent.Phase.END) return;
+            if (event.side.isClient()) return;
+
+            serverPlayer.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT)
+                    .ifPresent(cap -> cap.tick(serverPlayer));
         });
 
 

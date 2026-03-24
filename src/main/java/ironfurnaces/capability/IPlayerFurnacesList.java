@@ -22,5 +22,4 @@ public interface IPlayerFurnacesList {
 
     void resetUpgradeMark();
 
-    boolean isUpdated();
 }

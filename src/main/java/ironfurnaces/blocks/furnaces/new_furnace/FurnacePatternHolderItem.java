@@ -1,9 +1,8 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
+import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
-import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModBlockState;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
@@ -71,8 +70,6 @@ public class FurnacePatternHolderItem extends BlockItem {
             return InteractionResultHolder.pass(stack);
         }
 
-
-
         if (!level.isClientSide) {
             boolean success = resetSettings(stack, player, player.getInventory().selected);
             if (success) {
@@ -127,6 +124,10 @@ public class FurnacePatternHolderItem extends BlockItem {
                     player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_pattern_failed"));
             }
 
+        }
+        if (player != null) {
+            fp.ensureOwner(player);
+            if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
         }
 /*
         try {
@@ -188,6 +189,7 @@ public class FurnacePatternHolderItem extends BlockItem {
         if (result.consumesAction() && !context.getLevel().isClientSide) {
             applyJovialFromItemTag(context.getLevel(), context.getClickedPos(), itemInHand);
         }
+
 
         return result;
     }

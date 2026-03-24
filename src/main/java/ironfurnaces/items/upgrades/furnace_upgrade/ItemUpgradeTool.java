@@ -1,6 +1,7 @@
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
-import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
 import ironfurnaces.loaders.IronFurnaces;
@@ -13,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -108,9 +110,10 @@ public class ItemUpgradeTool extends Item {
         if (currentPatternBe != null) {
             currentPatternBe.ensureOwner(player);
             currentPatternBe.updatePattern(to);
+            OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
 
             if (!level.isClientSide && player != null) {
-                player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+                player.getCapability(ModCapabilities.FURNACES_LIST)
                         .ifPresent(h -> h.add(level.dimension(), pos));
             }
         } else {
@@ -127,8 +130,9 @@ public class ItemUpgradeTool extends Item {
                 furnacePatternBlockEntity.ensureOwner(player);
                 furnacePatternBlockEntity.updatePattern(to);
                 furnacePatternBlockEntity.transferStacksInUnavailableSlotsToPlayer(player);
+                OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
                 if (!level.isClientSide && player != null) {
-                    player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST)
+                    player.getCapability(ModCapabilities.FURNACES_LIST)
                             .ifPresent(h -> h.add(level.dimension(), pos));
                 }
             } else {

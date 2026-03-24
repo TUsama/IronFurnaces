@@ -24,13 +24,13 @@ public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabil
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return cap == CapabilityPlayerFurnacesList.FURNACES_LIST ? lazyList.cast() : LazyOptional.empty();
+        return cap == ModCapabilities.FURNACES_LIST ? lazyList.cast() : LazyOptional.empty();
     }
 
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        return cap == CapabilityPlayerFurnacesList.FURNACES_LIST ? lazyList.cast() : LazyOptional.empty();
+        return cap == ModCapabilities.FURNACES_LIST ? lazyList.cast() : LazyOptional.empty();
     }
 
     @Override

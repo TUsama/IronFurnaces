@@ -6,6 +6,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,21 +16,6 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
         super(packOutput, FurnacePatternManager.DIRECTORY, FurnacePatternDefinition.CODEC);
     }
 
-    private static FurnacePatternDefinition definition(
-            int smeltTickPerItem,
-            int energyCapacity,
-            int energyGenerationPerTick,
-            int inputSlot
-    ) {
-        final int CONSUME = 20;
-        return FurnacePatternDefinition.normal(
-                smeltTickPerItem,
-                energyCapacity,
-                energyGenerationPerTick,
-                CONSUME,
-                inputSlot
-        );
-    }
 
     private static FurnacePatternDefinition definition(
             int smeltTickPerItem,
@@ -45,7 +31,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                 energyGenerationPerTick,
                 CONSUME,
                 inputSlot,
-                referenceBlock
+                Optional.of(referenceBlock)
         );
     }
 
@@ -94,8 +80,6 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                         IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 40_000, 40, 0, 1),
                         IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 80_000, 60, 0, 1)
                 ),
-                20,
-                false,
                 java.util.Set.of(IronFurnaces.id("rainbow_furnace"))
         );
 
@@ -107,6 +91,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                         60,
                         20,
                         1,
+                        Optional.empty(),
                         config
                 )
         );

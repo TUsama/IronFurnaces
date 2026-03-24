@@ -1,8 +1,10 @@
 package ironfurnaces.tileentity.furnaces.menu.slot;
 
 import ironfurnaces.tileentity.furnaces.cache.ICacheFillStats;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class FurnaceSlotBase extends SlotItemHandler {
     public FurnaceSlotBase(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
@@ -15,5 +17,10 @@ public abstract class FurnaceSlotBase extends SlotItemHandler {
         if (getItemHandler() instanceof ICacheFillStats cacheFillStats && isActive()) {
             cacheFillStats.recomputeFillStats();
         }
+    }
+
+    @Override
+    public void set(@NotNull ItemStack stack) {
+        super.set(stack);
     }
 }

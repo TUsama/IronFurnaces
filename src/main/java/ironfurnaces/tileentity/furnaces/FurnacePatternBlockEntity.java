@@ -2,11 +2,11 @@ package ironfurnaces.tileentity.furnaces;
 
 import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
 import com.clefal.nirvana_lib.utils.NetworkUtils;
-import ironfurnaces.Config;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
+import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
-import ironfurnaces.network.S2CSyncPatternToMenuPackets;
+import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.tileentity.furnaces.cache.*;
 import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
@@ -15,6 +15,8 @@ import ironfurnaces.tileentity.furnaces.handler.RecipeAwardHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.NormalFurnacePattern;
 import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
@@ -23,6 +25,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import net.minecraft.Util;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +33,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -87,6 +91,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private final RecipeAwardHandler recipeAwardHandler = new RecipeAwardHandler();
     @Getter
     private final ContainerData dataAccess;
+    public EffectiveFurnaceStats usedStats;
+    public long usedRevision = 0L;
     private FurnacePattern pattern;
     private ProcessingInstanceManager instanceManager;
     private FurnaceMode mode;
@@ -98,11 +104,12 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
     private boolean shouldAutoFill = false;
     private UUID ownerUuid;
-    private RainbowRuntimeState rainbowState;
+    private boolean redstoneLastTimeCheck = false;
 
     public FurnacePatternBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         this.pattern = FurnacePattern.FALLBACK;
+        this.usedStats = FurnacePattern.FALLBACK.toEffectiveFurnaceStats();
         this.mode = FurnaceMode.FURNACE;
         this.quickCheck = Util.memoize(x -> RecipeManager.createCheck((RecipeType) x));
 
@@ -110,22 +117,20 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
         Function<ItemStack, Optional<? extends Recipe>> callback = Util.memoize(this::getRecipe);
 
-        this.input = new InputCache(this.mode, pattern).grabRecipeCallback(callback).contentChangeCallback(x -> {
+        this.input = new InputCache(this.mode, usedStats).grabRecipeCallback(callback).contentChangeCallback(x -> {
             this.instanceManager.invalidateRecipeCache(x);
             setChanged();
         });
 
-        this.output = new OutputCache(this.mode, pattern)
+        this.output = new OutputCache(this.mode, usedStats)
                 .contentChangeCallback(x -> {
                     this.instanceManager.refreshBlockingState(x);
                     setChanged();
                 });
 
 
-
-
         this.instanceManager = new ProcessingInstanceManager(new ArrayList<>());
-        this.fuel = new FuelCache(new FEnergyStorage(pattern.energyCapacity()).callback(fEnergyStorage -> {
+        this.fuel = new FuelCache(new FEnergyStorage(usedStats.energyCapacity()).callback(fEnergyStorage -> {
                     setChanged();
                     for (Generate allGenerateInstance : this.getInstanceManager().getAllGenerateInstances()) {
                         IntSet integers = getInstanceManager().blockingIndexes();
@@ -221,10 +226,44 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .enumValue(AugmentCache.HandlingRecipeType.class,
                         () -> getAugments().getCurrentRecipeType(),
                         v -> getAugments().setCurrentRecipeType(v)
-                );
+                )
+                .intValue(
+                        () -> this.getUsedStats().inputSlotAmount(),
+                        v -> {
+                            this.usedStats = this.usedStats.withInputSlotAmount(v);
+                        }
+                )
+                .intValue(
+                        () -> this.getUsedStats().energyCapacity(),
+                        v -> this.usedStats = this.usedStats.withEnergyCapacity(v)
+                )
+                .intValue(
+                        () -> this.getUsedStats().energyConsumerPerTick(),
+                        v -> this.usedStats = this.usedStats.withEnergyConsumerPerTick(v)
+                )
+                .intValue(
+                        () -> this.getUsedStats().energyGenerationPerTick(),
+                        v -> this.usedStats = this.usedStats.withEnergyGenerationPerTick(v)
+                )
+                .intValue(
+                        () -> this.getUsedStats().smeltTickPerItem(),
+                        v -> this.usedStats = this.usedStats.withSmeltTickPerItem(v)
+                )
+        ;
         this.dataAccess = builder.build();
         recalcSideIOCap();
         markForClientUpdate();
+    }
+    @Getter
+    private boolean isWorking = false;
+
+    public void setWorking(boolean working) {
+        boolean oldState = isWorking;
+        isWorking = working;
+        if (oldState != working && this.getLevel() instanceof ServerLevel serverLevel){
+            OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, this.ownerUuid);
+        }
+
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FurnacePatternBlockEntity blockEntity) {
@@ -237,7 +276,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             HandlerRebalanceUtil.rebalanceForProcessing(blockEntity.input);
             blockEntity.shouldAutoFill = false;
         }
-
+        boolean flag = false;
         boolean allowWork = blockEntity.shouldWorkByRedstone();
 
         if (allowWork) {
@@ -245,16 +284,22 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             blockEntity.litHandler.tick(blockEntity);
             if (blockEntity.litHandler.isLit(blockEntity)) {
                 blockEntity.getInstanceManager().manage(blockEntity);
+                blockEntity.setWorking(true);
+                flag = true;
             }
+        }
+
+        if (!flag){
+            blockEntity.setWorking(false);
         }
         blockEntity.autoIO();
         blockEntity.energyOutPerTick();
         blockEntity.updateHandleTick();
-
+/*
         if (!level.isClientSide && blockEntity.pattern != null && blockEntity.pattern.isRainbow()) {
             blockEntity.rainbowState().tickServer();
         }
-
+*/
         blockEntity.syncProcessingInstancesManagerToViewers();
 
 
@@ -267,26 +312,23 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private boolean shouldWorkByRedstone() {
         FurnaceSettingsV2.RedStoneMode mode = settingsV2.redStoneMode();
         int signal = getInputRedstoneSignal();
-
-        return switch (mode) {
+        var b = switch (mode) {
             case IGNORE, COMPARATOR, COMPARATOR_SUBTRACTION -> true;
             case HIGH_SIGNAL -> signal >= 8;
             case LOW_SIGNAL -> signal > 0 && signal <= 7;
         };
-    }
-
-    private RainbowRuntimeState rainbowState() {
-        if (rainbowState == null) {
-            rainbowState = new RainbowRuntimeState(this);
+        if (b != redstoneLastTimeCheck) {
+            redstoneLastTimeCheck = b;
+            Level level = this.getLevel();
+            if (level != null) {
+                Player playerByUUID = level.getPlayerByUUID(this.ownerUuid);
+                if (playerByUUID instanceof ServerPlayer serverPlayer) {
+                    OwnerRainbowContextHelper.markDirty(serverPlayer);
+                }
+            }
         }
-        return rainbowState;
-    }
 
-    public EffectiveFurnaceStats getEffectiveStats() {
-        if (pattern != null && pattern.isRainbow()) {
-            return rainbowState().getCachedStats();
-        }
-        return EffectiveFurnaceStats.fromBase(pattern == null ? FurnacePattern.FALLBACK : pattern);
+        return b;
     }
 
     @Override
@@ -324,9 +366,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             tag.putUUID("OwnerUUID", ownerUuid);
         }
 
-        if (pattern != null && pattern.isRainbow()) {
-            rainbowState().saveToTag(tag);
-        }
 
         // 2) instanceManager via Codec
         ProcessingInstanceManager.CODEC
@@ -345,7 +384,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .result()
                 .ifPresent(nbt -> tag.put(FurnaceSettingsV2.NBT_KEY, nbt));
 
-        FurnacePattern.DIRECT_CODEC
+        FurnacePattern.REF_CODEC
                 .encodeStart(NbtOps.INSTANCE, pattern)
                 .result()
                 .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
@@ -390,9 +429,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             this.ownerUuid = null;
         }
 
-        if (this.pattern != null && this.pattern.isRainbow()) {
-            rainbowState().loadFromTag(tag);
-        }
 
         // 2) instanceManager
         if (tag.contains("InstanceManager")) {
@@ -423,7 +459,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
         if (tag.contains(FurnacePattern.NBT_KEY)) {
-            FurnacePattern.DIRECT_CODEC
+            FurnacePattern.REF_CODEC
                     .parse(NbtOps.INSTANCE, tag.get(FurnacePattern.NBT_KEY))
                     .result()
                     .ifPresent(parsed -> {
@@ -462,7 +498,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (this.pattern == null) return false;
         if (this.pattern.isRainbow()) return false;
         if (this.level == null || this.level.isClientSide) return false;
-        if (!this.level.isLoaded(this.worldPosition)) return false;
         if (!this.shouldWorkByRedstone()) return false;
         if (!this.litHandler.isLit(this)) return false;
 
@@ -472,7 +507,10 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         };
     }
 
-    public void recomputeFillStat() {
+    private void recomputeFillStat() {
+        if (getLevel() != null && getLevel().isClientSide) {
+            return;
+        }
         input.recomputeFillStats();
         output.recomputeFillStats();
         fuel.recomputeFillStats();
@@ -524,8 +562,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         syncToViewer(new S2CSyncInstancesToMenuPackets(getInstanceManager().instances()));
     }
 
-    private void syncPatternToViewers() {
-        syncToViewer(new S2CSyncPatternToMenuPackets(pattern));
+    private void syncPatternAndStatsToViewers() {
+        syncToViewer(new S2CSyncPatternAndStatsToMenuPackets(pattern, usedStats));
     }
 
     private void syncToViewer(S2CModPacket<?> packet) {
@@ -543,7 +581,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             }
         }
     }
-
 
     @Override
     public @Nullable Recipe<?> getRecipeUsed() {
@@ -610,7 +647,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 if (workingIndexes.contains(i)) continue;
                 ItemStack stackInSlot = fuel.getStackInSlot(i);
                 if (stackInSlot.isEmpty()) continue;
-                int generation = pattern.energyGenerationPerTick();
+                int generation = usedStats.energyGenerationPerTick();
                 var instance = Generate.getGenerateInstance(i, generation, stackInSlot, this);
                 if (instance != null) {
                     this.instanceManager.addInstance(instance);
@@ -621,7 +658,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
     }
-
 
     public void setWholeSettingV2(FurnaceSettingsV2 setting) {
         boolean b = setting.IOSetting().equals(this.settingsV2.IOSetting());
@@ -681,7 +717,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         lastProcessedDirection = (lastProcessedDirection + 1) % Direction.values().length;
     }
 
-
     private void transfer(IItemHandler from, IItemHandler to) {
         if (from == null || to == null) return;
 
@@ -697,7 +732,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             }
         }
     }
-
 
     protected void energyOutPerTick() {
         Direction[] dirs = Direction.values();
@@ -839,40 +873,47 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             return false;
         }
     }
-    //should only be used for opening menu.
-    //client should never calc effectiveStats cuz this will break the EffectivePattern;
-    public FurnacePattern getEffectivePattern(){
-        EffectiveFurnaceStats effectiveStats = getEffectiveStats();
-        return new FurnacePattern(pattern.id(), effectiveStats.smeltTickPerItem(), effectiveStats.energyCapacity(), effectiveStats.energyGenerationPerTick(), effectiveStats.energyConsumerPerTick(), effectiveStats.inputSlotAmount(), pattern.referenceBlock(), pattern.rainbow());
-    }
 
-    public void updatePattern(@Nonnull FurnacePattern pattern) {
-        if (this.pattern.isRainbow()) {
-            rainbowState().onPatternChanged();
-            rainbowState().refreshNow();
-        } else if (this.rainbowState != null) {
-            this.rainbowState.onPatternChanged();
-            this.rainbowState.refreshNow();
-        }
-
-        EffectiveFurnaceStats effectiveStats = getEffectiveStats();
+    public void updatePattern(FurnacePattern pattern) {
         this.pattern = pattern;
-        updateEffectiveFurnaceStats(effectiveStats);
-        syncPatternToViewers();
+        boolean flag = false;
+        if (pattern instanceof NormalFurnacePattern normalFurnacePattern){
+            updateFurnaceStats(normalFurnacePattern.toEffectiveFurnaceStats());
+            flag = true;
+        }
+        if (!flag){
+            syncPatternAndStatsToViewers();
+        }
         setChanged();
         markForClientUpdate();
     }
 
-    public void updateEffectiveFurnaceStats(EffectiveFurnaceStats effectiveStats){
-        this.input.updateFurnacePattern(effectiveStats);
-        this.output.updateFurnacePattern(effectiveStats);
-        this.instanceManager.updateFurnacePattern(effectiveStats);
-        this.fuel.updateFurnacePattern(effectiveStats);
-        this.litHandler.updateFurnacePattern(effectiveStats);
-        this.allOutput.updateFurnacePattern(effectiveStats);
-        this.allInv.updateFurnacePattern(effectiveStats);
-        this.allInvForAutomation.updateFurnacePattern(effectiveStats);
-        this.inputAndOutput.updateFurnacePattern(effectiveStats);
+    public void updateRainbowStats(EffectiveFurnaceStats effectiveFurnaceStats, long revision) {
+        if (this.usedRevision != revision) {
+            updateFurnaceStats(effectiveFurnaceStats);
+            this.usedRevision = revision;
+        }
+    }
+    public void updateFurnaceStats(@Nonnull IFurnaceStats stats) {
+        updateFurnaceStats(stats,true);
+    }
+    public void updateFurnaceStats(@Nonnull IFurnaceStats stats, boolean needToSync) {
+        this.input.updateFurnacePatternStats(stats);
+        this.output.updateFurnacePatternStats(stats);
+        this.instanceManager.updateFurnacePatternStats(stats);
+        this.fuel.updateFurnacePatternStats(stats);
+        this.litHandler.updateFurnacePatternStats(stats);
+        this.allOutput.updateFurnacePatternStats(stats);
+        this.allInv.updateFurnacePatternStats(stats);
+        this.allInvForAutomation.updateFurnacePatternStats(stats);
+        this.inputAndOutput.updateFurnacePatternStats(stats);
+        //todo danger!!!
+        this.usedStats = ((EffectiveFurnaceStats) stats);
+        if (needToSync){
+            syncPatternAndStatsToViewers();
+            setChanged();
+            markForClientUpdate();
+        }
     }
 
     @Override

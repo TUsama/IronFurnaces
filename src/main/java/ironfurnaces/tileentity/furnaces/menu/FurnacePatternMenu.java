@@ -57,7 +57,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         this.blockEntity = blockEntity;
         this.bePos = pos;
         this.data = data;
-
+        addDataSlots(data);
         playerHotBarInv = this.addPartition(this.createPlayerHotbarPartition(playerInventory));
         playerMainInv = this.addPartition(this.createPlayerMainInventoryPartition(playerInventory));
 
@@ -81,9 +81,9 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                     noPlace.accept(dynamicAccessSlot);
                     return dynamicAccessSlot;
                 }));
-        this.factoryInput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(36, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getInput(), 0, 3));
+        this.factoryInput = addPartition(new GridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(36, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getInput(), 0, 3));
 
-        this.factoryOutput = addPartition(new GridPartition(getPattern().inputSlotAmount(), new Vector2i(106, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getOutput(), 0, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
+        this.factoryOutput = addPartition(new GridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(106, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getOutput(), 0, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
             DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition) {
                 @Override
                 public void onTake(Player player, ItemStack stack) {
@@ -207,7 +207,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 v -> this.litDuration = v
         ));
 
-        addDataSlots(data);
+
 
     }
 

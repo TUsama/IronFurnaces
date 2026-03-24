@@ -1,8 +1,8 @@
-package ironfurnaces.util;
+package ironfurnaces.loaders;
 
 
 import ironfurnaces.capability.PlayerFurnacesListProvider;
-import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.capability.rainbow.PlayerRainbowContextCapability;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
@@ -28,6 +28,7 @@ public class EventHandler {
         if (event.getObject() instanceof Player)
         {
             event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
+            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "rainbow_context"), new PlayerRainbowContextCapability());
         }
     }
 

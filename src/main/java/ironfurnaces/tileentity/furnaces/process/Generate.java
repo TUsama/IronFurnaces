@@ -9,7 +9,7 @@ import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -78,6 +78,8 @@ public abstract class Generate extends ProcessingInstance {
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
         FuelCache fuel = tile.getFuel();
+        if (!validateSlot(fuel)) return TickResult.DISCARD;
+
         AugmentCache.GreenAugmentModifier.Modifiers currentModifiers = tile.getAugments().getCurrentModifiers();
 
         float actualGeneration = currentModifiers.generatePerTickOutputModifier().get(eachTickOutPut);
@@ -98,8 +100,8 @@ public abstract class Generate extends ProcessingInstance {
 
 
     @Override
-    public void whenChangePattern(FurnacePattern pattern) {
-        this.eachTickOutPut = pattern.energyGenerationPerTick();
+    public void whenChangeStats(IFurnaceStats stats) {
+        this.eachTickOutPut = stats.energyGenerationPerTick();
     }
 
     @Override

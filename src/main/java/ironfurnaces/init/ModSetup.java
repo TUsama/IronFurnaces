@@ -1,6 +1,6 @@
 package ironfurnaces.init;
 
-import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.capability.ModCapabilities;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -23,7 +23,7 @@ public class ModSetup {
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event)
     {
-        CapabilityPlayerFurnacesList.register(event);
+        ModCapabilities.register(event);
     }
 
 

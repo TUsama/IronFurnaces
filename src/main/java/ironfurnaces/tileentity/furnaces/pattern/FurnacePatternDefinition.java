@@ -27,51 +27,47 @@ public record FurnacePatternDefinition(
     ).apply(inst, FurnacePatternDefinition::new));
 
     public FurnacePattern toRuntime(ResourceLocation id) {
-        return new FurnacePattern(
+        NormalFurnacePattern normalFurnacePattern = new NormalFurnacePattern(
                 id,
                 smeltTickPerItem,
                 energyCapacity,
                 energyGenerationPerTick,
                 energyConsumerPerTick,
                 inputSlotAmount,
+                referenceBlock
+        );
+        if (rainbow.isPresent() && !rainbow.get().isEmpty()){
+            return new RainbowFurnacePattern(
+                    id,
+                    smeltTickPerItem,
+                    energyCapacity,
+                    energyGenerationPerTick,
+                    energyConsumerPerTick,
+                    inputSlotAmount,
+                    referenceBlock,
+                    rainbow.get()
+            );
+        } else {
+            return normalFurnacePattern;
+        }
+
+    }
+
+    public static FurnacePatternDefinition normal(
+            int smeltTickPerItem,
+            int energyCapacity,
+            int energyGenerationPerTick,
+            int energyConsumerPerTick,
+            int inputSlotAmount,
+            Optional<ResourceLocation> referenceBlock
+    ) {
+        return new FurnacePatternDefinition(
+                smeltTickPerItem,
+                energyCapacity,
+                energyGenerationPerTick,
+                energyConsumerPerTick,
+                inputSlotAmount,
                 referenceBlock,
-                rainbow
-        );
-    }
-
-    public static FurnacePatternDefinition normal(
-            int smeltTickPerItem,
-            int energyCapacity,
-            int energyGenerationPerTick,
-            int energyConsumerPerTick,
-            int inputSlotAmount
-    ) {
-        return new FurnacePatternDefinition(
-                smeltTickPerItem,
-                energyCapacity,
-                energyGenerationPerTick,
-                energyConsumerPerTick,
-                inputSlotAmount,
-                Optional.empty(),
-                Optional.empty()
-        );
-    }
-
-    public static FurnacePatternDefinition normal(
-            int smeltTickPerItem,
-            int energyCapacity,
-            int energyGenerationPerTick,
-            int energyConsumerPerTick,
-            int inputSlotAmount,
-            ResourceLocation referenceBlock
-    ) {
-        return new FurnacePatternDefinition(
-                smeltTickPerItem,
-                energyCapacity,
-                energyGenerationPerTick,
-                energyConsumerPerTick,
-                inputSlotAmount,
-                Optional.of(referenceBlock),
                 Optional.empty()
         );
     }
@@ -82,6 +78,7 @@ public record FurnacePatternDefinition(
             int energyGenerationPerTick,
             int energyConsumerPerTick,
             int inputSlotAmount,
+            Optional<ResourceLocation> referenceBlock,
             RainbowFurnaceConfig config
     ) {
         return new FurnacePatternDefinition(
@@ -90,27 +87,7 @@ public record FurnacePatternDefinition(
                 energyGenerationPerTick,
                 energyConsumerPerTick,
                 inputSlotAmount,
-                Optional.empty(),
-                Optional.of(config)
-        );
-    }
-
-    public static FurnacePatternDefinition rainbow(
-            int smeltTickPerItem,
-            int energyCapacity,
-            int energyGenerationPerTick,
-            int energyConsumerPerTick,
-            int inputSlotAmount,
-            ResourceLocation referenceBlock,
-            RainbowFurnaceConfig config
-    ) {
-        return new FurnacePatternDefinition(
-                smeltTickPerItem,
-                energyCapacity,
-                energyGenerationPerTick,
-                energyConsumerPerTick,
-                inputSlotAmount,
-                Optional.of(referenceBlock),
+                referenceBlock,
                 Optional.of(config)
         );
     }

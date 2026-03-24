@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -45,7 +45,7 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
         }
 
 
-        int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.getPattern().energyConsumerPerTick());
+        int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.usedStats.energyConsumerPerTick());
         if (tile.getInstanceManager().needLit(tile) && tile.getInstanceManager().isWaiting() && fuel.getEnergyStored() >= cost){
             fuel.extractEnergy(cost, false);
             isLit = true;
@@ -80,7 +80,7 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
     }
 
     @Override
-    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats stats) {
 
     }
 

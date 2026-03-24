@@ -1,7 +1,7 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 
 public interface IPatternSensitive {
-    void updateFurnacePattern(EffectiveFurnaceStats stats);
+    void updateFurnacePatternStats(IFurnaceStats stats);
 }

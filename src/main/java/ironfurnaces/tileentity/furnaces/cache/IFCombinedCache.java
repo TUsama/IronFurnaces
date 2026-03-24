@@ -2,7 +2,7 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
@@ -146,7 +146,7 @@ public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandle
     }
 
     @Override
-    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats stats) {
         int index = 0;
         for (int i = 0; i < itemHandler.length; i++)
         {

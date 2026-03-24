@@ -2,8 +2,8 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.NonNullList;
@@ -18,8 +18,8 @@ public class OutputCache extends PatternCache implements ICacheFillStats {
     private IntConsumer contentChangeCallback;
 
 
-    public OutputCache(FurnaceMode mode, FurnacePattern pattern) {
-        super(pattern.inputSlotAmount(), mode, pattern.inputSlotAmount());
+    public OutputCache(FurnaceMode mode, IFurnaceStats stats) {
+        super(stats.inputSlotAmount(), mode, stats.inputSlotAmount());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class OutputCache extends PatternCache implements ICacheFillStats {
 
 
     @Override
-    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats stats) {
         int i = stats.inputSlotAmount();
         NonNullList<ItemStack> newList = NonNullList.withSize(i, ItemStack.EMPTY);
         for (int i1 = 0; i1 < this.getSlots(); i1++) {

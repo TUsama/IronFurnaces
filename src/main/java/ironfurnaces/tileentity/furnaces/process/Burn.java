@@ -67,7 +67,7 @@ public abstract class Burn extends ProcessingInstance {
     @Override
     public boolean needLit(FurnacePatternBlockEntity tile) {
         Recipe recipe = tile.getInstanceManager()
-                .getCachedCookingRecipe(tile, this.fromIndex);
+                .getCachedCookingRecipe(tile, this);
         if (recipe == null) return false;
         ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
         ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
@@ -95,10 +95,11 @@ public abstract class Burn extends ProcessingInstance {
 
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
+        if (!validateSlot(tile.getInput())) return TickResult.DISCARD;
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         if (stackInSlot.isEmpty()) return TickResult.DISCARD;
         Recipe recipe = tile.getInstanceManager()
-                .getCachedCookingRecipe(tile, this.fromIndex);
+                .getCachedCookingRecipe(tile, this);
         if (recipe == null) return TickResult.DISCARD;
 
         ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());

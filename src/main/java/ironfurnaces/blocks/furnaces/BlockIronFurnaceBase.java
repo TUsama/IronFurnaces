@@ -1,7 +1,7 @@
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
-import ironfurnaces.capability.CapabilityPlayerFurnacesList;
+import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.client.data.FurnaceWorkSpeedDataStorage;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
@@ -103,7 +103,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             {
                 Player player = (Player)entity;
 
-                player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.add(player.level().dimension(), pos));
+                player.getCapability(ModCapabilities.FURNACES_LIST).ifPresent(h -> h.add(player.level().dimension(), pos));
                 if (te.isRainbowFurnace())
                 {
                     te.owner = player.getUUID();
@@ -324,7 +324,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 {
                     if (world.getPlayerByUUID(furnace.owner) != null)
                     {
-                        world.getPlayerByUUID(furnace.owner).getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(h -> h.remove(te.getLevel().dimension(), te.getBlockPos()));
+                        world.getPlayerByUUID(furnace.owner).getCapability(ModCapabilities.FURNACES_LIST).ifPresent(h -> h.remove(te.getLevel().dimension(), te.getBlockPos()));
                     }
                 }
                 Containers.dropContents(world, pos, furnace);

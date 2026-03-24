@@ -34,19 +34,19 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
 
     @Override
     public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-        if (slot > getSlots()) return;
+        if (slot >= getSlots()) return;
         super.setStackInSlot(slot, stack);
     }
 
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        if (slot > getSlots()) return stack;
+        if (slot >= getSlots()) return stack;
         return super.insertItem(slot, stack, simulate);
     }
 
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (slot > getSlots()) return ItemStack.EMPTY;
+        if (slot >= getSlots()) return ItemStack.EMPTY;
         return super.extractItem(slot, amount, simulate);
     }
 

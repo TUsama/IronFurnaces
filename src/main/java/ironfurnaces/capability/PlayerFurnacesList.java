@@ -2,6 +2,8 @@ package ironfurnaces.capability;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
@@ -18,12 +20,12 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
             GlobalPos.CODEC.listOf()
                     .xmap(LinkedHashSet::new, ArrayList::new)
                     .fieldOf("furnaces")
-                    .forGetter(x -> x.posLinkedHashSet)
-    ).apply(instance, PlayerFurnacesList::new));
+                    .forGetter(PlayerFurnacesList::getPosLinkedHashSet)
 
+    ).apply(instance, PlayerFurnacesList::new));
+    @Getter(AccessLevel.PRIVATE)
     private LinkedHashSet<GlobalPos> posLinkedHashSet;
     private boolean upgradeFromLegacy = false;
-    private boolean updated = false;
 
     public PlayerFurnacesList() {
         this.posLinkedHashSet = new LinkedHashSet<>();
@@ -41,13 +43,11 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
     @Override
     public void add(ResourceKey<Level> key, BlockPos pos) {
         this.posLinkedHashSet.add(GlobalPos.of(key, pos));
-        this.updated = true;
     }
 
     @Override
     public void remove(ResourceKey<Level> key, BlockPos pos) {
         this.posLinkedHashSet.remove(GlobalPos.of(key, pos));
-        this.updated = true;
     }
 
     @Override
@@ -62,10 +62,6 @@ public class PlayerFurnacesList implements IPlayerFurnacesList {
         this.upgradeFromLegacy = false;
     }
 
-    @Override
-    public boolean isUpdated() {
-        return updated;
-    }
 
     public boolean isEmpty() {
         return this.posLinkedHashSet.isEmpty();

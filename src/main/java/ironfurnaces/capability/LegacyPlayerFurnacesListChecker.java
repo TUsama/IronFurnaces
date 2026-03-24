@@ -15,7 +15,7 @@ import java.util.HashSet;
 @UtilityClass
 public class LegacyPlayerFurnacesListChecker {
     public void validateFurnacesList(ServerPlayer player, ServerLevel level) {
-        player.getCapability(CapabilityPlayerFurnacesList.FURNACES_LIST).ifPresent(list -> {
+        player.getCapability(ModCapabilities.FURNACES_LIST).ifPresent(list -> {
             list.whenUpgradeFromLegacy(fList -> {
                 if (!level.dimension().equals(Level.OVERWORLD)) return;
                 for (GlobalPos globalPos : new HashSet<>(fList.get())) {

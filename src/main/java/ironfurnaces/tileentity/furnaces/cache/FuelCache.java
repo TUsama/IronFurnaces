@@ -4,7 +4,7 @@ import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -140,7 +140,7 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     }
 
     @Override
-    public void updateFurnacePattern(EffectiveFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats stats) {
         this.energy.setCapacity(stats.energyCapacity());
         this.energy.setMaxTransfer(stats.energyCapacity());
     }

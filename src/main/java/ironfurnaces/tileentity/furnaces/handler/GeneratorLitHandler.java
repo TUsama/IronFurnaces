@@ -3,7 +3,11 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import ironfurnaces.tileentity.furnaces.process.Generate;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.List;
 
@@ -18,7 +22,20 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
 
     @Override
     public void tick(FurnacePatternBlockEntity tile) {
+        FuelCache fuel = tile.getFuel();
+        Level level = tile.getLevel();
+        BlockPos blockPos = tile.getBlockPos();
         List<Generate> allGenerateInstances = tile.getInstanceManager().getAllGenerateInstances();
+        if (litTime != 0) {
+            if (!level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
+                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, true), 3);
+            }
+        } else {
+            if (level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
+                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
+            }
+        }
+
         if (allGenerateInstances.isEmpty()){
             litDuration = 0;
             litTime = 0;
