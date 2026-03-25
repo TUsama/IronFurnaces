@@ -458,7 +458,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
         if (world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2 && v2.getPattern().isRainbow()) {
-            if (v2.isWorking() && v2.getMode().equals(FurnaceMode.GENERATOR)) {
+            if (state.getValue(BlockStateProperties.LIT) && v2.getMode().equals(FurnaceMode.GENERATOR)) {
                  {
                     for (Direction direction : Direction.values()) {
                         if (Direction.from3DDataValue(direction.get3DDataValue()) != Direction.UP

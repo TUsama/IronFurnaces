@@ -5,7 +5,6 @@ import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
-import ironfurnaces.network.S2CSyncBEWorkingStatePacket;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
 import ironfurnaces.registration.ModBlockState;
@@ -256,11 +255,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private boolean isWorking = false;
 
     public void setWorking(boolean working) {
+
         boolean oldState = isWorking;
         isWorking = working;
         if (oldState != working && this.getLevel() instanceof ServerLevel serverLevel){
             OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, this.ownerUuid);
-            NetworkUtils.sendToClients(new S2CSyncBEWorkingStatePacket(working, getBlockPos()), serverLevel.players());
         }
 
     }
@@ -275,7 +274,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (level.getGameTime() % 20 == 0 && blockEntity.settingsV2.autoFill() && blockEntity.mode.equals(FurnaceMode.FACTORY)) {
             blockEntity.checkIfInputHasEmptySlot();
         }
-
         if (blockEntity.shouldAutoFill) {
             HandlerRebalanceUtil.rebalanceForProcessing(blockEntity.input);
             blockEntity.shouldAutoFill = false;
@@ -305,7 +303,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 */
         blockEntity.syncProcessingInstancesManagerToViewers();
+        if (level instanceof ServerLevel serverLevel){
 
+        }
 
     }
 
@@ -367,7 +367,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         tag.put("Augments", augments.serializeNBT());
 
         if (ownerUuid != null) {
-            System.out.println("save uuid sucessfully");
             tag.putUUID("OwnerUUID", ownerUuid);
         }
 
@@ -429,10 +428,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
         if (tag.hasUUID("OwnerUUID")) {
-            System.out.println("can find owner uuid");
             this.ownerUuid = tag.getUUID("OwnerUUID");
         } else {
-            System.out.println("can't find owner uuid");
             this.ownerUuid = null;
         }
 
