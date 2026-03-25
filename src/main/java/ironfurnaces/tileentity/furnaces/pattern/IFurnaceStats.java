@@ -3,7 +3,7 @@ package ironfurnaces.tileentity.furnaces.pattern;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 
-public interface IFurnaceStats {
+public interface IFurnaceStats<T extends IFurnaceStats<?>> {
     Codec<IFurnaceStats> CODEC =
             Type.CODEC.dispatch(
                     "stats_type",
@@ -18,6 +18,11 @@ public interface IFurnaceStats {
     int energyGenerationPerTick();
     int energyConsumerPerTick();
     int inputSlotAmount();
+    T withSmeltTickPerItem(int value);
+    T withEnergyCapacity(int value);
+    T withEnergyGenerationPerTick(int value);
+    T withEnergyConsumerPerTick(int value);
+    T withInputSlotAmount(int value);
     Type getType();
 
     enum Type implements StringRepresentable {

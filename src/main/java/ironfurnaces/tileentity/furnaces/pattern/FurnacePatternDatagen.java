@@ -80,6 +80,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                         IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 40_000, 40, 0, 1),
                         IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 80_000, 60, 0, 1)
                 ),
+                new RainbowBonus(0, 0, 500_000, 0, 0),
                 java.util.Set.of(IronFurnaces.id("rainbow_furnace"))
         );
 

@@ -25,12 +25,12 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     public static final Codec<ProcessingInstanceManager> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ProcessingInstance.DISPATCH_CODEC.listOf().fieldOf("instances").forGetter(ProcessingInstanceManager::instances),
-                    ExtraCodecs.POSITIVE_INT.listOf().xmap(IntOpenHashSet::new, ArrayList::new).fieldOf("blockingIndexes").forGetter(x -> (IntOpenHashSet) x.blockingIndexes())
+                    ExtraCodecs.POSITIVE_INT.listOf().xmap(IntOpenHashSet::new, ArrayList::new).fieldOf("blockingIndexes").forGetter(ProcessingInstanceManager::blockingIndexes)
             ).apply(instance, ProcessingInstanceManager::new));
     @Getter
     private final List<ProcessingInstance> instances;
     @Getter
-    private IntSet blockingIndexes;
+    private IntOpenHashSet blockingIndexes;
     @Setter
     private Consumer<ProcessingInstanceManager> clearInstanceCallback;
     private IntSet filledIndex = new IntOpenHashSet();
@@ -41,7 +41,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         this.blockingIndexes = new IntOpenHashSet();
     }
 
-    private ProcessingInstanceManager(List<ProcessingInstance> instances, IntSet blockingIndexes) {
+    private ProcessingInstanceManager(List<ProcessingInstance> instances, IntOpenHashSet blockingIndexes) {
         this.instances = new ArrayList<>(instances);
         this.blockingIndexes = blockingIndexes;
         for (ProcessingInstance instance : this.instances) {
@@ -174,7 +174,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     @Override
-    public void updateFurnaceMode(FurnaceMode mode) {
+    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
         this.instances.clear();
         blockingIndexes.clear();
         filledIndex.clear();
@@ -185,7 +185,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     @Override
-    public void updateFurnacePatternStats(IFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         for (ProcessingInstance instance : this.instances) {
             instance.whenChangeStats(stats);
         }

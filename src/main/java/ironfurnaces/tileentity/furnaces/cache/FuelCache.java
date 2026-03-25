@@ -3,6 +3,7 @@ package ironfurnaces.tileentity.furnaces.cache;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
@@ -74,7 +76,10 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     }
 
     @Override
-    public void updateFurnaceMode(FurnaceMode mode) {
+    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
+        if (mode.equals(FurnaceMode.FACTORY)){
+            Containers.dropContents(blockEntity.getLevel(), blockEntity.getBlockPos(), this.stacks);
+        }
     }
 
     @Override
@@ -140,7 +145,7 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     }
 
     @Override
-    public void updateFurnacePatternStats(IFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         this.energy.setCapacity(stats.energyCapacity());
         this.energy.setMaxTransfer(stats.energyCapacity());
     }

@@ -5,6 +5,7 @@ import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
+import ironfurnaces.network.S2CSyncBEWorkingStatePacket;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
 import ironfurnaces.registration.ModBlockState;
@@ -13,10 +14,7 @@ import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
 import ironfurnaces.tileentity.furnaces.handler.IFurnaceLitHandler;
 import ironfurnaces.tileentity.furnaces.handler.RecipeAwardHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
-import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
-import ironfurnaces.tileentity.furnaces.pattern.NormalFurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.*;
 import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
@@ -25,7 +23,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import net.minecraft.Util;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -91,7 +88,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private final RecipeAwardHandler recipeAwardHandler = new RecipeAwardHandler();
     @Getter
     private final ContainerData dataAccess;
-    public EffectiveFurnaceStats usedStats;
+    public IFurnaceStats<?> usedStats;
     public long usedRevision = 0L;
     private FurnacePattern pattern;
     private ProcessingInstanceManager instanceManager;
@@ -105,11 +102,12 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private boolean shouldAutoFill = false;
     private UUID ownerUuid;
     private boolean redstoneLastTimeCheck = false;
+    private List<Runnable> levelRunnable = new ArrayList<>();
 
     public FurnacePatternBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         this.pattern = FurnacePattern.FALLBACK;
-        this.usedStats = FurnacePattern.FALLBACK.toEffectiveFurnaceStats();
+        this.usedStats = EffectiveFurnaceStats.fromBase(FurnacePattern.FALLBACK);
         this.mode = FurnaceMode.FURNACE;
         this.quickCheck = Util.memoize(x -> RecipeManager.createCheck((RecipeType) x));
 
@@ -262,12 +260,18 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         isWorking = working;
         if (oldState != working && this.getLevel() instanceof ServerLevel serverLevel){
             OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, this.ownerUuid);
+            NetworkUtils.sendToClients(new S2CSyncBEWorkingStatePacket(working, getBlockPos()), serverLevel.players());
         }
 
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FurnacePatternBlockEntity blockEntity) {
-
+        if (!blockEntity.levelRunnable.isEmpty() && blockEntity.hasLevel()) {
+            for (Runnable runnable : blockEntity.levelRunnable) {
+                runnable.run();
+            }
+            blockEntity.levelRunnable.clear();
+        }
         if (level.getGameTime() % 20 == 0 && blockEntity.settingsV2.autoFill() && blockEntity.mode.equals(FurnaceMode.FACTORY)) {
             blockEntity.checkIfInputHasEmptySlot();
         }
@@ -320,7 +324,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (b != redstoneLastTimeCheck) {
             redstoneLastTimeCheck = b;
             Level level = this.getLevel();
-            if (level != null) {
+            if (level != null && this.ownerUuid != null) {
                 Player playerByUUID = level.getPlayerByUUID(this.ownerUuid);
                 if (playerByUUID instanceof ServerPlayer serverPlayer) {
                     OwnerRainbowContextHelper.markDirty(serverPlayer);
@@ -363,6 +367,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         tag.put("Augments", augments.serializeNBT());
 
         if (ownerUuid != null) {
+            System.out.println("save uuid sucessfully");
             tag.putUUID("OwnerUUID", ownerUuid);
         }
 
@@ -424,8 +429,10 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
 
         if (tag.hasUUID("OwnerUUID")) {
+            System.out.println("can find owner uuid");
             this.ownerUuid = tag.getUUID("OwnerUUID");
         } else {
+            System.out.println("can't find owner uuid");
             this.ownerUuid = null;
         }
 
@@ -479,12 +486,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         return ownerUuid;
     }
 
-    public void setOwner(@Nullable UUID ownerUuid) {
-        if (!Objects.equals(this.ownerUuid, ownerUuid)) {
-            this.ownerUuid = ownerUuid;
-            setChanged();
-        }
-    }
 
     public void ensureOwner(@Nullable Player player) {
         if (player != null && this.ownerUuid == null) {
@@ -508,6 +509,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     private void recomputeFillStat() {
+        //do this in client will trigger outofindex in rainbow furnace
         if (getLevel() != null && getLevel().isClientSide) {
             return;
         }
@@ -519,39 +521,40 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     public void updateFurnaceMode(FurnaceMode mode) {
         this.mode = mode;
-        input.updateFurnaceMode(mode);
-        output.updateFurnaceMode(mode);
-        instanceManager.updateFurnaceMode(mode);
-        fuel.updateFurnaceMode(mode);
-        allInv.updateFurnaceMode(mode);
-        allInvForAutomation.updateFurnaceMode(mode);
-        allOutput.updateFurnaceMode(mode);
-        inputAndOutput.updateFurnaceMode(mode);
+        input.updateFurnaceMode(mode, this);
+        output.updateFurnaceMode(mode, this);
+        instanceManager.updateFurnaceMode(mode, this);
+        fuel.updateFurnaceMode(mode, this);
+        allInv.updateFurnaceMode(mode, this);
+        allInvForAutomation.updateFurnaceMode(mode, this);
+        allOutput.updateFurnaceMode(mode, this);
+        inputAndOutput.updateFurnaceMode(mode, this);
         this.selectLitHandler();
+        this.setWorking(false);
 
     }
 
     public void transferStacksInUnavailableSlotsToPlayer(Player player) {
-        BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> give = (item, map) -> {
-            for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
-                ItemHandlerHelper.giveItemToPlayer(player, itemStackEntry.getValue().copy());
-                itemStackEntry.getValue().setCount(0);
-                //item.setStackInSlot(itemStackEntry.getIntKey(), ItemStack.EMPTY);
-            }
-        };
+
         BlockPos blockPos = this.getBlockPos();
-        BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> drop = (item, map) -> {
-            for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
-                Containers.dropItemStack(this.getLevel(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStackEntry.getValue().copy());
-                itemStackEntry.getValue().setCount(0);
-                //item.setStackInSlot(itemStackEntry.getIntKey(), ItemStack.EMPTY);
-            }
-        };
+
 
         if (player != null) {
+            BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> give = (item, map) -> {
+                for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
+                    ItemHandlerHelper.giveItemToPlayer(player, itemStackEntry.getValue().copy());
+                    itemStackEntry.getValue().setCount(0);
+                }
+            };
             give.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
             give.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
         } else {
+            BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> drop = (item, map) -> {
+                for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
+                    Containers.dropItemStack(this.getLevel(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStackEntry.getValue().copy());
+                    itemStackEntry.getValue().setCount(0);
+                }
+            };
             drop.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
             drop.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
         }
@@ -635,8 +638,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 int finalI = i;
                 getRecipe(stackInSlot)
                         .ifPresent(x -> {
-                            if (x instanceof AbstractCookingRecipe cookingRecipe) {
-                                this.instanceManager.addInstance(Burn.create(cookingRecipe.getCookingTime(), finalI, x));
+                            if (x instanceof AbstractCookingRecipe) {
+                                this.instanceManager.addInstance(Burn.create(usedStats.smeltTickPerItem(), finalI, x));
                             }
 
                         });
@@ -874,12 +877,23 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
     }
 
+    private void addLevelRunnable(Runnable runnable){
+        this.levelRunnable.add(runnable);
+    }
+
     public void updatePattern(FurnacePattern pattern) {
         this.pattern = pattern;
         boolean flag = false;
         if (pattern instanceof NormalFurnacePattern normalFurnacePattern){
             updateFurnaceStats(normalFurnacePattern.toEffectiveFurnaceStats());
             flag = true;
+        } else if (pattern instanceof RainbowFurnacePattern rainbow) {
+            addLevelRunnable(() -> {
+                IFurnaceStats<?> furnaceStats = OwnerRainbowContextHelper.getFurnaceStats(getLevel(), ownerUuid, rainbow);
+                if (furnaceStats != null){
+                    updateFurnaceStats(furnaceStats);
+                }
+            });
         }
         if (!flag){
             syncPatternAndStatsToViewers();
@@ -894,21 +908,20 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             this.usedRevision = revision;
         }
     }
-    public void updateFurnaceStats(@Nonnull IFurnaceStats stats) {
+    public void updateFurnaceStats(@Nonnull IFurnaceStats<?> stats) {
         updateFurnaceStats(stats,true);
     }
-    public void updateFurnaceStats(@Nonnull IFurnaceStats stats, boolean needToSync) {
-        this.input.updateFurnacePatternStats(stats);
-        this.output.updateFurnacePatternStats(stats);
-        this.instanceManager.updateFurnacePatternStats(stats);
-        this.fuel.updateFurnacePatternStats(stats);
-        this.litHandler.updateFurnacePatternStats(stats);
-        this.allOutput.updateFurnacePatternStats(stats);
-        this.allInv.updateFurnacePatternStats(stats);
-        this.allInvForAutomation.updateFurnacePatternStats(stats);
-        this.inputAndOutput.updateFurnacePatternStats(stats);
-        //todo danger!!!
-        this.usedStats = ((EffectiveFurnaceStats) stats);
+    public void updateFurnaceStats(@Nonnull IFurnaceStats<?> stats, boolean needToSync) {
+        this.input.updateFurnacePatternStats(stats, this);
+        this.output.updateFurnacePatternStats(stats, this);
+        this.instanceManager.updateFurnacePatternStats(stats, this);
+        this.fuel.updateFurnacePatternStats(stats, this);
+        this.litHandler.updateFurnacePatternStats(stats, this);
+        this.allOutput.updateFurnacePatternStats(stats, this);
+        this.allInv.updateFurnacePatternStats(stats, this);
+        this.allInvForAutomation.updateFurnacePatternStats(stats, this);
+        this.inputAndOutput.updateFurnacePatternStats(stats, this);
+        this.usedStats = stats;
         if (needToSync){
             syncPatternAndStatsToViewers();
             setChanged();

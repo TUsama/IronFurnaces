@@ -45,6 +45,7 @@ public class OwnerRainbowContext {
      */
     public EffectiveFurnaceStats getResolvedStats(FurnacePattern pattern) {
         if (pattern instanceof RainbowFurnacePattern rainbowPattern) {
+            System.out.println("current resolve stats are " + resolvedStats);
             return resolvedStats.getOrDefault(rainbowPattern.id(), toBaseStats(rainbowPattern));
         }
         return EffectiveFurnaceStats.fromBase(((NormalFurnacePattern) pattern));
@@ -88,6 +89,11 @@ public class OwnerRainbowContext {
                 totalBonus = totalBonus.add(bonus);
                 currentContributors.add(activeKind);
             }
+
+            if (rainbowPattern.config().isAllKindsActivated(activeNormalKinds.size())) {
+                totalBonus = totalBonus.add(rainbowPattern.config().allKindsBonus());
+            }
+
             EffectiveFurnaceStats resolved = toBaseStats(rainbowPattern).apply(totalBonus);
             newResolvedStats.put(rainbowPattern.id(), resolved);
             newContributors.put(rainbowPattern.id(), Set.copyOf(currentContributors));

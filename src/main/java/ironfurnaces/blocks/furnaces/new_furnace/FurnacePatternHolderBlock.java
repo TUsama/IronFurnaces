@@ -1,6 +1,7 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import ironfurnaces.Config;
+import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
@@ -8,12 +9,16 @@ import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
+import ironfurnaces.registration.ModItems;
 import ironfurnaces.registration.ModMenus;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.NormalFurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.RainbowFurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.ChatFormatting;
@@ -268,17 +273,13 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
         if (furnacePatternFromTag != null) {
             int s = 0;
-            if (furnacePatternFromTag instanceof IFurnaceStats stats){
-                s = stats.smeltTickPerItem();
+            if (furnacePatternFromTag instanceof NormalFurnacePattern pattern1){
+                s = pattern1.smeltTickPerItem();
             } else if (furnacePatternFromTag instanceof RainbowFurnacePattern pattern){
                 s = pattern.baseSmeltTickPerItem();
             }
             if (s != 0){
-                tooltip.add(translatable(
-                        "ironfurnaces.block.furnace.work_speed",
-                        Component.literal(String.valueOf(s))
-                                .withStyle(ChatFormatting.GREEN)
-                ).withStyle(ChatFormatting.GRAY));
+                tooltip.add(translatable("ironfurnaces.block.furnace.work_speed", Component.literal(String.valueOf(s)).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
             }
 
         } else {
@@ -351,7 +352,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
         if (!level.isClientSide && entity instanceof Player player) {
-            te.setOwner(player.getUUID());
+            te.ensureOwner(player);
             player.getCapability(ModCapabilities.FURNACES_LIST)
                     .ifPresent(h -> h.add(level.dimension(), pos));
         }
@@ -398,6 +399,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
+        super.animateTick(state, world, pos, rand);
         if (state.getValue(BlockStateProperties.LIT)) {
             if (world.getBlockEntity(pos) == null) {
                 return;
@@ -453,6 +455,33 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 world.addParticle(ParticleTypes.FLAME, d0 + d5, d1 + d6, d2 + d7, 0.0D, 0.0D, 0.0D);
 
             }
+        }
+
+        if (world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2 && v2.getPattern().isRainbow()) {
+            if (v2.isWorking() && v2.getMode().equals(FurnaceMode.GENERATOR)) {
+                 {
+                    for (Direction direction : Direction.values()) {
+                        if (Direction.from3DDataValue(direction.get3DDataValue()) != Direction.UP
+                                && Direction.from3DDataValue(direction.get3DDataValue()) != Direction.DOWN) {
+                            double d0 = (double) pos.getX() + 0.5D;
+                            double d1 = (double) pos.getY();
+                            double d2 = (double) pos.getZ() + 0.5D;
+                            Direction.Axis direction$axis = direction.getAxis();
+                            double d3 = 0.52D;
+                            double d4 = rand.nextDouble() * 0.6D - 0.3D;
+                            double d5 = direction$axis == Direction.Axis.X ? (double) direction.getStepX() * 0.52D : d4;
+                            double d6 = rand.nextDouble() * 6.0D / 16.0D;
+                            double d7 = direction$axis == Direction.Axis.Z ? (double) direction.getStepZ() * 0.52D : d4;
+
+                            for (int i = 0; i < 10; i++) {
+                                world.addParticle(ParticleTypes.CRIT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                                world.addParticle(ParticleTypes.AMBIENT_ENTITY_EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 

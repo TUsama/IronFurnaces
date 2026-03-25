@@ -80,7 +80,7 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
     }
 
     @Override
-    public void updateFurnacePatternStats(IFurnaceStats stats) {
+    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
 
     }
 

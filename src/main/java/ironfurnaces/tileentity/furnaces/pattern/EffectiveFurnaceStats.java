@@ -13,7 +13,7 @@ public record EffectiveFurnaceStats(
         int energyGenerationPerTick,
         int energyConsumerPerTick,
         int inputSlotAmount
-)  implements IFurnaceStats{
+)  implements IFurnaceStats<EffectiveFurnaceStats>{
 
     public static final Codec<EffectiveFurnaceStats> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick_per_item").forGetter(EffectiveFurnaceStats::smeltTickPerItem),

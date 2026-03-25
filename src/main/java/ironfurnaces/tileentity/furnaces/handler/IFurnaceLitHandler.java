@@ -30,7 +30,7 @@ public interface IFurnaceLitHandler extends IPatternSensitive {
     int getLitTime();
 
     @Override
-    default void updateFurnacePatternStats(IFurnaceStats stats){
+    default void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity){
 
     }
 }

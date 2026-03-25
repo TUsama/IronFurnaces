@@ -101,6 +101,11 @@ public class FurnacePatternHolderItem extends BlockItem {
             return changed;
         }
 
+        if (player != null) {
+            System.out.println("ensure owner");
+            fp.ensureOwner(player);
+            if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
+        }
         CompoundTag beTag = BlockItem.getBlockEntityData(stack);
         if (beTag != null) {
             if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
@@ -125,10 +130,7 @@ public class FurnacePatternHolderItem extends BlockItem {
             }
 
         }
-        if (player != null) {
-            fp.ensureOwner(player);
-            if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
-        }
+
 /*
         try {
             FurnaceMode mode = state.getValue(ModBlockState.FURNACE_MODE);

@@ -10,12 +10,14 @@ import java.util.Set;
 
 public record RainbowFurnaceConfig(
         Map<ResourceLocation, RainbowBonus> bonuses,
+        RainbowBonus allKindsBonus,
         Set<ResourceLocation> ignorePatterns
 ) {
     public static final Codec<RainbowFurnaceConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.unboundedMap(ResourceLocation.CODEC, RainbowBonus.CODEC)
                     .optionalFieldOf("bonuses", Map.of())
                     .forGetter(RainbowFurnaceConfig::bonuses),
+            RainbowBonus.CODEC.fieldOf("all_kinds_bonus").forGetter(RainbowFurnaceConfig::allKindsBonus),
             ResourceLocation.CODEC.listOf()
                     .xmap(Set::copyOf, List::copyOf)
                     .optionalFieldOf("ignore_patterns", Set.of())
@@ -27,6 +29,15 @@ public record RainbowFurnaceConfig(
             return RainbowBonus.ZERO;
         }
         return bonuses.getOrDefault(patternId, RainbowBonus.ZERO);
+    }
+
+    public boolean isAllKindsActivated(int kinds){
+        int i = 0;
+        for (FurnacePattern pattern : FurnacePatternManager.allPossiblePattern()) {
+            if (pattern.isRainbow()) continue;
+            i++;
+        }
+        return i == kinds;
     }
 
     public boolean isEmpty() {

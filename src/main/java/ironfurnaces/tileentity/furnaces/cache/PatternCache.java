@@ -1,10 +1,9 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.ItemStackHandler;
@@ -83,7 +82,7 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
     }
 
     @Override
-    public void updateFurnaceMode(FurnaceMode mode) {
+    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
         this.mode = mode;
         int slots = this.getSlots();
         int[] ints = new int[slots];

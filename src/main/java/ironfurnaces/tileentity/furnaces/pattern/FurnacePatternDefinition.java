@@ -27,16 +27,8 @@ public record FurnacePatternDefinition(
     ).apply(inst, FurnacePatternDefinition::new));
 
     public FurnacePattern toRuntime(ResourceLocation id) {
-        NormalFurnacePattern normalFurnacePattern = new NormalFurnacePattern(
-                id,
-                smeltTickPerItem,
-                energyCapacity,
-                energyGenerationPerTick,
-                energyConsumerPerTick,
-                inputSlotAmount,
-                referenceBlock
-        );
-        if (rainbow.isPresent() && !rainbow.get().isEmpty()){
+
+        if (rainbow.isPresent()){
             return new RainbowFurnacePattern(
                     id,
                     smeltTickPerItem,
@@ -48,7 +40,15 @@ public record FurnacePatternDefinition(
                     rainbow.get()
             );
         } else {
-            return normalFurnacePattern;
+            return new NormalFurnacePattern(
+                    id,
+                    smeltTickPerItem,
+                    energyCapacity,
+                    energyGenerationPerTick,
+                    energyConsumerPerTick,
+                    inputSlotAmount,
+                    referenceBlock
+            );
         }
 
     }

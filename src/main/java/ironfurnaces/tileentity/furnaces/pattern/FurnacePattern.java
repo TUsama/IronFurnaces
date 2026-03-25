@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class FurnacePattern {
+public sealed abstract class FurnacePattern permits NormalFurnacePattern, RainbowFurnacePattern {
 
     public static final Codec<FurnacePattern> CODEC =
             PatternKind.CODEC.dispatch(
@@ -50,12 +50,6 @@ public abstract class FurnacePattern {
         return Optional.empty();
     }
 
-    public RainbowFurnaceConfig rainbowConfigOrEmpty() {
-        return rainbowConfig().orElseGet(() -> new RainbowFurnaceConfig(Map.of(), Set.of()));
-    }
-
-    public void broadcastChanges(FurnacePatternBlockEntity blockEntity) {
-    }
 
     public enum PatternKind implements StringRepresentable {
         NORMAL("normal"),
