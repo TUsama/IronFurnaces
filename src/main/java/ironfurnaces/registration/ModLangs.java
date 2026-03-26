@@ -6,6 +6,8 @@ import net.minecraft.network.chat.Component;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModLangs {
+    public static final Component TRANSFER_REMINDER = REGISTRATE.addRawLang("container.ironfurnaces.item_transfer." + "transfer_reminder", "The %1$s at %2$s has transferred items to your inventory due to the modification: ");
+    public static final Component RAINBOW_FURNACE = REGISTRATE.addRawLang("block.ironfurnaces.rainbow_furnace", "Rainbow Furnace");
     public static final Component RESET_SETTING_HINT = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "reset_setting_hint", "Sneak + shift will reset the Furnace setting.");
     public static final Component RESET_SETTING_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "reset_setting_failed", "Failed to reset settings!");
     public static final Component RESET_SETTING_SUCCESS = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "reset_setting_success", "Reset Setting Successfully!");

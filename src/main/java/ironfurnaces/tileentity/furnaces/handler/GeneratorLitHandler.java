@@ -5,6 +5,7 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import ironfurnaces.tileentity.furnaces.process.Generate;
+import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,20 +23,7 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
 
     @Override
     public void tick(FurnacePatternBlockEntity tile) {
-        FuelCache fuel = tile.getFuel();
-        Level level = tile.getLevel();
-        BlockPos blockPos = tile.getBlockPos();
         List<Generate> allGenerateInstances = tile.getInstanceManager().getAllGenerateInstances();
-        if (litTime != 0) {
-            if (!level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, true), 3);
-            }
-        } else {
-            if (level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
-            }
-        }
-
         if (allGenerateInstances.isEmpty()){
             litDuration = 0;
             litTime = 0;
@@ -50,6 +38,7 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
             litDuration = 200;
             litTime = (int)Math.max(200.0f - (litDuration * (i / allGenerateInstances.size())), 0);
         }
+        ensureLitState(tile);
     }
 
     @Override
@@ -59,7 +48,8 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
 
     @Override
     public boolean isLit(FurnacePatternBlockEntity tile) {
-        return tile.getMode().equals(FurnaceMode.GENERATOR) && tile.getInstanceManager().isGeneratingEnergy();
+        ProcessingInstanceManager instanceManager = tile.getInstanceManager();
+        return litTime != 0 && !instanceManager.isAllBlocking();
     }
 
     @Override

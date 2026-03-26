@@ -32,26 +32,14 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
     @Override
     public void tick(FurnacePatternBlockEntity tile) {
         FuelCache fuel = tile.getFuel();
-        Level level = tile.getLevel();
-        BlockPos blockPos = tile.getBlockPos();
-        if (isLit) {
-            if (!level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, true), 3);
-            }
-        } else {
-            if (level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
-            }
-        }
-
-
         int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.usedStats.energyConsumerPerTick());
-        if (tile.getInstanceManager().needLit(tile) && tile.getInstanceManager().isWaiting() && fuel.getEnergyStored() >= cost){
+        if (tile.getInstanceManager().needLit(tile) && tile.getInstanceManager().hasInstances() && fuel.getEnergyStored() >= cost){
             fuel.extractEnergy(cost, false);
             isLit = true;
         } else {
             isLit = false;
         }
+        ensureLitState(tile);
     }
 
     @Override

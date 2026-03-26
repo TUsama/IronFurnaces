@@ -11,13 +11,11 @@ import net.minecraft.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class Burn extends ProcessingInstance {
@@ -95,13 +93,12 @@ public abstract class Burn extends ProcessingInstance {
 
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
-        if (!validateSlot(tile.getInput())) return TickResult.DISCARD;
+        if (!validateSlot(tile.getInput(), tile)) return TickResult.DISCARD;
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         if (stackInSlot.isEmpty()) return TickResult.DISCARD;
         Recipe recipe = tile.getInstanceManager()
                 .getCachedCookingRecipe(tile, this);
         if (recipe == null) return TickResult.DISCARD;
-
         ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
         ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
         if (itemStack.isEmpty()) {

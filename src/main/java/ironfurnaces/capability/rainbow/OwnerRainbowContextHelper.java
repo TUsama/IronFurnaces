@@ -22,7 +22,6 @@ public final class OwnerRainbowContextHelper {
         if (player == null) {
             return;
         }
-        System.out.println("mark!");
         player.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT).ifPresent(OwnerRainbowContext::markDirty);
     }
 
@@ -32,7 +31,6 @@ public final class OwnerRainbowContextHelper {
             return null;
         }
         AtomicReference<EffectiveFurnaceStats> stats = new AtomicReference<>();
-        System.out.println("get stat!");
         player.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT).ifPresent(x -> {
             stats.set(x.getResolvedStats(pattern));
         });

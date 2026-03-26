@@ -45,7 +45,6 @@ public class OwnerRainbowContext {
      */
     public EffectiveFurnaceStats getResolvedStats(FurnacePattern pattern) {
         if (pattern instanceof RainbowFurnacePattern rainbowPattern) {
-            System.out.println("current resolve stats are " + resolvedStats);
             return resolvedStats.getOrDefault(rainbowPattern.id(), toBaseStats(rainbowPattern));
         }
         return EffectiveFurnaceStats.fromBase(((NormalFurnacePattern) pattern));

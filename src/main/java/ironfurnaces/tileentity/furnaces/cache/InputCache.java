@@ -16,9 +16,8 @@ import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 @Accessors(fluent = true, chain = true)
-public class InputCache extends PatternCache implements ICacheFillStats{
+public class InputCache extends PatternCache {
 
-    private final FillStats fill_stats = new FillStats();
     @Setter
     protected Function<ItemStack, Optional<? extends Recipe>> grabRecipeCallback;
     @Setter
@@ -26,26 +25,6 @@ public class InputCache extends PatternCache implements ICacheFillStats{
 
     public InputCache(FurnaceMode mode, IFurnaceStats stats) {
         super(stats.inputSlotAmount(), mode,  stats.inputSlotAmount());
-    }
-
-
-
-    public void recomputeFillStats() {
-        int slots = getSlots();
-        fill_stats.slot_count = slots;
-        fill_stats.fill_sum = 0.0f;
-        fill_stats.non_empty = 0;
-
-        for (int i = 0; i < slots; i++) {
-            ItemStack s = getStackInSlot(i);
-            if (s.isEmpty()) continue;
-
-            fill_stats.non_empty++;
-            int cap = Math.min(getSlotLimit(i), s.getMaxStackSize());
-            if (cap > 0) {
-                fill_stats.fill_sum += (float) s.getCount() / (float) cap;
-            }
-        }
     }
 
 
@@ -63,29 +42,9 @@ public class InputCache extends PatternCache implements ICacheFillStats{
         recomputeFillStats();
     }
 
-    @Override
-    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
-        super.updateFurnaceMode(mode, blockEntity);
-    }
 
 
-    @Override
-    public FillStats getFillStats() {
-        return fill_stats;
-    }
 
-    @Override
-    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
-        int i = stats.inputSlotAmount();
-        NonNullList<ItemStack> newList = NonNullList.withSize(i, ItemStack.EMPTY);
-        for (int i1 = 0; i1 < this.getSlots(); i1++) {
-            if (newList.size() - 1 >= i1) newList.set(i1, this.getStackInSlot(i1).copy());
-        }
-        this.stacks = newList;
-        this.inputSlotAmount = stats.inputSlotAmount();
-        recomputeFillStats();
-
-    }
 
 
 }

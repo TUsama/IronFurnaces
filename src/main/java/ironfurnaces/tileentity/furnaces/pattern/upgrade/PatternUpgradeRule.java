@@ -6,12 +6,9 @@ import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
-import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -89,20 +86,4 @@ public record PatternUpgradeRule(
         return BuiltInRegistries.BLOCK.getOptional(this.from).orElse(null);
     }
 
-    public static Component toDisplayName(ResourceLocation id) {
-        if (id == null) {
-            return Component.literal("null");
-        }
-
-        FurnacePattern pattern = FurnacePatternManager.get(id);
-        if (pattern != null) {
-            return Component.translatable("block.ironfurnaces." + pattern.id().getPath());
-        }
-
-        if (BuiltInRegistries.BLOCK.containsKey(id)) {
-            return Component.translatable(Util.makeDescriptionId("block", id));
-        }
-
-        return Component.literal(id.toString());
-    }
 }

@@ -102,7 +102,6 @@ public class FurnacePatternHolderItem extends BlockItem {
         }
 
         if (player != null) {
-            System.out.println("ensure owner");
             fp.ensureOwner(player);
             if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
         }

@@ -4,6 +4,7 @@ import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
@@ -15,9 +16,11 @@ import java.util.stream.IntStream;
 // a copy from CombinedInvWrapper, but with recalc when furnace mode updated.
 public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandlerModifiable, ICacheFillStats, IPatternSensitive{
     private int[] cacheIndex;
+    @Getter
     protected final IItemHandlerModifiable[] itemHandler;
     protected final int[] baseIndex;
     protected int slotCount;
+
     public IFCombinedCache(IItemHandlerModifiable... itemHandler) {
         this.itemHandler = itemHandler;
         this.baseIndex = new int[itemHandler.length];

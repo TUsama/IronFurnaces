@@ -2,6 +2,7 @@ package ironfurnaces.tileentity.furnaces.process;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.cache.IModeSensitive;
@@ -12,6 +13,7 @@ import it.unimi.dsi.fastutil.ints.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -35,6 +37,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     private Consumer<ProcessingInstanceManager> clearInstanceCallback;
     private IntSet filledIndex = new IntOpenHashSet();
     private final Int2ObjectMap<CachedRecipeEntry> recipeCache = new Int2ObjectOpenHashMap<>();
+    private boolean makeDirtyOnThisTimeClearAllInstances = false;
 
     public ProcessingInstanceManager(List<ProcessingInstance> instances) {
         this.instances = instances;
@@ -52,7 +55,15 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
 
     public void manage(FurnacePatternBlockEntity tile){
         ListIterator<ProcessingInstance> iterator = instances.listIterator();
+        //System.out.println("the instances size is " + instances.size() + ", the instances are " + instances);
         while (iterator.hasNext()){
+            //并不多余，这一段是用来处理普通熔炉模式下的，在没有新启动lit状态下再次开始烧制物品的情况。
+            //其他模式下不会，只有普通模式会出现虽然lit但什么也没在烧的情况。
+            //会出现多余检查，但极少，因为一般来说只有非常前期的情况下才会用普通模式，而此时的熔炉数量不会很多。
+            if (tile.getMode().equals(FurnaceMode.FURNACE) && makeDirtyOnThisTimeClearAllInstances && !hasInstances() && tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
+                OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+                makeDirtyOnThisTimeClearAllInstances = false;
+            }
             ProcessingInstance next = iterator.next();
             int fromIndex = next.fromIndex;
             if (this.blockingIndexes.contains(fromIndex)) {
@@ -76,6 +87,11 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
                     recipeCache.remove(fromIndex);
                 }
             }
+        }
+
+        if (!makeDirtyOnThisTimeClearAllInstances && !hasInstances() && tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
+            OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+            makeDirtyOnThisTimeClearAllInstances = true;
         }
     }
 
@@ -134,8 +150,12 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         }
     }
 
-    public boolean isWaiting(){
+    public boolean hasInstances(){
         return !this.instances.isEmpty();
+    }
+
+    public boolean isAllBlocking(){
+        return !this.blockingIndexes.isEmpty() && this.blockingIndexes.size() == this.instances.size();
     }
 
     public IntSet getWorkingIndexes(){
@@ -165,13 +185,6 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         return generates;
     }
 
-    public List<Generate> getAllWorkingGenerateInstances(){
-        ArrayList<Generate> generates = new ArrayList<>();
-        for (ProcessingInstance instance : instances) {
-            if (instance instanceof Generate generateInstances && !blockingIndexes.contains(instance.fromIndex)) generates.add(generateInstances);
-        }
-        return generates;
-    }
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
@@ -189,9 +202,9 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         for (ProcessingInstance instance : this.instances) {
             instance.whenChangeStats(stats);
         }
-        for (CachedRecipeEntry entry : recipeCache.values()) {
-            entry.invalidate();
-        }
+        recipeCache.clear();
+
+
     }
 
     public static class CachedRecipeEntry {

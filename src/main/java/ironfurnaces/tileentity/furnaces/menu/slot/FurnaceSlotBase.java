@@ -19,8 +19,4 @@ public abstract class FurnaceSlotBase extends SlotItemHandler {
         }
     }
 
-    @Override
-    public void set(@NotNull ItemStack stack) {
-        super.set(stack);
-    }
 }

@@ -77,8 +77,11 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
 
     @Override
     public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
-        if (mode.equals(FurnaceMode.FACTORY)){
-            Containers.dropContents(blockEntity.getLevel(), blockEntity.getBlockPos(), this.stacks);
+        if (mode.equals(FurnaceMode.FACTORY) && !this.stacks.isEmpty()){
+            blockEntity.addLevelRunnable(() -> {
+                blockEntity.returnOrDropStack(this.stacks, blockEntity.getOwner());
+
+            });
         }
     }
 

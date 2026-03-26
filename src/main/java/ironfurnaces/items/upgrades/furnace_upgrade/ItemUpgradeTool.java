@@ -153,8 +153,8 @@ public class ItemUpgradeTool extends Item {
         tooltip.add(Component.literal(""));
         PatternUpgradeRule rule = IUpgradeStorage.get(stack);
         if (rule != null) {
-            var fromName = PatternUpgradeRule.toDisplayName(rule.from()).copy().withStyle(ChatFormatting.YELLOW);
-            var toName = PatternUpgradeRule.toDisplayName(rule.to()).copy().withStyle(ChatFormatting.GREEN);
+            var fromName = FurnacePattern.toDisplayName(rule.from()).copy().withStyle(ChatFormatting.YELLOW);
+            var toName = FurnacePattern.toDisplayName(rule.to()).copy().withStyle(ChatFormatting.GREEN);
 
             tooltip.add(Component.translatable("item.ironfurnaces.upgrade_tool.upgrade_rule", fromName, toName));
             tooltip.add(Component.literal(""));
@@ -185,10 +185,10 @@ public class ItemUpgradeTool extends Item {
 
         if (!rule.isFrom(blockState, blockEntity)) {
             if (player != null) {
-                Component expected = PatternUpgradeRule.toDisplayName(rule.from());
+                Component expected = FurnacePattern.toDisplayName(rule.from());
                 Component actual =
                         blockEntity instanceof FurnacePatternBlockEntity patternBlockEntity
-                                ? PatternUpgradeRule.toDisplayName(patternBlockEntity.getPattern().id())
+                                ? FurnacePattern.toDisplayName(patternBlockEntity.getPattern().id())
                                 : blockState.getBlock().getName();
 
                 player.sendSystemMessage(Component.translatable(

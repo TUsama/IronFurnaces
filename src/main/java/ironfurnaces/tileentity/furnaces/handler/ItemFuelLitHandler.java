@@ -38,10 +38,6 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
         Level level = tile.getLevel();
         BlockPos blockPos = tile.getBlockPos();
         if (litTime > 0) {
-            if (!level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-                level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, true), 3);
-            }
-
             litTime--;
         }
 
@@ -69,11 +65,7 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
                 }
             }
         }
-
-
-        if (litTime == 0 && level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
-            level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
-        }
+        ensureLitState(tile);
     }
 
     @Override

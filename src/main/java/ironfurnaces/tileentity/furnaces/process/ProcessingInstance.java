@@ -67,9 +67,10 @@ public abstract class ProcessingInstance {
         return TickResult.SUCCESS;
     }
 
-    protected boolean validateSlot(IItemHandler handler){
+    protected boolean validateSlot(IItemHandler handler, FurnacePatternBlockEntity tile){
         return fromIndex >= 0 && fromIndex < handler.getSlots();
     }
+
 
 
     public enum TickResult {

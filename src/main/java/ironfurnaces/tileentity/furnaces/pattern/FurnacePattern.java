@@ -3,6 +3,9 @@ package ironfurnaces.tileentity.furnaces.pattern;
 import com.mojang.serialization.Codec;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import net.minecraft.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 
@@ -35,6 +38,23 @@ public sealed abstract class FurnacePattern permits NormalFurnacePattern, Rainbo
             FurnacePatternManager::getOrFallback,
             FurnacePattern::id
     );
+
+    public static Component toDisplayName(ResourceLocation id) {
+        if (id == null) {
+            return Component.literal("null");
+        }
+
+        FurnacePattern pattern = FurnacePatternManager.get(id);
+        if (pattern != null) {
+            return Component.translatable("block.ironfurnaces." + pattern.id().getPath());
+        }
+
+        if (BuiltInRegistries.BLOCK.containsKey(id)) {
+            return Component.translatable(Util.makeDescriptionId("block", id));
+        }
+
+        return Component.literal(id.toString());
+    }
 
     public abstract ResourceLocation id();
 

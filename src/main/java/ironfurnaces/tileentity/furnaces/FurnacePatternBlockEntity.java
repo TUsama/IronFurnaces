@@ -20,6 +20,7 @@ import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import lombok.Getter;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -259,7 +260,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         boolean oldState = isWorking;
         isWorking = working;
         if (oldState != working && this.getLevel() instanceof ServerLevel serverLevel){
-            OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, this.ownerUuid);
+
         }
 
     }
@@ -278,7 +279,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             HandlerRebalanceUtil.rebalanceForProcessing(blockEntity.input);
             blockEntity.shouldAutoFill = false;
         }
-        boolean flag = false;
         boolean allowWork = blockEntity.shouldWorkByRedstone();
 
         if (allowWork) {
@@ -286,14 +286,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             blockEntity.litHandler.tick(blockEntity);
             if (blockEntity.litHandler.isLit(blockEntity)) {
                 blockEntity.getInstanceManager().manage(blockEntity);
-                blockEntity.setWorking(true);
-                flag = true;
             }
         }
 
-        if (!flag){
-            blockEntity.setWorking(false);
-        }
         blockEntity.autoIO();
         blockEntity.energyOutPerTick();
         blockEntity.updateHandleTick();
@@ -497,12 +492,17 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (this.pattern.isRainbow()) return false;
         if (this.level == null || this.level.isClientSide) return false;
         if (!this.shouldWorkByRedstone()) return false;
-        if (!this.litHandler.isLit(this)) return false;
-
-        return switch (this.mode) {
-            case FURNACE, FACTORY -> this.instanceManager.isWaiting();
-            case GENERATOR -> this.instanceManager.isGeneratingEnergy();
+        boolean lit = this.litHandler.isLit(this);
+        //System.out.println("current lithandler is " + litHandler + ", the lit result is " + lit);
+        if (!lit) {
+            return false;
+        }
+        boolean b = switch (mode){
+            case GENERATOR -> true;
+            case FACTORY, FURNACE -> this.instanceManager.hasInstances();
         };
+        return b;
+
     }
 
     private void recomputeFillStat() {
@@ -516,46 +516,82 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         remaining.recomputeFillStats();
     }
 
-    public void updateFurnaceMode(FurnaceMode mode) {
-        this.mode = mode;
-        input.updateFurnaceMode(mode, this);
-        output.updateFurnaceMode(mode, this);
-        instanceManager.updateFurnaceMode(mode, this);
-        fuel.updateFurnaceMode(mode, this);
-        allInv.updateFurnaceMode(mode, this);
-        allInvForAutomation.updateFurnaceMode(mode, this);
-        allOutput.updateFurnaceMode(mode, this);
-        inputAndOutput.updateFurnaceMode(mode, this);
-        this.selectLitHandler();
-        this.setWorking(false);
-
+    public Player getOwner(){
+        if (hasLevel() && ownerUuid != null){
+            return getLevel().getPlayerByUUID(ownerUuid);
+        }
+        return null;
     }
 
-    public void transferStacksInUnavailableSlotsToPlayer(Player player) {
+    public void transferStacksInUnavailableSlotsToPlayer(@Nullable Player player) {
+        Set<ItemStack> values = new HashSet<>(output.findStacksInUnavailableSlots(this.getLevel()).values());
+        values.addAll(input.findStacksInUnavailableSlots(this.getLevel()).values());
+        returnOrDropStack(values, player);
+    }
 
-        BlockPos blockPos = this.getBlockPos();
 
+    public void returnOrDropStack(ItemStack stack, @Nullable Player player) {
+        returnOrDropStack(List.of(stack), player);
+    }
 
-        if (player != null) {
-            BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> give = (item, map) -> {
-                for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
-                    ItemHandlerHelper.giveItemToPlayer(player, itemStackEntry.getValue().copy());
-                    itemStackEntry.getValue().setCount(0);
+    public void returnOrDropStack(Collection<ItemStack> stacks, @Nullable Player player) {
+        if ((stacks == null || stacks.isEmpty() || stacks.stream().allMatch(ItemStack::isEmpty)) || this.level == null) {
+            return;
+        }
+        List<MergedStackEntry> mergedEntries = new ArrayList<>();
+
+        for (ItemStack stack : stacks) {
+            if (stack == null || stack.isEmpty()) {
+                continue;
+            }
+
+            boolean merged = false;
+            for (MergedStackEntry entry : mergedEntries) {
+                if (ItemStack.isSameItemSameTags(entry.sample(), stack)) {
+                    entry.grow(stack.getCount());
+                    merged = true;
+                    break;
                 }
-            };
-            give.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
-            give.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
-        } else {
-            BiConsumer<IItemHandlerModifiable, Int2ObjectMap<ItemStack>> drop = (item, map) -> {
-                for (Int2ObjectMap.Entry<ItemStack> itemStackEntry : map.int2ObjectEntrySet()) {
-                    Containers.dropItemStack(this.getLevel(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStackEntry.getValue().copy());
-                    itemStackEntry.getValue().setCount(0);
-                }
-            };
-            drop.accept(input, input.findStacksInUnavailableSlots(this.getLevel()));
-            drop.accept(output, output.findStacksInUnavailableSlots(this.getLevel()));
+            }
+
+            if (!merged) {
+                mergedEntries.add(new MergedStackEntry(stack.copy(), stack.getCount()));
+            }
         }
 
+        for (MergedStackEntry entry : mergedEntries) {
+            int remaining = entry.totalCount();
+
+            while (remaining > 0) {
+                ItemStack split = entry.sample().copy();
+                int giveCount = Math.min(split.getMaxStackSize(), remaining);
+                split.setCount(giveCount);
+
+                if (player != null) {
+                    ItemHandlerHelper.giveItemToPlayer(player, split.copy());
+                } else {
+                    BlockPos pos = this.getBlockPos();
+                    Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), split.copy());
+                }
+
+                remaining -= giveCount;
+            }
+        }
+
+        for (ItemStack stack : stacks) {
+            stack.setCount(0);
+        }
+
+        if (!stacks.isEmpty() && player != null) {
+            player.sendSystemMessage(Component.translatable(
+                    "container.ironfurnaces.item_transfer.transfer_reminder",
+                    FurnacePattern.toDisplayName(this.pattern.id()),
+                    this.getBlockPos().toShortString()
+            ));
+            for (MergedStackEntry entry : mergedEntries){
+                player.sendSystemMessage(entry.sample.getDisplayName().copy().append(" x").append(entry.totalCount + ""));
+            }
+        }
     }
 
     private void syncProcessingInstancesManagerToViewers() {
@@ -874,8 +910,22 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
     }
 
-    private void addLevelRunnable(Runnable runnable){
+    public void addLevelRunnable(Runnable runnable){
         this.levelRunnable.add(runnable);
+    }
+
+    public void updateFurnaceMode(FurnaceMode mode) {
+        this.mode = mode;
+        input.updateFurnaceMode(mode, this);
+        output.updateFurnaceMode(mode, this);
+        instanceManager.updateFurnaceMode(mode, this);
+        fuel.updateFurnaceMode(mode, this);
+        allInv.updateFurnaceMode(mode, this);
+        allInvForAutomation.updateFurnaceMode(mode, this);
+        allOutput.updateFurnaceMode(mode, this);
+        inputAndOutput.updateFurnaceMode(mode, this);
+        this.selectLitHandler();
+
     }
 
     public void updatePattern(FurnacePattern pattern) {
@@ -905,10 +955,21 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             this.usedRevision = revision;
         }
     }
+
     public void updateFurnaceStats(@Nonnull IFurnaceStats<?> stats) {
         updateFurnaceStats(stats,true);
     }
+
     public void updateFurnaceStats(@Nonnull IFurnaceStats<?> stats, boolean needToSync) {
+        if (this.hasLevel() && this.getLevel() instanceof ServerLevel serverLevel){
+            for (UUID viewer : viewers) {
+                Player playerByUUID = serverLevel.getPlayerByUUID(viewer);
+                if (playerByUUID != null && playerByUUID.containerMenu instanceof FurnacePatternMenu patternMenu) {
+                    playerByUUID.closeContainer();
+                }
+            }
+        }
+
         this.input.updateFurnacePatternStats(stats, this);
         this.output.updateFurnacePatternStats(stats, this);
         this.instanceManager.updateFurnacePatternStats(stats, this);
@@ -1031,5 +1092,25 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
     }
 
+    private static class MergedStackEntry {
+        private final ItemStack sample;
+        private int totalCount;
 
+        public MergedStackEntry(ItemStack sample, int totalCount) {
+            this.sample = sample;
+            this.totalCount = totalCount;
+        }
+
+        public ItemStack sample() {
+            return sample;
+        }
+
+        public int totalCount() {
+            return totalCount;
+        }
+
+        public void grow(int amount) {
+            this.totalCount += amount;
+        }
+    }
 }

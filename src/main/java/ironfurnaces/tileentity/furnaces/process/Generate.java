@@ -78,7 +78,7 @@ public abstract class Generate extends ProcessingInstance {
     @Override
     public TickResult whenTick(FurnacePatternBlockEntity tile) {
         FuelCache fuel = tile.getFuel();
-        if (!validateSlot(fuel)) return TickResult.DISCARD;
+        if (!validateSlot(fuel, tile)) return TickResult.DISCARD;
 
         AugmentCache.GreenAugmentModifier.Modifiers currentModifiers = tile.getAugments().getCurrentModifiers();
 
