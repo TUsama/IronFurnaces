@@ -5,6 +5,8 @@ import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
+import ironfurnaces.items.ItemFurnaceCopyV2;
+import ironfurnaces.items.ItemJovial;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
@@ -49,9 +51,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -363,10 +367,21 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        if (player.getItemInHand(handIn).isEmpty() && player.isCrouching()) {
-            IJovialSetter.clearJovial(level, pos);
-            return InteractionResult.SUCCESS;
+        ItemStack itemInHand = player.getItemInHand(handIn);
+        Item item = itemInHand.getItem();
+        if (player.isCrouching()) {
+            if (itemInHand.isEmpty()){
+                IJovialSetter.clearJovial(level, pos);
+                return InteractionResult.SUCCESS;
+            } else if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
+                return InteractionResult.PASS;
+            }
+        } else {
+            if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
+                return InteractionResult.PASS;
+            }
         }
+
 
 
         BlockEntity blockEntity = level.getBlockEntity(pos);

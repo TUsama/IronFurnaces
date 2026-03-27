@@ -12,6 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -47,8 +49,7 @@ public class FurnacePatternHolderItem extends BlockItem {
     }
 
     private boolean resetSettings(ItemStack stack, Player player, int selected) {
-        ItemStack copy = stack.copy();
-        CompoundTag beTag = copy.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
 
         var b = FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, FurnaceSettingsV2.DEFAULT)
                 .result()
@@ -57,8 +58,7 @@ public class FurnacePatternHolderItem extends BlockItem {
                     return true;
                 })
                 .orElse(false);
-        player.getInventory().removeFromSelected(true);
-        ItemHandlerHelper.giveItemToPlayer(player, copy, selected);
+
         return b;
     }
 
@@ -76,10 +76,14 @@ public class FurnacePatternHolderItem extends BlockItem {
                 player.sendSystemMessage(Component.translatable(
                         "item.ironfurnaces.pattern_holder_item.reset_setting_success"
                 ));
+                level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),
+                        SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 0.2F, 2.0F);
             } else {
                 player.sendSystemMessage(Component.translatable(
                         "item.ironfurnaces.pattern_holder_item.reset_setting_failed"
                 ));
+                level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),
+                        SoundEvents.VILLAGER_NO, SoundSource.NEUTRAL, 0.2F, ((level.random.nextFloat() - level.random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
         }
 

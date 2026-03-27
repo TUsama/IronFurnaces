@@ -12,7 +12,8 @@ public class RainbowConfig extends Config {
 
     public static RainbowConfig config = ConfigApiJava.registerAndLoadConfig(RainbowConfig::new, RegisterType.BOTH);
     public ValidatedInt max_rainbow_furnace_per_player = new ValidatedInt(1);
-    public int refreshInterval = 20;
+    public boolean enable_per_kind_bonus = true;
+    public boolean enable_all_kind_bonus = true;
 
     public RainbowConfig() {
         super(IronFurnaces.id("rainbow_config"));

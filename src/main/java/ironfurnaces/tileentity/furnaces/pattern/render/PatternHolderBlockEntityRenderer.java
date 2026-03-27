@@ -44,7 +44,6 @@ public class PatternHolderBlockEntityRenderer implements BlockEntityRenderer<Fur
         boolean lit = state.getValue(BlockStateProperties.LIT);
         Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         JovialState jovial = state.getValue(ModBlockState.JOVIAL_STATE);
-
         poseStack.pushPose();
 
         //int light = LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().above());

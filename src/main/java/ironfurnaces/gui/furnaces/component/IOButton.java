@@ -51,8 +51,6 @@ public class IOButton extends MutiStateImageButton<FurnaceSettingsV2.IOMode> {
                 this.rightClick.onPress(this);
                 return true;
             }
-
-
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }

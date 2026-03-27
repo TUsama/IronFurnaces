@@ -11,7 +11,7 @@ public interface IJovialSetter {
     default boolean setJovial(Level level, BlockPos pos){
         var state = level.getBlockState(pos);
         if (state.getBlock() instanceof FurnacePatternHolderBlock){
-            state.setValue(ModBlockState.JOVIAL_STATE, getJovialState());
+            level.setBlock(pos, state.setValue(ModBlockState.JOVIAL_STATE, getJovialState()), 2);
             return true;
         }
         return false;
@@ -20,7 +20,7 @@ public interface IJovialSetter {
     static void clearJovial(Level level, BlockPos pos){
         var state = level.getBlockState(pos);
         if (state.getBlock() instanceof FurnacePatternHolderBlock){
-            state.setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE);
+            level.setBlock(pos, state.setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE), 2);
         }
     }
 }

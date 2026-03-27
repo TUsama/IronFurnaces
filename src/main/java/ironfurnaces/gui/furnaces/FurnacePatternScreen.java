@@ -181,9 +181,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         };
 
         WidgetGroup widgetGroup = new WidgetGroup(subtractionValueIncButton, subtractionValueDecButton);
-        this.redstoneModeButton = new RedstoneModeButton(buttonStartX, i, squareLength, squareLength, uStart.applyAsInt(2), 0, WIDGET, button -> {
-            NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().next()), menu.bePos));
-        }, menu::getSettingsV2, widgetGroup){
+        this.redstoneModeButton = new RedstoneModeButton(buttonStartX, i, squareLength, squareLength, uStart.applyAsInt(2), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().next()), menu.bePos)), button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().previous()), menu.bePos)), widgetGroup, menu::getSettingsV2){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", Component.translatable(menu.getSettingsV2().redStoneMode().translationKey)));
@@ -335,8 +333,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         // 初始全部隐藏 panel
         this.settingsPanelGroup.deactivateAll();
-        /*this.remainingCachePanelGroup.deactivateAll();
-        this.augmentCachePanelGroup.deactivateAll();*/
+
 
         this.energyArea = new AbstractWidget(0, 0, 14, 42, Component.empty()) {
             @Override

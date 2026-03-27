@@ -31,13 +31,8 @@ public record RainbowFurnaceConfig(
         return bonuses.getOrDefault(patternId, RainbowBonus.ZERO);
     }
 
-    public boolean isAllKindsActivated(int kinds){
-        int i = 0;
-        for (FurnacePattern pattern : FurnacePatternManager.allPossiblePattern()) {
-            if (pattern.isRainbow()) continue;
-            i++;
-        }
-        return i == kinds;
+    public boolean isAllKindsActivated(Set<ResourceLocation> kinds){
+        return bonuses.keySet().containsAll(kinds);
     }
 
     public boolean isEmpty() {

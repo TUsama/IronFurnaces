@@ -5,6 +5,7 @@ import com.clefal.nirvana_lib.relocated.io.vavr.Tuple2;
 import ironfurnaces.capability.IPlayerFurnacesList;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.config.GameplayConfig;
+import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.*;
 import lombok.Getter;
@@ -79,19 +80,23 @@ public class OwnerRainbowContext {
 
             RainbowBonus totalBonus = RainbowBonus.ZERO;
             LinkedHashSet<ResourceLocation> currentContributors = new LinkedHashSet<>();
-
-            for (ResourceLocation activeKind : activeNormalKinds) {
-                RainbowBonus bonus = rainbowPattern.config().bonusFor(activeKind);
-                if (isZeroBonus(bonus)) {
-                    continue;
+            if (RainbowConfig.config.enable_per_kind_bonus){
+                for (ResourceLocation activeKind : activeNormalKinds) {
+                    RainbowBonus bonus = rainbowPattern.config().bonusFor(activeKind);
+                    if (isZeroBonus(bonus)) {
+                        continue;
+                    }
+                    totalBonus = totalBonus.add(bonus);
+                    currentContributors.add(activeKind);
                 }
-                totalBonus = totalBonus.add(bonus);
-                currentContributors.add(activeKind);
             }
 
-            if (rainbowPattern.config().isAllKindsActivated(activeNormalKinds.size())) {
-                totalBonus = totalBonus.add(rainbowPattern.config().allKindsBonus());
+            if (RainbowConfig.config.enable_all_kind_bonus){
+                if (rainbowPattern.config().isAllKindsActivated(activeNormalKinds)) {
+                    totalBonus = totalBonus.add(rainbowPattern.config().allKindsBonus());
+                }
             }
+
 
             EffectiveFurnaceStats resolved = toBaseStats(rainbowPattern).apply(totalBonus);
             newResolvedStats.put(rainbowPattern.id(), resolved);

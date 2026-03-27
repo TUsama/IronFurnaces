@@ -3,7 +3,9 @@ package ironfurnaces.loaders;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import com.tterrag.registrate.Registrate;
 import lombok.experimental.UtilityClass;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +17,7 @@ public class IronFurnaces {
     public static final String RELEASE_TYPE = "-beta";
     public static final String VERSION = "416";
     public static final String MOD_ID = "ironfurnaces";
-    public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
+    public static final Registrate REGISTRATE = Registrate.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public ResourceLocation id(String path){
         return ResourceLocationUtils.make(MOD_ID, path);

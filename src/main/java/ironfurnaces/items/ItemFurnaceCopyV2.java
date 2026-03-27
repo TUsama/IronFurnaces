@@ -72,37 +72,43 @@ public class ItemFurnaceCopyV2 extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
+        if (ctx.getLevel().isClientSide) return InteractionResult.PASS;
 
         Level world = ctx.getLevel();
         BlockPos pos = ctx.getClickedPos();
+        BlockState blockState = world.getBlockState(pos);
         Player player = ctx.getPlayer();
         ItemStack copyItem = ctx.getItemInHand();
-        if (!world.isClientSide && world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2 && !player.isCrouching()) {
-            CompoundTag tag = copyItem.getTag();
-            BlockState blockState = v2.getBlockState();
-            if (tag != null && tag.contains(WHOLE_KEY)) {
-
-                StreamSetting.CODEC.parse(NbtOps.INSTANCE, tag.get(WHOLE_KEY))
-                        .resultOrPartial((string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_parse"))))
-                        .ifPresentOrElse(x -> {
-                            v2.setWholeSettingV2(x.settingsV2());
-                            if (blockState.getValue(BlockStateProperties.HORIZONTAL_FACING).equals(x.direction)) {
-                                blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, x.direction);
-                            }
-                            player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
-                        }, () -> {
-                            copyItem.getTag().remove(WHOLE_KEY);
-                        });
-
-            } else {
+        if (world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2) {
+            if (player.isCrouching()) {
                 StreamSetting.CODEC.encodeStart(NbtOps.INSTANCE, new StreamSetting(v2.getSettingsV2(), blockState.getValue(BlockStateProperties.HORIZONTAL_FACING)))
                         .resultOrPartial(string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_write")))
                         .ifPresent(x -> {
                             copyItem.getOrCreateTag().put(WHOLE_KEY, x);
+                            player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_copied"));
+
                         });
+            } else {
+                CompoundTag tag = copyItem.getTag();
+                if (tag != null && tag.contains(WHOLE_KEY)) {
+
+                    StreamSetting.CODEC.parse(NbtOps.INSTANCE, tag.get(WHOLE_KEY))
+                            .resultOrPartial((string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_parse"))))
+                            .ifPresentOrElse(x -> {
+                                v2.setWholeSettingV2(x.settingsV2());
+                                if (blockState.getValue(BlockStateProperties.HORIZONTAL_FACING).equals(x.direction)) {
+                                    blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, x.direction);
+                                }
+                                player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
+                            }, () -> {
+                                copyItem.getTag().remove(WHOLE_KEY);
+                            });
+
+                    world.setBlock(pos, blockState, 3);
+                    player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
+                }
             }
-            world.markAndNotifyBlock(pos, world.getChunkAt(pos), world.getBlockState(pos).getBlock().defaultBlockState(), world.getBlockState(pos), 3, 3);
-            player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
+            return InteractionResult.CONSUME;
         }
 
         return super.useOn(ctx);

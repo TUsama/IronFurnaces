@@ -413,7 +413,7 @@ public class LegacyFurnaceBlocks {
                     .register();
 
     public static final BlockEntry<BlockCrystalFurnace> CRYSTAL_FURNACE =
-            furnaceWithProps(
+            crystalFurnace(
                     BlockCrystalFurnace.ID,
                     BlockCrystalFurnace::new,
                     () -> Blocks.PRISMARINE,
@@ -530,6 +530,101 @@ public class LegacyFurnaceBlocks {
                                                         IronFurnaces.id("block/" + prefix + "_side"),
                                                         IronFurnaces.id("block/" + prefix + "_front" + litPart + typePart),
                                                         IronFurnaces.id("block/" + prefix + "_side"))
+                                        );
+                                    }
+
+                                    return builder.build();
+                                })
+
+                )
+                .addMiscData(ProviderType.LANG, x -> {
+                    x.add("container.ironfurnaces." + name, LangUtils.snakeToTitleWithSpace(name).replace("Million", "Rainbow"));
+                })
+                .lang(Block::getDescriptionId, LangUtils.snakeToTitleWithSpace(name).replace("Million", "Rainbow"))
+                .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_FURNACE)
+                .loot((ctx, furnace) -> {
+                    LootTable.Builder builder = LootTable.lootTable()
+                            .withPool(
+                                    LootPool.lootPool()
+                                            .setRolls(ConstantValue.exactly(1.0f))
+                                            .add(LootItem.lootTableItem(furnace)
+                                                    .apply(
+                                                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                                    .copy("Augment", "BlockEntityTag.Augment")
+                                                                    .copy("Jovial", "BlockEntityTag.Jovial")
+                                                                    .copy("Tag", "BlockEntityTag.Tag")
+                                                    )
+                                                    .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+                                            )
+
+                            );
+                    ctx.add(furnace, builder);
+                });
+    }
+
+    private static <T extends Block> BlockBuilder<T, Registrate> crystalFurnace(
+            String name,
+            NonNullFunction<BlockBehaviour.Properties, T> factory,
+            NonNullSupplier<Block> baseBlock,
+            Consumer<BlockBehaviour.Properties> extraProps
+    ) {
+        return REGISTRATE
+                .block(name, factory)
+                .initialProperties(baseBlock)
+                .properties(p -> {
+                    extraProps.accept(p);
+                    return p;
+                })
+                .blockstate((ctx, prov) ->
+                        prov.getVariantBuilder(ctx.get())
+                                .forAllStates(state -> {
+
+                                    Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+                                    int jovial = state.getValue(JOVIAL);
+                                    boolean lit = state.getValue(BlockStateProperties.LIT);
+                                    int type = state.getValue(TYPE);
+
+                                    String prefix = switch (jovial) {
+                                        case 1 -> "spooky_furnace";
+                                        case 2 -> "xmas_furnace";
+                                        default -> ctx.getName();
+                                    };
+
+                                    String litPart = lit ? "_on" : "";
+
+                                    String typePart = switch (type) {
+                                        case 1 -> "_smoke";
+                                        case 2 -> "_blast";
+                                        default -> "";
+                                    };
+
+                                    String modelName = "block/" + prefix + litPart + typePart;
+
+                                    int yRot = switch (facing) {
+                                        case SOUTH -> 180;
+                                        case WEST -> 270;
+                                        case EAST -> 90;
+                                        default -> 0;
+                                    };
+                                    ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
+                                            .rotationY(yRot);
+                                    if (type == 1) {
+                                        builder.modelFile(prov.models()
+                                                .orientableWithBottom(modelName,
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_front" + litPart + typePart),
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_top_smoke"))
+                                                .renderType("cutout")
+                                        );
+
+                                    } else {
+                                        builder.modelFile(prov.models()
+                                                .orientable(modelName,
+                                                        IronFurnaces.id("block/" + prefix + "_side"),
+                                                        IronFurnaces.id("block/" + prefix + "_front" + litPart + typePart),
+                                                        IronFurnaces.id("block/" + prefix + "_side"))
+                                                .renderType("cutout")
                                         );
                                     }
 
