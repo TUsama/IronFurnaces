@@ -19,7 +19,7 @@ import java.util.function.IntSupplier;
 @Accessors(fluent = true, chain = true)
 public class MovableGridPartition extends GridPartition{
     @Getter
-    private final List<Slot> trackedSlot;
+    protected final List<Slot> trackedSlot;
     @Setter
     private IntSupplier yMovementProvider;
     @Setter
@@ -53,15 +53,7 @@ public class MovableGridPartition extends GridPartition{
 
     @Override
     public Slot makeSlot(int localIndex) {
-        int x = this.startPoint.x() + (localIndex % this.columns) * 18;
-        int y = this.startPoint.y() + (localIndex / this.columns) * 18;
-        int containerIndex = this.containerStartIndex + localIndex;
-        Slot slot;
-        if (creator != null){
-            slot = creator.create(this.handler, containerIndex, x, y, this);
-        } else {
-            slot = new PartitionAccessSlot(this.handler, containerIndex, x, y, this);
-        }
+        Slot slot = super.makeSlot(localIndex);
         this.trackedSlot.add(slot);
         return slot;
     }
