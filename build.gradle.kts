@@ -22,7 +22,9 @@ fun propLib(consumer: (prop: String) -> Unit){
 
 var loader: String = name.split("-")[1]
 
-
+base {
+    archivesName.set("Iron Furnace Reburn-$loader-$minecraft")
+}
 modstitch {
     minecraftVersion = minecraft
     javaVersion = when (minecraft){
