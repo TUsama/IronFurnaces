@@ -71,7 +71,7 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         NONE("none", x -> ((IItemHandlerModifiable) EmptyHandler.INSTANCE), "ironfurnaces.furnace_setting.io_mode.none"),
         INPUT("input", FurnacePatternBlockEntity::getInput, "ironfurnaces.furnace_setting.io_mode.input"),
         OUTPUT("output", FurnacePatternBlockEntity::getAllOutput, "ironfurnaces.furnace_setting.io_mode.output"),
-        INPUT_AND_OUTPUT("input_and_output", FurnacePatternBlockEntity::getAllOutput, "ironfurnaces.furnace_setting.io_mode.input_and_output"),
+        INPUT_AND_OUTPUT("input_and_output", FurnacePatternBlockEntity::getInputAndOutput, "ironfurnaces.furnace_setting.io_mode.input_and_output"),
         FUEL("fuel", FurnacePatternBlockEntity::getFuel, "ironfurnaces.furnace_setting.io_mode.fuel"),
         ALL("all", FurnacePatternBlockEntity::getAllInvForAutomation, "ironfurnaces.furnace_setting.io_mode.all");
         public static final EnumCodec<IOMode> CODEC = StringRepresentable.fromEnum(IOMode::values);

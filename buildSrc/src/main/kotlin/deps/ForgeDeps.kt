@@ -18,6 +18,10 @@ object ForgeDeps {
             modstitchLegacyModImplementation ("com.tterrag.registrate:Registrate:MC1.20-1.3.11")
             modstitchJiJ ("com.tterrag.registrate:Registrate:MC1.20-1.3.11")
 
+            modstitchLegacyModRuntimeOnly("curse.maven:integrated-dynamics-236307:7786218")
+            modstitchLegacyModRuntimeOnly("curse.maven:common-capabilities-247007:7229322")
+            modstitchLegacyModRuntimeOnly("curse.maven:cyclops-core-232758:7637992")
+
         }
     }
 }

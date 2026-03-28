@@ -53,7 +53,6 @@ public class PagedGridPartition extends GridPartition {
         int x = this.startPoint.x() + col * 18;
         int y = this.startPoint.y() + row * 18;
         int containerIndex = this.containerStartIndex + localIndex;
-        System.out.println("create slot " + localIndex + " at " + x + ", " + y + ", page " + page + ", indexInPage " + indexInPage);
         Slot slot;
         if (creator != null) {
             slot = creator.create(this.handler, containerIndex, x, y, this);

@@ -99,10 +99,11 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u0, v0, light, overlay, 0, 0, -1);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u1, v0, light, overlay, 0, 0, -1);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u1, v1, light, overlay, 0, 0, -1);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u0, v1, light, overlay, 0, 0, -1);
+        // 保持顶点顺序不变，仅水平翻转 U
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u1, v0, light, overlay, 0, 0, -1);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u0, v0, light, overlay, 0, 0, -1);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u0, v1, light, overlay, 0, 0, -1);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u1, v1, light, overlay, 0, 0, -1);
     }
 
     private static void renderSouthFace(
@@ -113,10 +114,11 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u0, v1, light, overlay, 0, 0, 1);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u0, v0, light, overlay, 0, 0, 1);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u1, v0, light, overlay, 0, 0, 1);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u1, v1, light, overlay, 0, 0, 1);
+        // 保持顶点顺序不变，仅水平翻转 U
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u1, v1, light, overlay, 0, 0, 1);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u1, v0, light, overlay, 0, 0, 1);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u0, v0, light, overlay, 0, 0, 1);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u0, v1, light, overlay, 0, 0, 1);
     }
 
     private static void renderWestFace(
@@ -127,10 +129,11 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u0, v0, light, overlay, -1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u1, v0, light, overlay, -1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u1, v1, light, overlay, -1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u0, v1, light, overlay, -1, 0, 0);
+        // 保持顶点顺序不变，仅水平翻转 U
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u1, v0, light, overlay, -1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u0, v0, light, overlay, -1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u0, v1, light, overlay, -1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u1, v1, light, overlay, -1, 0, 0);
     }
 
     private static void renderEastFace(
@@ -141,10 +144,11 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u0, v0, light, overlay, 1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u1, v0, light, overlay, 1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u1, v1, light, overlay, 1, 0, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u0, v1, light, overlay, 1, 0, 0);
+        // 保持顶点顺序不变，仅水平翻转 U
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u1, v0, light, overlay, 1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u0, v0, light, overlay, 1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u0, v1, light, overlay, 1, 0, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u1, v1, light, overlay, 1, 0, 0);
     }
 
     private static void renderUpFace(
@@ -155,10 +159,11 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u0, v0, light, overlay, 0, 1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u1, v0, light, overlay, 0, 1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u1, v1, light, overlay, 0, 1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u0, v1, light, overlay, 0, 1, 0);
+        // 顶面通常还需要调一下方向，这里按更常见的“上看时不镜像”去处理
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 1, u0, v1, light, overlay, 0, 1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 1, u1, v1, light, overlay, 0, 1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 1, 0, u1, v0, light, overlay, 0, 1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 1, 0, u0, v0, light, overlay, 0, 1, 0);
     }
 
     private static void renderDownFace(
@@ -169,9 +174,10 @@ public final class CubeRenderUtil {
         float v0 = s.getV0();
         float v1 = s.getV1();
 
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u0, v0, light, overlay, 0, -1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u1, v0, light, overlay, 0, -1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u1, v1, light, overlay, 0, -1, 0);
-        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u0, v1, light, overlay, 0, -1, 0);
+        // 底面按与顶面相协调的方向处理
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 0, u0, v1, light, overlay, 0, -1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 0, u1, v1, light, overlay, 0, -1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 1, 0, 1, u1, v0, light, overlay, 0, -1, 0);
+        putVertex(vc, pose.pose(), pose.normal(), 0, 0, 1, u0, v0, light, overlay, 0, -1, 0);
     }
 }
