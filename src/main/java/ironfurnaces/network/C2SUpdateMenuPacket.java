@@ -22,6 +22,14 @@ public class C2SUpdateMenuPacket implements C2SModPacket<C2SUpdateMenuPacket> {
                 case 0 -> furnacePatternMenu.openSetting = !furnacePatternMenu.openSetting;
                 case 1 -> furnacePatternMenu.openAugment = !furnacePatternMenu.openAugment;
                 case 2 -> furnacePatternMenu.openRemaining = !furnacePatternMenu.openRemaining;
+                case 3 -> {
+                    furnacePatternMenu.factoryInput.nextPage();
+                    furnacePatternMenu.factoryOutput.nextPage();
+                }
+                case 4 -> {
+                    furnacePatternMenu.factoryInput.previousPage();
+                    furnacePatternMenu.factoryOutput.previousPage();
+                }
             }
         }
     }

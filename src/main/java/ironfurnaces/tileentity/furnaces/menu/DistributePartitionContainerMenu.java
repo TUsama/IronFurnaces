@@ -30,7 +30,7 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
         super(menuType, containerId);
     }
 
-    protected Partition addPartition(Partition partition) {
+    protected <T extends Partition> T addPartition(T partition) {
         int start = this.sizeCount;
 
         partition.menuStartIndex(start);

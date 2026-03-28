@@ -1,10 +1,7 @@
 package ironfurnaces.tileentity.furnaces.menu.slot;
 
 import ironfurnaces.tileentity.furnaces.menu.Partition;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.With;
 import lombok.experimental.Accessors;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +12,6 @@ import java.util.function.BooleanSupplier;
 
 
 @Accessors(chain = true)
-@Setter
 @Getter
 public class DynamicAccessSlot extends PartitionAccessSlot{
     private BooleanSupplier mayPlaceCallback = () -> true;
@@ -26,6 +22,23 @@ public class DynamicAccessSlot extends PartitionAccessSlot{
         super(itemHandler, index, xPosition, yPosition, partition);
     }
 
+    public DynamicAccessSlot appendMayPlaceCallback(BooleanSupplier mayPlaceCallback) {
+        BooleanSupplier old = this.mayPlaceCallback;
+        this.mayPlaceCallback = () -> old.getAsBoolean() && mayPlaceCallback.getAsBoolean();
+        return this;
+    }
+
+    public DynamicAccessSlot appendMayPickupCallback(BooleanSupplier mayPickupCallback) {
+        BooleanSupplier old = this.mayPickupCallback;
+        this.mayPickupCallback = () -> old.getAsBoolean() && mayPickupCallback.getAsBoolean();
+        return this;
+    }
+
+    public DynamicAccessSlot appendIsActiveCallback(BooleanSupplier isActiveCallback) {
+        BooleanSupplier old = this.isActiveCallback;
+        this.isActiveCallback = () -> old.getAsBoolean() && isActiveCallback.getAsBoolean();
+        return this;
+    }
 
     @Override
     public boolean mayPlace(@NotNull ItemStack stack) {

@@ -21,6 +21,7 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -56,6 +57,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
     protected ImageButton settingsTabButton;
     protected ImageButton remainingCacheTabButton;
     protected ImageButton augmentCacheTabButton;
+    private PageButton forwardButton;
+    private PageButton backButton;
 
     protected WidgetGroup settingsPanelGroup;
     protected WidgetGroup remainingCachePanelGroup;
@@ -70,7 +73,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
     protected WidgetGroup factoryGroup;
     protected WidgetGroup generatorGroup;
-
+    private WidgetGroup pageGroup;
     // 左侧标签栏的基准位置：紧贴原版熔炉背景左边
     private static final int SIDE_TAB_OFFSET_X = -MenuConstant.SIDE_BUTTON_WIDTH;
 
@@ -264,7 +267,16 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         ));
         
         this.settingsTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.setting")));
-
+        int y = 106;
+        int i1 = i + 20;
+        this.forwardButton = new PageButton(i1 + 98, y, true, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(3)), true);
+        this.backButton = new PageButton(i1 + 43, y, false, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(4)), true);
+        this.pageGroup = new WidgetGroup(forwardButton, backButton);
+        if (this.menu.factoryInput.getPageCount() > 1) {
+            this.pageGroup.activeAll();
+        } else {
+            this.pageGroup.deactivateAll();
+        }
         this.addRenderableWidget(autoInputButton);
         this.addRenderableWidget(autoOutputButton);
         this.addRenderableWidget(redstoneModeButton);
@@ -277,6 +289,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         this.addRenderableWidget(westIoButton);
         this.addRenderableWidget(eastIoButton);
         this.addRenderableWidget(northIoButton);
+        this.addRenderableWidget(forwardButton);
+        this.addRenderableWidget(backButton);
 
 
         // =========================
@@ -395,37 +409,26 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         int j = this.topPos;
         guiGraphics.blit(texture, i, j, 0, 0, this.imageWidth, this.imageHeight);
 
-        //guiGraphics.blit(texture, i + 80, j + 36, 176 + 14, 0, 14, 14);
-        int size = this.menu.factoryInput.size;
-        for (int index = 0; index < size; index++) {
+        int columns = 3;
+        int visibleRows = 3;
+        int pageSize = columns * visibleRows;
 
-            int col = index % 3;
-            int row = index / 3;
+        int currentPage = this.menu.factoryInput.getCurrentPage();
+        int startIndex = currentPage * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, this.menu.factoryInput.size);
 
-            guiGraphics.blit(
-                    texture,
-                    i + 35 + col * 18,
-                    j + 16 + row * 18,
-                    176,
-                    55,
-                    18,
-                    18
-            );
+        for (int index = startIndex; index < endIndex; index++) {
+            int indexInPage = index % pageSize;
+            int col = indexInPage % columns;
+            int row = indexInPage / columns;
 
-            guiGraphics.blit(
-                    texture,
-                    i + 105 + col * 18,
-                    j + 16 + row * 18,
-                    176,
-                    55,
-                    18,
-                    18
-            );
+            guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
+            guiGraphics.blit(texture, i + 105 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
         }
 
         if (this.menu.isLit()) {
             int k = this.menu.getLitProgress();
-            guiGraphics.blit(texture, i + 57 + 32, j + 36 - k + 15, 176, 12 - k, 14, k + 1);
+            guiGraphics.blit(texture, i + 89, j + 36 - k + 15, 176, 12 - k, 14, k + 1);
         }
 
         int barHeight = 42;
@@ -439,15 +442,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         energyArea.setPosition(barX, barY);
 
         if (l > 0) {
-            guiGraphics.blit(
-                    texture,
-                    barX,
-                    barY + (barHeight - l),   // 目标 y 下移，保证从底部开始长
-                    176,
-                    14 + (barHeight - l),     // 纹理 v 也同步下移
-                    14,
-                    l
-            );
+            guiGraphics.blit(texture, barX, barY + (barHeight - l), 176, 14 + (barHeight - l), 14, l);
         }
     }
 

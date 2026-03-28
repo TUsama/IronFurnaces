@@ -1,7 +1,6 @@
 package ironfurnaces.tileentity.furnaces.menu;
 
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
-import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -42,9 +41,9 @@ public class MovableGridPartition extends GridPartition{
             Slot old = this.menuSlots.set(integer, newSlot);
             newSlot.index = old.index;
             if (newSlot instanceof DynamicAccessSlot newSlot1 && old instanceof DynamicAccessSlot old1){
-                newSlot1.setMayPlaceCallback(old1.getMayPlaceCallback())
-                        .setIsActiveCallback(old1.getIsActiveCallback())
-                        .setMayPickupCallback(old1.getMayPickupCallback());
+                newSlot1.appendMayPlaceCallback(old1.getMayPlaceCallback())
+                        .appendIsActiveCallback(old1.getIsActiveCallback())
+                        .appendMayPickupCallback(old1.getMayPickupCallback());
             }
         });
 

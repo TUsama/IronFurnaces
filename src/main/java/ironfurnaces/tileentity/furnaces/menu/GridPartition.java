@@ -16,7 +16,6 @@ public class GridPartition extends Partition {
     protected final IItemHandler handler;
     protected final int containerStartIndex;
     protected final int columns;
-    @Setter
     protected SlotCreator creator;
 
     public GridPartition(
@@ -44,13 +43,18 @@ public class GridPartition extends Partition {
         return new PartitionAccessSlot(this.handler, containerIndex, x, y, this);
     }
 
-    public GridPartition withDynamicAccessSlot(Consumer<DynamicAccessSlot> slotConsumer){
+    public <T extends Partition> T withDynamicAccessSlot(Consumer<DynamicAccessSlot> slotConsumer){
         setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
             DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition);
             slotConsumer.accept(dynamicAccessSlot);
             return dynamicAccessSlot;
         });
-        return this;
+        return (T) this;
+    }
+
+    public <T extends Partition> T setCreator(SlotCreator creator) {
+        this.creator = creator;
+        return (T) this;
     }
 
     public interface SlotCreator {
