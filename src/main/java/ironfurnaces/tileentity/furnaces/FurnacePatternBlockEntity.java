@@ -18,9 +18,7 @@ import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import lombok.Getter;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -70,7 +68,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Getter
@@ -244,8 +241,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                         v -> this.usedStats = this.usedStats.withEnergyGenerationPerTick(v)
                 )
                 .intValue(
-                        () -> this.getUsedStats().smeltTickPerItem(),
-                        v -> this.usedStats = this.usedStats.withSmeltTickPerItem(v)
+                        () -> this.getUsedStats().smeltTick(),
+                        v -> this.usedStats = this.usedStats.withSmeltTick(v)
                 )
         ;
         this.dataAccess = builder.build();
@@ -672,7 +669,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 getRecipe(stackInSlot)
                         .ifPresent(x -> {
                             if (x instanceof AbstractCookingRecipe) {
-                                this.instanceManager.addInstance(Burn.create(usedStats.smeltTickPerItem(), finalI, x));
+                                this.instanceManager.addInstance(Burn.create(usedStats.smeltTick(), finalI, x, usedStats.batchHandle()));
                             }
 
                         });

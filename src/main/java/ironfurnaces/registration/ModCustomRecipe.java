@@ -14,7 +14,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraftforge.common.crafting.ConditionalRecipe;
+import net.minecraftforge.common.crafting.conditions.NotCondition;
+import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.bindC;
@@ -29,36 +34,43 @@ public class ModCustomRecipe {
                 x.add(IronFurnaces.MOD_ID + ".jei_" + "category_blasting", "Blasting Generation");
             })
             .recipe((ctx, provider) -> {
-                provider.accept(new Result("amethyst", 40000, bindC("gems/amethyst")));
-                provider.accept(new Result("copper", 10000, bindC("ingots/copper")));
-                provider.accept(new Result("diamond", 500000, bindC("gems/diamond")));
-                provider.accept(new Result("emerald", 125000, bindC("gems/emerald")));
-                provider.accept(new Result("gold", 40000, bindC("ingots/gold")));
-                provider.accept(new Result("iron", 20000, bindC("ingots/iron")));
-                provider.accept(new Result("lapis", 40000, bindC("gems/lapis")));
-                provider.accept(new Result("prismarine", 40000, bindC("gems/prismarine")));
-                provider.accept(new Result("nether_star", 1000000, bindForge("nether_stars")));
-                provider.accept(new Result("netherite", 750000, bindC("ingots/netherite")));
-                provider.accept(new Result("quartz", 40000, bindC("gems/quartz")));
-                provider.accept(new Result("redstone", 10000, bindC("dusts/redstone")));
-                //forge tag
-                provider.accept(new Result("amethyst_forge", 40000, bindForge("gems/amethyst")));
-                provider.accept(new Result("copper_forge", 10000, bindForge("ingots/copper")));
-                provider.accept(new Result("diamond_forge", 500000, bindForge("gems/diamond")));
-                provider.accept(new Result("emerald_forge", 125000, bindForge("gems/emerald")));
-                provider.accept(new Result("gold_forge", 40000, bindForge("ingots/gold")));
-                provider.accept(new Result("iron_forge", 20000, bindForge("ingots/iron")));
-                provider.accept(new Result("lapis_forge", 40000, bindForge("gems/lapis")));
-                provider.accept(new Result("prismarine_forge", 40000, bindForge("gems/prismarine")));
-                provider.accept(new Result("netherite_forge", 750000, bindForge("ingots/netherite")));
-                provider.accept(new Result("quartz_forge", 40000, bindForge("gems/quartz")));
-                provider.accept(new Result("redstone_forge", 10000, bindForge("dusts/redstone")));
+
+                acceptWhenTagNotEmpty(provider, "amethyst", 40000, bindC("gems/amethyst"));
+                acceptWhenTagNotEmpty(provider, "copper", 10000, bindC("ingots/copper"));
+                acceptWhenTagNotEmpty(provider, "diamond", 500000, bindC("gems/diamond"));
+                acceptWhenTagNotEmpty(provider, "emerald", 125000, bindC("gems/emerald"));
+                acceptWhenTagNotEmpty(provider, "gold", 40000, bindC("ingots/gold"));
+                acceptWhenTagNotEmpty(provider, "iron", 20000, bindC("ingots/iron"));
+                acceptWhenTagNotEmpty(provider, "lapis", 40000, bindC("gems/lapis"));
+                acceptWhenTagNotEmpty(provider, "prismarine", 40000, bindC("gems/prismarine"));
+                acceptWhenTagNotEmpty(provider, "nether_star", 1000000, bindForge("nether_stars"));
+                acceptWhenTagNotEmpty(provider, "netherite", 750000, bindC("ingots/netherite"));
+                acceptWhenTagNotEmpty(provider, "quartz", 40000, bindC("gems/quartz"));
+                acceptWhenTagNotEmpty(provider, "redstone", 10000, bindC("dusts/redstone"));
+
+                acceptWhenTagNotEmpty(provider, "amethyst_forge", 40000, bindForge("gems/amethyst"));
+                acceptWhenTagNotEmpty(provider, "copper_forge", 10000, bindForge("ingots/copper"));
+                acceptWhenTagNotEmpty(provider, "diamond_forge", 500000, bindForge("gems/diamond"));
+                acceptWhenTagNotEmpty(provider, "emerald_forge", 125000, bindForge("gems/emerald"));
+                acceptWhenTagNotEmpty(provider, "gold_forge", 40000, bindForge("ingots/gold"));
+                acceptWhenTagNotEmpty(provider, "iron_forge", 20000, bindForge("ingots/iron"));
+                acceptWhenTagNotEmpty(provider, "lapis_forge", 40000, bindForge("gems/lapis"));
+                acceptWhenTagNotEmpty(provider, "prismarine_forge", 40000, bindForge("gems/prismarine"));
+                acceptWhenTagNotEmpty(provider, "netherite_forge", 750000, bindForge("ingots/netherite"));
+                acceptWhenTagNotEmpty(provider, "quartz_forge", 40000, bindForge("gems/quartz"));
+                acceptWhenTagNotEmpty(provider, "redstone_forge", 10000, bindForge("dusts/redstone"));
             })
             .register();
 
     public static void register(){
     }
 
+    private static void acceptWhenTagNotEmpty(Consumer<FinishedRecipe> provider, String id, int value, TagKey<Item> tag) {
+        ConditionalRecipe.builder()
+                .addCondition(new NotCondition(new TagEmptyCondition(tag.location())))
+                .addRecipe(new Result(id, value, tag))
+                .build(provider, IronFurnaces.id(GENERATOR_ID + "/" + id));
+    }
     private static class Result implements FinishedRecipe {
         private final String id;
         private final int energy;

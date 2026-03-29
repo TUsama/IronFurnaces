@@ -35,6 +35,26 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
         );
     }
 
+    private static FurnacePatternDefinition definition(
+            int smeltTickPerItem,
+            int batch,
+            int energyCapacity,
+            int energyGenerationPerTick,
+            int inputSlot,
+            ResourceLocation referenceBlock
+    ) {
+        final int CONSUME = 20;
+        return FurnacePatternDefinition.normal(
+                smeltTickPerItem,
+                batch,
+                energyCapacity,
+                energyGenerationPerTick,
+                CONSUME,
+                inputSlot,
+                Optional.of(referenceBlock)
+        );
+    }
+
     public static final Map<ResourceLocation, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
             Stream.of(
                     Map.entry(IronFurnaces.id("copper_furnace"),
@@ -62,7 +82,18 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                             definition(20, 1_000_000, 500, 8, ResourceLocationUtils.make("minecraft", "obsidian"))),
 
                     Map.entry(IronFurnaces.id("netherite_furnace"),
-                            definition(5, 1_000_000, 1000, 9, ResourceLocationUtils.make("minecraft", "netherite_block")))
+                            definition(5, 1_000_000, 1000, 9, ResourceLocationUtils.make("minecraft", "netherite_block"))),
+
+                    Map.entry(IronFurnaces.id("allthemodium_furnace"),
+                            definition(20, 16, 2_000_000, 2000, 10, ResourceLocationUtils.make("allthemodium", "allthemodium_block"))),
+
+
+                    Map.entry(IronFurnaces.id("vibranium_furnace"),
+                            definition(20, 32, 3_000_000, 3000, 11, ResourceLocationUtils.make("allthemodium", "vibranium_block"))),
+
+                    Map.entry(IronFurnaces.id("unobtainium_furnace"),
+                            definition(20, 64, 5_000_000, 5000, 12, ResourceLocationUtils.make("allthemodium", "unobtainium_block")))
+
             ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @Override
@@ -75,12 +106,12 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
     private void registerRainbow() {
         RainbowFurnaceConfig config = new RainbowFurnaceConfig(
                 Map.of(
-                        IronFurnaces.id("copper_furnace"), new RainbowBonus(-5, 10_000, 10, 0, 0),
-                        IronFurnaces.id("iron_furnace"), new RainbowBonus(-10, 20_000, 20, 0, 0),
-                        IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 40_000, 40, 0, 1),
-                        IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 80_000, 60, 0, 1)
+                        IronFurnaces.id("copper_furnace"), new RainbowBonus(-5, 0,10_000, 10, 0, 0),
+                        IronFurnaces.id("iron_furnace"), new RainbowBonus(-10, 0,20_000, 20, 0, 0),
+                        IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 0,40_000, 40, 0, 1),
+                        IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 0,80_000, 60, 0, 1)
                 ),
-                new RainbowBonus(0, 0, 500_000, 0, 0),
+                new RainbowBonus(0, 0,0, 500_000, 0, 0),
                 java.util.Set.of(IronFurnaces.id("rainbow_furnace"))
         );
 

@@ -1,7 +1,6 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import ironfurnaces.Config;
-import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
@@ -11,9 +10,7 @@ import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
-import ironfurnaces.registration.ModItems;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
@@ -55,7 +52,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -278,7 +274,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (furnacePatternFromTag != null) {
             int s = 0;
             if (furnacePatternFromTag instanceof NormalFurnacePattern pattern1){
-                s = pattern1.smeltTickPerItem();
+                s = pattern1.smeltTick();
             } else if (furnacePatternFromTag instanceof RainbowFurnacePattern pattern){
                 s = pattern.baseSmeltTickPerItem();
             }

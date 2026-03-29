@@ -28,4 +28,9 @@ public interface IPatternAccessor {
         CompoundTag blockEntityTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
         blockEntityTag.putString(FurnacePattern.NBT_KEY, pattern.id().toString());
     }
+
+    static void writePatternToItemStack(ItemStack stack, ResourceLocation pattern){
+        CompoundTag blockEntityTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        blockEntityTag.putString(FurnacePattern.NBT_KEY, pattern.toString());
+    }
 }

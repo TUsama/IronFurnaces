@@ -720,7 +720,7 @@ public class LegacyFurnaceBlocks {
         return ModBlockTags.of(Registries.ITEM, IronFurnaces.id(id));
     }
     
-    private static ResourceLocation makeID(String furnaceName){
+    public static ResourceLocation makeID(String furnaceName){
         return IronFurnaces.id("furnaces/" + furnaceName);
     }
 }

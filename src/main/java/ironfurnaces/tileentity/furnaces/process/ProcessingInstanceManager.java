@@ -155,7 +155,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
     }
 
     public boolean isAllBlocking(){
-        return !this.blockingIndexes.isEmpty() && this.blockingIndexes.size() == this.instances.size();
+        return hasInstances() && this.blockingIndexes.size() == this.instances.size();
     }
 
     public IntSet getWorkingIndexes(){

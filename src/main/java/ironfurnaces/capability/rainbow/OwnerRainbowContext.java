@@ -202,6 +202,7 @@ public class OwnerRainbowContext {
     private static EffectiveFurnaceStats toBaseStats(RainbowFurnacePattern pattern) {
         return new EffectiveFurnaceStats(
                 pattern.baseSmeltTickPerItem(),
+                pattern.baseBatchHandle(),
                 pattern.baseEnergyCapacity(),
                 pattern.baseEnergyGenerationPerTick(),
                 pattern.baseEnergyConsumerPerTick(),

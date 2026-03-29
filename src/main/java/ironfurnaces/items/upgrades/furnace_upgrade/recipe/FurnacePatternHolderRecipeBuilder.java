@@ -2,7 +2,8 @@ package ironfurnaces.items.upgrades.furnace_upgrade.recipe;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import ironfurnaces.items.upgrades.furnace_upgrade.IUpgradeStorage;
+import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
+import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.mixin.ShapedRecipeBuilderMixin;
 import ironfurnaces.mixin.ShapedRecipeBuilderResultAccessor;
@@ -25,20 +26,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class PatternUpgradeRecipeBuilder extends ShapedRecipeBuilder {
-    private ResourceLocation upgradeId;
+public class FurnacePatternHolderRecipeBuilder extends ShapedRecipeBuilder {
+    private ResourceLocation patternId;
 
-    public PatternUpgradeRecipeBuilder(RecipeCategory category, ItemLike result, int count, ResourceLocation upgradeId) {
+    public FurnacePatternHolderRecipeBuilder(RecipeCategory category, ItemLike result, int count, ResourceLocation patternId) {
         super(category, result, count);
-        this.upgradeId = upgradeId;
+        this.patternId = patternId;
     }
 
-    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, ResourceLocation upgradeId) {
-        return shaped(category, result, upgradeId, 1);
+    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId) {
+        return shaped(category, result, patternId, 1);
     }
 
-    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, ResourceLocation upgradeId, int count) {
-        return new PatternUpgradeRecipeBuilder(category, result, count, upgradeId);
+    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId, int count) {
+        return new FurnacePatternHolderRecipeBuilder(category, result, count, patternId);
     }
 
     @Override
@@ -47,11 +48,11 @@ public class PatternUpgradeRecipeBuilder extends ShapedRecipeBuilder {
         accessor.callEnsureValid(recipeId);
         accessor.getAdvancement().parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
         finishedRecipeConsumer.accept(
-                new UpgradeResult(
+                new PatternResult(
                         recipeId,
                         Util.make(() -> {
                             ItemStack itemStack = new ItemStack(accessor.getResult(), accessor.getCount());
-                            IUpgradeStorage.writeRule(itemStack, upgradeId);
+                            IPatternAccessor.writePatternToItemStack(itemStack, patternId);
                             return itemStack;
                         }),
                         accessor.getCount(),
@@ -66,9 +67,9 @@ public class PatternUpgradeRecipeBuilder extends ShapedRecipeBuilder {
         );
     }
 
-    public static class UpgradeResult extends Result {
+    public static class PatternResult extends Result {
         private ItemStack stack;
-        public UpgradeResult(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
+        public PatternResult(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
             super(id, result.getItem(), count, group, category, pattern, key, advancement, advancementId, showNotification);
             this.stack = result;
         }

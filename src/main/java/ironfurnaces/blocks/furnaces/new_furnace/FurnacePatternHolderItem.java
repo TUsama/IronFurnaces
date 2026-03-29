@@ -50,16 +50,9 @@ public class FurnacePatternHolderItem extends BlockItem {
 
     private boolean resetSettings(ItemStack stack, Player player, int selected) {
         CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        beTag.remove(FurnaceSettingsV2.NBT_KEY);
 
-        var b = FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, FurnaceSettingsV2.DEFAULT)
-                .result()
-                .map(tag -> {
-                    beTag.put(FurnaceSettingsV2.NBT_KEY, tag);
-                    return true;
-                })
-                .orElse(false);
-
-        return b;
+        return true;
     }
 
     @Override
@@ -85,6 +78,8 @@ public class FurnacePatternHolderItem extends BlockItem {
                 level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),
                         SoundEvents.VILLAGER_NO, SoundSource.NEUTRAL, 0.2F, ((level.random.nextFloat() - level.random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
+
+
         }
 
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);

@@ -28,6 +28,7 @@ public abstract class Burn extends ProcessingInstance {
     protected final int expectedTick;
     protected int currentTick = 0;
     private float partialProgress = 0.0f;
+    private int batch = 1;
 
     protected Burn(int inputIndex, int expectedTick) {
         this(inputIndex, false, expectedTick, 0, 0.0f);
@@ -48,15 +49,21 @@ public abstract class Burn extends ProcessingInstance {
                         Codec.BOOL.fieldOf("handledStart").forGetter(Burn::isHandledStart),
                         ExtraCodecs.POSITIVE_INT.fieldOf("expectedTick").forGetter(Burn::getExpectedTick),
                         ExtraCodecs.POSITIVE_INT.fieldOf("currentTick").forGetter(Burn::getCurrentTick),
-                        ExtraCodecs.POSITIVE_FLOAT.fieldOf("partialProgress").forGetter(Burn::getPartialProgress)
+                        Codec.FLOAT.fieldOf("partialProgress").forGetter(Burn::getPartialProgress)
                 ).apply(instance, factory));
     }
 
 
     public static Burn create(int expectedTick, int inputIndex, Recipe<Container> recipe) {
+        return create(expectedTick, inputIndex, recipe, 1);
+    }
+
+    public static Burn create(int expectedTick, int inputIndex, Recipe<Container> recipe, int batch) {
         Factory factory = idMap.get(recipe.getType());
         if (factory != null) {
-            return factory.create(inputIndex, expectedTick);
+            Burn burn = factory.create(inputIndex, expectedTick);
+            burn.batch = batch;
+            return burn;
         }
         throw new RuntimeException("fail at creating Burn instance with RecipeType: " + recipe.getType());
     }
@@ -67,6 +74,7 @@ public abstract class Burn extends ProcessingInstance {
         Recipe recipe = tile.getInstanceManager()
                 .getCachedCookingRecipe(tile, this);
         if (recipe == null) return false;
+        ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
         ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
         return itemStack.isEmpty();
@@ -84,9 +92,12 @@ public abstract class Burn extends ProcessingInstance {
         tile.getRecipe(tile.getInput().getStackInSlot(fromIndex)).ifPresent(x -> {
             ItemStack resultItem = x.getResultItem(level.registryAccess()).copy();
             //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
+            resultItem.setCount(resultItem.getCount() * batch);
             tile.getOutput().insertItem(fromIndex, resultItem, false);
-            tile.getInput().extractItem(fromIndex, 1, false);
-            tile.setRecipeUsed(x);
+            tile.getInput().extractItem(fromIndex, batch, false);
+            for (int i = 0; i < batch; i++) {
+                tile.setRecipeUsed(x);
+            }
         });
 
     }
@@ -96,10 +107,12 @@ public abstract class Burn extends ProcessingInstance {
         if (!validateSlot(tile.getInput(), tile)) return TickResult.DISCARD;
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         if (stackInSlot.isEmpty()) return TickResult.DISCARD;
+        if (batch > stackInSlot.getCount()) batch = stackInSlot.getCount();
         Recipe recipe = tile.getInstanceManager()
                 .getCachedCookingRecipe(tile, this);
         if (recipe == null) return TickResult.DISCARD;
-        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
+        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess()).copy();
+        resultItem.setCount(resultItem.getCount() * batch);
         ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
         if (itemStack.isEmpty()) {
             currentTick++;

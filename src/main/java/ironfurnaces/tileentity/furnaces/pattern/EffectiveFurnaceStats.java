@@ -3,12 +3,12 @@ package ironfurnaces.tileentity.furnaces.pattern;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.With;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
 @With
 public record EffectiveFurnaceStats(
-        int smeltTickPerItem,
+        int smeltTick,
+        int batchHandle,
         int energyCapacity,
         int energyGenerationPerTick,
         int energyConsumerPerTick,
@@ -16,16 +16,18 @@ public record EffectiveFurnaceStats(
 )  implements IFurnaceStats<EffectiveFurnaceStats>{
 
     public static final Codec<EffectiveFurnaceStats> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick_per_item").forGetter(EffectiveFurnaceStats::smeltTickPerItem),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_capacity").forGetter(EffectiveFurnaceStats::energyCapacity),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_generation_per_tick").forGetter(EffectiveFurnaceStats::energyGenerationPerTick),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(EffectiveFurnaceStats::energyConsumerPerTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(EffectiveFurnaceStats::smeltTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("batch_handle").forGetter(EffectiveFurnaceStats::batchHandle),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(EffectiveFurnaceStats::energyCapacity),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(EffectiveFurnaceStats::energyGenerationPerTick),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(EffectiveFurnaceStats::energyConsumerPerTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("input_slot_amount").forGetter(EffectiveFurnaceStats::inputSlotAmount)
     ).apply(inst, EffectiveFurnaceStats::new));
 
     public static EffectiveFurnaceStats fromBase(NormalFurnacePattern pattern) {
         return new EffectiveFurnaceStats(
-                pattern.smeltTickPerItem(),
+                pattern.smeltTick(),
+                pattern.batchHandle(),
                 pattern.energyCapacity(),
                 pattern.energyGenerationPerTick(),
                 pattern.energyConsumerPerTick(),
@@ -35,10 +37,11 @@ public record EffectiveFurnaceStats(
 
     public EffectiveFurnaceStats apply(RainbowBonus bonus) {
         return new EffectiveFurnaceStats(
-                Math.max(1, smeltTickPerItem + bonus.smeltTickPerItemOffset()),
-                Math.max(1, energyCapacity + bonus.energyCapacityOffset()),
-                Math.max(1, energyGenerationPerTick + bonus.energyGenerationPerTickOffset()),
-                Math.max(1, energyConsumerPerTick + bonus.energyConsumerPerTickOffset()),
+                Math.max(1, smeltTick + bonus.smeltTickPerItemOffset()),
+                1,
+                Math.max(0, energyCapacity + bonus.energyCapacityOffset()),
+                Math.max(0, energyGenerationPerTick + bonus.energyGenerationPerTickOffset()),
+                Math.max(0, energyConsumerPerTick + bonus.energyConsumerPerTickOffset()),
                 Math.max(1, inputSlotAmount + bonus.inputSlotAmountOffset())
         );
     }

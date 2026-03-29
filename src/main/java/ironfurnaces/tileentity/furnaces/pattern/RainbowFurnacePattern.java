@@ -3,19 +3,22 @@ package ironfurnaces.tileentity.furnaces.pattern;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Optional;
-
+@Getter
+@Accessors(fluent = true)
 public final class RainbowFurnacePattern extends FurnacePattern {
 
     public static final Codec<RainbowFurnacePattern> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(RainbowFurnacePattern::id),
-            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick_per_item").forGetter(RainbowFurnacePattern::baseSmeltTickPerItem),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_capacity").forGetter(RainbowFurnacePattern::baseEnergyCapacity),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_generation_per_tick").forGetter(RainbowFurnacePattern::baseEnergyGenerationPerTick),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(RainbowFurnacePattern::baseEnergyConsumerPerTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(RainbowFurnacePattern::baseSmeltTickPerItem),
+            ExtraCodecs.POSITIVE_INT.fieldOf("batch_handle").forGetter(RainbowFurnacePattern::baseBatchHandle),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(RainbowFurnacePattern::baseEnergyCapacity),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(RainbowFurnacePattern::baseEnergyGenerationPerTick),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(RainbowFurnacePattern::baseEnergyConsumerPerTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("input_slot_amount").forGetter(RainbowFurnacePattern::baseInputSlotAmount),
             ResourceLocation.CODEC.optionalFieldOf("reference_block").forGetter(RainbowFurnacePattern::referenceBlock),
             RainbowFurnaceConfig.CODEC.fieldOf("rainbow_config").forGetter(RainbowFurnacePattern::config)
@@ -23,6 +26,7 @@ public final class RainbowFurnacePattern extends FurnacePattern {
 
     private final ResourceLocation id;
     private final int baseSmeltTickPerItem;
+    private final int baseBatchHandle;
     private final int baseEnergyCapacity;
     private final int baseEnergyGenerationPerTick;
     private final int baseEnergyConsumerPerTick;
@@ -33,6 +37,7 @@ public final class RainbowFurnacePattern extends FurnacePattern {
     public RainbowFurnacePattern(
             ResourceLocation id,
             int baseSmeltTickPerItem,
+            int baseBatchHandle,
             int baseEnergyCapacity,
             int baseEnergyGenerationPerTick,
             int baseEnergyConsumerPerTick,
@@ -42,6 +47,7 @@ public final class RainbowFurnacePattern extends FurnacePattern {
     ) {
         this.id = id;
         this.baseSmeltTickPerItem = baseSmeltTickPerItem;
+        this.baseBatchHandle = baseBatchHandle;
         this.baseEnergyCapacity = baseEnergyCapacity;
         this.baseEnergyGenerationPerTick = baseEnergyGenerationPerTick;
         this.baseEnergyConsumerPerTick = baseEnergyConsumerPerTick;
@@ -71,25 +77,6 @@ public final class RainbowFurnacePattern extends FurnacePattern {
     }
 
 
-    public int baseSmeltTickPerItem() {
-        return baseSmeltTickPerItem;
-    }
-
-    public int baseEnergyCapacity() {
-        return baseEnergyCapacity;
-    }
-
-    public int baseEnergyGenerationPerTick() {
-        return baseEnergyGenerationPerTick;
-    }
-
-    public int baseEnergyConsumerPerTick() {
-        return baseEnergyConsumerPerTick;
-    }
-
-    public int baseInputSlotAmount() {
-        return baseInputSlotAmount;
-    }
 
     public RainbowFurnaceConfig config() {
         return config;

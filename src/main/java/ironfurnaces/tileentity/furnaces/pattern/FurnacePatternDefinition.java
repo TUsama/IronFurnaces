@@ -6,9 +6,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 public record FurnacePatternDefinition(
-        int smeltTickPerItem,
+        int smeltTick,
+        Optional<Integer> batchHandle,
         int energyCapacity,
         int energyGenerationPerTick,
         int energyConsumerPerTick,
@@ -17,10 +19,11 @@ public record FurnacePatternDefinition(
         Optional<RainbowFurnaceConfig> rainbow
 ) {
     public static final Codec<FurnacePatternDefinition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick_per_item").forGetter(FurnacePatternDefinition::smeltTickPerItem),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_capacity").forGetter(FurnacePatternDefinition::energyCapacity),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_generation_per_tick").forGetter(FurnacePatternDefinition::energyGenerationPerTick),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(FurnacePatternDefinition::energyConsumerPerTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(FurnacePatternDefinition::smeltTick),
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("batch_handle").forGetter(FurnacePatternDefinition::batchHandle),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(FurnacePatternDefinition::energyCapacity),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(FurnacePatternDefinition::energyGenerationPerTick),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(FurnacePatternDefinition::energyConsumerPerTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("input_slot_amount").forGetter(FurnacePatternDefinition::inputSlotAmount),
             ResourceLocation.CODEC.optionalFieldOf("reference_block").forGetter(FurnacePatternDefinition::referenceBlock),
             RainbowFurnaceConfig.CODEC.optionalFieldOf("rainbow").forGetter(FurnacePatternDefinition::rainbow)
@@ -31,7 +34,8 @@ public record FurnacePatternDefinition(
         if (rainbow.isPresent()){
             return new RainbowFurnacePattern(
                     id,
-                    smeltTickPerItem,
+                    smeltTick,
+                    batchHandle.orElse(1),
                     energyCapacity,
                     energyGenerationPerTick,
                     energyConsumerPerTick,
@@ -42,7 +46,8 @@ public record FurnacePatternDefinition(
         } else {
             return new NormalFurnacePattern(
                     id,
-                    smeltTickPerItem,
+                    smeltTick,
+                    batchHandle.orElse(1),
                     energyCapacity,
                     energyGenerationPerTick,
                     energyConsumerPerTick,
@@ -63,6 +68,7 @@ public record FurnacePatternDefinition(
     ) {
         return new FurnacePatternDefinition(
                 smeltTickPerItem,
+                Optional.of(1),
                 energyCapacity,
                 energyGenerationPerTick,
                 energyConsumerPerTick,
@@ -83,6 +89,50 @@ public record FurnacePatternDefinition(
     ) {
         return new FurnacePatternDefinition(
                 smeltTickPerItem,
+                Optional.of(1),
+                energyCapacity,
+                energyGenerationPerTick,
+                energyConsumerPerTick,
+                inputSlotAmount,
+                referenceBlock,
+                Optional.of(config)
+        );
+    }
+
+    public static FurnacePatternDefinition normal(
+            int smeltTickPerItem,
+            int batch,
+            int energyCapacity,
+            int energyGenerationPerTick,
+            int energyConsumerPerTick,
+            int inputSlotAmount,
+            Optional<ResourceLocation> referenceBlock
+    ) {
+        return new FurnacePatternDefinition(
+                smeltTickPerItem,
+                Optional.of(batch),
+                energyCapacity,
+                energyGenerationPerTick,
+                energyConsumerPerTick,
+                inputSlotAmount,
+                referenceBlock,
+                Optional.empty()
+        );
+    }
+
+    public static FurnacePatternDefinition rainbow(
+            int smeltTickPerItem,
+            int batch,
+            int energyCapacity,
+            int energyGenerationPerTick,
+            int energyConsumerPerTick,
+            int inputSlotAmount,
+            Optional<ResourceLocation> referenceBlock,
+            RainbowFurnaceConfig config
+    ) {
+        return new FurnacePatternDefinition(
+                smeltTickPerItem,
+                Optional.of(batch),
                 energyCapacity,
                 energyGenerationPerTick,
                 energyConsumerPerTick,

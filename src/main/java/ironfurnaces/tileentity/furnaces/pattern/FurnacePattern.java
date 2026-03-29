@@ -28,6 +28,7 @@ public sealed abstract class FurnacePattern permits NormalFurnacePattern, Rainbo
     public static final NormalFurnacePattern FALLBACK = new NormalFurnacePattern(
             IronFurnaces.id("fallback_pattern"),
             1000,
+            1,
             20_000,
             40,
             20,

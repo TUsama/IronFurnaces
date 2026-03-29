@@ -267,16 +267,13 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         ));
         
         this.settingsTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.setting")));
-        int y = 106;
-        int i1 = i + 20;
-        this.forwardButton = new PageButton(i1 + 98, y, true, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(3)), true);
-        this.backButton = new PageButton(i1 + 43, y, false, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(4)), true);
+        int y = topPos + 70;
+        int i1 = leftPos + 70;
+        this.forwardButton = new PageButton(i1 + 38, y, true, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(3)), false);
+        this.backButton = new PageButton(i1 - 8, y, false, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(4)), false);
+
+
         this.pageGroup = new WidgetGroup(forwardButton, backButton);
-        if (this.menu.factoryInput.getPageCount() > 1) {
-            this.pageGroup.activeAll();
-        } else {
-            this.pageGroup.deactivateAll();
-        }
         this.addRenderableWidget(autoInputButton);
         this.addRenderableWidget(autoOutputButton);
         this.addRenderableWidget(redstoneModeButton);
@@ -506,6 +503,11 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 factoryGroup.deactivateAll();
                 generatorGroup.activeAll();
             }
+        }
+        if (this.menu.factoryInput.getPageCount() > 1 && this.mode.equals(FurnaceMode.FACTORY)) {
+            this.pageGroup.activeAll();
+        } else {
+            this.pageGroup.deactivateAll();
         }
         this.menu.updateMode();
         this.renderBackground(guiGraphics);

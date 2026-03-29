@@ -137,7 +137,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 x -> 2 * x
         )),
         FUEL_EFFICIENCY(new Modifiers(
-                x -> x + 0.25f,
+                x -> x - 0.25f,
                 totalBurnTime -> totalBurnTime * 2,
                 IntUnaryOperator.identity(),
                 x -> x / 2.0f,

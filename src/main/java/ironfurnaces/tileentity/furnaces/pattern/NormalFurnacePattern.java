@@ -8,22 +8,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Optional;
+import java.util.OptionalInt;
+
 @Getter
 @Accessors(fluent = true)
 public final class NormalFurnacePattern extends FurnacePattern {
 
     public static final Codec<NormalFurnacePattern> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(NormalFurnacePattern::id),
-            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick_per_item").forGetter(NormalFurnacePattern::smeltTickPerItem),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_capacity").forGetter(NormalFurnacePattern::energyCapacity),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_generation_per_tick").forGetter(NormalFurnacePattern::energyGenerationPerTick),
-            ExtraCodecs.POSITIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(NormalFurnacePattern::energyConsumerPerTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(NormalFurnacePattern::smeltTick),
+            ExtraCodecs.POSITIVE_INT.fieldOf("batch_handle").forGetter(NormalFurnacePattern::batchHandle),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(NormalFurnacePattern::energyCapacity),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(NormalFurnacePattern::energyGenerationPerTick),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(NormalFurnacePattern::energyConsumerPerTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("input_slot_amount").forGetter(NormalFurnacePattern::inputSlotAmount),
             ResourceLocation.CODEC.optionalFieldOf("reference_block").forGetter(NormalFurnacePattern::referenceBlock)
     ).apply(inst, NormalFurnacePattern::new));
 
     private final ResourceLocation id;
-    private final int smeltTickPerItem;
+    private final int smeltTick;
+    private final int batchHandle;
     private final int energyCapacity;
     private final int energyGenerationPerTick;
     private final int energyConsumerPerTick;
@@ -32,7 +36,8 @@ public final class NormalFurnacePattern extends FurnacePattern {
 
     public NormalFurnacePattern(
             ResourceLocation id,
-            int smeltTickPerItem,
+            int smeltTick,
+            int batchHandle,
             int energyCapacity,
             int energyGenerationPerTick,
             int energyConsumerPerTick,
@@ -40,7 +45,8 @@ public final class NormalFurnacePattern extends FurnacePattern {
             Optional<ResourceLocation> referenceBlock
     ) {
         this.id = id;
-        this.smeltTickPerItem = smeltTickPerItem;
+        this.smeltTick = smeltTick;
+        this.batchHandle = batchHandle;
         this.energyCapacity = energyCapacity;
         this.energyGenerationPerTick = energyGenerationPerTick;
         this.energyConsumerPerTick = energyConsumerPerTick;

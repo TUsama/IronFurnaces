@@ -13,12 +13,14 @@ public interface IFurnaceStats<T extends IFurnaceStats<?>> {
                     }
             );
 
-    int smeltTickPerItem();
+    int smeltTick();
+    int batchHandle();
     int energyCapacity();
     int energyGenerationPerTick();
     int energyConsumerPerTick();
     int inputSlotAmount();
-    T withSmeltTickPerItem(int value);
+    T withSmeltTick(int value);
+    T withBatchHandle(int value);
     T withEnergyCapacity(int value);
     T withEnergyGenerationPerTick(int value);
     T withEnergyConsumerPerTick(int value);
