@@ -294,7 +294,7 @@ dependencies {
 
 publishMods {
 
-    dryRun.set(false)
+    dryRun.set(true)
 
     afterEvaluate {
         file = modstitch.finalJarTask.flatMap { it.archiveFile }
@@ -313,19 +313,19 @@ publishMods {
             }
         }
         ?: ""
-    type = ALPHA
+    type = BETA
     modLoaders.add(loader)
 
 
 
     curseforge {
-        accessToken = ""
-        projectId = ""
+        accessToken = file("D:\\curseforge-key.txt").readText()
+        projectId = "1497798"
         minecraftVersions.add(minecraft)
-        //serverRequired = false
-        //clientRequired = true
-        //javaVersions.set(listOf<JavaVersion>(JavaVersion.VERSION_17))
-        requires("")
+        serverRequired = false
+        clientRequired = true
+        javaVersions.set(listOf<JavaVersion>(JavaVersion.VERSION_17))
+        requires("nirvana-library")
 
     }
 
