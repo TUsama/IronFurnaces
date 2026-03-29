@@ -322,7 +322,7 @@ publishMods {
         accessToken = file("D:\\curseforge-key.txt").readText()
         projectId = "1497798"
         minecraftVersions.add(minecraft)
-        serverRequired = false
+        serverRequired = true
         clientRequired = true
         javaVersions.set(listOf<JavaVersion>(JavaVersion.VERSION_17))
         requires("nirvana-library")
