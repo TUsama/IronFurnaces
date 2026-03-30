@@ -294,7 +294,7 @@ dependencies {
 
 publishMods {
 
-    dryRun.set(true)
+    dryRun.set(false)
 
     afterEvaluate {
         file = modstitch.finalJarTask.flatMap { it.archiveFile }

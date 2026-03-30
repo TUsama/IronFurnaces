@@ -1,3 +1,9 @@
+### 0.2.1
+remove id field in the Upgrade Rule data because it's bug-prone for devs
+modify default stats of several furnaces
+now furnaces won't save the pattern when it's fallback pattern, this will prevent furnace lose its pattern when dev need to delete the pattern temporary for whatever reason.
+remove the enableRainbow condition in the recipe of rainbow core
+
 ### 0.2.0
 add batch recipe handle which support handle multiple times of a single recipe in a single smelt
 add allthemodium, vibranium and unobtainium furnaces
@@ -8,23 +14,24 @@ add recipes for all furnaces
 fix a position issue of menu page button
 
 
-## Legacy
-### 4.2.0
-fix a bug that high max stack size will cause the furnace run out of memory
+### 0.1.0
+fix a bug that high max stack size will cause the legacy furnace run out of memory
 add jei bookmark compat
-fix bugs that follow to Iron Furnaces 4.3.2
+fix bugs that follow to legacy Iron Furnaces 4.3.2
 fix a bug that rainbow coal will be duped in the repair recipe
-the furnace speed now will be correctly synced from server when player join the world.
+the legacy furnace speed now will be correctly synced from server when player join the world.
 
 rework many things, breaking changes below(only for dev):
 1. remove item tag forge:furnaces, all furnaces provided by this mod use c:player_workstations/furnaces, add vanilla furnace into the c:player_workstations/furnaces
 2. now blasting generator support both ItemStack and Tag recipe, you might need to check out the new datapack format if you've modified the generator_blasting craft. Also add a bunch of new tag-support recipes.
-3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check. After this update, all old recorded FurnaceList position will be considered as overworld position. This system will be abandoned on new furnace.
+3. refactor the FurnaceListCapabilities, using GlobalPos instead of BlockPos, this may help with the rainbow furnace condition check. After this update, all old recorded FurnaceList position will be considered as overworld position.
 4. new furnace system, completely data-drive. Dev can add or remove any patterns(the old "pattern" in the config), or modify the pattern data in the furnace_pattern folder. Also add upgrade rule which indicate how furnace upgrade, checkout furnace_pattern_upgrades folder.
 5. add new upgrade tool and the recipes, checkout the recipes/new_upgrades
 
 for players if you meet anything different with the original mod pls consider open an issue on GitHub
 
+
+## Legacy
 4.1.6
 +Fixed getBurnTime now uses ForgeHooks.getBurnTime
 +Relocated hasRecipe caches so a single (3 in total), cache is used for all furnaces existing in the world, also switched from LRU cache to a full hashmap (shouldnt impact negatively performance but should save RAM)
