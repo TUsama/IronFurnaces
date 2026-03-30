@@ -380,10 +380,13 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .result()
                 .ifPresent(nbt -> tag.put(FurnaceSettingsV2.NBT_KEY, nbt));
 
-        FurnacePattern.REF_CODEC
-                .encodeStart(NbtOps.INSTANCE, pattern)
-                .result()
-                .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
+        if (pattern != FurnacePattern.FALLBACK){
+            FurnacePattern.REF_CODEC
+                    .encodeStart(NbtOps.INSTANCE, pattern)
+                    .result()
+                    .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
+        }
+
 
         recipeAwardHandler.saveToTag(tag);
     }
