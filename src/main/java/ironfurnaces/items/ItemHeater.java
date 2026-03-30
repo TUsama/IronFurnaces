@@ -4,14 +4,17 @@ import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.StringHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -20,6 +23,14 @@ public class ItemHeater extends Item {
 
     public ItemHeater(Properties properties) {
         super(properties);
+    }
+
+    @Nullable
+    public static BlockPos getBoundBlockPos(ItemStack stack){
+        if (stack.hasTag()){
+            return new BlockPos(stack.getTag().getInt("X"), stack.getTag().getInt("Y"), stack.getTag().getInt("Z"));
+        }
+        return null;
     }
 
     @OnlyIn(Dist.CLIENT)

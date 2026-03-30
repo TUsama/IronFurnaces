@@ -45,6 +45,7 @@ public class ModItemGroups {
                         entries.accept(ModItems.GOLD2_UPGRADE.get());
                         entries.accept(ModItems.SILVER2_UPGRADE.get());
                         */
+                                entries.accept(ModBlocks.HEATER.get());
                                 entries.accept(ModBlocks.PATTERN_HOLDER.get());
                                 entries.accept(ModItems.UPGRADE_TOOL.get());
                                 entries.accept(ModItems.ITEM_HEATER.get());

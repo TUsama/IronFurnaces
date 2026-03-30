@@ -3,6 +3,9 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
+import ironfurnaces.items.ItemHeater;
+import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -63,6 +66,17 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
                         Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
                     }
                 }
+            } else if (stackInSlot.getItem() instanceof ItemHeater) {
+                BlockPos boundBlockPos = ItemHeater.getBoundBlockPos(stackInSlot);
+                if (boundBlockPos != null){
+                    if (level.getBlockEntity(boundBlockPos) instanceof BlockWirelessEnergyHeaterTile heaterTile && heaterTile.getWrapper().getEnergy() >= 20) {
+                        heaterTile.getWrapper().removeEnergy(20);
+                        litTime = 5;
+                        litDuration = 5;
+                    }
+                }
+
+
             }
         }
         ensureLitState(tile);

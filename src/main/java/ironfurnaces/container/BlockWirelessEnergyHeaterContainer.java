@@ -33,16 +33,16 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
     protected final Level world;
 
     public BlockWirelessEnergyHeaterContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        this(ModMenus.HEATER_MENU.get(), windowId, world, playerInventory, player);
+        this(ModMenus.HEATER_MENU.get(), windowId, world, playerInventory, player, pos);
 
     }
 
-    public BlockWirelessEnergyHeaterContainer(@Nullable MenuType<?> menuType, int containerId, Level world, Inventory playerInventory, Player playerEntity) {
+    public BlockWirelessEnergyHeaterContainer(@Nullable MenuType<?> menuType, int containerId, Level world, Inventory playerInventory, Player playerEntity, BlockPos pos) {
         super(menuType, containerId);
         this.world = world;
         this.playerInventory = new InvWrapper(playerInventory);
         this.playerEntity = playerEntity;
-
+        this.te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
         trackPower();
         this.addSlot(new SlotHeater(te, 0, 80, 37));
         layoutPlayerInventorySlots(8, 84);

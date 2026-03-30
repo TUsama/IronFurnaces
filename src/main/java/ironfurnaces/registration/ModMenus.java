@@ -26,7 +26,7 @@ public class ModMenus {
     public static final MenuEntry<BlockWirelessEnergyHeaterContainer> HEATER_MENU = REGISTRATE
             .<BlockWirelessEnergyHeaterContainer, BlockWirelessEnergyHeaterScreen>menu(BlockWirelessEnergyHeater.HEATER,
 
-                    (type, windowId, inv) -> new BlockWirelessEnergyHeaterContainer(type, windowId, inv.player.level(), inv, inv.player),
+                    (type, windowId, inv, buf) -> new BlockWirelessEnergyHeaterContainer(type, windowId, inv.player.level(), inv, inv.player, buf.readBlockPos()),
 
                     () -> BlockWirelessEnergyHeaterScreen::new)
             .register();

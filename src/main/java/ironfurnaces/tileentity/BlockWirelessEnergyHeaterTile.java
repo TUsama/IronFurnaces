@@ -5,9 +5,12 @@ import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.adaptor.energy.IEnergyWrapperHolder;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -88,7 +91,7 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     @Override
     public AbstractContainerMenu IcreateMenu(int i, Inventory playerInventory, Player playerEntity) {
-        return new BlockWirelessEnergyHeaterContainer(i, level, worldPosition, playerInventory, playerEntity);
+        return null;
     }
 
     //? forge {

@@ -1,6 +1,7 @@
 package ironfurnaces.blocks;
 
 import ironfurnaces.adaptor.energy.EnergyWrapper;
+import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
@@ -108,7 +109,9 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     private void interactWith(Level world, BlockPos pos, Player player) {
         BlockEntity tileEntity = world.getBlockEntity(pos);
         if (tileEntity instanceof MenuProvider) {
-            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"), buf -> buf.writeBlockPos(tileEntity.getBlockPos()));
+            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"),(window, playerinv, $) -> new BlockWirelessEnergyHeaterContainer(ModMenus.HEATER_MENU.get(), window, world, playerinv, player, pos), buf -> {
+                buf.writeBlockPos(tileEntity.getBlockPos());
+            });
         }
     }
 
