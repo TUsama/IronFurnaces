@@ -17,6 +17,7 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
     public static final MapCodec<GeneratorLitHandler> CODEC = MapCodec.unit(INSTANCE);
     private int litTime;
     private int litDuration;
+    private boolean isLit = false;
 
     public static final String TYPE = "generator";
 
@@ -27,6 +28,7 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
         if (allGenerateInstances.isEmpty()){
             litDuration = 0;
             litTime = 0;
+            isLit = false;
         } else {
             float i = 0;
             for (Generate allGenerateInstance : allGenerateInstances) {
@@ -36,7 +38,8 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
             //don't care the real number actually
             //only for rendering the bar
             litDuration = 200;
-            litTime = (int)Math.max(200.0f - (litDuration * (i / allGenerateInstances.size())), 0);
+            litTime = (int)Math.max(litDuration * 1.0f - (litDuration * (i / allGenerateInstances.size())), 0);
+            isLit = true;
         }
         ensureLitState(tile);
     }
@@ -49,7 +52,7 @@ public class GeneratorLitHandler implements IFurnaceLitHandler{
     @Override
     public boolean isLit(FurnacePatternBlockEntity tile) {
         ProcessingInstanceManager instanceManager = tile.getInstanceManager();
-        return litTime != 0 && !instanceManager.isAllBlocking();
+        return isLit && !instanceManager.isAllBlocking();
     }
 
     @Override
