@@ -50,7 +50,7 @@ public class MutiStateImageButton<T extends Enum<T>> extends Button {
         int u = uOffset;
         if (!this.isActive()) {
             u += xDiffTex * 2;
-        } else if (this.isHoveredOrFocused()) {
+        } else if (this.isHovered()) {
             u += xDiffTex;
         }
 

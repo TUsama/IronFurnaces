@@ -50,6 +50,15 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         return this.withIOSetting(directionIOModeEnumMap);
     }
 
+    public IOMode getRelative(Direction blockFacing, RelativeFace relativeFace) {
+        Direction worldSide = RelativeFaceHelper.toWorld(blockFacing, relativeFace);
+        return this.IOSetting.get(worldSide);
+    }
+
+    public FurnaceSettingsV2 withRelativeChanged(Direction blockFacing, RelativeFace relativeFace, IOMode ioMode) {
+        Direction worldSide = RelativeFaceHelper.toWorld(blockFacing, relativeFace);
+        return this.withDirectionChanged(worldSide, ioMode);
+    }
 
     public void onChanged() {
 
@@ -127,6 +136,31 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
 
         public RedStoneMode previous() {
             return values()[Math.floorMod(this.ordinal() - 1, values().length)];
+        }
+    }
+
+    public enum RelativeFace implements StringRepresentable {
+        FRONT("front", "ironfurnaces.furnace_setting.relative_face.front"),
+        BACK("back", "ironfurnaces.furnace_setting.relative_face.back"),
+        LEFT("left", "ironfurnaces.furnace_setting.relative_face.left"),
+        RIGHT("right", "ironfurnaces.furnace_setting.relative_face.right"),
+        UP("up", "ironfurnaces.furnace_setting.relative_face.up"),
+        DOWN("down", "ironfurnaces.furnace_setting.relative_face.down");
+
+        public static final EnumCodec<RelativeFace> CODEC =
+                StringRepresentable.fromEnum(RelativeFace::values);
+
+        public final String name;
+        public final String translationKey;
+
+        RelativeFace(String name, String translationKey) {
+            this.name = name;
+            this.translationKey = translationKey;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

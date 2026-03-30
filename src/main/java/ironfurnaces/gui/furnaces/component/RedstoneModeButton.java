@@ -1,5 +1,6 @@
 package ironfurnaces.gui.furnaces.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -49,29 +50,33 @@ public class RedstoneModeButton extends ImageButton {
             if (flag) {
                 this.playDownSound(Minecraft.getInstance().getSoundManager());
                 this.rightClick.onPress(this);
-                if (settingsV2.get().redStoneMode().previous().equals(FurnaceSettingsV2.RedStoneMode.COMPARATOR_SUBTRACTION)){
-                    substractionGroup.activeAll();
-                } else {
-                    substractionGroup.deactivateAll();
-                }
                 return true;
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+
     @Override
-    public void onPress() {
-        super.onPress();
-        if (settingsV2.get().redStoneMode().next().equals(FurnaceSettingsV2.RedStoneMode.COMPARATOR_SUBTRACTION)){
-            substractionGroup.activeAll();
-        } else {
-            substractionGroup.deactivateAll();
+    public void renderTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int uOffset, int vOffset, int textureDifference, int width, int height, int textureWidth, int textureHeight) {
+        int i = vOffset;
+        if (!this.isActive()) {
+            i = vOffset + textureDifference * 2;
+        } else if (this.isHovered()) {
+            i = vOffset + textureDifference;
         }
+
+        RenderSystem.enableDepthTest();
+        guiGraphics.blit(texture, x, y, (float)uOffset, (float)i, width, height, textureWidth, textureHeight);
     }
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (settingsV2.get().redStoneMode().equals(FurnaceSettingsV2.RedStoneMode.COMPARATOR_SUBTRACTION)){
+            substractionGroup.activeAll();
+        } else {
+            substractionGroup.deactivateAll();
+        }
         this.renderTexture(guiGraphics, this.resourceLocation, this.getX(), this.getY(), this.xTexStart + settingsV2.get().redStoneMode().ordinal() * 14, this.yTexStart, this.yDiffTex, this.width, this.height, this.textureWidth, this.textureHeight);
     }
 }

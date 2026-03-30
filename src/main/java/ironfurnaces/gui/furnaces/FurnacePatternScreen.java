@@ -11,6 +11,7 @@ import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.menu.MenuConstant;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
+import ironfurnaces.tileentity.furnaces.setting.RelativeFaceHelper;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -27,6 +28,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -66,10 +68,10 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
     protected IOButton upIoButton;
     protected IOButton downIoButton;
-    protected IOButton northIoButton;
-    protected IOButton southIoButton;
-    protected IOButton westIoButton;
-    protected IOButton eastIoButton;
+    protected IOButton faceIoButton;
+    protected IOButton backIoButton;
+    protected IOButton leftIoButton;
+    protected IOButton rightIoButton;
 
     protected WidgetGroup factoryGroup;
     protected WidgetGroup generatorGroup;
@@ -110,7 +112,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         Int2IntFunction uStart = index -> index * 14;
 
         int buttonStartX = sidePanelBaseX + 10;
-        this.autoInputButton = new ImageButton(buttonStartX, topPos + 12, squareLength, squareLength, uStart.applyAsInt(0), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoInput(!menu.getSettingsV2().autoInput()), menu.bePos))){
+        this.autoInputButton = new BaseBoolStatuImageButton(buttonStartX, topPos + 12, squareLength, squareLength, uStart.applyAsInt(0), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoInput(!menu.getSettingsV2().autoInput()), menu.bePos)), () -> menu.getSettingsV2().autoInput()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_input", menu.getSettingsV2().autoInput()));
@@ -123,7 +125,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
             }
         };
 
-        this.autoOutputButton = new ImageButton(buttonStartX + squareLength + 2, topPos + 12, squareLength, squareLength, uStart.applyAsInt(1), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoOutput(!menu.getSettingsV2().autoOutput()), menu.bePos))){
+        this.autoOutputButton = new BaseBoolStatuImageButton(buttonStartX + squareLength + 2, topPos + 12, squareLength, squareLength, uStart.applyAsInt(1), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoOutput(!menu.getSettingsV2().autoOutput()), menu.bePos)), () -> menu.getSettingsV2().autoOutput()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_output", menu.getSettingsV2().autoOutput()));
@@ -138,7 +140,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         int i = topPos + MenuConstant.SIDE_PANEL_HEIGHT - 25;
 
-        this.autoFillButton = new ImageButton(0, 0, squareLength, squareLength, uStart.applyAsInt(7), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoFill(!menu.getSettingsV2().autoFill()), menu.bePos))){
+        this.autoFillButton = new BaseBoolStatuImageButton(0, 0, squareLength, squareLength, uStart.applyAsInt(7), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoFill(!menu.getSettingsV2().autoFill()), menu.bePos)), () -> menu.getSettingsV2().autoFill()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_fill", menu.getSettingsV2().autoFill()));
@@ -199,16 +201,17 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         widgetGroup.deactivateAll();
 
         int ioButtonSize = 10;
+        var facing = Minecraft.getInstance().level.getBlockState(this.getMenu().bePos).getValue(BlockStateProperties.HORIZONTAL_FACING);
 
-        Function<Direction, IOButton> ioButtonMaker = direction -> {
-            FurnaceSettingsV2.IOMode oldSetting = menu.getSettingsV2().IOSetting().get(direction);
-
+        Function<FurnaceSettingsV2.RelativeFace, IOButton> ioButtonMaker = relativeFace -> {
+            Direction worldFacing = RelativeFaceHelper.toWorld(facing, relativeFace);
+            FurnaceSettingsV2.IOMode oldSetting = menu.getSettingsV2().IOSetting().get(worldFacing);
             return new IOButton(0, 0, ioButtonSize, ioButtonSize, 0, 175, 10, 10, WIDGET, button -> {
-                FurnaceSettingsV2.IOMode next = menu.getSettingsV2().IOSetting().get(direction).next();
-                NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(direction, next), menu.bePos));
-            }, oldSetting, direction, menu, button -> {
-                FurnaceSettingsV2.IOMode previous = menu.getSettingsV2().IOSetting().get(direction).previous();
-                NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(direction, previous), menu.bePos));
+                FurnaceSettingsV2.IOMode next = menu.getSettingsV2().IOSetting().get(worldFacing).next();
+                NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(worldFacing, next), menu.bePos));
+            }, oldSetting, relativeFace, menu, button -> {
+                FurnaceSettingsV2.IOMode previous = menu.getSettingsV2().IOSetting().get(worldFacing).previous();
+                NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(worldFacing, previous), menu.bePos));
             });
         };
 
@@ -216,31 +219,31 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         int upButtonY = topPos + 45;
         int interval = 13;
 
-        this.upIoButton = ioButtonMaker.apply(Direction.UP);
-        this.upIoButton.setPosition(upButtonX, upButtonY);
+        this.upIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.UP);
+        this.upIoButton.setPosition(upButtonX, upButtonY - interval);
 
-        this.downIoButton = ioButtonMaker.apply(Direction.DOWN);
+        this.downIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.DOWN);
         this.downIoButton.setPosition(upButtonX + interval, upButtonY + interval);
 
-        this.northIoButton = ioButtonMaker.apply(Direction.NORTH);
-        this.northIoButton.setPosition(upButtonX, upButtonY - interval);
+        this.faceIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.FRONT);
+        this.faceIoButton.setPosition(upButtonX, upButtonY);
 
-        this.southIoButton = ioButtonMaker.apply(Direction.SOUTH);
-        this.southIoButton.setPosition(upButtonX, upButtonY + interval);
+        this.backIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.BACK);
+        this.backIoButton.setPosition(upButtonX, upButtonY + interval);
 
-        this.westIoButton = ioButtonMaker.apply(Direction.WEST);
-        this.westIoButton.setPosition(upButtonX - interval, upButtonY);
+        this.leftIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.LEFT);
+        this.leftIoButton.setPosition(upButtonX - interval, upButtonY);
 
-        this.eastIoButton = ioButtonMaker.apply(Direction.EAST);
-        this.eastIoButton.setPosition(upButtonX + interval, upButtonY);
+        this.rightIoButton = ioButtonMaker.apply(FurnaceSettingsV2.RelativeFace.RIGHT);
+        this.rightIoButton.setPosition(upButtonX + interval, upButtonY);
 
         this.settingsPanelGroup = new WidgetGroup(
                 this.upIoButton,
                 this.downIoButton,
-                this.northIoButton,
-                this.southIoButton,
-                this.westIoButton,
-                this.eastIoButton,
+                this.faceIoButton,
+                this.backIoButton,
+                this.leftIoButton,
+                this.rightIoButton,
 
                 /*this.subtractionValueDecButton,
                 this.subtractionValueIncButton,*/
@@ -282,10 +285,10 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         this.addRenderableWidget(subtractionValueDecButton);
         this.addRenderableWidget(upIoButton);
         this.addRenderableWidget(downIoButton);
-        this.addRenderableWidget(southIoButton);
-        this.addRenderableWidget(westIoButton);
-        this.addRenderableWidget(eastIoButton);
-        this.addRenderableWidget(northIoButton);
+        this.addRenderableWidget(backIoButton);
+        this.addRenderableWidget(leftIoButton);
+        this.addRenderableWidget(rightIoButton);
+        this.addRenderableWidget(faceIoButton);
         this.addRenderableWidget(forwardButton);
         this.addRenderableWidget(backButton);
 
