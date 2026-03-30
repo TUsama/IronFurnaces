@@ -12,7 +12,6 @@ import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.RainbowEnabledCondition;
-import net.minecraft.Util;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -22,7 +21,6 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
@@ -436,23 +434,20 @@ public class ModItems {
 
     public static final ItemEntry<Item> RAINBOW_CORE =
             registerItem("rainbow_core", Item::new).recipe((ctx, provider) -> {
-                        ConditionalRecipe.builder()
-                                .addCondition(Util.make(() -> (ICondition) new RainbowEnabledCondition()))
-                                .addRecipe(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                                        .pattern("ROY")
-                                        .pattern("FGF")
-                                        .pattern("BPM")
-                                        .define('R', Items.RED_STAINED_GLASS)
-                                        .define('O', Items.ORANGE_STAINED_GLASS)
-                                        .define('Y', Items.YELLOW_STAINED_GLASS)
-                                        .define('F', LegacyFurnaceBlocks.NETHERITE_FURNACE)
-                                        .define('G', Items.GREEN_STAINED_GLASS)
-                                        .define('B', Items.BLUE_STAINED_GLASS)
-                                        .define('P', Items.PURPLE_STAINED_GLASS)
-                                        .define('M', Items.MAGENTA_STAINED_GLASS)
-                                        .unlockedBy("has_netherite_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()))
-                                        .save(x, IronFurnaces.id(ctx.getName())))
-                                .build(provider, IronFurnaces.id(ctx.getName()));
+                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                                .pattern("ROY")
+                                .pattern("FGF")
+                                .pattern("BPM")
+                                .define('R', Items.RED_STAINED_GLASS)
+                                .define('O', Items.ORANGE_STAINED_GLASS)
+                                .define('Y', Items.YELLOW_STAINED_GLASS)
+                                .define('F', LegacyFurnaceBlocks.NETHERITE_FURNACE)
+                                .define('G', Items.GREEN_STAINED_GLASS)
+                                .define('B', Items.BLUE_STAINED_GLASS)
+                                .define('P', Items.PURPLE_STAINED_GLASS)
+                                .define('M', Items.MAGENTA_STAINED_GLASS)
+                                .unlockedBy("has_netherite_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()))
+                                .save(provider, IronFurnaces.id(ctx.getName()));
                     })
                     .register();
 
@@ -491,17 +486,17 @@ public class ModItems {
     public static final ItemEntry<ItemRainbowCoal> RAINBOW_COAL =
             registerItem("rainbow_coal", ItemRainbowCoal::new)
                     .recipe((ctx, provider) -> {
-                LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
-                        .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.EMERALD_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get())
-                        .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
-                        .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
-                        .save(provider, IronFurnaces.id(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
-            }).register();
+                        LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+                                .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.EMERALD_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
+                                .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
+                                .save(provider, IronFurnaces.id(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
+                    }).register();
 
     public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
             registerItem("upgrade_tool", ItemUpgradeTool::new)
@@ -686,7 +681,7 @@ public class ModItems {
                     .register();
 
 
-    private static ResourceLocation newUpgrade(ResourceLocation path){
+    private static ResourceLocation newUpgrade(ResourceLocation path) {
         return IronFurnaces.id("new_upgrades/" + path.getPath());
     }
 
