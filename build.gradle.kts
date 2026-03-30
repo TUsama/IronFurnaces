@@ -49,7 +49,7 @@ modstitch {
         modVersion = property("mod_version") as String
         modGroup = property("mod_group_id") as String
         modAuthor = property("mod_authors") as String
-        modLicense = "Apache License Version 2.0"
+        modLicense = property("mod_license") as String
 
         fun <K : Any, V : Any> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
             block()

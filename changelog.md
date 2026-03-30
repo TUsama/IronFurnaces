@@ -1,3 +1,12 @@
+### 0.2.2
+change the io setting button to furnace facing, same as legacy furnace
+fix a bug that furnace generation won't start while using fuel efficiency augment
+fix an issue that can't find Wireless Heat Transmitter in Jei
+fix an issue that can't open Wireless Heat Transmitter menu
+fix an issue that the furnace screen sometimes will show the Subtraction button even the furnace not in Comparator Subtraction mode.
+furnace screen button QoL enhance
+
+
 ### 0.2.1
 remove id field in the Upgrade Rule data because it's bug-prone for devs
 modify default stats of several furnaces
