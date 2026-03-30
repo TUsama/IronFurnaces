@@ -38,25 +38,12 @@ public final class PatternUpgradeRuleReloadListener extends SimpleJsonResourceRe
             JsonElement json = e.getValue();
 
             try {
-                PatternUpgradeRule rule = PatternUpgradeRule.CODEC
+                PatternUpgradeRule rule = PatternUpgradeRuleDefinition.CODEC
                         .parse(JsonOps.INSTANCE, json)
                         .getOrThrow(false, msg -> {
                             throw new IllegalStateException(msg);
-                        });
-
-                // 一致性校验：json 内 rule.id 必须等于文件名推导出的 id
-                //（因为你打算把 id 写进物品 NBT，必须稳定且唯一）
-                if (!fileId.equals(rule.id())) {
-                    throw new IllegalStateException(
-                            "Rule id mismatch. fileId=" + fileId + ", json.id=" + rule.id()
-                    );
-                }
-
-                PatternUpgradeRule prev = loaded.put(fileId, rule);
-                if (prev != null) {
-                    // 理论上不该发生：同 fileId 在最终资源视图里只能有一个
-                    LOGGER.warn("Duplicate upgrade rule id overwritten: {}", fileId);
-                }
+                        }).toRuntime(e.getKey());
+                loaded.put(fileId, rule);
 
                 ok++;
             } catch (Exception ex) {
