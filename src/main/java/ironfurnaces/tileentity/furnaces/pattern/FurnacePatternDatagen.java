@@ -61,10 +61,10 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
                             definition(180, 80_000, 40, 1, ResourceLocationUtils.make("minecraft", "copper_block"))),
 
                     Map.entry(IronFurnaces.id("iron_furnace"),
-                            definition(160, 80_000, 40, 2, ResourceLocationUtils.make("minecraft", "iron_block"))),
+                            definition(160, 80_000, 80, 2, ResourceLocationUtils.make("minecraft", "iron_block"))),
 
                     Map.entry(IronFurnaces.id("silver_furnace"),
-                            definition(140, 200_000, 100, 3, ResourceLocationUtils.make("minecraft", "iron_block"))),
+                            definition(140, 200_000, 120, 3, ResourceLocationUtils.make("minecraft", "iron_block"))),
 
                     Map.entry(IronFurnaces.id("gold_furnace"),
                             definition(120, 200_000, 160, 4, ResourceLocationUtils.make("minecraft", "gold_block"))),
@@ -106,10 +106,11 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
     private void registerRainbow() {
         RainbowFurnaceConfig config = new RainbowFurnaceConfig(
                 Map.of(
-                        IronFurnaces.id("copper_furnace"), new RainbowBonus(-5, 0,10_000, 10, 0, 0),
-                        IronFurnaces.id("iron_furnace"), new RainbowBonus(-10, 0,20_000, 20, 0, 0),
-                        IronFurnaces.id("gold_furnace"), new RainbowBonus(-15, 0,40_000, 40, 0, 1),
-                        IronFurnaces.id("diamond_furnace"), new RainbowBonus(-20, 0,80_000, 60, 0, 1)
+                        IronFurnaces.id("copper_furnace"), new RainbowBonus(-1, 0,10_000, 10, 0, 0),
+                        IronFurnaces.id("iron_furnace"), new RainbowBonus(-2, 0,20_000, 40, 0, 0),
+                        IronFurnaces.id("gold_furnace"), new RainbowBonus(-3, 0,40_000, 80, 0, 1),
+                        IronFurnaces.id("diamond_furnace"), new RainbowBonus(-4, 0,80_000, 120, 0, 3),
+                        IronFurnaces.id("netherite_furnace"), new RainbowBonus(-5, 5,500_000, 500, 0, 5)
                 ),
                 new RainbowBonus(0, 0,0, 500_000, 0, 0),
                 java.util.Set.of(IronFurnaces.id("rainbow_furnace"))
@@ -118,9 +119,9 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
         entries.put(
                 IronFurnaces.id("rainbow_furnace"),
                 FurnacePatternDefinition.rainbow(
-                        200,
+                        20,
                         100_000,
-                        60,
+                        10000,
                         20,
                         1,
                         Optional.empty(),
