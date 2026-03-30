@@ -289,15 +289,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         blockEntity.autoIO();
         blockEntity.energyOutPerTick();
         blockEntity.updateHandleTick();
-/*
-        if (!level.isClientSide && blockEntity.pattern != null && blockEntity.pattern.isRainbow()) {
-            blockEntity.rainbowState().tickServer();
-        }
-*/
         blockEntity.syncProcessingInstancesManagerToViewers();
-        if (level instanceof ServerLevel serverLevel){
-
-        }
 
     }
 
@@ -770,6 +762,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     protected void energyOutPerTick() {
+        if (!settingsV2.autoOutput()) return;
         Direction[] dirs = Direction.values();
         Direction dir = dirs[lastProcessedDirection];
 

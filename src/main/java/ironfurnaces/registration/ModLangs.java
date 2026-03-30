@@ -18,6 +18,13 @@ public class ModLangs {
     public static final Component REFUSE_OPEN_EMPTY_PATTERN = REGISTRATE.addRawLang("block.ironfurnaces.furnace_pattern_holder." + "refuse_open_empty_pattern", "Can't open the menu, because the furnace haven't attach any patterns!");
     public static final Component REFUSE_PLACE_EMPTY_TAG = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "refuse_place_empty_tag", "You can't place down this furnace because this item haven't attach any pattern tags!");
     public static final Component READ_PATTERN_FAILED = REGISTRATE.addRawLang("item.ironfurnaces.pattern_holder_item." + "read_pattern_failed", "Failed to reading furnace pattern from furnace item!");
+
+    public static final Component FRONT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.front", "Front: %s");
+    public static final Component BACK = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.back", "Back: %s");
+    public static final Component LEFT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.left", "Left: %s");
+    public static final Component RIGHT = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.right", "Right: %s");
+    public static final Component RELATIVE_UP = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.up", "Up: %s");
+    public static final Component RELATIVE_DOWN = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.relative_face.down", "Down: %s");
     public static final Component DOWN = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "down", "Down: %s");
 
     public static final Component UP = REGISTRATE.addRawLang("ironfurnaces.furnace_setting.direction." + "up", "Up: %s");
