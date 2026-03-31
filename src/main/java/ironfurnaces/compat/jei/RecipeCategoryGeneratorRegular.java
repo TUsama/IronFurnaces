@@ -28,25 +28,32 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGeneratorRecipe> {
 
     public static final ResourceLocation UID = IronFurnaces.id("category_generator_regular");
-    public IGuiHelper guiHelper;
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
     protected final IDrawableStatic staticEnergy;
     protected final IDrawableAnimated animatedEnergy;
+    protected final IDrawableStatic background;
+    public IGuiHelper guiHelper;
 
 
-
-    public RecipeCategoryGeneratorRegular(IGuiHelper guiHelper)
-    {
+    public RecipeCategoryGeneratorRegular(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
         staticFlame = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 68, 0, 14, 14);
         animatedFlame = guiHelper.createAnimatedDrawable(staticFlame, 300, IDrawableAnimated.StartDirection.TOP, true);
 
         staticEnergy = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 82, 0, 14, 42);
         animatedEnergy = guiHelper.createAnimatedDrawable(staticEnergy, 300, IDrawableAnimated.StartDirection.BOTTOM, false);
-
+        this.background = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 0, 0, 68, 42);
+    }
+    @Override
+    public int getWidth() {
+        return 68;
     }
 
+    @Override
+    public int getHeight() {
+        return 42;
+    }
     @Override
     public RecipeType<SimpleGeneratorRecipe> getRecipeType() {
         return JEICompat.GENERATOR_REGULAR;
@@ -57,10 +64,6 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
         return Component.translatable(IronFurnaces.MOD_ID + ".jei_category_regular");
     }
 
-    @Override
-    public IDrawable getBackground() {
-        return guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 0, 0, 68, 42);
-    }
 
     @Override
     public IDrawable getIcon() {
@@ -75,20 +78,17 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
 
     @Override
     public void draw(SimpleGeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics stack, double mouseX, double mouseY) {
-         animatedFlame.draw(stack, 1, 1);
-         animatedEnergy.draw(stack, 54, 0);
+        background.draw(stack);
+        animatedFlame.draw(stack, 1, 1);
+        animatedEnergy.draw(stack, 54, 0);
     }
 
     @Override
     public void getTooltip(ITooltipBuilder tooltip, SimpleGeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
-        if (mouseX >= 55 && mouseX <= 68 && mouseY >= 1 && mouseY <= 42)
-        {
+        if (mouseX >= 55 && mouseX <= 68 && mouseY >= 1 && mouseY <= 42) {
             tooltip.add(Component.literal(StringHelper.displayEnergy(recipe.getEnergy()).get(0)));
         }
     }
-
-
-
 
 
     @Override
