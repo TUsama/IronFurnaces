@@ -480,7 +480,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     public boolean isActiveForRainbowCount() {
         if (this.isRemoved()) return false;
-        if (this.pattern == null) return false;
+        if (this.pattern == null || this.pattern.equals(FurnacePattern.FALLBACK)) return false;
         if (this.pattern.isRainbow()) return false;
         if (this.level == null || this.level.isClientSide) return false;
         if (!this.shouldWorkByRedstone()) return false;
@@ -1023,7 +1023,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     public void reviveCaps() {
         super.reviveCaps();
         recalcSideIOCap();
-        energyCap = LazyOptional.of(() -> getFuel());
+        energyCap = LazyOptional.of(this::getFuel);
     }
 
     @Override
@@ -1031,6 +1031,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (this.isRemoved()) {
             return LazyOptional.empty();
         }
+        if (pattern.equals(FurnacePattern.FALLBACK)) return LazyOptional.empty();
 
         if (side != null && cap == ForgeCapabilities.ITEM_HANDLER) {
             return sidedHandlers.getOrDefault(side, LazyOptional.empty()).cast();

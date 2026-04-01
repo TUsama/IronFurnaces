@@ -19,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -85,6 +86,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         if (speed != 0){
             tooltip.add(translatable("ironfurnaces.block.furnace.work_speed", Component.literal("" + speed).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
         }
+        tooltip.add(translatable("item.ironfurnaces.furnace.legacy").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     @Override

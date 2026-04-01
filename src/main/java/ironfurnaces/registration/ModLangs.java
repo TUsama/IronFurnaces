@@ -45,7 +45,7 @@ public class ModLangs {
 
     public static final Component ERROR_ON_PARSE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_parse", "Failed to parsing furnace setting on Copy Tool!");
     public static final Component ERROR_ON_WRITE = REGISTRATE.addRawLang("item.ironfurnaces.item_copy." + "error_on_write", "Failed to writing furnace setting on Copy Tool! Please consider destroy the furnace you are coping and place it down again!");
-
+    public static final Component LEGACY = REGISTRATE.addRawLang("item.ironfurnaces.furnace." + "legacy", "Legacy");
     public static final Component IO_MODE_NONE =
             REGISTRATE.addRawLang(
                     "ironfurnaces.furnace_setting.io_mode.none",
