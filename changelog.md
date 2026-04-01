@@ -1,3 +1,8 @@
+### 0.2.3
+factory screen QoL
+rename pattern field: input_slot_amount -> factory_input_slot_amount
+add tooltips for legacy furnaces
+
 ### 0.2.2
 change the io setting button to furnace facing, same as legacy furnace
 fix a bug that furnace generation won't start while using fuel efficiency augment
