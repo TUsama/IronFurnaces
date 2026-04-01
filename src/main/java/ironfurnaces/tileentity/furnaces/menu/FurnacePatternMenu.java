@@ -255,6 +255,14 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         return (int) (progress * 24);
     }
 
+    public int getVerticalBurnProgress(int index) {
+        if (index >= this.instances.size()) {
+            return 0;
+        }
+        float progress = this.instances.get(index);
+        return (int) (progress * 18);
+    }
+
 
     public int getLitProgress() {
         int i = this.litDuration;

@@ -25,8 +25,10 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
@@ -416,14 +418,20 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         int currentPage = this.menu.factoryInput.getCurrentPage();
         int startIndex = currentPage * pageSize;
         int endIndex = Math.min(startIndex + pageSize, this.menu.factoryInput.size);
-
+        int slotIndex = 0;
         for (int index = startIndex; index < endIndex; index++) {
             int indexInPage = index % pageSize;
             int col = indexInPage % columns;
             int row = indexInPage / columns;
 
             guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
+            int verticalBurnProgress = menu.getVerticalBurnProgress(slotIndex);
+            if (verticalBurnProgress != 0){
+                guiGraphics.fill(i + 35 + col * 18 + 1, j + 16 + row * 18 + verticalBurnProgress, i + 35 + col * 18 + 18, j + 16 + row * 18 + 18, FastColor.ARGB32.color(100, 255, 255, 255));
+                //guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18 - verticalBurnProgress, 176, 55, 18, 18);
+            }
             guiGraphics.blit(texture, i + 105 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
+            slotIndex++;
         }
 
         if (this.menu.isLit()) {

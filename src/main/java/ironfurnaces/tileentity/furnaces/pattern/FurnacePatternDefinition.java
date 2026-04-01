@@ -24,7 +24,7 @@ public record FurnacePatternDefinition(
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(FurnacePatternDefinition::energyCapacity),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(FurnacePatternDefinition::energyGenerationPerTick),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(FurnacePatternDefinition::energyConsumerPerTick),
-            ExtraCodecs.POSITIVE_INT.fieldOf("input_slot_amount").forGetter(FurnacePatternDefinition::inputSlotAmount),
+            ExtraCodecs.POSITIVE_INT.fieldOf("factory_input_slot_amount").forGetter(FurnacePatternDefinition::inputSlotAmount),
             ResourceLocation.CODEC.optionalFieldOf("reference_block").forGetter(FurnacePatternDefinition::referenceBlock),
             RainbowFurnaceConfig.CODEC.optionalFieldOf("rainbow").forGetter(FurnacePatternDefinition::rainbow)
     ).apply(inst, FurnacePatternDefinition::new));
