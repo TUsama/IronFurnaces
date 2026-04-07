@@ -28,19 +28,19 @@ import java.util.Random;
 
 public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceContainerBase> extends AbstractContainerScreen<T> {
 
-    public ResourceLocation GUI = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace.png");
-    public static final ResourceLocation GUI_NETHERITE = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_netherite.png");
-    public static final ResourceLocation GUI_ATM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_allthemodium.png");
-    public static final ResourceLocation GUI_VIB = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_vibranium.png");
-    public static final ResourceLocation GUI_UNOB = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_unobtainium.png");
-    public static final ResourceLocation GUI_FACTORY = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_factory.png");
-    public static final ResourceLocation GUI_GENERATOR = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator.png");
-    public static final ResourceLocation GUI_GENERATOR_NETHERITE = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_netherite.png");
-    public static final ResourceLocation GUI_GENERATOR_ALLTHEMODIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_allthemodium.png");
-    public static final ResourceLocation GUI_GENERATOR_VIBRANIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_vibranium.png");
-    public static final ResourceLocation GUI_GENERATOR_UNOBTAINIUM = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/furnace_generator_unobtainium.png");
-    public static final ResourceLocation GUI_AUGMENTS = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/augment.png");
-    public static final ResourceLocation WIDGETS = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/widgets.png");
+    public ResourceLocation GUI = IronFurnaces.id("textures/gui/furnace.png");
+    public static final ResourceLocation GUI_NETHERITE = IronFurnaces.id("textures/gui/furnace_netherite.png");
+    public static final ResourceLocation GUI_ATM = IronFurnaces.id("textures/gui/furnace_allthemodium.png");
+    public static final ResourceLocation GUI_VIB = IronFurnaces.id("textures/gui/furnace_vibranium.png");
+    public static final ResourceLocation GUI_UNOB = IronFurnaces.id("textures/gui/furnace_unobtainium.png");
+    public static final ResourceLocation GUI_FACTORY = IronFurnaces.id("textures/gui/furnace_factory.png");
+    public static final ResourceLocation GUI_GENERATOR = IronFurnaces.id("textures/gui/furnace_generator.png");
+    public static final ResourceLocation GUI_GENERATOR_NETHERITE = IronFurnaces.id("textures/gui/furnace_generator_netherite.png");
+    public static final ResourceLocation GUI_GENERATOR_ALLTHEMODIUM = IronFurnaces.id("textures/gui/furnace_generator_allthemodium.png");
+    public static final ResourceLocation GUI_GENERATOR_VIBRANIUM = IronFurnaces.id("textures/gui/furnace_generator_vibranium.png");
+    public static final ResourceLocation GUI_GENERATOR_UNOBTAINIUM = IronFurnaces.id("textures/gui/furnace_generator_unobtainium.png");
+    public static final ResourceLocation GUI_AUGMENTS = IronFurnaces.id("textures/gui/augment.png");
+    public static final ResourceLocation WIDGETS = IronFurnaces.id("textures/gui/widgets.png");
     Inventory playerInv;
     Component name;
 
@@ -81,6 +81,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     @Override
     public void render(GuiGraphics matrix, int mouseX, int mouseY, float partialTicks) {
+        //~ if >1.20.1 'matrix' -> 'matrix, mouseX, mouseY, partialTicks'
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrix, mouseX, mouseY);

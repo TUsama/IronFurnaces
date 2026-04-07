@@ -6,6 +6,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+
+//? 1.20.1 {
+import static net.minecraftforge.event.ForgeEventFactory.firePlayerSmeltedEvent;
+//? } else {
+/*import static net.minecraftforge.event.EventHooks.firePlayerSmeltedEvent;
+*///?}
+
+
 public class SlotIronFurnace extends Slot {
 
     private final Player player;
@@ -61,7 +69,7 @@ public class SlotIronFurnace extends Slot {
         }
 
         this.removeCount = 0;
-        net.minecraftforge.event.ForgeEventFactory.firePlayerSmeltedEvent(this.player, p_39558_);
+        firePlayerSmeltedEvent(this.player, p_39558_);
     }
 
 }

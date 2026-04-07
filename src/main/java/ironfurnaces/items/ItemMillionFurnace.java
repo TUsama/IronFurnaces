@@ -12,8 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+//? 1.20.1 {
+
+//? } else {
+/*import net.minecraft.core.component.DataComponents;
+*///?}
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -30,9 +33,9 @@ public class ItemMillionFurnace extends BlockItem {
     private Random rand = new Random();
     private int timer = 0;
 
-    @OnlyIn(Dist.CLIENT)
+    
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
             tooltip.add(Component.literal("Cooktime: " + Config.millionFurnaceSpeed.get()).withStyle(ChatFormatting.GRAY));
             timer++;
             if (timer % 20 == 0) {

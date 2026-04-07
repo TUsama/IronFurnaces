@@ -1,3 +1,4 @@
+//~ replace_serialization
 package ironfurnaces.tileentity;
 
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
@@ -23,7 +24,9 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
-//?}
+//?} else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 
 import javax.annotation.Nullable;
 
@@ -45,12 +48,8 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     public static void tick(Level level, BlockPos worldPosition, BlockState blockState, BlockWirelessEnergyHeaterTile e) {
         ItemStack stack = e.getItem(0);
-        if (!stack.isEmpty()) {
-            CompoundTag nbt = new CompoundTag();
-            stack.setTag(nbt);
-            nbt.putInt("X", e.worldPosition.getX());
-            nbt.putInt("Y", e.worldPosition.getY());
-            nbt.putInt("Z", e.worldPosition.getZ());
+        if (!stack.isEmpty() && stack.getItem() instanceof ItemHeater) {
+            ItemHeater.writeBoundBlockPos(stack, worldPosition);
         }
 
     }
@@ -58,15 +57,15 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
-        this.getWrapper().setEnergy(nbt.getInt("Energy"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        this.getWrapper().receiveEnergy(tag.getInt("Energy"), false);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
-        nbt.putInt("Energy", getWrapper().getEnergy());
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putInt("Energy", getWrapper().getEnergyStored());
     }
 
     @Override
@@ -120,6 +119,7 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     @Override
     public void setRemoved() {
+        //? 1.20.1
         energy.invalidate();
         super.setRemoved();
 

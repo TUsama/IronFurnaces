@@ -7,13 +7,13 @@ import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.util.FuelBurnTimeUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 @Getter
@@ -47,7 +47,7 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
         if (litTime == 0 && tile.getInstanceManager().needLit(tile)) {
 
             ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
-            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(ForgeHooks.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType.get()));
+            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(FuelBurnTimeUtil.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType.get()));
 
             if (burnTime > 0) {
                 litTime = burnTime;
@@ -69,8 +69,8 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
             } else if (stackInSlot.getItem() instanceof ItemHeater) {
                 BlockPos boundBlockPos = ItemHeater.getBoundBlockPos(stackInSlot);
                 if (boundBlockPos != null){
-                    if (level.getBlockEntity(boundBlockPos) instanceof BlockWirelessEnergyHeaterTile heaterTile && heaterTile.getWrapper().getEnergy() >= 20) {
-                        heaterTile.getWrapper().removeEnergy(20);
+                    if (level.getBlockEntity(boundBlockPos) instanceof BlockWirelessEnergyHeaterTile heaterTile && heaterTile.getWrapper().getEnergyStored() >= 20) {
+                        heaterTile.getWrapper().extractEnergy(20, false);
                         litTime = 5;
                         litDuration = 5;
                     }

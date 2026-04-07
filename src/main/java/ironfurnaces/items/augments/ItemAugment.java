@@ -29,7 +29,7 @@ public class ItemAugment extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_right_click").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
     }
 

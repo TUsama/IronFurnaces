@@ -16,35 +16,54 @@ import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.Util;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ModelFile;
+
+//? forge {
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.PartialNBTIngredient;
-import net.minecraftforge.common.crafting.StrictNBTIngredient;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 import net.minecraftforge.common.crafting.conditions.NotCondition;
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+//?} else {
+/*import net.minecraft.world.level.storage.loot.functions.CopyCustomDataFunction;
 
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.common.conditions.ModLoadedCondition;
+import net.minecraftforge.common.conditions.NotCondition;
+import net.minecraftforge.common.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
+import net.minecraftforge.common.crafting.DataComponentIngredient;
+import net.minecraft.data.recipes.RecipeOutput;
+*///?}
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -101,6 +120,7 @@ public class ModBlocks {
                                         .add(
                                                 LootItem.lootTableItem(furnace)
                                                         .apply(
+                                                                //$ if forge 'CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)' else 'CopyCustomDataFunction.copyData(LootContext.EntityTarget.THIS)'
                                                                 CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                         .copy(FurnaceSettingsV2.NBT_KEY, "BlockEntityTag." + FurnaceSettingsV2.NBT_KEY)
                                                                         .copy(FurnacePattern.NBT_KEY, "BlockEntityTag." + FurnacePattern.NBT_KEY)
@@ -142,14 +162,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("YYY")
                         .define('#', bindForge("glass"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, COPPER_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), COPPER_PATTERN_ID))
                         .define('Y', bindForge("ingots/iron"))
                         .unlockedBy("has_iron_ingot", RegistrateRecipeProvider.has(Items.IRON_INGOT))
                         .save(provider, makeID(IRON_PATTERN_ID.getPath() + "2_nbt"));
@@ -170,14 +183,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("#Y#")
                         .define('#', bindForge("ingots/gold"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, IRON_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), IRON_PATTERN_ID))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_ingot", RegistrateRecipeProvider.has(Items.GOLD_INGOT))
                         .save(provider, makeID(GOLD_PATTERN_ID.getPath() + "_nbt"));
@@ -197,14 +203,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("#Y#")
                         .define('#', bindForge("glass"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, SILVER_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), SILVER_PATTERN_ID))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_block", RegistrateRecipeProvider.has(Items.GOLD_BLOCK))
                         .save(provider, makeID(GOLD_PATTERN_ID.getPath() + "2_nbt"));
@@ -224,14 +223,7 @@ public class ModBlocks {
                         .pattern("GXG")
                         .pattern("###")
                         .define('#', bindForge("gems/diamond"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, GOLD_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), GOLD_PATTERN_ID))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_diamond", RegistrateRecipeProvider.has(Items.DIAMOND))
                         .save(provider, makeID(DIAMOND_PATTERN_ID.getPath() + "_nbt"));
@@ -250,14 +242,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("###")
                         .define('#', bindForge("gems/emerald"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, DIAMOND_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), DIAMOND_PATTERN_ID))
                         .unlockedBy("has_emerald", RegistrateRecipeProvider.has(Items.EMERALD))
                         .save(provider, makeID(EMERALD_PATTERN_ID.getPath() + "_nbt"));
 
@@ -285,14 +270,7 @@ public class ModBlocks {
                         .pattern("GXG")
                         .pattern("#G#")
                         .define('#', ModItemTags.SILVER)
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, IRON_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), IRON_PATTERN_ID))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_silver_ingot", RegistrateRecipeProvider.has(ModItemTags.SILVER))
                         .save(x, makeID(SILVER_PATTERN_ID.getPath() + "_nbt")), ctx, provider, SILVER_PATTERN_ID.getPath() + "_nbt", ModItemTags.SILVER);
@@ -311,14 +289,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("###")
                         .define('#', ModItemTags.SILVER)
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, COPPER_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), COPPER_PATTERN_ID))
                         .unlockedBy("has_silver_ingot", RegistrateRecipeProvider.has(ModItemTags.SILVER))
                         .save(x, makeID(SILVER_PATTERN_ID.getPath() + "2_nbt")), ctx, provider, SILVER_PATTERN_ID.getPath() + "2_nbt", ModItemTags.SILVER);
 
@@ -337,14 +308,7 @@ public class ModBlocks {
                         .pattern("YXY")
                         .pattern("#Y#")
                         .define('#', bindForge("obsidian"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, EMERALD_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), EMERALD_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", RegistrateRecipeProvider.has(Blocks.OBSIDIAN))
                         .save(provider, makeID(OBSIDIAN_PATTERN_ID.getPath() + "_nbt"));
@@ -364,14 +328,7 @@ public class ModBlocks {
                         .pattern("YXY")
                         .pattern("#Y#")
                         .define('#', bindForge("obsidian"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, CRYSTAL_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), CRYSTAL_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", RegistrateRecipeProvider.has(Blocks.OBSIDIAN))
                         .save(provider, makeID(OBSIDIAN_PATTERN_ID.getPath() + "2_nbt"));
@@ -391,14 +348,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("#E#")
                         .define('#', bindForge("glass"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, DIAMOND_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), DIAMOND_PATTERN_ID))
                         .define('E', Items.ENDER_EYE)
                         .unlockedBy("has_diamond_furnace", RegistrateRecipeProvider.has(Items.DIAMOND))
                         .save(provider, makeID(CRYSTAL_PATTERN_ID.getPath() + "_nbt"));
@@ -419,14 +369,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("NSN")
                         .define('#', Items.MAGMA_CREAM)
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, OBSIDIAN_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), OBSIDIAN_PATTERN_ID))
                         .define('S', bindVanilla("soul_fire_base_blocks"))
                         .define('N', Items.NETHERITE_INGOT)
                         .unlockedBy("has_obsidian_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE))
@@ -448,14 +391,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("B#B")
                         .define('#', bindForge("ingots/allthemodium"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, NETHERITE_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), NETHERITE_PATTERN_ID))
                         .define('B', bindForge("storage_blocks/allthemodium"))
                         .unlockedBy("has_allthemodium_ingot",
                                 RegistrateRecipeProvider.has(bindForge("ingots/allthemodium")))
@@ -477,14 +413,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("B#B")
                         .define('#', bindForge("ingots/vibranium"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, ALLTHEMODIUM_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), ALLTHEMODIUM_PATTERN_ID))
                         .define('B', bindForge("storage_blocks/vibranium"))
                         .unlockedBy("has_vibranium_ingot",
                                 RegistrateRecipeProvider.has(bindForge("ingots/vibranium")))
@@ -506,14 +435,7 @@ public class ModBlocks {
                         .pattern("#X#")
                         .pattern("B#B")
                         .define('#', bindForge("ingots/unobtainium"))
-                        .define('X', PartialNBTIngredient.of(
-                                ctx.get(),
-                                Util.make(() -> {
-                                    var furnacePatternHolderItem = ctx.get().getDefaultInstance();
-                                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, VIBRANIUM_PATTERN_ID);
-                                    return furnacePatternHolderItem.getShareTag();
-                                })
-                        ))
+                        .define('X', bindPatternHolder(ctx.get(), VIBRANIUM_PATTERN_ID))
                         .define('B', bindForge("storage_blocks/unobtainium"))
                         .unlockedBy("has_unobtainium_ingot",
                                 RegistrateRecipeProvider.has(bindForge("ingots/unobtainium")))
@@ -526,15 +448,7 @@ public class ModBlocks {
             .build()
             .register();
 
-    @SafeVarargs
-    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrateRecipeProvider provider, String id, TagKey<Item>... tags) {
-        ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
-        for (TagKey<Item> itemTagKey : tags) {
-            builder.addCondition(new NotCondition(new TagEmptyCondition(itemTagKey.location())));
-        }
 
-        consumerConsumer.accept(x -> builder.addRecipe(x).build(provider, IronFurnaces.id("new_furnaces" + "/" + id)));
-    }
 
     public static ResourceLocation makeID(String furnaceName) {
         return IronFurnaces.id("new_furnaces/" + furnaceName);
@@ -543,18 +457,53 @@ public class ModBlocks {
     public static void register() {
 
     }
+    //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
     private static void whenAllthemodium(
             Consumer<Consumer<FinishedRecipe>> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
             RegistrateRecipeProvider provider
     ) {
+        //? 1.20.1 {
         consumerConsumer.accept(x -> ConditionalRecipe.builder()
                 .addCondition(new ModLoadedCondition("allthemodium"))
                 .addRecipe(x)
                 .build(provider, IronFurnaces.id("new_furnaces/" + id)));
+        //? } else {
+        /*consumerConsumer.accept(new ConditionalRecipeOutput(provider, Stream.of(new ModLoadedCondition("allthemodium")).toArray(ICondition[]::new)));
+        *///?}
     }
 
+    @SafeVarargs
+    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrateRecipeProvider provider, String id, TagKey<Item>... tags) {
+        //? 1.20.1 {
+        ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
+        for (TagKey<Item> itemTagKey : tags) {
+            builder.addCondition(new NotCondition(new TagEmptyCondition(itemTagKey.location())));
+        }
+
+        consumerConsumer.accept(x -> builder.addRecipe(x).build(provider, IronFurnaces.id("new_furnaces" + "/" + id)));
+        //? } else {
+        /*consumerConsumer.accept(new ConditionalRecipeOutput(provider, Arrays.stream(tags).map(x -> new NotCondition(new TagEmptyCondition(x.location()))).toArray(ICondition[]::new)));
+        *///?}
+    }
+    //~}
+
+    private static Ingredient bindPatternHolder(Item item, ResourceLocation patternId) {
+        //? 1.20.1 {
+        return PartialNBTIngredient.of(
+                item,
+                Util.make(() -> {
+                    ItemStack furnacePatternHolderItem = item.getDefaultInstance();
+                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, patternId);
+                    return furnacePatternHolderItem.getShareTag();
+                })
+        );
+        //?} else {
+        /*return DataComponentIngredient.of(false, ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), patternId, item);
+        *///?}
+    }
+    //~ if >1.20.1 'ForgeRegistries.Keys.BLOCK_ENTITY_TYPES' -> 'BuiltInRegistries.BLOCK_ENTITY_TYPE' {
     public static BlockEntityType<? extends BlockIronFurnaceTileBase> asBlockEntityType(BlockEntry<?> entry) {
         return (BlockEntityType<? extends BlockIronFurnaceTileBase>) entry.getSibling(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES).get();
     }
@@ -562,4 +511,5 @@ public class ModBlocks {
     public static <T extends BlockEntity> BlockEntityType<T> asGenericBlockEntityType(BlockEntry<?> entry) {
         return (BlockEntityType<T>) entry.getSibling(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES).get();
     }
+    //~}
 }

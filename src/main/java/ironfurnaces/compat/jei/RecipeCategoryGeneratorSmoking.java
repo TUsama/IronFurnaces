@@ -27,7 +27,7 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
 public class RecipeCategoryGeneratorSmoking implements IRecipeCategory<SimpleGeneratorRecipe> {
 
-    public static final ResourceLocation UID = new ResourceLocation(IronFurnaces.MOD_ID, "category_generator_smoking");
+    public static final ResourceLocation UID = IronFurnaces.id("category_generator_smoking");
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
     protected final IDrawableStatic staticEnergy;

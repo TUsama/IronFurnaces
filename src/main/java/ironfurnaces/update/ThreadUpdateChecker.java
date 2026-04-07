@@ -1,3 +1,6 @@
+//? 1.20.1 {
+
+
 package ironfurnaces.update;
 
 import ironfurnaces.loaders.IronFurnaces;
@@ -60,3 +63,4 @@ public class ThreadUpdateChecker extends Thread {
     }
 
 }
+//? }

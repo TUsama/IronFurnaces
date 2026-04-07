@@ -20,11 +20,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+//? 1.20.1 {
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+//? } else {
+
+//?}
+
 
 
 public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
@@ -348,73 +352,35 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
     }
 
     public int getEnergy() {
-        return te.getCapability(ForgeCapabilities.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0);
+        return te.energyStorage.getEnergyStored();
     }
 
     public int getMaxEnergy() {
-        return te.getCapability(ForgeCapabilities.ENERGY).map(IEnergyStorage::getMaxEnergyStored).orElse(0);
+        return te.energyStorage.getMaxEnergyStored();
     }
 
-    // Credit - Mcjty
-    // Setup syncing of power from server to client so that the GUI can show the amount of power in the block
     private void addEnergyData() {
-        // Unfortunatelly on a dedicated server ints are actually truncated to short so we need
-        // to split our integer here (split our 32 bit integer into two 16 bit integers)
         addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return getMaxEnergy() & 0xffff;
+                return getMaxEnergy();
             }
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
-                    int capacity = h.getMaxEnergyStored() & 0xffff0000;
-                    ((FEnergyStorage)h).setCapacity(capacity + (value & 0xffff));
-                });
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return (getMaxEnergy() >> 16) & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
-                    int capacity = h.getMaxEnergyStored() & 0x0000ffff;
-                    ((FEnergyStorage)h).setCapacity(capacity | (value << 16));
-                });
+                te.energyStorage.setCapacity(value);
             }
         });
 
         addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return getEnergy() & 0xffff;
+                return getEnergy();
             }
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
-                    int energyStored = h.getEnergyStored() & 0xffff0000;
-                    ((FEnergyStorage)h).setEnergy(energyStored + (value & 0xffff));
-                });
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return (getEnergy() >> 16) & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
-                    int energyStored = h.getEnergyStored() & 0x0000ffff;
-                    ((FEnergyStorage)h).setEnergy(energyStored | (value << 16));
-                });
+                te.energyStorage.receiveEnergy(value - te.energyStorage.getEnergyStored(), false);
             }
         });
     }

@@ -1,3 +1,4 @@
+//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
@@ -10,6 +11,10 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.NotNull;
+//? 1.20.1 {
+//? } else {
+/*import net.minecraft.world.item.crafting.RecipeHolder;
+        *///?}
 
 import java.util.Optional;
 import java.util.function.Function;

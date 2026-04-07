@@ -1,5 +1,6 @@
 package ironfurnaces.registration;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -99,11 +100,11 @@ public class ModBlockTags {
     }
 
     protected static TagKey<Block> bindC(String id) {
-        return of(Registries.BLOCK, new ResourceLocation("c", id));
+        return of(Registries.BLOCK, ResourceLocationUtils.make("c", id));
     }
 
     protected static TagKey<Block> bindForge(String id) {
-        return of(Registries.BLOCK, new ResourceLocation("forge", id));
+        return of(Registries.BLOCK, ResourceLocationUtils.make("forge", id));
     }
 
     protected static TagKey<Block> bind(String id) {

@@ -8,9 +8,12 @@ public interface IFurnaceStats<T extends IFurnaceStats<?>> {
             Type.CODEC.dispatch(
                     "stats_type",
                     IFurnaceStats::getType,
+                    //~ if 1.20.1 '.CODEC' -> '.CODEC.codec()'{
                     type -> switch (type) {
-                        case EFFECTIVE -> EffectiveFurnaceStats.CODEC;
+                        case EFFECTIVE -> EffectiveFurnaceStats.CODEC.codec();
                     }
+                    //~ }
+
             );
 
     int smeltTick();

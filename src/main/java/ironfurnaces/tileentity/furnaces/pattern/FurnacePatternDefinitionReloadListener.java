@@ -34,7 +34,10 @@ public class FurnacePatternDefinitionReloadListener extends SimpleJsonResourceRe
 
             FurnacePatternDefinition definition = FurnacePatternDefinition.CODEC
                     .parse(JsonOps.INSTANCE, json)
-                    .getOrThrow(false, msg -> {
+                    .getOrThrow(
+                            //? 1.20.1
+                            false,
+                            msg -> {
                         throw new IllegalStateException("Failed to parse pattern definition " + id + ": " + msg);
                     });
 

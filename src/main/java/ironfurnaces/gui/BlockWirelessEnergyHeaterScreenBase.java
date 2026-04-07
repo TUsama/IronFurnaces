@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWirelessEnergyHeaterContainer> extends AbstractContainerScreen<T> {
 
-    public ResourceLocation GUI = new ResourceLocation(IronFurnaces.MOD_ID + ":" + "textures/gui/heater.png");
+    public ResourceLocation GUI = IronFurnaces.id("textures/gui/heater.png");
     Inventory playerInv;
     Component name;
 
@@ -23,6 +23,7 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
 
     @Override
     public void render(GuiGraphics matrix, int mouseX, int mouseY, float partialTicks) {
+        //~ if >1.20.1 'matrix' -> 'matrix, mouseX, mouseY, partialTicks'
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrix, mouseX, mouseY);

@@ -23,8 +23,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -40,9 +40,9 @@ public class ItemUpgrade extends Item {
         this.to = to;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".upgrade_right_click").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
     }
 

@@ -38,7 +38,10 @@ public abstract class CodecJsonProvider<T> implements DataProvider {
             T value = e.getValue();
 
             JsonElement json = codec.encodeStart(JsonOps.INSTANCE, value)
-                    .getOrThrow(false, msg -> {
+                    .getOrThrow(
+                            //? 1.20.1
+                            false,
+                            msg -> {
                         throw new IllegalStateException("Failed to encode " + id + ": " + msg);
                     });
 

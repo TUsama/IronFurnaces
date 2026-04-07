@@ -10,9 +10,5 @@
   "client": [
   ],
   "mixins": [
-    "AdvancementBuilderMixin",
-    "FixInfiniteRainbowCoalMixin",
-    "ShapedRecipeBuilderMixin",
-    "ShapedRecipeBuilderResultAccessor"
   ]
 }

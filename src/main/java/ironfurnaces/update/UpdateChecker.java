@@ -1,3 +1,5 @@
+//? 1.20.1 {
+
 package ironfurnaces.update;
 
 import ironfurnaces.Config;
@@ -6,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
  * Link to the Actually Additions repo: https://github.com/Ellpeck/ActuallyAdditions/
  * Link to the Actually Additions curse page: https://minecraft.curseforge.com/projects/actually-additions
  */
-@Mod.EventBusSubscriber
+//@Mod.EventBusSubscriber
 public class UpdateChecker {
 
 
@@ -42,7 +44,7 @@ public class UpdateChecker {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
+    
     @SubscribeEvent(receiveCanceled = true)
     public void onTick(TickEvent.ClientTickEvent event) {
         if (!Config.disableWebContent.get()) {
@@ -65,3 +67,5 @@ public class UpdateChecker {
 
 
 }
+
+//? }

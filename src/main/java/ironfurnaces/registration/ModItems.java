@@ -11,7 +11,6 @@ import ironfurnaces.items.upgrades.*;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.util.RainbowEnabledCondition;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -19,9 +18,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+
 import net.minecraftforge.common.crafting.CraftingHelper;
+//? 1.20.1 {
+
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipe;
+//? } else {
+/*import net.minecraftforge.common.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
+*///?}
+
+import java.util.List;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -465,7 +474,7 @@ public class ModItems {
                                 .requires(LegacyFurnaceBlocks.SILVER_FURNACE.get())
                                 .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
                                 .save(x, IronFurnaces.id(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
-
+                        //? 1.20.1 {
                         ConditionalRecipe.builder()
                                 .addCondition(new TagEmptyCondition(ModItemTags.SILVER.location()))
                                 .addRecipe(x -> {
@@ -480,6 +489,19 @@ public class ModItems {
                                             .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
                                             .save(x, IronFurnaces.id(ctx.getName() + "_no_silver"));
                                 }).build(provider, IronFurnaces.id(ctx.getName() + "_no_silver"));
+                        //? } else {
+                        /*ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+                                .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.EMERALD_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get())
+                                .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
+                                .unlockedBy("has_iron_furnace", RegistrateRecipeProvider.has(LegacyFurnaceBlocks.IRON_FURNACE.get()))
+                                .save(new ConditionalRecipeOutput(provider, List.of(new TagEmptyCondition(ModItemTags.SILVER.location())).toArray(ICondition[]::new)), IronFurnaces.id(ctx.getName() + "_no_silver"));
+                        *///?}
+
                     })
                     .register();
 
@@ -711,7 +733,7 @@ public class ModItems {
     }
 
     public static void register() {
-        CraftingHelper.register(RainbowEnabledCondition.Serializer.INSTANCE);
+
     }
 
 }

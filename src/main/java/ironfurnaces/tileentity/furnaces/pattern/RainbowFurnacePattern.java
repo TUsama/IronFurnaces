@@ -1,6 +1,7 @@
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -12,7 +13,7 @@ import java.util.Optional;
 @Accessors(fluent = true)
 public final class RainbowFurnacePattern extends FurnacePattern {
 
-    public static final Codec<RainbowFurnacePattern> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final MapCodec<RainbowFurnacePattern> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(RainbowFurnacePattern::id),
             ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(RainbowFurnacePattern::baseSmeltTickPerItem),
             ExtraCodecs.POSITIVE_INT.fieldOf("batch_handle").forGetter(RainbowFurnacePattern::baseBatchHandle),

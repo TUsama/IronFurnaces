@@ -6,12 +6,15 @@ import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.duck.AdvancementBuilderDuck;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.resources.ResourceLocation;
+//? 1.20.1 {
+import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.RequirementsStrategy;
+//? } else {
+/*import net.minecraft.advancements.AdvancementType;
+*///?}
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
@@ -22,7 +25,8 @@ public class ModAdvancements {
                         ModItems.RAINBOW_COAL.get(),
                         x.title(IronFurnaces.MOD_ID, "rainbow_coal", "Taste the Rainbow!").withStyle(ChatFormatting.LIGHT_PURPLE),
                         x.desc(IronFurnaces.MOD_ID, "rainbow_coal", "Obtain the Rainbow Coal"),
-                        new ResourceLocation("minecraft", "textures/gui/advancements/backgrounds/stone.png"),
+                        IronFurnaces.vanilla("textures/gui/advancements/backgrounds/stone.png"),
+                        //~ if >1.20.1 'FrameType.TASK' -> 'AdvancementType.TASK'
                         FrameType.TASK,
                         false,
                         false,

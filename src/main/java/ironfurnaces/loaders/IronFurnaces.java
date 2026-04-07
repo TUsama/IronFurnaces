@@ -26,4 +26,18 @@ public class IronFurnaces {
     public ResourceLocation gui(String id){
         return ResourceLocationUtils.make(MOD_ID, "textures/gui/" + id + ".png");
     }
+
+    public ResourceLocation sprite(String id){
+        return ResourceLocationUtils.make(MOD_ID, "textures/gui/sprites/" + id + ".png");
+    }
+
+    public ResourceLocation vanilla(String path){
+        //? 1.20.1 {
+        return new ResourceLocation(path);
+        //? } else {
+        /*return ResourceLocation.tryParse(path);
+        *///?}
+
+    }
+
 }

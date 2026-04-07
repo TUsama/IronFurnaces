@@ -54,11 +54,11 @@ public abstract class Burn extends ProcessingInstance {
     }
 
 
-    public static Burn create(int expectedTick, int inputIndex, Recipe<Container> recipe) {
+    public static Burn create(int expectedTick, int inputIndex, Recipe<?> recipe) {
         return create(expectedTick, inputIndex, recipe, 1);
     }
 
-    public static Burn create(int expectedTick, int inputIndex, Recipe<Container> recipe, int batch) {
+    public static Burn create(int expectedTick, int inputIndex, Recipe<?> recipe, int batch) {
         Factory factory = idMap.get(recipe.getType());
         if (factory != null) {
             Burn burn = factory.create(inputIndex, expectedTick);
@@ -90,6 +90,7 @@ public abstract class Burn extends ProcessingInstance {
         super.whenDone(tile);
         Level level = tile.getLevel();
         tile.getRecipe(tile.getInput().getStackInSlot(fromIndex)).ifPresent(x -> {
+            //~ if >1.20.1 'x.getResultItem' -> 'x.value().getResultItem'
             ItemStack resultItem = x.getResultItem(level.registryAccess()).copy();
             //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
             resultItem.setCount(resultItem.getCount() * batch);

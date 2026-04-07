@@ -9,7 +9,7 @@ import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleDatage
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModNewFurnace {
-    public static final Registrate RAINBOW = REGISTRATE.addDataGenerator(ProviderType.GENERIC_SERVER, x -> {
+    public static final Registrate DELEGATE_DATAGEN = REGISTRATE.addDataGenerator(ProviderType.GENERIC_SERVER, x -> {
         x.add(data -> new FurnacePatternDatagen(data.output()));
         x.add(data -> new PatternUpgradeRuleDatagen(data.output()));
     });

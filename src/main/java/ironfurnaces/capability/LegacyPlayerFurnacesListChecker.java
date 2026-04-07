@@ -15,14 +15,14 @@ import java.util.HashSet;
 @UtilityClass
 public class LegacyPlayerFurnacesListChecker {
     public void validateFurnacesList(ServerPlayer player, ServerLevel level) {
-        player.getCapability(ModCapabilities.FURNACES_LIST).ifPresent(list -> {
+        PlayerDataHandler.editFurnacesList(player, list -> {
             list.whenUpgradeFromLegacy(fList -> {
                 if (!level.dimension().equals(Level.OVERWORLD)) return;
                 for (GlobalPos globalPos : new HashSet<>(fList.get())) {
                     BlockPos pos = globalPos.pos();
                     level.getChunkAt(pos).setLoaded(true);
                     BlockEntity blockEntity = level.getBlockEntity(pos);
-                    if (!(blockEntity instanceof BlockIronFurnaceTileBase || blockEntity instanceof FurnacePatternBlockEntity)){
+                    if (!(blockEntity instanceof BlockIronFurnaceTileBase || blockEntity instanceof FurnacePatternBlockEntity)) {
                         fList.remove(globalPos.dimension(), pos);
                     }
                 }

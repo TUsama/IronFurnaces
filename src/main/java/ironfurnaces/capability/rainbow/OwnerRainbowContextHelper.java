@@ -1,6 +1,7 @@
 package ironfurnaces.capability.rainbow;
 
 import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.RainbowFurnacePattern;
@@ -22,7 +23,7 @@ public final class OwnerRainbowContextHelper {
         if (player == null) {
             return;
         }
-        player.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT).ifPresent(OwnerRainbowContext::markDirty);
+        PlayerDataHandler.editRainbowContext(player, OwnerRainbowContext::markDirty);
     }
 
     @Nullable
@@ -30,11 +31,7 @@ public final class OwnerRainbowContextHelper {
         if (player == null) {
             return null;
         }
-        AtomicReference<EffectiveFurnaceStats> stats = new AtomicReference<>();
-        player.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT).ifPresent(x -> {
-            stats.set(x.getResolvedStats(pattern));
-        });
-        return stats.get();
+        return PlayerDataHandler.readRainbowContext(player, x -> x.getResolvedStats(pattern));
     }
 
     @Nullable

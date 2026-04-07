@@ -1,5 +1,7 @@
+//~ replace_INBTSerializable
 package ironfurnaces.registration;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import com.google.common.collect.Lists;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.BlockBuilder;
@@ -20,8 +22,8 @@ import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.nbt.CompoundTag;
@@ -34,21 +36,39 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+//? forge {
 import net.minecraftforge.client.model.generators.ConfiguredModel;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 import net.minecraftforge.common.crafting.conditions.NotCondition;
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipe;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.data.recipes.FinishedRecipe;
+//? } else {
+/*import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.common.conditions.ModLoadedCondition;
+import net.minecraftforge.common.conditions.NotCondition;
+import net.minecraftforge.common.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.world.level.storage.loot.functions.CopyCustomDataFunction;
 
+*///?}
+
+
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static ironfurnaces.registration.ModBlockState.JOVIAL;
 import static ironfurnaces.registration.ModBlockState.TYPE;
@@ -549,6 +569,7 @@ public class LegacyFurnaceBlocks {
                                             .setRolls(ConstantValue.exactly(1.0f))
                                             .add(LootItem.lootTableItem(furnace)
                                                     .apply(
+                                                            //$ if forge 'CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)' else 'CopyCustomDataFunction.copyData(LootContext.EntityTarget.THIS)'
                                                             CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                     .copy("Augment", "BlockEntityTag.Augment")
                                                                     .copy("Jovial", "BlockEntityTag.Jovial")
@@ -644,6 +665,7 @@ public class LegacyFurnaceBlocks {
                                             .setRolls(ConstantValue.exactly(1.0f))
                                             .add(LootItem.lootTableItem(furnace)
                                                     .apply(
+                                                            //$ if forge 'CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)' else 'CopyCustomDataFunction.copyData(LootContext.EntityTarget.THIS)'
                                                             CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                     .copy("Augment", "BlockEntityTag.Augment")
                                                                     .copy("Jovial", "BlockEntityTag.Jovial")
@@ -674,7 +696,7 @@ public class LegacyFurnaceBlocks {
     public static void register() {
 
     }
-
+    //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
     private static <E extends Block> void  whenAllthemodium(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<Block, E> ctx, RegistrateRecipeProvider provider) {
         whenAllthemodium(consumer, ctx, "furnaces", ctx.getName(), provider);
     }
@@ -684,9 +706,13 @@ public class LegacyFurnaceBlocks {
     }
 
     protected static void  whenAllthemodium(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, String path, String id, RegistrateRecipeProvider provider) {
+        //? 1.20.1 {
         consumer.accept(x -> ConditionalRecipe.builder()
                 .addCondition(new ModLoadedCondition("allthemodium"))
                 .addRecipe(x).build(provider, IronFurnaces.id(path + "/" + id)));
+        //? } else {
+        /*consumer.accept(new ConditionalRecipeOutput(provider, Stream.of(new ModLoadedCondition("allthemodium")).toArray(ICondition[]::new)));
+        *///?}
     }
 
     @SafeVarargs
@@ -696,6 +722,7 @@ public class LegacyFurnaceBlocks {
 
     @SafeVarargs
     protected static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, RegistrateRecipeProvider provider, String path, String id, TagKey<Item>... tags) {
+        //? 1.20.1 {
         ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
         for (TagKey<Item> itemTagKey : tags) {
             builder.addCondition(new NotCondition(new TagEmptyCondition(itemTagKey.location())));
@@ -705,15 +732,18 @@ public class LegacyFurnaceBlocks {
         } else {
             consumer.accept(x -> builder.addRecipe(x).build(provider, IronFurnaces.id(path + "/" + id)));
         }
+        //? } else {
+        /*consumer.accept(new ConditionalRecipeOutput(provider, Arrays.stream(tags).map(x -> new NotCondition(new TagEmptyCondition(x.location()))).toArray(ICondition[]::new)));
+        *///?}
 
     }
-
+    //~}
     private static TagKey<Item> bindC(String id) {
-        return ModBlockTags.of(Registries.ITEM, new ResourceLocation("c", id));
+        return ModBlockTags.of(Registries.ITEM, ResourceLocationUtils.make("c", id));
     }
 
     private static TagKey<Item> bindForge(String id) {
-        return ModBlockTags.of(Registries.ITEM, new ResourceLocation("forge", id));
+        return ModBlockTags.of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
     }
 
     private static TagKey<Item> bind(String id) {

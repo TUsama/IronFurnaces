@@ -5,24 +5,24 @@ import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.capability.LegacyPlayerFurnacesListChecker;
 import ironfurnaces.capability.ModCapabilities;
-import ironfurnaces.init.ClientSetup;
 import ironfurnaces.loaders.CommonInit;
+import ironfurnaces.loaders.ClientInit;
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.loaders.PacketInit;
-import ironfurnaces.registration.*;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternDefinitionReloadListener;
 import ironfurnaces.tileentity.furnaces.pattern.render.FurnaceTextureScanner;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleReloadListener;
-import ironfurnaces.update.UpdateChecker;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -35,7 +35,6 @@ public class ForgeEntrypoint {
     public static IEventBus MOD_EVENT_BUS;
 
     public ForgeEntrypoint() {
-        PacketInit.initPackets();
 
         MOD_EVENT_BUS = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -43,7 +42,7 @@ public class ForgeEntrypoint {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.COMMON_CONFIG);
 
         MinecraftForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
-            if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level){
+            if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level) {
                 BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
                 LegacyPlayerFurnacesListChecker.validateFurnacesList(player, level);
             }
@@ -54,27 +53,29 @@ public class ForgeEntrypoint {
             x.addListener(new PatternUpgradeRuleReloadListener());
         });
 
-
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.<RegisterClientReloadListenersEvent>addListener(EventPriority.LOWEST, x -> {
-            x.registerReloadListener(FurnaceTextureScanner.INSTANCE);
-        });
-
         MinecraftForge.EVENT_BUS.<TickEvent.PlayerTickEvent>addListener(event -> {
             if (!(event.player instanceof ServerPlayer serverPlayer)) return;
             if (event.phase != TickEvent.Phase.END) return;
-            if (event.side.isClient()) return;
 
             serverPlayer.getCapability(ModCapabilities.PLAYER_RAINBOW_CONTEXT)
                     .ifPresent(cap -> cap.tick(serverPlayer));
         });
 
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.<RegisterClientReloadListenersEvent>addListener(EventPriority.LOWEST, x -> {
+            x.registerReloadListener(FurnaceTextureScanner.INSTANCE);
+        });
+        modBus.<RegisterCapabilitiesEvent>addListener(EventPriority.LOWEST, x -> {
+            ModCapabilities.register(x);
+        });
+
 
         CommonInit.init();
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientInit.clientInit(MinecraftForge.EVENT_BUS, modBus));
 
-        Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces-client.toml"));
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces-client.toml")));
         Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("ironfurnaces.toml"));
-
 /*
         if (Config.checkUpdates.get()) {
             new UpdateChecker();

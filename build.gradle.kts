@@ -2,8 +2,11 @@ import deps.DependencyConfig
 import org.gradle.kotlin.dsl.add
 
 plugins {
+    kotlin("jvm") version "2.2.10"
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
     id("dev.isxander.modstitch.base") version "0.8.4"
     id("me.modmuss50.mod-publish-plugin") version "1.1.0"
+    id("dev.kikugie.fletching-table") version "0.1.0-alpha.22"
 }
 
 val mod_version = property("mod_version") as String
@@ -193,10 +196,78 @@ stonecutter {
         "vanilla" to loader.equals("vanilla")
 
     ))
-    replacements.string(current.version >= "1.20.1" && loader.equals("neoforge")) {
+    replacements.string(current.version > "1.20.1" && loader.equals("neoforge")) {
         replace("ForgeConfigSpec", "ModConfigSpec")
+        replace("net.minecraftforge.fml.ModList", "net.neoforged.fml.ModList")
+        replace("net.minecraftforge.eventbus.api.IEventBus", "net.neoforged.bus.api.IEventBus")
+        replace("net.minecraftforge.common.crafting.conditions.ICondition", "net.neoforged.neoforge.common.conditions.ICondition")
         replace("net.minecraftforge", "net.neoforged.neoforge")
+        replace("public void appendHoverText(ItemStack stack, @Nullable Level worldIn", "public void appendHoverText(ItemStack stack,  TooltipContext context")
+        replace("public void appendHoverText(ItemStack stack, Level worldIn", "public void appendHoverText(ItemStack stack, TooltipContext context")
+        replace("super.appendHoverText(stack, worldIn, tooltip, flagIn);", "super.appendHoverText(stack, context, tooltip, flagIn);")
+        replace("ItemHandlerHelper.canItemStacksStack", "ItemStack.isSameItemSameComponents")
+        replace("getNutrition()", "nutrition()")
+        replace(".setHoverName(", ".set(DataComponents.CUSTOM_NAME, ")
+        replace("hasCustomHoverName()", "has(DataComponents.CUSTOM_NAME)")
+        replace("EmptyHandler", "EmptyItemHandler")
     }
+
+    replacements.string(loader.equals("neoforge"), "replace_tile") {
+        replace("ForgeRegistries.ITEMS.getDelegateOrThrow(item)", "BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey())")
+        replace("new SimpleContainer", "new SingleRecipeInput")
+        //replace(": Optional.ofNullable(", ": (")
+        replace("Optional<AbstractCookingRecipe>", "Optional<RecipeHolder<AbstractCookingRecipe>>")
+        replace("Recipe<?>", "RecipeHolder<?>")
+    }
+
+    replacements.string(loader.equals("neoforge"), "replace_generator_recipe") {
+        replace("ForgeRegistries.ITEMS.getDelegateOrThrow(item)", "BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey())")
+    }
+
+    replacements.string(current.version > "1.20.1", "replace_all_recipe") {
+        replace("Recipe<?>", "RecipeHolder<?>")
+        replace("<? extends Recipe>", "<? extends RecipeHolder>")
+    }
+
+    replacements.string(current.version > "1.20.1", "replace_block_entity") {
+        replace("public CompoundTag getUpdateTag()", "public CompoundTag getUpdateTag(HolderLookup.Provider registries)")
+        replace("public void load(CompoundTag tag)", "public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("void saveAdditional(CompoundTag tag)", "void saveAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("super.saveAdditional(tag);", "super.saveAdditional(tag, registries);")
+        replace("super.load(tag);", "super.loadAdditional(tag, registries);")
+        replace("ContainerHelper.loadAllItems(tag, this.inventory);", "ContainerHelper.loadAllItems(tag, this.inventory, registries);")
+        replace("ContainerHelper.saveAllItems(tag, this.inventory);", "ContainerHelper.saveAllItems(tag, this.inventory, registries);")
+        replace("serializeNBT()", "serializeNBT(registries)")
+        replace("deserializeNBT(tag", "deserializeNBT(registries, tag")
+    }
+
+    replacements.string(current.version > "1.20.1", "replace_serialization") {
+        replace("public CompoundTag getUpdateTag()", "public CompoundTag getUpdateTag(HolderLookup.Provider registries)")
+        replace("public void load(CompoundTag tag)", "public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("void saveAdditional(CompoundTag tag)", "void saveAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("super.saveAdditional(tag);", "super.saveAdditional(tag, registries);")
+        replace("public CompoundTag serializeNBT()", "public CompoundTag serializeNBT(HolderLookup.Provider registries)")
+        replace("public void deserializeNBT(CompoundTag nbt)", "public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt)")
+        replace("super.load(tag);", "super.loadAdditional(tag, registries);")
+        replace("serializeNBT()", "serializeNBT(registries)")
+        replace("deserializeNBT(tag", "deserializeNBT(registries, tag")
+        replace("deserializeNBT(nbt", "deserializeNBT(registries, nbt")
+    }
+
+    replacements.string(current.version > "1.20.1", "replace_INBTSerializable") {
+        replace("public CompoundTag getUpdateTag()", "public CompoundTag getUpdateTag(HolderLookup.Provider registries)")
+        replace("public void load(CompoundTag tag)", "public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("void saveAdditional(CompoundTag tag)", "void saveAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace("super.saveAdditional(tag);", "super.saveAdditional(tag, registries);")
+        replace("public CompoundTag serializeNBT()", "public CompoundTag serializeNBT(HolderLookup.Provider registries)")
+        replace("public void deserializeNBT(CompoundTag nbt)", "public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt)")
+        replace("public void deserializeNBT(CompoundTag compoundTag)", "public void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag)")
+        replace("super.load(tag);", "super.loadAdditional(tag, registries);")
+        replace("serializeNBT()", "serializeNBT(registries)")
+        replace("deserializeNBT(tag", "deserializeNBT(registries, tag")
+        replace("deserializeNBT(nbt", "deserializeNBT(registries, nbt")
+    }
+
 }
 
 sourceSets["main"].resources.srcDir("../../src/generated/resources")
@@ -290,6 +361,14 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
 
 
+}
+
+fletchingTable {
+    mixins.create("main") { // Name should match an existing source set
+        // Default matches the default value in the annotation
+        mixin("default", "ironfurnaces.mixins.json")
+
+    }
 }
 
 publishMods {

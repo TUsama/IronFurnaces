@@ -1,5 +1,6 @@
 package ironfurnaces.tileentity.furnaces.pattern.render;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -18,7 +19,7 @@ public class FurnaceTextureScanner extends SimplePreparableReloadListener<Set<Re
                         "textures/block",
                         path -> path.getPath().endsWith(".png")
                 ).keySet().stream()
-                .map(id -> new ResourceLocation(
+                .map(id -> ResourceLocationUtils.make(
                         id.getNamespace(),
                         id.getPath()
                                 .replace("textures/", "")

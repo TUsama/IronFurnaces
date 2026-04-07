@@ -1,8 +1,11 @@
+//~ replace_block_entity
+//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces;
 
 import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
+import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
@@ -18,11 +21,13 @@ import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
+import ironfurnaces.util.FuelBurnTimeUtil;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -43,27 +48,31 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.RecipeHolder;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeHooks;
+
+//? 1.20.1 {
+import net.minecraft.world.inventory.RecipeHolder;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
+*///?}
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.EmptyHandler;
+
+
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -71,12 +80,14 @@ import java.util.*;
 import java.util.function.Function;
 
 @Getter
+//~ if >1.20.1 'RecipeHolder' -> 'RecipeCraftingHolder'
 public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implements RecipeHolder, StackedContentsCompatible, WorldlyContainer {
     private final InputCache input;
     private final OutputCache output;
     private final FuelCache fuel;
     private final RemainingCache remaining;
     private final AugmentCache augments;
+    //~ if >1.20.1 'Container' -> 'SingleRecipeInput'
     private final Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck;
     private final IFCombinedCache allInv;
     private final IFCombinedCache allInvForAutomation;
@@ -92,14 +103,17 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private FurnaceMode mode;
     private IFurnaceLitHandler litHandler;
     private FurnaceSettingsV2 settingsV2 = FurnaceSettingsV2.DEFAULT;
+    //~ if >1.20.1 'LazyOptional<IItemHandlerModifiable>' -> 'IItemHandlerModifiable'
     private EnumMap<Direction, LazyOptional<IItemHandlerModifiable>> sidedHandlers;
     private Set<UUID> viewers = new HashSet<>();
     private int lastProcessedDirection = 0;
+    //? if 1.20.1
     private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
     private boolean shouldAutoFill = false;
     private UUID ownerUuid;
     private boolean redstoneLastTimeCheck = false;
     private List<Runnable> levelRunnable = new ArrayList<>();
+    private Tag savedPatternTag = null;
 
     public FurnacePatternBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -134,7 +148,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 }
         )).burnableFunction(x -> {
                     return switch (getAugments().getCurrentRecipeType()) {
-                        case NORMAL -> ForgeHooks.getBurnTime(x, getAugments().getCurrentRecipeType().recipeType.get()) > 0;
+                        case NORMAL -> FuelBurnTimeUtil.getBurnTime(x, getAugments().getCurrentRecipeType().recipeType.get()) > 0;
                         case SMOKE -> {
                             FoodProperties foodProperties = x.getItem().getFoodProperties(x, null);
                             yield (foodProperties != null && foodProperties.getNutrition() > 0);
@@ -341,6 +355,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
+
         super.saveAdditional(tag);
 
         // 1) inventories
@@ -372,11 +387,15 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 .result()
                 .ifPresent(nbt -> tag.put(FurnaceSettingsV2.NBT_KEY, nbt));
 
-        if (pattern != FurnacePattern.FALLBACK){
+        if (!pattern.id().equals(FurnacePattern.FALLBACK.id())){
             FurnacePattern.REF_CODEC
                     .encodeStart(NbtOps.INSTANCE, pattern)
                     .result()
                     .ifPresent(nbt -> tag.put(FurnacePattern.NBT_KEY, nbt));
+        } else {
+            if (savedPatternTag != null){
+                tag.put(FurnacePattern.NBT_KEY, savedPatternTag);
+            }
         }
 
 
@@ -396,7 +415,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-
+        if (tag.contains(FurnacePattern.NBT_KEY)) {
+            savedPatternTag = tag.get(FurnacePattern.NBT_KEY);
+        }
         // 1) inventories
         if (tag.contains("Input", Tag.TAG_COMPOUND)) {
             input.deserializeNBT(tag.getCompound("Input"));
@@ -465,7 +486,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         recomputeFillStat();
 
     }
-
     public @Nullable UUID getOwnerUuid() {
         return ownerUuid;
     }
@@ -539,7 +559,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
             boolean merged = false;
             for (MergedStackEntry entry : mergedEntries) {
-                if (ItemStack.isSameItemSameTags(entry.sample(), stack)) {
+                if (ItemHandlerHelper.canItemStacksStack(entry.sample(), stack)) {
                     entry.grow(stack.getCount());
                     merged = true;
                     break;
@@ -611,7 +631,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     @Override
-    public @Nullable Recipe<?> getRecipeUsed() {
+    public Recipe<?> getRecipeUsed() {
         return null;
     }
 
@@ -650,6 +670,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     public Optional<? extends Recipe> getRecipe(ItemStack stack) {
+        //~ if >1.20.1 'SimpleContainer' -> 'SingleRecipeInput'
         return quickCheck.apply(augments.getCurrentRecipeType().recipeType.get()).getRecipeFor(new SimpleContainer(stack), level);
     }
 
@@ -663,8 +684,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 int finalI = i;
                 getRecipe(stackInSlot)
                         .ifPresent(x -> {
-                            if (x instanceof AbstractCookingRecipe) {
-                                this.instanceManager.addInstance(Burn.create(usedStats.smeltTick(), finalI, x, usedStats.batchHandle()));
+                            //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
+                            if (x instanceof AbstractCookingRecipe recipe) {
+                                this.instanceManager.addInstance(Burn.create(usedStats.smeltTick(), finalI, recipe, usedStats.batchHandle()));
                             }
 
                         });
@@ -709,34 +731,34 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                     BlockEntity neighbor = level.getBlockEntity(worldPosition.relative(dir));
                     if (neighbor == null) return;
 
-                    neighbor.getCapability(ForgeCapabilities.ITEM_HANDLER, dir.getOpposite())
-                            .ifPresent(x -> {
-                                if (settingsV2.autoOutput()) {
-                                    IItemHandler outputHandler = switch (mode) {
-                                        case OUTPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
-                                        case ALL -> FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
-                                        default -> EmptyHandler.INSTANCE;
-                                    };
-                                    if (outputHandler != null) {
-                                        transfer(outputHandler, x);
-                                    }
-                                }
+                    VanillaCapabilityHandler.withBlockItemHandler(neighbor, dir.getOpposite(), x -> {
+                        if (settingsV2.autoOutput()) {
+                            IItemHandler outputHandler = switch (mode) {
+                                case OUTPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
+                                case ALL -> FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
+                                default -> EmptyHandler.INSTANCE;
+                            };
+                            if (outputHandler != EmptyHandler.INSTANCE) {
+                                transfer(outputHandler, x);
+                            }
+                        }
 
-                                // 输入阶段
-                                if (settingsV2.autoInput()) {
-                                    // 输入只拉 INPUT 或 FUEL
-                                    IItemHandler inputHandler = switch (mode) {
-                                        case INPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
-                                        case ALL -> FurnaceSettingsV2.IOMode.INPUT.handlerSelector.apply(this);
-                                        default -> EmptyHandler.INSTANCE;
-                                    };
-                                    if (inputHandler != null) {
-                                        transfer(x, inputHandler);
-                                    }
-                                }
+                        // 输入阶段
+                        if (settingsV2.autoInput()) {
+                            // 输入只拉 INPUT 或 FUEL
+                            IItemHandler inputHandler = switch (mode) {
+                                case INPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
+                                case ALL -> FurnaceSettingsV2.IOMode.INPUT.handlerSelector.apply(this);
+                                default -> EmptyHandler.INSTANCE;
+                            };
+                            if (inputHandler != EmptyHandler.INSTANCE) {
+                                transfer(x, inputHandler);
+                            }
+                        }
 
 
-                            });
+                    });
+
                 });
 
     }
@@ -780,23 +802,21 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
                     BlockEntity neighbor = level.getBlockEntity(worldPosition.relative(direction));
                     if (neighbor == null) return;
+                    VanillaCapabilityHandler.withBlockEnergyStorage(neighbor, direction.getOpposite(), other -> {
+                        if (!other.canReceive()) return;
 
-                    neighbor.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite())
-                            .ifPresent(other -> {
-                                if (!other.canReceive()) return;
+                        int stored = fuel.getEnergyStored();
+                        if (stored <= 0) return;
 
-                                int stored = fuel.getEnergyStored();
-                                if (stored <= 0) return;
+                        // 先模拟对方最多能收多少，再实际扣自己，避免无意义调用
+                        int accepted = other.receiveEnergy(stored, true);
+                        if (accepted <= 0) return;
 
-                                // 先模拟对方最多能收多少，再实际扣自己，避免无意义调用
-                                int accepted = other.receiveEnergy(stored, true);
-                                if (accepted <= 0) return;
-
-                                int extracted = fuel.extractEnergy(accepted, false);
-                                if (extracted > 0) {
-                                    other.receiveEnergy(extracted, false);
-                                }
-                            });
+                        int extracted = fuel.extractEnergy(accepted, false);
+                        if (extracted > 0) {
+                            other.receiveEnergy(extracted, false);
+                        }
+                    });
                 });
     }
 
@@ -842,6 +862,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             if (mode == null || mode == FurnaceSettingsV2.IOMode.NONE) continue;
 
             IItemHandler handler = mode.handlerSelector.apply(this);
+            //? if 1.20.1
             if (handler == EmptyHandler.INSTANCE) continue;
             if (handler == null) continue;
             if (uniq.put(handler, Boolean.TRUE) != null) continue; // 已统计过
@@ -981,9 +1002,15 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     @Override
+            //~ if >1.20.1 '()' -> '(HolderLookup.Provider registries)'
     public CompoundTag getUpdateTag() {
+        //? 1.20.1 {
         CompoundTag tag = super.getUpdateTag();
         saveAdditional(tag);
+        //? } else {
+        /*CompoundTag tag = super.getUpdateTag(registries);
+        saveAdditional(tag, registries);
+        *///?}
         return tag;
     }
 
@@ -1003,6 +1030,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     private void recalcSideIOCap() {
+        //? 1.20.1 {
         sidedHandlers.values().forEach(LazyOptional::invalidate);
         sidedHandlers.clear();
         for (Direction dir : Direction.values()) {
@@ -1010,8 +1038,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             IItemHandlerModifiable handler = mode.handlerSelector.apply(this);
             sidedHandlers.put(dir, LazyOptional.of(() -> handler));
         }
+        //?} else {
+        /*if (this.hasLevel()) this.getLevel().invalidateCapabilities(this.getBlockPos());
+        *///?}
     }
-
+    //? 1.20.1 {
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
@@ -1041,7 +1072,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
         return super.getCapability(cap, side);
     }
-
+    //?}
     @Override
     public int getContainerSize() {
         return this.allInv.getSlots();
@@ -1086,6 +1117,25 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
     }
 
+//? >1.20.1 {
+    /*@Override
+    protected NonNullList<ItemStack> getItems() {
+        NonNullList<ItemStack> itemStacks = NonNullList.withSize(this.allInv.getSlots(), ItemStack.EMPTY);
+        for (int i = 0; i < this.allInv.getSlots(); i++) {
+            itemStacks.set(i, allInv.getStackInSlot(i));
+        }
+        return itemStacks;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> nonNullList) {
+        int slots = this.allInv.getSlots();
+        for (int i = 0; i < nonNullList.size(); i++) {
+            if (i >= slots) continue;
+            this.allInv.setStackInSlot(i, nonNullList.get(i));
+        }
+    }
+*///?}
     private static class MergedStackEntry {
         private final ItemStack sample;
         private int totalCount;

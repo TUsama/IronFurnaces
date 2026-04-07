@@ -1,5 +1,6 @@
 package ironfurnaces.container;
 
+import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.container.slots.SlotHeater;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
@@ -14,9 +15,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+//? 1.20.1 {
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+//? } else {
+
+//?}
+
+
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -49,12 +54,20 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
     }
 
     public int getEnergy() {
-        return te.getCapability(ForgeCapabilities.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0);
+        IEnergyStorage blockEnergyStorage = VanillaCapabilityHandler.getBlockEnergyStorage(this.te, null);
+        if (blockEnergyStorage != null){
+            return blockEnergyStorage.getEnergyStored();
+        }
+        return 0;
     }
 
     public int getMaxEnergy()
     {
-        return te.getCapability(ForgeCapabilities.ENERGY).map(IEnergyStorage::getMaxEnergyStored).orElse(0);
+        IEnergyStorage blockEnergyStorage = VanillaCapabilityHandler.getBlockEnergyStorage(this.te, null);
+        if (blockEnergyStorage != null){
+            return blockEnergyStorage.getMaxEnergyStored();
+        }
+        return 0;
     }
 
     // Credit - Mcjty
@@ -70,7 +83,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
                     int capacity = h.getMaxEnergyStored() & 0xffff0000;
                     ((FEnergyStorage)h).setCapacity(capacity + (value & 0xffff));
                 });
@@ -84,7 +97,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
                     int capacity = h.getMaxEnergyStored() & 0x0000ffff;
                     ((FEnergyStorage)h).setCapacity(capacity | (value << 16));
                 });
@@ -99,7 +112,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
                     int energyStored = h.getEnergyStored() & 0xffff0000;
                     ((FEnergyStorage)h).setEnergy(energyStored + (value & 0xffff));
                 });
@@ -113,7 +126,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
 
             @Override
             public void set(int value) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
                     int energyStored = h.getEnergyStored() & 0x0000ffff;
                     ((FEnergyStorage)h).setEnergy(energyStored | (value << 16));
                 });
@@ -121,7 +134,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
         });
     }
 
-    @OnlyIn(Dist.CLIENT)
+    
     public int getEnergyScaled(int pixels) {
         int i = this.getEnergy();
         int j = this.getMaxEnergy();

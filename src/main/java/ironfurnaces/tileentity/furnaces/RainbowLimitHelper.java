@@ -1,6 +1,7 @@
 package ironfurnaces.tileentity.furnaces;
 
 import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -21,9 +22,9 @@ public final class RainbowLimitHelper {
             return 0;
         }
 
-        AtomicInteger count = new AtomicInteger(0);
 
-        player.getCapability(ModCapabilities.FURNACES_LIST).ifPresent(list -> {
+        return PlayerDataHandler.readFurnacesList(player, list -> {
+            int i = 0;
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) continue;
                 if (player.level().getServer() == null) continue;
@@ -36,12 +37,11 @@ public final class RainbowLimitHelper {
 
                 FurnacePattern pattern = be.getPattern();
                 if (pattern != null && pattern.isRainbow()) {
-                    count.incrementAndGet();
+                    i++;
                 }
             }
+            return i;
         });
-
-        return count.get();
     }
 
 

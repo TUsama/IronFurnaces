@@ -1,3 +1,4 @@
+//~ replace_INBTSerializable
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.adaptor.energy.FEnergyStorage;
@@ -16,7 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+//? 1.20.1 {
 
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 

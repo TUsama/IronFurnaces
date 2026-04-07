@@ -57,6 +57,7 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
 
                             for (int i = 0; i < 10; i++) {
                                 world.addParticle(ParticleTypes.CRIT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                                //~ if >1.20.1 'AMBIENT_ENTITY_EFFECT' -> 'EFFECT'
                                 world.addParticle(ParticleTypes.AMBIENT_ENTITY_EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
                             }
                         }

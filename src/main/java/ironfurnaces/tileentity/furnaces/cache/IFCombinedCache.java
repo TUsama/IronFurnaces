@@ -7,8 +7,8 @@ import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.EmptyHandler;
 import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.items.wrapper.EmptyHandler;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -71,6 +71,7 @@ public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandle
     {
         if (index < 0 || index >= itemHandler.length)
         {
+
             return (IItemHandlerModifiable) EmptyHandler.INSTANCE;
         }
         return itemHandler[index];

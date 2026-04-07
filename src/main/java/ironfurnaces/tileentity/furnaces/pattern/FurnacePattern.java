@@ -19,10 +19,13 @@ public sealed abstract class FurnacePattern permits NormalFurnacePattern, Rainbo
             PatternKind.CODEC.dispatch(
                     "pattern_type",
                     FurnacePattern::kind,
+                    //~ if 1.20.1 '.CODEC' -> '.CODEC.codec()'{
                     kind -> switch (kind) {
-                        case NORMAL -> NormalFurnacePattern.CODEC;
-                        case RAINBOW -> RainbowFurnacePattern.CODEC;
+                        case NORMAL -> NormalFurnacePattern.CODEC.codec();
+                        case RAINBOW -> RainbowFurnacePattern.CODEC.codec();
                     }
+                    //~ }
+
             );
     public static final String NBT_KEY = "ir_current_pattern";
     public static final NormalFurnacePattern FALLBACK = new NormalFurnacePattern(

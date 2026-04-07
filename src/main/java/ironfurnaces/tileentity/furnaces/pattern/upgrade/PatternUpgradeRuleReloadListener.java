@@ -40,7 +40,10 @@ public final class PatternUpgradeRuleReloadListener extends SimpleJsonResourceRe
             try {
                 PatternUpgradeRule rule = PatternUpgradeRuleDefinition.CODEC
                         .parse(JsonOps.INSTANCE, json)
-                        .getOrThrow(false, msg -> {
+                        .getOrThrow(
+                                //? 1.20.1
+                                false,
+                                msg -> {
                             throw new IllegalStateException(msg);
                         }).toRuntime(e.getKey());
                 loaded.put(fileId, rule);

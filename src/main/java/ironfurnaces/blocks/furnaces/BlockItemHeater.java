@@ -2,6 +2,7 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.util.StringHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -11,11 +12,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import java.util.List;
-
+//~ if >1.20.1 'hasTag()' -> 'has(ModDataComponents.PERSISTENT_ENERGY)' {
+//~ if >1.20.1 'getTag().getInt("Energy")' -> 'get(ModDataComponents.PERSISTENT_ENERGY)' {
 public class BlockItemHeater extends BlockItem {
 
 
@@ -24,7 +26,7 @@ public class BlockItemHeater extends BlockItem {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
+    
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         if (stack.hasTag()) {
@@ -58,3 +60,5 @@ public class BlockItemHeater extends BlockItem {
         return 0xFF800600;
     }
 }
+//~}
+//~}

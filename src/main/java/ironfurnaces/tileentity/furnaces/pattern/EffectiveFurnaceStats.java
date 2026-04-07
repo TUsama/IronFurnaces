@@ -1,6 +1,7 @@
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.With;
 import net.minecraft.util.ExtraCodecs;
@@ -15,7 +16,7 @@ public record EffectiveFurnaceStats(
         int inputSlotAmount
 )  implements IFurnaceStats<EffectiveFurnaceStats>{
 
-    public static final Codec<EffectiveFurnaceStats> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final MapCodec<EffectiveFurnaceStats> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ExtraCodecs.POSITIVE_INT.fieldOf("smelt_tick").forGetter(EffectiveFurnaceStats::smeltTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("batch_handle").forGetter(EffectiveFurnaceStats::batchHandle),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_capacity").forGetter(EffectiveFurnaceStats::energyCapacity),

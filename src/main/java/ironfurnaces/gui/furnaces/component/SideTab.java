@@ -1,5 +1,6 @@
 package ironfurnaces.gui.furnaces.component;
 
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.menu.MenuConstant;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -8,24 +9,36 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BooleanSupplier;
 
-public class SideTab extends ImageButton implements IUpdateContext {
+public class SideTab extends BaseImageButton implements IUpdateContext {
     private final SideTabPanel panel;
     public PositionContext positionContext;
     private TabState state = TabState.CLOSE;
     private final BooleanSupplier openStateCallback;
 
+    public SideTab(int x, int y, int width, int height, String baseId, OnPress onPress, SideTabPanel panel, BooleanSupplier openStateCallback, PositionContext positionContext) {
+        this(x, y, width, height, IronFurnaces.sprite(baseId), IronFurnaces.sprite(baseId), IronFurnaces.sprite(baseId), onPress, positionContext, panel, openStateCallback);
 
+    }
 
-    public SideTab(int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex, ResourceLocation resourceLocation, OnPress onPress, PositionContext positionContext, SideTabPanel panel, BooleanSupplier openStateCallback) {
-        super(x, y, width, height, xTexStart, yTexStart, yDiffTex, resourceLocation, onPress);
+    public SideTab(int x, int y, int width, int height, ResourceLocation off, ResourceLocation on, ResourceLocation inactive, OnPress onPress, PositionContext positionContext, SideTabPanel panel, BooleanSupplier openStateCallback) {
+        super(x, y, width, height, off, on, inactive, onPress);
         this.positionContext = positionContext;
         this.panel = panel;
         this.openStateCallback = openStateCallback;
     }
 
+    @Override
+    protected int getTextureWidth() {
+        return 23;
+    }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected int getTextureHeight() {
+        return 26;
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.setPosition(positionContext.buttonX, positionContext.y);
         TabState tabState = this.openStateCallback.getAsBoolean() ? TabState.OPEN : TabState.CLOSE;
         if (this.state != tabState) {
@@ -41,10 +54,11 @@ public class SideTab extends ImageButton implements IUpdateContext {
                 panel.update(positionContext);
             }
             case CLOSE -> {
-                super.render(guiGraphics, mouseX, mouseY, partialTick);
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
                 this.update(positionContext);
             }
         }
+
     }
 
     @Override

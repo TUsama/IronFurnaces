@@ -22,7 +22,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.8.2"
+    id("dev.kikugie.stonecutter") version "0.9.1-beta.2"
 }
 
 stonecutter {
@@ -39,7 +39,7 @@ stonecutter {
 
         // Configure your targets here!
         mc("1.20.1", loaders = listOf("forge"))
-        //mc("1.21.1", loaders = listOf("neoforge"))
+        mc("1.21.1", loaders = listOf("neoforge"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts

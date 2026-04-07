@@ -68,6 +68,7 @@ public class FurnaceGuiButton {
             if (hovering(mouseX, mouseY))
             {
                 NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
+                //~ if >1.20.1 'SoundEvents.UI_BUTTON_CLICK.get()' -> 'SoundEvents.UI_BUTTON_CLICK.value()'
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.6F, 0.3F));
             }
         }
@@ -82,6 +83,7 @@ public class FurnaceGuiButton {
                 if (hovering(mouseX, mouseY))
                 {
                     NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
+                    //~ if >1.20.1 'SoundEvents.UI_BUTTON_CLICK.get()' -> 'SoundEvents.UI_BUTTON_CLICK.value()'
                     Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.3F, 0.3F));
                 }
             }

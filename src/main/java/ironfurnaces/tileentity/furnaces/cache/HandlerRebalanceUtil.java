@@ -3,8 +3,13 @@ package ironfurnaces.tileentity.furnaces.cache;
 import lombok.experimental.UtilityClass;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 
+import net.minecraftforge.items.ItemStackHandler;
+//? 1.20.1 {
+import net.minecraftforge.items.ItemHandlerHelper;
+//? } else {
+
+//?}
 import java.util.*;
 
 @UtilityClass
@@ -254,9 +259,7 @@ public final class HandlerRebalanceUtil {
     }
 
     private static boolean canMergeStrict(ItemStack a, ItemStack b) {
-        if (a.isEmpty() || b.isEmpty()) return false;
-        if (!ItemStack.isSameItem(a, b)) return false;
-        return Objects.equals(a.getTag(), b.getTag());
+        return ItemHandlerHelper.canItemStacksStack(a, b);
     }
 
     private static final class StackGroup {
@@ -271,24 +274,22 @@ public final class HandlerRebalanceUtil {
     }
 
     private static final class StackKey {
-        final Object item;
-        final CompoundTag tag;
+        final ItemStack item;
 
         StackKey(ItemStack stack) {
-            this.item = stack.getItem();
-            this.tag = stack.getTag();
+            this.item = stack.copyWithCount(1);
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (!(obj instanceof StackKey other)) return false;
-            return item == other.item && Objects.equals(tag, other.tag);
+            return ItemHandlerHelper.canItemStacksStack(other.item, this.item);
         }
 
         @Override
         public int hashCode() {
-            return 31 * System.identityHashCode(item) + Objects.hashCode(tag);
+            return 31 * System.identityHashCode(item);
         }
     }
 }

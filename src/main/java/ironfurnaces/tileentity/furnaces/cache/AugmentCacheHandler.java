@@ -6,6 +6,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
+//? 1.20.1 {
+import net.minecraftforge.items.ItemHandlerHelper;
+//? } else {
+
+//?}
+
 import java.util.function.BiPredicate;
 import java.util.function.IntConsumer;
 
@@ -38,7 +44,7 @@ public class AugmentCacheHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        if (ItemStack.isSameItemSameTags(stack, this.getStackInSlot(slot))) {
+        if (ItemHandlerHelper.canItemStacksStack(stack, this.getStackInSlot(slot))) {
             return false;
         }
 

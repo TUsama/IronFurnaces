@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import javax.annotation.Nullable;
 
@@ -42,7 +42,7 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
         return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE));
     }
 
-    @OnlyIn(Dist.CLIENT)
+    
     @Override
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         if (state.getValue(BlockStateProperties.LIT)) {

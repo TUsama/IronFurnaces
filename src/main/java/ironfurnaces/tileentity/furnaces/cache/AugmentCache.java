@@ -1,3 +1,4 @@
+//~ replace_serialization
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.items.augments.ItemAugmentBlue;
@@ -21,6 +22,11 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
+//? 1.20.1 {
+
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 
 import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
@@ -121,6 +127,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
 
         for (int i = 0; i < list.size() && i < this.itemHandler.length; i++) {
             if (this.itemHandler[i] instanceof ItemStackHandler handler) {
+                //~ if >1.20.1 'list.getCompound(i)' -> 'registries, list.getCompound(i)'
                 handler.deserializeNBT(list.getCompound(i));
             }
         }

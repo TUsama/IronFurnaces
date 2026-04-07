@@ -3,11 +3,13 @@ package ironfurnaces.blocks.furnaces.new_furnace;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockState;
+import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -28,7 +30,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
+//? 1.20.1 {
 
+//? } else {
+/*import net.minecraft.core.component.DataComponents;
+*///?}
 import java.util.function.Consumer;
 
 public class FurnacePatternHolderItem extends BlockItem {
@@ -49,8 +55,13 @@ public class FurnacePatternHolderItem extends BlockItem {
     }
 
     private boolean resetSettings(ItemStack stack, Player player, int selected) {
+        //? 1.20.1 {
         CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
         beTag.remove(FurnaceSettingsV2.NBT_KEY);
+        //? } else {
+        /*stack.remove(ModDataComponents.PERSISTENT_SETTING);
+        *///?}
+
 
         return true;
     }
@@ -104,6 +115,7 @@ public class FurnacePatternHolderItem extends BlockItem {
             fp.ensureOwner(player);
             if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
         }
+        //? 1.20.1 {
         CompoundTag beTag = BlockItem.getBlockEntityData(stack);
         if (beTag != null) {
             if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
@@ -128,21 +140,11 @@ public class FurnacePatternHolderItem extends BlockItem {
             }
 
         }
-
-/*
-        try {
-            FurnaceMode mode = state.getValue(ModBlockState.FURNACE_MODE);
-
-            fp.updateFurnaceMode(mode);
-
-            fp.setChanged();
-            changed = true;
-        } catch (Exception exception) {
-            IronFurnaces.LOGGER.error(exception);
-        }
-*/
+        //?}
         return changed;
     }
+
+    //? 1.20.1 {
     private static void applyJovialFromItemTag(Level level, BlockPos pos, ItemStack stack) {
         CompoundTag root = stack.getTag();
         if (root == null || !root.contains("BlockStateTag", CompoundTag.TAG_COMPOUND)) {
@@ -172,6 +174,7 @@ public class FurnacePatternHolderItem extends BlockItem {
             level.setBlock(pos, current.setValue(ModBlockState.JOVIAL_STATE, jovial), 3);
         }
     }
+    //?}
     @Override
     public InteractionResult place(BlockPlaceContext context) {
         ItemStack itemInHand = context.getItemInHand();
@@ -185,11 +188,11 @@ public class FurnacePatternHolderItem extends BlockItem {
         }
 
         InteractionResult result = super.place(context);
-
+        //? 1.20.1 {
         if (result.consumesAction() && !context.getLevel().isClientSide) {
             applyJovialFromItemTag(context.getLevel(), context.getClickedPos(), itemInHand);
         }
-
+        //?}
 
         return result;
     }

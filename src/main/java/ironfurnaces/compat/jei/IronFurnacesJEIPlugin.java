@@ -18,28 +18,34 @@ import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleManager;
+import ironfurnaces.util.FuelBurnTimeUtil;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.ModList;
+
+//? 1.20.1 {
 import net.minecraftforge.registries.ForgeRegistries;
-
+//? } else {
+/*import net.minecraft.world.item.crafting.RecipeHolder;
+*///?}
 import java.util.List;
-
 @JeiPlugin
+//~ if >1.20.1 'ForgeRegistries.ITEMS.getValues()' -> 'BuiltInRegistries.ITEM'{
 public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(IronFurnaces.MOD_ID, "plugin_" + IronFurnaces.MOD_ID);
+		return IronFurnaces.id("plugin_" + IronFurnaces.MOD_ID);
 	}
 
     @Override
@@ -53,18 +59,16 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
                 }
         );
 
-        // upgrade tool：按 upgrade rule 区分
-        for (Item item : ForgeRegistries.ITEMS.getValues()) {
-            if (item instanceof ItemUpgradeTool) {
-                registration.registerSubtypeInterpreter(
-                        item,
-                        (stack, context) -> {
-                            PatternUpgradeRule rule = IUpgradeStorage.get(stack);
-                            return rule == null ? "" : rule.id().toString();
-                        }
-                );
+
+        registration.registerSubtypeInterpreter(
+            ModItems.UPGRADE_TOOL.asItem(),
+            (stack, context) -> {
+                PatternUpgradeRule rule = IUpgradeStorage.get(stack);
+                return rule == null ? "" : rule.id().toString();
             }
-        }
+        );
+
+
     }
 
     @Override
@@ -81,13 +85,9 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
         // upgrade tool
         PatternUpgradeRuleManager.snapshot().values().forEach(rule -> {
-            for (Item item : ForgeRegistries.ITEMS.getValues()) {
-                if (item instanceof ItemUpgradeTool) {
-                    ItemStack stack = new ItemStack(item);
-                    IUpgradeStorage.writeRule(stack, rule);
-                    stacks.add(stack);
-                }
-            }
+            ItemStack stack = new ItemStack(ModItems.UPGRADE_TOOL.asItem());
+            IUpgradeStorage.writeRule(stack, rule);
+            stacks.add(stack);
         });
 
         registration.addExtraItemStacks(stacks);
@@ -95,33 +95,31 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
     @Override
 	public void registerCategories(IRecipeCategoryRegistration registration) {
-		if (Config.enableJeiPlugin.get())
-		{
-			registration.addRecipeCategories(new RecipeCategoryGeneratorBlasting(registration.getJeiHelpers().getGuiHelper()));
-			registration.addRecipeCategories(new RecipeCategoryGeneratorSmoking(registration.getJeiHelpers().getGuiHelper()));
-			registration.addRecipeCategories(new RecipeCategoryGeneratorRegular(registration.getJeiHelpers().getGuiHelper()));
-
-		}
+        registration.addRecipeCategories(new RecipeCategoryGeneratorBlasting(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new RecipeCategoryGeneratorSmoking(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new RecipeCategoryGeneratorRegular(registration.getJeiHelpers().getGuiHelper()));
 	}
 
 	@Override
 	public void registerRecipes(IRecipeRegistration registration) {
-		if (Config.enableJeiPlugin.get())
 		{
 
 			List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
 			for (Item item : ForgeRegistries.ITEMS.getValues())
 			{
-				if (ForgeHooks.getBurnTime(new ItemStack(item), RecipeType.SMELTING) > 0)
+				if (FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING) > 0)
 				{
 					ItemStack stack = new ItemStack(item);
-					recipes.add(new SimpleGeneratorRecipe(ForgeHooks.getBurnTime(new ItemStack(item), RecipeType.SMELTING) * 20, stack));
+					recipes.add(new SimpleGeneratorRecipe(FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING) * 20, stack));
 				}
 			}
 			registration.addRecipes(JEICompat.GENERATOR_REGULAR, recipes);
 
 			List<GeneratorRecipe> recipes1 = Lists.newArrayList();
-			List<GeneratorRecipe> list = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(ModCustomRecipe.GENERATOR_RECIPE.get()).stream().toList();
+			List<GeneratorRecipe> list = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(ModCustomRecipe.GENERATOR_RECIPE.get()).stream()
+                    //? > 1.20.1
+                    //.map(RecipeHolder::value)
+                    .toList();
 			for (GeneratorRecipe item : list)
 			{
 				recipes1.add(item);
@@ -131,9 +129,10 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			List<SimpleGeneratorRecipe> recipes2 = Lists.newArrayList();
 			for (Item item : ForgeRegistries.ITEMS.getValues())
 			{
-				if (item.getFoodProperties() != null)
+                FoodProperties foodProperties = item.getFoodProperties(item.getDefaultInstance(), Minecraft.getInstance().player);
+                if (foodProperties != null)
 				{
-					if (item.getFoodProperties().getNutrition() > 0)
+					if (foodProperties.getNutrition() > 0)
 					{
 						ItemStack stack = new ItemStack(item);
 						recipes2.add(new SimpleGeneratorRecipe(BlockIronFurnaceTileBase.getSmokingBurn(stack) * 40, stack));
@@ -149,7 +148,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registry) {
-		if (Config.enableJeiPlugin.get() && Config.enableJeiCatalysts.get()) {
+		{
 
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.IRON_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.GOLD_FURNACE.get()), RecipeTypes.SMELTING);
@@ -160,7 +159,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
-
+            //~ if >1.20.1 'if (Config.enableRainbowContent.get()) {' -> '{'
 			if (Config.enableRainbowContent.get()) {
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.SMELTING);
 			}
@@ -174,11 +173,10 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.NETHERITE_FURNACE.get()), RecipeTypes.FUELING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.FUELING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.FUELING);
-
+            //~ if >1.20.1 'if (Config.enableRainbowContent.get()) {' -> '{'
 			if (Config.enableRainbowContent.get()) {
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.FUELING);
 			}
-
 
 
 			if (ModList.get().isLoaded("allthemodium"))
@@ -209,7 +207,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 	}
 
 }
-
+//~}
 
 
 

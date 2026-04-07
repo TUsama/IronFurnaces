@@ -7,16 +7,31 @@ import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 import ironfurnaces.registrate.CustomRecipeBuilder;
 import ironfurnaces.registrate.CustomRecipeEntry;
+import net.minecraft.advancements.Advancement;
+
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.FinishedRecipe;
+
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+//? 1.20.1 {
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.conditions.NotCondition;
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
+//?} else {
+/*import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraftforge.common.conditions.NotCondition;
+import net.minecraftforge.common.conditions.TagEmptyCondition;
+import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
+import net.minecraft.advancements.AdvancementHolder;
+*///?}
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -65,19 +80,23 @@ public class ModCustomRecipe {
     public static void register(){
     }
 
+    //~ if >1.20.1 'Consumer<FinishedRecipe>' -> 'RecipeOutput'
     private static void acceptWhenTagNotEmpty(Consumer<FinishedRecipe> provider, String id, int value, TagKey<Item> tag) {
+        //? 1.20.1 {
         ConditionalRecipe.builder()
                 .addCondition(new NotCondition(new TagEmptyCondition(tag.location())))
                 .addRecipe(new Result(id, value, tag))
                 .build(provider, IronFurnaces.id(GENERATOR_ID + "/" + id));
+        //? } else {
+        /*provider.accept(IronFurnaces.id(GENERATOR_ID + "/" + id), new GeneratorRecipe(value, Ingredient.of(tag)), null, new NotCondition(new TagEmptyCondition(tag.location())));
+        *///?}
     }
+
+    //? forge {
     private static class Result implements FinishedRecipe {
         private final String id;
         private final int energy;
         private final Ingredient ingredient;
-
-
-
 
         private Result(int energy, Item item) {
             this.id = BuiltInRegistries.ITEM.getKey(item).getPath();
@@ -118,4 +137,5 @@ public class ModCustomRecipe {
             return null;
         }
     }
+    //?}
 }

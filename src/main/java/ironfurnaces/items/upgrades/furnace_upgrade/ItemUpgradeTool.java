@@ -1,6 +1,7 @@
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
 import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
@@ -113,8 +114,7 @@ public class ItemUpgradeTool extends Item {
             OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
 
             if (!level.isClientSide && player != null) {
-                player.getCapability(ModCapabilities.FURNACES_LIST)
-                        .ifPresent(h -> h.add(level.dimension(), pos));
+                PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
             }
         } else {
             BlockState newState = ModBlocks.PATTERN_HOLDER.getDefaultState();
@@ -132,8 +132,7 @@ public class ItemUpgradeTool extends Item {
                 furnacePatternBlockEntity.transferStacksInUnavailableSlotsToPlayer(player);
                 OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
                 if (!level.isClientSide && player != null) {
-                    player.getCapability(ModCapabilities.FURNACES_LIST)
-                            .ifPresent(h -> h.add(level.dimension(), pos));
+                    PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
                 }
             } else {
                 return InteractionResult.FAIL;
@@ -148,8 +147,9 @@ public class ItemUpgradeTool extends Item {
         return InteractionResult.CONSUME;
     }
 
+
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.literal(""));
         PatternUpgradeRule rule = IUpgradeStorage.get(stack);
         if (rule != null) {

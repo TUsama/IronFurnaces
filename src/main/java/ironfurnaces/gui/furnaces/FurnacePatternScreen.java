@@ -114,7 +114,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         Int2IntFunction uStart = index -> index * 14;
 
         int buttonStartX = sidePanelBaseX + 10;
-        this.autoInputButton = new BaseBoolStatuImageButton(buttonStartX, topPos + 12, squareLength, squareLength, uStart.applyAsInt(0), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoInput(!menu.getSettingsV2().autoInput()), menu.bePos)), () -> menu.getSettingsV2().autoInput()){
+        this.autoInputButton = new BaseBoolStatuImageButton(buttonStartX, topPos + 12, squareLength, squareLength, "auto_input", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoInput(!menu.getSettingsV2().autoInput()), menu.bePos)), () -> menu.getSettingsV2().autoInput()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_input", menu.getSettingsV2().autoInput()));
@@ -127,7 +127,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
             }
         };
 
-        this.autoOutputButton = new BaseBoolStatuImageButton(buttonStartX + squareLength + 2, topPos + 12, squareLength, squareLength, uStart.applyAsInt(1), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoOutput(!menu.getSettingsV2().autoOutput()), menu.bePos)), () -> menu.getSettingsV2().autoOutput()){
+        this.autoOutputButton = new BaseBoolStatuImageButton(buttonStartX + squareLength + 2, topPos + 12, squareLength, squareLength, "auto_output", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoOutput(!menu.getSettingsV2().autoOutput()), menu.bePos)), () -> menu.getSettingsV2().autoOutput()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_output", menu.getSettingsV2().autoOutput()));
@@ -142,7 +142,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         int i = topPos + MenuConstant.SIDE_PANEL_HEIGHT - 25;
 
-        this.autoFillButton = new BaseBoolStatuImageButton(0, 0, squareLength, squareLength, uStart.applyAsInt(7), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoFill(!menu.getSettingsV2().autoFill()), menu.bePos)), () -> menu.getSettingsV2().autoFill()){
+        this.autoFillButton = new BaseBoolStatuImageButton(0, 0, squareLength, squareLength, "auto_fill", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoFill(!menu.getSettingsV2().autoFill()), menu.bePos)), () -> menu.getSettingsV2().autoFill()){
             @Override
             public @Nullable Tooltip getTooltip() {
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_fill", menu.getSettingsV2().autoFill()));
@@ -156,11 +156,9 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         };
         this.autoFillButton.setPosition(leftPos + 9, topPos + 56);
 
-        this.subtractionValueIncButton = new ImageButton(buttonStartX + squareLength + 2, i, squareLength, squareLength, uStart.applyAsInt(8), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withSubtractionNumber(Math.min(menu.getSettingsV2().subtractionNumber() + 1, 15)), menu.bePos))){
+        this.subtractionValueIncButton = new BaseImageButton(buttonStartX + squareLength + 2, i, squareLength, squareLength, "redstone_mode_comparator_subtraction_plus", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withSubtractionNumber(Math.min(menu.getSettingsV2().subtractionNumber() + 1, 15)), menu.bePos))){
             @Override
             public @Nullable Tooltip getTooltip() {
-
-
                 return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.redstone_value", menu.getSettingsV2().subtractionNumber()));
             }
 
@@ -172,7 +170,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         };
 
 
-        this.subtractionValueDecButton = new ImageButton(buttonStartX + (squareLength * 2) + 4, i, squareLength, squareLength, uStart.applyAsInt(9), 0, WIDGET, button -> {
+        this.subtractionValueDecButton = new BaseImageButton(buttonStartX + (squareLength * 2) + 4, i, squareLength, squareLength, "redstone_mode_comparator_subtraction_subtract", button -> {
             NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withSubtractionNumber(Math.max(menu.getSettingsV2().subtractionNumber() - 1, 0)), menu.bePos));
         }){
             @Override
@@ -188,18 +186,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         };
 
         WidgetGroup widgetGroup = new WidgetGroup(subtractionValueIncButton, subtractionValueDecButton);
-        this.redstoneModeButton = new RedstoneModeButton(buttonStartX, i, squareLength, squareLength, uStart.applyAsInt(2), 0, WIDGET, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().next()), menu.bePos)), button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().previous()), menu.bePos)), widgetGroup, menu::getSettingsV2){
-            @Override
-            public @Nullable Tooltip getTooltip() {
-                return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", Component.translatable(menu.getSettingsV2().redStoneMode().translationKey)));
-            }
-
-            @Override
-            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-                this.setTooltip(getTooltip());
-            }
-        };
+        this.redstoneModeButton = new RedstoneModeButton(buttonStartX, i, squareLength, squareLength, button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().next()), menu.bePos)), button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withRedStoneMode(menu.getSettingsV2().redStoneMode().previous()), menu.bePos)), widgetGroup, menu::getSettingsV2);
         widgetGroup.deactivateAll();
 
         int ioButtonSize = 10;
@@ -207,14 +194,13 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         Function<FurnaceSettingsV2.RelativeFace, IOButton> ioButtonMaker = relativeFace -> {
             Direction worldFacing = RelativeFaceHelper.toWorld(facing, relativeFace);
-            FurnaceSettingsV2.IOMode oldSetting = menu.getSettingsV2().IOSetting().get(worldFacing);
-            return new IOButton(0, 0, ioButtonSize, ioButtonSize, 0, 175, 10, 10, WIDGET, button -> {
+            return new IOButton(0, 0, ioButtonSize, ioButtonSize, button -> {
                 FurnaceSettingsV2.IOMode next = menu.getSettingsV2().IOSetting().get(worldFacing).next();
                 NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(worldFacing, next), menu.bePos));
-            }, oldSetting, relativeFace, menu, button -> {
+            }, relativeFace, button -> {
                 FurnaceSettingsV2.IOMode previous = menu.getSettingsV2().IOSetting().get(worldFacing).previous();
                 NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withDirectionChanged(worldFacing, previous), menu.bePos));
-            });
+            }, () -> menu.getSettingsV2().IOSetting().get(RelativeFaceHelper.toWorld(Minecraft.getInstance().level.getBlockState(menu.bePos).getValue(BlockStateProperties.HORIZONTAL_FACING), relativeFace)));
         };
 
         int upButtonX = buttonStartX + ioButtonSize * 2 - 5;
@@ -260,15 +246,11 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 0,
                 MenuConstant.SIDE_BUTTON_WIDTH,
                 MenuConstant.SIDE_BUTTON_HEIGHT,
-                MenuConstant.SIDE_BUTTON_WIDTH * 0,      // u
-                42,      // v
-                0,      // hoveredVOffset
-                WIDGET,
+                "side_button_setting",
                 btn -> {NetworkUtils.sendToServer(new C2SUpdateMenuPacket(0));},
-                positionContext,
                 new SideTabPanel(this.settingsPanelGroup, positionContext, 0),
-                this.menu::isOpenSetting
-
+                this.menu::isOpenSetting,
+                positionContext
         ));
         
         this.settingsTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.setting")));
@@ -303,16 +285,13 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 0,
                 MenuConstant.SIDE_BUTTON_WIDTH,
                 MenuConstant.SIDE_BUTTON_HEIGHT,
-                MenuConstant.SIDE_BUTTON_WIDTH * 1,     // u
-                42,      // v
-                0,
-                WIDGET,
+                "side_button_remaining",
                 btn -> {
                     NetworkUtils.sendToServer(new C2SUpdateMenuPacket(2));
                 },
-                positionContext,
                 new SideTabPanel(this.remainingCachePanelGroup, positionContext, 1),
-                this.menu::isOpenRemaining
+                this.menu::isOpenRemaining,
+                positionContext
         ));
         
         this.remainingCacheTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.remaining_items")));
@@ -328,16 +307,14 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
                 0,
                 MenuConstant.SIDE_BUTTON_WIDTH,
                 MenuConstant.SIDE_BUTTON_HEIGHT,
-                MenuConstant.SIDE_BUTTON_WIDTH * 2,     // u
-                42,      // v
-                0,
-                WIDGET,
+               "side_button_augment",
                 btn -> {
                     NetworkUtils.sendToServer(new C2SUpdateMenuPacket(1));
                 },
-                positionContext,
                 new SideTabPanel(this.augmentCachePanelGroup, positionContext, 2),
-                this.menu::isOpenAugment
+                this.menu::isOpenAugment,
+                positionContext
+
         ));
 
         this.augmentCacheTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.augment")));
@@ -521,6 +498,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
             this.pageGroup.deactivateAll();
         }
         this.menu.updateMode();
+        //~ if >1.20.1 'guiGraphics' -> 'guiGraphics, mouseX, mouseY, partialTick'
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderTooltip(guiGraphics, mouseX, mouseY);

@@ -1,7 +1,10 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import ironfurnaces.Config;
 import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
 import ironfurnaces.items.ItemFurnaceCopyV2;
@@ -10,6 +13,7 @@ import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
+import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
@@ -28,6 +32,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -38,10 +43,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -71,8 +73,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
 
+//? 1.20.1 {
+import net.minecraftforge.registries.ForgeRegistries;
+//? } else {
+/*import net.minecraft.core.component.DataComponents;
+*///?}
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
@@ -95,7 +101,13 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 .setValue(ModBlockState.HANDLING_RECIPE_TYPE, AugmentCache.HandlingRecipeType.NORMAL)
                 .setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE));
     }
-
+    //? >1.20.1 {
+    /*private final static MapCodec<FurnacePatternHolderBlock> CODEC = simpleCodec(FurnacePatternHolderBlock::new);
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+    *///?}
     @Nullable
     private FurnacePatternBlockEntity getPatternHolder(BlockGetter level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
@@ -114,6 +126,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
         return pattern.referenceBlock()
+                //~ if >1.20.1 'ForgeRegistries.BLOCKS::getValue' -> 'BuiltInRegistries.BLOCK::get'
                 .map(ForgeRegistries.BLOCKS::getValue)
                 .filter(block -> block != null && block != Blocks.AIR);
     }
@@ -137,6 +150,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         BlockState reference = getReferenceStateOrNull(level, pos);
         if (reference != null) {
+            //~ if >1.20.1 'reference.getBlock().getDestroyProgress(reference, player, level, pos)' -> 'reference.getDestroyProgress(player, level, pos)'
             return reference.getBlock().getDestroyProgress(reference, player, level, pos);
         }
         return super.getDestroyProgress(state, player, level, pos);
@@ -237,6 +251,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
+            //~ if >1.20.1 'BlockGetter' -> 'LevelReader'
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         ItemStack stack = new ItemStack(this);
 
@@ -246,12 +261,15 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             if (pattern != null && pattern != FurnacePattern.FALLBACK) {
                 IPatternAccessor.writePatternToItemStack(stack, pattern);
             }
-
+            //? 1.20.1 {
             CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-
             FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, furnace.getSettingsV2())
                     .result()
                     .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
+            //? } else {
+            /*stack.set(ModDataComponents.PERSISTENT_SETTING, furnace.getSettingsV2());
+            *///?}
+
 
             if (furnace.hasCustomName()) {
                 stack.setHoverName(furnace.getCustomName());
@@ -267,7 +285,9 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+            //~ if >1.20.1 'BlockGetter level' -> 'Item.TooltipContext context'
+    public void appendHoverText(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+        //~ if >1.20.1 'level' -> 'context'
         super.appendHoverText(stack, level, tooltip, flag);
 
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
@@ -286,15 +306,24 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
                     .withStyle(ChatFormatting.RED));
         }
-
+        //? 1.20.1 {
         CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
         if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
             return;
         }
-
         FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
                 .result()
-                .ifPresent(settings -> {
+                .ifPresent
+        //? } else {
+        /*if (!stack.has(ModDataComponents.PERSISTENT_SETTING)){
+            return;
+        }
+        //horrible
+        Optional.ofNullable(stack.get(ModDataComponents.PERSISTENT_SETTING)).ifPresent
+        *///?}
+
+
+        (settings -> {
                     tooltip.add(Component.literal(""));
 
                     settings.IOSetting().forEach((direction, ioMode) -> {
@@ -346,18 +375,19 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (!(be instanceof FurnacePatternBlockEntity te)) {
             return;
         }
-
+        //I think this should be done by minecraft itselt, see applyImplicitComponents().
+        //? 1.20.1 {
         if (stack.hasCustomHoverName() && !stack.getDisplayName().getString().contains("[")) {
             te.setCustomName(stack.getDisplayName());
         }
-
+        //?}
         if (!level.isClientSide && entity instanceof Player player) {
             te.ensureOwner(player);
-            player.getCapability(ModCapabilities.FURNACES_LIST)
-                    .ifPresent(h -> h.add(level.dimension(), pos));
+            PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
+
         }
     }
-
+    //? 1.20.1 {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_) {
         if (level.isClientSide) {
@@ -377,8 +407,6 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 return InteractionResult.PASS;
             }
         }
-
-
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
@@ -408,6 +436,65 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
     }
+    //?} else {
+
+    /*@Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
+            ModMenus.NEW_FURNACE_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
+                @Override
+                public Component getDisplayName() {
+                    return Component.literal("");
+                }
+
+                @Override
+                public @org.jetbrains.annotations.Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+                    FurnacePatternBlockEntity blockEntity1 = (FurnacePatternBlockEntity) level.getBlockEntity(pos);
+                    if (player instanceof ServerPlayer serverPlayer) blockEntity1.addPlayer(serverPlayer);
+                    return new FurnacePatternMenu(ModMenus.NEW_FURNACE_MENU.get(), containerId, blockEntity1, playerInventory, pos, blockEntity1.getDataAccess());
+                }
+            }, buf -> {
+
+                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
+                buf.writeJsonWithCodec(IFurnaceStats.CODEC, furnacePatternBlockEntity.getUsedStats());
+                buf.writeBlockPos(pos);
+            });
+            player.awardStat(Stats.INTERACT_WITH_FURNACE);
+            return InteractionResult.CONSUME;
+        } else {
+            player.sendSystemMessage(translatable("block.ironfurnaces.furnace_pattern_holder.refuse_open_empty_pattern"));
+            return super.useWithoutItem(state, level, pos, player, hitResult);
+        }
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) {
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        Item item = stack.getItem();
+        if (player.isCrouching()) {
+            if (stack.isEmpty()){
+                IJovialSetter.clearJovial(level, pos);
+                return ItemInteractionResult.SUCCESS;
+            } else if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+        } else {
+            if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    *///?}
 
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         super.animateTick(state, world, pos, rand);
@@ -486,6 +573,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
                             for (int i = 0; i < 10; i++) {
                                 world.addParticle(ParticleTypes.CRIT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                                //~ if >1.20.1 'ParticleTypes.AMBIENT_ENTITY_EFFECT' -> 'ParticleTypes.EFFECT'
                                 world.addParticle(ParticleTypes.AMBIENT_ENTITY_EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
                             }
                         }
@@ -507,8 +595,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                     if (ownerUuid != null && world.getServer() != null) {
                         Player owner = world.getServer().getPlayerList().getPlayer(ownerUuid);
                         if (owner != null) {
-                            owner.getCapability(ModCapabilities.FURNACES_LIST)
-                                    .ifPresent(h -> h.remove(world.dimension(), pos));
+                            PlayerDataHandler.editFurnacesList(owner, x -> x.remove(world.dimension(), pos));
                         }
                     }
                 }

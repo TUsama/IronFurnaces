@@ -1,3 +1,5 @@
+//? forge {
+
 package ironfurnaces.capability;
 
 import com.mojang.datafixers.util.Pair;
@@ -5,6 +7,7 @@ import com.mojang.serialization.DataResult;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -15,7 +18,11 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+//? 1.20.1 {
 
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabilitySerializable<CompoundTag> {
 
     private PlayerFurnacesList furnaces = new PlayerFurnacesList();
@@ -86,3 +93,4 @@ public class PlayerFurnacesListProvider implements ICapabilityProvider, ICapabil
         lazyList = LazyOptional.of(() -> furnaces);
     }
 }
+//?}

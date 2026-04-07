@@ -1,3 +1,5 @@
+//? forge {
+
 package ironfurnaces.capability.rainbow;
 
 import ironfurnaces.capability.ModCapabilities;
@@ -47,3 +49,4 @@ public class PlayerRainbowContextCapability implements ICapabilityProvider, ICap
         load(nbt);
     }
 }
+//?}

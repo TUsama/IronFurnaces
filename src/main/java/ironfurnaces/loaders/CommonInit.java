@@ -6,21 +6,27 @@ import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.registration.*;
 import lombok.experimental.UtilityClass;
+import net.minecraftforge.data.loading.DatagenModLoader;
 
 @UtilityClass
 public class CommonInit {
 
     public void init(){
+        PacketInit.initPackets();
         ModMenus.register();
         ModCustomRecipe.register();
         ModBlocks.register();
         ModBlockEntities.register();
         ModItems.register();
-        ModNewFurnace.register();
         LegacyFurnaceBlocks.register();
         ModItemGroups.register();
         ModAdvancements.register();
-        ModLangs.register();
+
+        if (DatagenModLoader.isRunningDataGen()) {
+            ModLangs.register();
+            ModNewFurnace.register();
+        }
+
         if (ModUtils.isModLoaded("jei")){
             JEICompat.register();
         }

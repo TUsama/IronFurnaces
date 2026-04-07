@@ -1,9 +1,9 @@
+//~ replace_INBTSerializable
 package ironfurnaces.capability.rainbow;
 
 import com.clefal.nirvana_lib.relocated.io.vavr.Tuple;
 import com.clefal.nirvana_lib.relocated.io.vavr.Tuple2;
-import ironfurnaces.capability.IPlayerFurnacesList;
-import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
@@ -14,12 +14,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.INBTSerializable;
+//? 1.20.1 {
+
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+//? forge {
+import net.minecraftforge.common.util.LazyOptional;
+//? } else {
+/*import net.minecraft.core.HolderLookup;
+*///?}
 
 import java.util.*;
 
-public class OwnerRainbowContext {
+public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
 
     private final Map<ResourceLocation, EffectiveFurnaceStats> resolvedStats = new LinkedHashMap<>();
     private final Map<ResourceLocation, Set<ResourceLocation>> contributors = new LinkedHashMap<>();
@@ -129,12 +141,9 @@ public class OwnerRainbowContext {
 
 
     private Tuple2<LinkedHashSet<ResourceLocation>, List<FurnacePatternBlockEntity>> collectActiveNormalKinds(ServerPlayer player) {
-
-        LinkedHashSet<ResourceLocation> result = new LinkedHashSet<>();
-        List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
-
-        var capability = player.getCapability(ModCapabilities.FURNACES_LIST);
-        capability.ifPresent(list -> {
+        return PlayerDataHandler.readFurnacesList(player, list -> {
+            LinkedHashSet<ResourceLocation> result = new LinkedHashSet<>();
+            List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) {
                     continue;
@@ -168,9 +177,9 @@ public class OwnerRainbowContext {
                 }
                 result.add(otherPattern.id());
             }
+            return Tuple.of(result, rainbows);
         });
 
-        return Tuple.of(result, rainbows);
     }
 
     private boolean isZeroBonus(RainbowBonus bonus) {
@@ -209,4 +218,17 @@ public class OwnerRainbowContext {
                 pattern.baseInputSlotAmount()
         );
     }
+
+
+    @Override
+    public CompoundTag serializeNBT() {
+        return saveToTag();
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag compoundTag) {
+        loadFromTag(compoundTag);
+    }
+
+
 }

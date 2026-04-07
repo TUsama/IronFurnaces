@@ -2,6 +2,7 @@ package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.capability.ModCapabilities;
+import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.client.data.FurnaceWorkSpeedDataStorage;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
@@ -31,6 +32,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -45,10 +47,16 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 
+//? 1.20.1 {
+import net.minecraftforge.network.NetworkHooks;
+//? } else {
+/*import ironfurnaces.registration.ModDataComponents;
+import net.minecraft.core.component.DataComponents;
+*///?}
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraft.network.chat.Component.translatable;
@@ -80,7 +88,9 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @org.jetbrains.annotations.Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+            //~ if >1.20.1 'BlockGetter level' -> 'Item.TooltipContext context'
+    public void appendHoverText(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+        //~ if >1.20.1 'level' -> 'context'
         super.appendHoverText(stack, level, tooltip, flag);
         int speed = FurnaceWorkSpeedDataStorage.getInstance().getSpeed(this);
         if (speed != 0){
@@ -104,8 +114,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             if (entity instanceof Player)
             {
                 Player player = (Player)entity;
-
-                player.getCapability(ModCapabilities.FURNACES_LIST).ifPresent(h -> h.add(player.level().dimension(), pos));
+                PlayerDataHandler.editFurnacesList(player, x -> x.add(player.level().dimension(), pos));
                 if (te.isRainbowFurnace())
                 {
                     te.owner = player.getUUID();
@@ -114,7 +123,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         }
     }
 
-
+    //? forge {
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_) {
         ItemStack stack = player.getItemInHand(handIn).copy();
@@ -122,7 +131,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             return InteractionResult.SUCCESS;
         }
         if (player.getItemInHand(handIn).getItem() instanceof ItemAugment && !(player.isCrouching())) {
-            return this.interactAugment(world, pos, player, handIn, stack);
+            return this.interactAugment(world, pos, player, stack);
         } else if (player.getItemInHand(handIn).getItem() instanceof ItemSpooky && !(player.isCrouching())) {
             return this.interactJovial(world, pos, player, handIn, 1);
         } else if (player.getItemInHand(handIn).getItem() instanceof ItemXmas && !(player.isCrouching())) {
@@ -137,7 +146,33 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         return InteractionResult.SUCCESS;
 
     }
+    //?} else {
 
+    /*@Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (stack.getItem() instanceof ItemAugment && !(player.isCrouching())) {
+            return this.interactAugment(level, pos, player, stack);
+        } else if (stack.getItem() instanceof ItemSpooky && !(player.isCrouching())) {
+            return this.interactJovial(level, pos, player, hand, 1);
+        } else if (stack.getItem() instanceof ItemXmas && !(player.isCrouching())) {
+            return this.interactJovial(level, pos, player, hand, 2);
+        } else if (stack.isEmpty() && player.isCrouching()) {
+            return this.interactJovial(level, pos, player, hand, 0);
+        } else if (stack.getItem() instanceof ItemFurnaceCopy && !(player.isCrouching())) {
+            return this.interactCopy(level, pos, player, hand);
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+    *///?}
+//~ if >1.20.1 'InteractionResult' -> 'ItemInteractionResult' {
     private InteractionResult interactCopy(Level world, BlockPos pos, Player player, InteractionHand handIn) {
         int j = player.getInventory().selected;
         ItemStack stack = player.getInventory().getItem(j);
@@ -154,18 +189,24 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         {
             settings[i] = ((BlockIronFurnaceTileBase) te).furnaceSettings.get(i);
         }
+        //? 1.20.1 {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putIntArray("settings", settings);
         tag.putInt("direction", DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
+        //? } else {
+        /*stack.set(ModDataComponents.PERSISTENT_LEGACY_SETTING, Arrays.stream(settings).mapToObj(x -> ((Integer) x)).toArray(Integer[]::new));
+        stack.set(ModDataComponents.PERSISTENT_DIRECTION, DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
+        *///?}
+
         ((BlockIronFurnaceTileBase)te).onUpdateSent();
 
 
         player.sendSystemMessage(translatable("ironfurnaces.item.item_copy.tip.setting_copied"));
         return InteractionResult.SUCCESS;
     }
-    private InteractionResult interactAugment(Level world, BlockPos pos, Player player, InteractionHand handIn, ItemStack stack) {
-        ItemStack held = player.getItemInHand(handIn);
-        if (!(held.getItem() instanceof ItemAugment)) {
+
+    private InteractionResult interactAugment(Level world, BlockPos pos, Player player, ItemStack stack) {
+        if (!(stack.getItem() instanceof ItemAugment)) {
             return InteractionResult.SUCCESS;
         }
 
@@ -175,9 +216,9 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         }
 
         int slot;
-        if (held.getItem() instanceof ItemAugmentRed) {
+        if (stack.getItem() instanceof ItemAugmentRed) {
             slot = 3;
-        } else if (held.getItem() instanceof ItemAugmentGreen) {
+        } else if (stack.getItem() instanceof ItemAugmentGreen) {
             slot = 4;
         } else {
             slot = 5;
@@ -198,11 +239,11 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             world.addFreshEntity(entity);
         }
 
-        ItemStack newStack = held.copyWithCount(1);
+        ItemStack newStack = stack.copyWithCount(1);
         container.setItem(slot, newStack);
 
         if (!player.isCreative()) {
-            held.shrink(1);
+            stack.shrink(1);
         }
 
         furnace.setChanged();
@@ -221,6 +262,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
 
         return InteractionResult.SUCCESS;
     }
+
     private InteractionResult interactJovial(Level world, BlockPos pos, Player player, InteractionHand handIn, int jovial) {
         if (!(player.getItemInHand(handIn).getItem() instanceof ItemSpooky
                 || !(player.getItemInHand(handIn).getItem() instanceof ItemXmas)
@@ -234,12 +276,13 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         ((BlockIronFurnaceTileBase)te).setJovial(jovial);
         return InteractionResult.SUCCESS;
     }
-
+    //~}
     private void interactWith(Level world, BlockPos pos, Player player) {
         if (!world.isClientSide)
         {
             BlockEntity tileEntity = world.getBlockEntity(pos);
             if (tileEntity instanceof MenuProvider) {
+                //? forge
                 NetworkHooks.openScreen((ServerPlayer) player, (MenuProvider)tileEntity, tileEntity.getBlockPos());
                 player.awardStat(Stats.INTERACT_WITH_FURNACE);
                 if (tileEntity instanceof BlockIronFurnaceTileBase)
@@ -326,7 +369,8 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 {
                     if (world.getPlayerByUUID(furnace.owner) != null)
                     {
-                        world.getPlayerByUUID(furnace.owner).getCapability(ModCapabilities.FURNACES_LIST).ifPresent(h -> h.remove(te.getLevel().dimension(), te.getBlockPos()));
+                        PlayerDataHandler.editFurnacesList(world.getPlayerByUUID(furnace.owner), x -> x.remove(te.getLevel().dimension(), te.getBlockPos()));
+
                     }
                 }
                 Containers.dropContents(world, pos, furnace);

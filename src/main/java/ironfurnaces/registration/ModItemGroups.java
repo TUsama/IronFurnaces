@@ -14,6 +14,7 @@ import net.minecraft.world.item.Items;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModItemGroups {
+    //~ if !forge 'RegistryEntry<CreativeModeTab>' -> 'RegistryEntry<CreativeModeTab, CreativeModeTab>' {
     public static final RegistryEntry<CreativeModeTab> ALL_CONTENT = REGISTRATE
             .defaultCreativeTab("all_contents", builder -> builder
                             .icon(LegacyFurnaceBlocks.IRON_FURNACE::asStack)
@@ -107,6 +108,7 @@ public class ModItemGroups {
             })
             .register();
 
+    //~}
     public static void register() {
 
     }

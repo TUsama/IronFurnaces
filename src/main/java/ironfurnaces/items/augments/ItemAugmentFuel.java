@@ -8,8 +8,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import java.util.List;
 import java.util.function.IntUnaryOperator;
@@ -25,7 +25,7 @@ public class ItemAugmentFuel extends ItemAugmentGreen {
         return AugmentCache.GreenAugmentModifier.FUEL_EFFICIENCY;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);

@@ -17,6 +17,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+//? 1.20.1 {
+import net.minecraftforge.items.ItemHandlerHelper;
+//? } else {
+/*import net.minecraft.world.item.crafting.RecipeHolder;
+*///?}
+
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -137,6 +143,8 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
         }
 
         var lookedUp = tile.getRecipe(current)
+                //? if >1.20.1
+                //.map(RecipeHolder::value)
                 .orElse(null);
 
         entry.update(current, lookedUp);
@@ -215,7 +223,7 @@ public class ProcessingInstanceManager implements IModeSensitive, IPatternSensit
 
         public boolean matches(ItemStack current) {
             if (fingerprint.isEmpty() || current.isEmpty()) return false;
-            return ItemStack.isSameItemSameTags(fingerprint, current);
+            return ItemHandlerHelper.canItemStacksStack(fingerprint, current);
         }
 
         public void update(ItemStack current, @Nullable Recipe recipe) {

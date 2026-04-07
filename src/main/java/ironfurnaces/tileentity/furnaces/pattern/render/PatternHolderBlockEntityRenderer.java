@@ -24,6 +24,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class PatternHolderBlockEntityRenderer implements BlockEntityRenderer<FurnacePatternBlockEntity> {
+    public static PatternHolderBlockEntityRenderer INSTANCE;
+
+    public static PatternHolderBlockEntityRenderer getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new PatternHolderBlockEntityRenderer();
+        }
+        return INSTANCE;
+    }
 
     @Override
     public void render(

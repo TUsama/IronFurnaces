@@ -70,37 +70,41 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
 
     private static void putVertex(
             VertexConsumer vc,
-            Matrix4f pose,
+            PoseStack.Pose pose,
             Matrix3f normal,
             float x, float y, float z,
             float u, float v,
             int packedLight, int packedOverlay
     ) {
-        vc.vertex(pose, x, y, z)
-                .color(255, 255, 255, 255)
-                .uv(u, v)
-                .overlayCoords(packedOverlay)
-                .uv2(packedLight)
-                .normal(normal, 0.0F, 0.0F, 1.0F)
-                .endVertex();
+        putVertex(vc, pose, normal, x, y, z, u, v, packedLight, packedOverlay, 0.0F, 0.0F, 1.0F);
     }
 
     private static void putVertex(
             VertexConsumer vc,
-            Matrix4f pose,
+            PoseStack.Pose pose,
             Matrix3f normal,
             float x, float y, float z,
             float u, float v,
             int packedLight, int packedOverlay,
             float nx, float ny, float nz
     ) {
-        vc.vertex(pose, x, y, z)
+        //? 1.20.1 {
+        vc.vertex(pose.pose(), x, y, z)
                 .color(255, 255, 255, 255)
                 .uv(u, v)
                 .overlayCoords(packedOverlay)
                 .uv2(packedLight)
                 .normal(normal, nx, ny, nz)
                 .endVertex();
+        //? } else {
+        /*vc.addVertex(pose, x, y, z)
+                .setColor(255, 255, 255, 255)
+                .setUv(u, v)
+                .setOverlay(packedOverlay)
+                .setLight(packedLight)
+                .setNormal(pose, nx, ny, nz);
+        *///?}
+
     }
 
     /**
@@ -128,16 +132,16 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
         float z = 0.001F;
 
         // 正面
-        putVertex(vc, pose.pose(), pose.normal(), minX, maxY, z, u0, v0, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, maxY, z, u1, v0, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, minY, z, u1, v1, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), minX, minY, z, u0, v1, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), minX, maxY, z, u0, v0, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), maxX, maxY, z, u1, v0, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), maxX, minY, z, u1, v1, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), minX, minY, z, u0, v1, packedLight, packedOverlay);
 
         // 背面
-        putVertex(vc, pose.pose(), pose.normal(), minX, minY, -z, u0, v1, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, minY, -z, u1, v1, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, maxY, -z, u1, v0, packedLight, packedOverlay);
-        putVertex(vc, pose.pose(), pose.normal(), minX, maxY, -z, u0, v0, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), minX, minY, -z, u0, v1, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), maxX, minY, -z, u1, v1, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), maxX, maxY, -z, u1, v0, packedLight, packedOverlay);
+        putVertex(vc, pose, pose.normal(), minX, maxY, -z, u0, v0, packedLight, packedOverlay);
     }
 
     private static void renderPatternFront(
@@ -181,16 +185,16 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
         float z = 0.001F;
 
         // 正面
-        putVertex(vc, pose.pose(), pose.normal(), minX, maxY,  z, u0, v0, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, maxY,  z, u1, v0, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, minY,  z, u1, v1, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), minX, minY,  z, u0, v1, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
+        putVertex(vc, pose, pose.normal(), minX, maxY,  z, u0, v0, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
+        putVertex(vc, pose, pose.normal(), maxX, maxY,  z, u1, v0, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
+        putVertex(vc, pose, pose.normal(), maxX, minY,  z, u1, v1, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
+        putVertex(vc, pose, pose.normal(), minX, minY,  z, u0, v1, packedLight, packedOverlay, 0.0F, 0.0F,  1.0F);
 
         // 背面
-        putVertex(vc, pose.pose(), pose.normal(), minX, minY, -z, u0, v1, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, minY, -z, u1, v1, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), maxX, maxY, -z, u1, v0, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
-        putVertex(vc, pose.pose(), pose.normal(), minX, maxY, -z, u0, v0, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
+        putVertex(vc, pose, pose.normal(), minX, minY, -z, u0, v1, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
+        putVertex(vc, pose, pose.normal(), maxX, minY, -z, u1, v1, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
+        putVertex(vc, pose, pose.normal(), maxX, maxY, -z, u1, v0, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
+        putVertex(vc, pose, pose.normal(), minX, maxY, -z, u0, v0, packedLight, packedOverlay, 0.0F, 0.0F, -1.0F);
     }
 
     @Override

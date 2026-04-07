@@ -1,5 +1,7 @@
+//? 1.20.1 {
 package ironfurnaces.mixin;
 
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(ShapedRecipeBuilder.Result.class)
+@MixinEnvironment
 public interface ShapedRecipeBuilderResultAccessor {
 
     @Accessor("id")
@@ -41,3 +44,4 @@ public interface ShapedRecipeBuilderResultAccessor {
     @Accessor("showNotification")
     boolean isShowNotification();
 }
+//? }

@@ -10,6 +10,7 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.util.FuelBurnTimeUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
+//? 1.20.1
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -112,7 +114,7 @@ public abstract class Generate extends ProcessingInstance {
     public static Generate getGenerateInstance(int index, int eachTickOutPut, ItemStack stack, FurnacePatternBlockEntity blockEntity){
         return switch (blockEntity.getAugments().getCurrentRecipeType()){
             case NORMAL -> {
-                int burnTime = ForgeHooks.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().recipeType.get());
+                int burnTime = FuelBurnTimeUtil.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().recipeType.get());
                 if (burnTime > 0) yield new SmeltGenerate(index, burnTime, eachTickOutPut);
                 yield null;
             }
@@ -125,7 +127,8 @@ public abstract class Generate extends ProcessingInstance {
                 yield null;
             }
             case GENERATE_BLAST -> {
-                Optional<? extends Recipe> recipe = blockEntity.getRecipe(stack);
+                var recipe = blockEntity.getRecipe(stack);
+                //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
                 if (recipe.isPresent() && recipe.get() instanceof GeneratorRecipe generatorRecipe) {
                     yield new BlastGenerate(index, generatorRecipe.getEnergy(), eachTickOutPut);
                 }

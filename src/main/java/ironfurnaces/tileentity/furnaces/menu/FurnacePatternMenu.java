@@ -9,6 +9,7 @@ import ironfurnaces.tileentity.furnaces.menu.slot.IntDataSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
+import ironfurnaces.util.FuelBurnTimeUtil;
 import it.unimi.dsi.fastutil.ints.Int2FloatLinkedOpenHashMap;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
@@ -162,7 +162,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 .rule()
                 .oneWay(this.fuel, playerInv)
                 .rule()
-                .when(x -> ForgeHooks.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().recipeType.get()) > 0 && this.fuel.isAvailable())
+                .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().recipeType.get()) > 0 && this.fuel.isAvailable())
                 .oneWay(playerInv, fuel)
                 .rule()
                 .bidirectional(playerInv, augment)

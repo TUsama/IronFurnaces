@@ -1,6 +1,8 @@
+//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.handler;
 
 import com.google.common.collect.Lists;
+import ironfurnaces.loaders.IronFurnaces;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
@@ -14,9 +16,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+//? >1.20.1 {
+/*import net.minecraft.world.item.crafting.RecipeHolder;
+*///?}
 
 import java.util.List;
 
@@ -29,8 +33,6 @@ import java.util.List;
  */
 public final class RecipeAwardHandler {
 
-    public static final TagKey<Fluid> EXPERIENCE_FLUID_TAG =
-            TagKey.create(BuiltInRegistries.FLUID.key(), new ResourceLocation("forge", "experience"));
 
     private static final String NBT_KEY_RECIPES_USED = "RecipesUsed";
 
@@ -75,11 +77,15 @@ public final class RecipeAwardHandler {
         recipesUsed.clear();
     }
 
+
     public void record(@Nullable Recipe<?> recipe, int maxXpLevelConfig) {
+        //? >1.20.1
+        //if (recipe == null) return;
+        //~ if >1.20.1 'recipe instanceof' -> 'recipe.value() instanceof'
         if (!(recipe instanceof AbstractCookingRecipe cookingRecipe)) {
             return;
         }
-
+        //~ if >1.20.1 'cookingRecipe.getId()' -> 'recipe.id()'
         ResourceLocation id = cookingRecipe.getId();
 
         float xpPerRecipe = cookingRecipe.getExperience();
@@ -93,6 +99,7 @@ public final class RecipeAwardHandler {
     }
 
     public void unlockRecipes(ServerPlayer player) {
+
         List<Recipe<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
         player.awardRecipes(list);
         recipesUsed.clear();
@@ -104,6 +111,7 @@ public final class RecipeAwardHandler {
         for (Object2IntMap.Entry<ResourceLocation> entry : recipesUsed.object2IntEntrySet()) {
             level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
                 list.add(h);
+                //~ if >1.20.1 '((AbstractCookingRecipe) h)' -> '((AbstractCookingRecipe) h.value())'
                 splitAndSpawnExperience(level, worldPosition, entry.getIntValue(), ((AbstractCookingRecipe) h).getExperience());
             });
         }
@@ -125,7 +133,7 @@ public final class RecipeAwardHandler {
 
         CompoundTag recipesTag = tag.getCompound(NBT_KEY_RECIPES_USED);
         for (String key : recipesTag.getAllKeys()) {
-            ResourceLocation id = new ResourceLocation(key);
+            ResourceLocation id = IronFurnaces.vanilla(key);
             recipesUsed.put(id, recipesTag.getInt(key));
         }
     }

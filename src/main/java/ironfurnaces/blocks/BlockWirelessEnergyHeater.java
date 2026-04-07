@@ -1,6 +1,7 @@
 package ironfurnaces.blocks;
 
 import ironfurnaces.adaptor.energy.EnergyWrapper;
+import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
@@ -8,10 +9,7 @@ import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +25,10 @@ import net.minecraft.world.phys.BlockHitResult;
 //? forge {
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkHooks;
-//?}
+//?} else {
+/*import net.minecraft.core.component.DataComponents;
+import ironfurnaces.registration.ModDataComponents;
+*///?}
 import javax.annotation.Nullable;
 
 public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
@@ -37,6 +38,22 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     public BlockWirelessEnergyHeater(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState());
+    }
+
+    @Nullable
+    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
+        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
+    }
+
+    @Nullable
+    protected static <T extends BlockEntity> BlockEntityTicker<T> createTicker(Level p_151988_, BlockEntityType<T> p_151989_, BlockEntityType<? extends BlockWirelessEnergyHeaterTile> p_151990_) {
+        return p_151988_.isClientSide ? null : createTickerHelper(p_151989_, p_151990_, BlockWirelessEnergyHeaterTile::tick);
+    }
+
+    private static void setNameIfCustomNameExist(BlockWirelessEnergyHeaterTile te, ItemStack stack) {
+        if (te.hasCustomName()) {
+            stack.setHoverName(te.getDisplayName());
+        }
     }
 
     @Nullable
@@ -51,16 +68,6 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
         return createTicker(level, type, ModBlocks.asGenericBlockEntityType(ModBlocks.HEATER));
     }
 
-    @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
-        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>)p_152135_ : null;
-    }
-
-    @Nullable
-    protected static <T extends BlockEntity> BlockEntityTicker<T> createTicker(Level p_151988_, BlockEntityType<T> p_151989_, BlockEntityType<? extends BlockWirelessEnergyHeaterTile> p_151990_) {
-        return p_151988_.isClientSide ? null : createTickerHelper(p_151989_, p_151990_, BlockWirelessEnergyHeaterTile::tick);
-    }
-
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (!world.isClientSide) {
@@ -68,35 +75,32 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
             ItemStack stack = new ItemStack(ModBlocks.HEATER.get());
             setNameIfCustomNameExist(te, stack);
             EnergyWrapper wrapper = te.getWrapper();
-            if (wrapper.getEnergy() > 0) {
-                stack.getOrCreateTag().putInt("Energy", wrapper.getEnergy());
+            if (wrapper.getEnergyStored() > 0) {
+                //~ if >1.20.1 'stack.getOrCreateTag().putInt("Energy", wrapper.getEnergyStored());' -> 'stack.set(ModDataComponents.PERSISTENT_ENERGY, wrapper.getEnergyStored());'
+                stack.getOrCreateTag().putInt("Energy", wrapper.getEnergyStored());
             }
-            if (!player.isCreative()) Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
+            if (!player.isCreative())
+                Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
         }
         return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
-
-    private static void setNameIfCustomNameExist(BlockWirelessEnergyHeaterTile te, ItemStack stack) {
-        if (te.hasCustomName()) {
-
-            stack.setHoverName(te.getDisplayName());
-        }
-    }
-
 
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
         if (entity != null) {
             BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
             setNameIfCustomNameExist(te, stack);
+            //~ if >1.20.1 'stack.hasTag()' -> 'stack.has(ModDataComponents.PERSISTENT_ENERGY)'
             if (stack.hasTag()) {
-                te.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
+                    //~ if >1.20.1 'stack.getTag().getInt("Energy")' -> 'stack.get(ModDataComponents.PERSISTENT_ENERGY)'
                     h.receiveEnergy(stack.getTag().getInt("Energy"), false);
                 });
             }
         }
     }
 
+    //? forge {
     @Override
     public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult p_225533_6_) {
         if (!world.isClientSide) {
@@ -105,11 +109,21 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
         return InteractionResult.SUCCESS;
     }
 
+    //? } else {
+    /*@Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide) {
+            this.interactWith(level, pos, player);
+        }
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+    *///?}
+
 
     private void interactWith(Level world, BlockPos pos, Player player) {
         BlockEntity tileEntity = world.getBlockEntity(pos);
         if (tileEntity instanceof MenuProvider) {
-            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"),(window, playerinv, $) -> new BlockWirelessEnergyHeaterContainer(ModMenus.HEATER_MENU.get(), window, world, playerinv, player, pos), buf -> {
+            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"), (window, playerinv, $) -> new BlockWirelessEnergyHeaterContainer(ModMenus.HEATER_MENU.get(), window, world, playerinv, player, pos), buf -> {
                 buf.writeBlockPos(tileEntity.getBlockPos());
             });
         }
