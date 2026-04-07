@@ -40,7 +40,7 @@ public interface IUpgradeStorage {
         *///?}
 
         if (!PatternUpgradeRuleManager.isValidRuleId(id)) {
-            IronFurnaces.LOGGER.warn("Found unregistered rule: {}", id);
+            //IronFurnaces.LOGGER.warn("Found unregistered rule: {}", id);
             return null;
         }
 
@@ -65,9 +65,7 @@ public interface IUpgradeStorage {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString(PatternUpgradeRule.KEY, rule.toString());
         //? } else {
-        /*CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, x -> {
-            x.putString(FurnacePattern.NBT_KEY, rule.toString());
-        });
+        /*stack.set(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT, rule);
         *///?}
     }
 

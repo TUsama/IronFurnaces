@@ -133,17 +133,17 @@ modstitch {
                 if(minecraftVersionSplit[2].toInt() >= 4 ){
                     register("clientData") {
                         clientData()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("generated").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
 
                     register("serverData") {
                         serverData()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("generated").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
                 } else {
                     register("data") {
                         data()
-                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("../../src/generated/resources/").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
+                        programArguments.addAll("--mod", mod_id, "--all", "--output", file("generated").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
                     }
                 }
 
@@ -199,7 +199,6 @@ stonecutter {
     replacements.string(current.version > "1.20.1" && loader.equals("neoforge")) {
         replace("ForgeConfigSpec", "ModConfigSpec")
         replace("net.minecraftforge.fml.ModList", "net.neoforged.fml.ModList")
-        replace("net.minecraftforge.eventbus.api.IEventBus", "net.neoforged.bus.api.IEventBus")
         replace("net.minecraftforge.common.crafting.conditions.ICondition", "net.neoforged.neoforge.common.conditions.ICondition")
         replace("net.minecraftforge", "net.neoforged.neoforge")
         replace("public void appendHoverText(ItemStack stack, @Nullable Level worldIn", "public void appendHoverText(ItemStack stack,  TooltipContext context")
@@ -268,9 +267,15 @@ stonecutter {
         replace("deserializeNBT(nbt", "deserializeNBT(registries, nbt")
     }
 
+    replacements.string(loader == "neoforge", "replace_entry_point") {
+        replace("net.minecraftforge.eventbus.api.IEventBus", "net.neoforged.bus.api.IEventBus")
+        replace("import net.minecraftforge.eventbus.api.EventPriority", "import net.neoforged.bus.api.EventPriority")
+        replace("net.minecraftforge.fml", "net.neoforged.fml")
+    }
+
 }
 
-sourceSets["main"].resources.srcDir("../../src/generated/resources")
+sourceSets["main"].resources.srcDir("generated")
 
 dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)

@@ -30,7 +30,7 @@ public interface IPatternAccessor {
 
         }
         //? } else {
-        /*var a = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        /*var a = stack.get(DataComponents.CUSTOM_DATA);
         if (a != null && a.contains(FurnacePattern.NBT_KEY)) {
             ResourceLocation resourceLocation = ResourceLocation.tryParse(a.copyTag().getString(FurnacePattern.NBT_KEY));
             if (resourceLocation != null){
@@ -51,7 +51,7 @@ public interface IPatternAccessor {
         CompoundTag blockEntityTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
         blockEntityTag.putString(FurnacePattern.NBT_KEY, pattern.toString());
         //? } else {
-        /*CustomData.update(DataComponents.BLOCK_ENTITY_DATA, stack, tag -> {
+        /*CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putString(FurnacePattern.NBT_KEY, pattern.toString());
         });
         *///?}

@@ -29,7 +29,9 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 
@@ -367,15 +369,22 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         }
     }
 
-
+    private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
 
     private void renderFurnaceBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = this.leftPos;
         int j = this.topPos;
         guiGraphics.blit(VANILLA, i, j, 0, 0, this.imageWidth, this.imageHeight);
         if (this.menu.isLit()) {
+            //? 1.20.1 {
             int k = this.menu.getLitProgress();
             guiGraphics.blit(VANILLA, i + 56, j + 36 + 12 - k, 176, 12 - k, 14, k + 1);
+            //? } else {
+            /*int k = 14;
+            int l = Mth.ceil(this.menu.getLitProgress()) + 1;
+            guiGraphics.blitSprite(VANILLA_LIT_PROGRESS, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
+            *///?}
+
         }
 
         int l = this.menu.getBurnProgress(0);

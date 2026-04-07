@@ -42,7 +42,7 @@ public class EventHandler {
     }
     //?}
     @SubscribeEvent
-            //~ if >1.20.1 'ExplosionKnockbackEvent' -> 'ExplosionEvent'
+            //~ if >1.20.1 'ExplosionEvent' -> 'ExplosionKnockbackEvent'
     public static void explosionEvent(ExplosionEvent event)
     {
         List<BlockPos> list = event.getExplosion().getToBlow();

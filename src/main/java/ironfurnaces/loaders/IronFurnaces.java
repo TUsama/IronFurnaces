@@ -28,6 +28,7 @@ public class IronFurnaces {
     }
 
     public ResourceLocation sprite(String id){
+        //~ if >1.20.1 '"textures/gui/sprites/" + id + ".png"' -> 'id'
         return ResourceLocationUtils.make(MOD_ID, "textures/gui/sprites/" + id + ".png");
     }
 

@@ -508,7 +508,7 @@ public class ModItems {
     public static final ItemEntry<ItemRainbowCoal> RAINBOW_COAL =
             registerItem("rainbow_coal", ItemRainbowCoal::new)
                     .recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+                        LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
                                 .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())

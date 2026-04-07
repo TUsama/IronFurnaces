@@ -137,7 +137,11 @@ public class ModItemTags {
     }
 
     protected static TagKey<Item> bindForge(String id) {
+        //? 1.20.1 {
         return of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
+        //? } else {
+        /*return bindC(id);
+        *///?}
     }
 
     protected static TagKey<Item> bind(String id) {

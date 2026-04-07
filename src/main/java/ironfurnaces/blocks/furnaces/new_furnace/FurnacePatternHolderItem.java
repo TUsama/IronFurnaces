@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -140,25 +141,60 @@ public class FurnacePatternHolderItem extends BlockItem {
             }
 
         }
-        //?}
+        //?} else {
+        /*if (stack.has(DataComponents.CUSTOM_DATA)){
+            CompoundTag beTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+            if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+                FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+                        .result()
+                        .ifPresentOrElse(fp::setWholeSettingV2, () -> {
+                            if (player != null) {
+                                player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_setting_failed"));
+                            }
+                        });
+                fp.setChanged();
+                changed = true;
+            }
+            FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
+            if (furnacePatternFromTag != null) {
+                fp.updatePattern(furnacePatternFromTag);
+                fp.setChanged();
+                changed = true;
+            } else {
+                if (player != null)
+                    player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_pattern_failed"));
+            }
+        }
+
+        *///?}
         return changed;
     }
 
-    //? 1.20.1 {
+
     private static void applyJovialFromItemTag(Level level, BlockPos pos, ItemStack stack) {
+        String key = ModBlockState.JOVIAL_STATE.getName();
+        //? 1.20.1 {
+        
         CompoundTag root = stack.getTag();
         if (root == null || !root.contains("BlockStateTag", CompoundTag.TAG_COMPOUND)) {
             return;
         }
 
         CompoundTag stateTag = root.getCompound("BlockStateTag");
-        String key = ModBlockState.JOVIAL_STATE.getName();
+
 
         if (!stateTag.contains(key, CompoundTag.TAG_STRING)) {
             return;
         }
-
         String raw = stateTag.getString(key);
+        
+        //? } else {
+
+        /*if (!stack.has(DataComponents.BLOCK_STATE)) return;
+        var raw = stack.get(DataComponents.BLOCK_STATE).properties().get(key);
+
+        *///?}
+
         var jovial = ModBlockState.JOVIAL_STATE.getPossibleValues().stream()
                 .filter(x -> x.getSerializedName().equals(raw))
                 .findFirst()
@@ -174,7 +210,7 @@ public class FurnacePatternHolderItem extends BlockItem {
             level.setBlock(pos, current.setValue(ModBlockState.JOVIAL_STATE, jovial), 3);
         }
     }
-    //?}
+
     @Override
     public InteractionResult place(BlockPlaceContext context) {
         ItemStack itemInHand = context.getItemInHand();
@@ -188,11 +224,11 @@ public class FurnacePatternHolderItem extends BlockItem {
         }
 
         InteractionResult result = super.place(context);
-        //? 1.20.1 {
+
         if (result.consumesAction() && !context.getLevel().isClientSide) {
             applyJovialFromItemTag(context.getLevel(), context.getClickedPos(), itemInHand);
         }
-        //?}
+
 
         return result;
     }

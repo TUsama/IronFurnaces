@@ -31,6 +31,9 @@ public class CommonInit {
             JEICompat.register();
         }
 
+        //? >1.20.1
+        //ModDataComponents.register();
+
         RainbowConfig.init();
         GameplayConfig.init();
         FurnaceConfig.init();

@@ -80,7 +80,7 @@ public class RedstoneModeButton extends BaseImageButton {
             substractionGroup.deactivateAll();
         }
         ResourceLocation resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
-            var baseId = x.toString().toLowerCase(Locale.ROOT);
+            var baseId = "redstone_mode_" + x.toString().toLowerCase(Locale.ROOT);
             return new WidgetSprites(IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_inactive"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"));
         }).get(this.isActive(), this.shouldHighlight());
         guiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);

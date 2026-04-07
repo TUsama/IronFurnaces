@@ -63,6 +63,7 @@ public class ModCustomRecipe {
                 acceptWhenTagNotEmpty(provider, "quartz", 40000, bindC("gems/quartz"));
                 acceptWhenTagNotEmpty(provider, "redstone", 10000, bindC("dusts/redstone"));
 
+                //? 1.20.1 {
                 acceptWhenTagNotEmpty(provider, "amethyst_forge", 40000, bindForge("gems/amethyst"));
                 acceptWhenTagNotEmpty(provider, "copper_forge", 10000, bindForge("ingots/copper"));
                 acceptWhenTagNotEmpty(provider, "diamond_forge", 500000, bindForge("gems/diamond"));
@@ -74,6 +75,7 @@ public class ModCustomRecipe {
                 acceptWhenTagNotEmpty(provider, "netherite_forge", 750000, bindForge("ingots/netherite"));
                 acceptWhenTagNotEmpty(provider, "quartz_forge", 40000, bindForge("gems/quartz"));
                 acceptWhenTagNotEmpty(provider, "redstone_forge", 10000, bindForge("dusts/redstone"));
+                //?}
             })
             .register();
 

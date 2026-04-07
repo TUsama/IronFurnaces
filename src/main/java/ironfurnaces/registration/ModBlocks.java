@@ -34,6 +34,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
+
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
@@ -50,8 +51,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 //?} else {
-/*import net.minecraft.world.level.storage.loot.functions.CopyCustomDataFunction;
-
+/*import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.conditions.ModLoadedCondition;
 import net.minecraftforge.common.conditions.NotCondition;
@@ -120,10 +121,16 @@ public class ModBlocks {
                                         .add(
                                                 LootItem.lootTableItem(furnace)
                                                         .apply(
-                                                                //$ if forge 'CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)' else 'CopyCustomDataFunction.copyData(LootContext.EntityTarget.THIS)'
+                                                                //? if 1.20.1 {
+                                                                
                                                                 CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                         .copy(FurnaceSettingsV2.NBT_KEY, "BlockEntityTag." + FurnaceSettingsV2.NBT_KEY)
                                                                         .copy(FurnacePattern.NBT_KEY, "BlockEntityTag." + FurnacePattern.NBT_KEY)
+                                                                        
+                                                                //? } else {
+                                                                /*CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                        .include(DataComponents.CUSTOM_DATA)
+                                                                *///?}
                                                         )
                                                         .apply(
                                                                 CopyBlockState.copyState(furnace)

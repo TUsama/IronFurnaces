@@ -26,7 +26,7 @@ public class ModCapabilities {
         event.register(OwnerRainbowContext.class);
     }
 //? } else {
-/*public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
+    /*public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
     public static final Supplier<AttachmentType<PlayerFurnacesList>> FURNACES_LIST =

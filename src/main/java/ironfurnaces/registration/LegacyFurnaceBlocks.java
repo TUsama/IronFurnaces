@@ -743,7 +743,12 @@ public class LegacyFurnaceBlocks {
     }
 
     private static TagKey<Item> bindForge(String id) {
+        //? 1.20.1 {
         return ModBlockTags.of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
+        //? } else {
+        /*return bindC(id);
+        *///?}
+
     }
 
     private static TagKey<Item> bind(String id) {
