@@ -1,3 +1,8 @@
+### 0.2.4
+preparing port to 1.21.1
+fix crashes happened on server startup
+code refactor(might bring unintentional changes!!!)
+
 ### 0.2.3
 factory screen QoL
 rename pattern field: input_slot_amount -> factory_input_slot_amount
