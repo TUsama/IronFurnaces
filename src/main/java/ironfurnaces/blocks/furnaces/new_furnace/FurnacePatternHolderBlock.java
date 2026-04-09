@@ -261,14 +261,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             if (pattern != null && pattern != FurnacePattern.FALLBACK) {
                 IPatternAccessor.writePatternToItemStack(stack, pattern);
             }
-            //? 1.20.1 {
-            CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-            FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, furnace.getSettingsV2())
-                    .result()
-                    .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
-            //? } else {
-            /*stack.set(ModDataComponents.PERSISTENT_SETTING, furnace.getSettingsV2());
-            *///?}
+            furnace.getSettingsV2().writeToStack(stack);
 
 
             if (furnace.hasCustomName()) {
@@ -306,62 +299,8 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
                     .withStyle(ChatFormatting.RED));
         }
-        //? 1.20.1 {
-        CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-            return;
-        }
-        FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                .result()
-                .ifPresent
-        //? } else {
-        /*if (!stack.has(ModDataComponents.PERSISTENT_SETTING)){
-            return;
-        }
-        //horrible
-        Optional.ofNullable(stack.get(ModDataComponents.PERSISTENT_SETTING)).ifPresent
-        *///?}
 
-
-        (settings -> {
-                    tooltip.add(Component.literal(""));
-
-                    settings.IOSetting().forEach((direction, ioMode) -> {
-                        tooltip.add(Component.translatable(
-                                "ironfurnaces.furnace_setting.direction." + direction.toString().toLowerCase(Locale.ROOT),
-                                Component.translatable(ioMode.translationKey).withStyle(ChatFormatting.GREEN)
-                        ).withStyle(ChatFormatting.GRAY));
-                    });
-
-                    MutableComponent enable = Component.translatable("ironfurnaces.furnace_setting.setting_enable");
-                    MutableComponent disable = Component.translatable("ironfurnaces.furnace_setting.setting_disable");
-                    Function<Boolean, MutableComponent> choose = b -> b ? enable.withStyle(ChatFormatting.GREEN) : disable.withStyle(ChatFormatting.RED);
-
-                    tooltip.add(Component.translatable(
-                            "ironfurnaces.furnace_setting.auto_input",
-                            choose.apply(settings.autoInput())
-                    ).withStyle(ChatFormatting.GRAY));
-
-                    tooltip.add(Component.translatable(
-                            "ironfurnaces.furnace_setting.auto_output",
-                            choose.apply(settings.autoOutput())
-                    ).withStyle(ChatFormatting.GRAY));
-
-                    tooltip.add(Component.translatable(
-                            "ironfurnaces.furnace_setting.redstone_mode",
-                            Component.translatable(settings.redStoneMode().translationKey).withStyle(ChatFormatting.GREEN)
-                    ).withStyle(ChatFormatting.GRAY));
-
-                    tooltip.add(Component.translatable(
-                            "ironfurnaces.furnace_setting.redstone_value",
-                            Component.literal(settings.subtractionNumber() + "").withStyle(ChatFormatting.GREEN)
-                    ).withStyle(ChatFormatting.GRAY));
-
-                    tooltip.add(Component.translatable(
-                            "ironfurnaces.furnace_setting.auto_fill",
-                            choose.apply(settings.autoFill())
-                    ).withStyle(ChatFormatting.GRAY));
-                });
+        tooltip.addAll(FurnaceSettingsV2.getSettingFromStack(stack).toTooltips());
 
         tooltip.add(translatable("item.ironfurnaces.furnace_pattern_holder.reset_setting_hint"));
 
@@ -443,33 +382,38 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
-            ModMenus.NEW_FURNACE_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
-                @Override
-                public Component getDisplayName() {
-                    return Component.literal("");
-                }
-
-                @Override
-                public @org.jetbrains.annotations.Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-                    FurnacePatternBlockEntity blockEntity1 = (FurnacePatternBlockEntity) level.getBlockEntity(pos);
-                    if (player instanceof ServerPlayer serverPlayer) blockEntity1.addPlayer(serverPlayer);
-                    return new FurnacePatternMenu(ModMenus.NEW_FURNACE_MENU.get(), containerId, blockEntity1, playerInventory, pos, blockEntity1.getDataAccess());
-                }
-            }, buf -> {
-
-                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
-                buf.writeJsonWithCodec(IFurnaceStats.CODEC, furnacePatternBlockEntity.getUsedStats());
-                buf.writeBlockPos(pos);
-            });
-            player.awardStat(Stats.INTERACT_WITH_FURNACE);
+        if (player.isCrouching()){
+            IJovialSetter.clearJovial(level, pos);
             return InteractionResult.CONSUME;
         } else {
-            player.sendSystemMessage(translatable("block.ironfurnaces.furnace_pattern_holder.refuse_open_empty_pattern"));
-            return super.useWithoutItem(state, level, pos, player, hitResult);
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
+                ModMenus.NEW_FURNACE_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.literal("");
+                    }
+
+                    @Override
+                    public @org.jetbrains.annotations.Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+                        FurnacePatternBlockEntity blockEntity1 = (FurnacePatternBlockEntity) level.getBlockEntity(pos);
+                        if (player instanceof ServerPlayer serverPlayer) blockEntity1.addPlayer(serverPlayer);
+                        return new FurnacePatternMenu(ModMenus.NEW_FURNACE_MENU.get(), containerId, blockEntity1, playerInventory, pos, blockEntity1.getDataAccess());
+                    }
+                }, buf -> {
+
+                    buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
+                    buf.writeJsonWithCodec(IFurnaceStats.CODEC, furnacePatternBlockEntity.getUsedStats());
+                    buf.writeBlockPos(pos);
+                });
+                player.awardStat(Stats.INTERACT_WITH_FURNACE);
+                return InteractionResult.CONSUME;
+            } else {
+                player.sendSystemMessage(translatable("block.ironfurnaces.furnace_pattern_holder.refuse_open_empty_pattern"));
+                return super.useWithoutItem(state, level, pos, player, hitResult);
+            }
         }
+
     }
 
     @Override
@@ -477,20 +421,12 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (level.isClientSide) {
             return ItemInteractionResult.SUCCESS;
         }
-
         Item item = stack.getItem();
-        if (player.isCrouching()) {
-            if (stack.isEmpty()){
-                IJovialSetter.clearJovial(level, pos);
-                return ItemInteractionResult.SUCCESS;
-            } else if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            }
-        } else {
-            if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            }
+
+        if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         }
+
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 

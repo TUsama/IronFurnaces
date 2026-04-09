@@ -368,8 +368,8 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
             case GENERATOR -> renderGeneratorBg(guiGraphics, partialTick, mouseX, mouseY);
         }
     }
-
-    private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
+    //? >1.20.1
+    //private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
 
     private void renderFurnaceBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = this.leftPos;

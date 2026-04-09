@@ -104,7 +104,6 @@ public class NeoforgeEntrypoint {
         });
 
         NeoForge.EVENT_BUS.<AddReloadListenerEvent>addListener(EventPriority.LOWEST, x -> {
-            System.out.println("11111111111111111");
             x.addListener(new FurnacePatternDefinitionReloadListener());
             x.addListener(new PatternUpgradeRuleReloadListener());
         });

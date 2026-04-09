@@ -10,6 +10,7 @@ import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -24,8 +25,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -56,14 +59,7 @@ public class FurnacePatternHolderItem extends BlockItem {
     }
 
     private boolean resetSettings(ItemStack stack, Player player, int selected) {
-        //? 1.20.1 {
-        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        beTag.remove(FurnaceSettingsV2.NBT_KEY);
-        //? } else {
-        /*stack.remove(ModDataComponents.PERSISTENT_SETTING);
-        *///?}
-
-
+        FurnaceSettingsV2.removeSetting(stack);
         return true;
     }
 
@@ -94,7 +90,7 @@ public class FurnacePatternHolderItem extends BlockItem {
 
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        return super.use(level, player, usedHand);
     }
 
     @Override
@@ -119,60 +115,60 @@ public class FurnacePatternHolderItem extends BlockItem {
         //? 1.20.1 {
         CompoundTag beTag = BlockItem.getBlockEntityData(stack);
         if (beTag != null) {
-            if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-                FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                        .result()
-                        .ifPresentOrElse(fp::setWholeSettingV2, () -> {
-                            if (player != null) {
-                                player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_setting_failed"));
-                            }
-                        });
-                fp.setChanged();
-                changed = true;
-            }
-            FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
-            if (furnacePatternFromTag != null) {
-                fp.updatePattern(furnacePatternFromTag);
-                fp.setChanged();
-                changed = true;
-            } else {
-                if (player != null)
-                    player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_pattern_failed"));
-            }
+            changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
 
         }
         //?} else {
         /*if (stack.has(DataComponents.CUSTOM_DATA)){
             CompoundTag beTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
-            if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-                FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                        .result()
-                        .ifPresentOrElse(fp::setWholeSettingV2, () -> {
-                            if (player != null) {
-                                player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_setting_failed"));
-                            }
-                        });
-                fp.setChanged();
-                changed = true;
-            }
-            FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
-            if (furnacePatternFromTag != null) {
-                fp.updatePattern(furnacePatternFromTag);
-                fp.setChanged();
-                changed = true;
-            } else {
-                if (player != null)
-                    player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_pattern_failed"));
-            }
+            changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
         }
 
         *///?}
         return changed;
     }
 
+    private static boolean updateDataToBlock(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, FurnacePatternBlockEntity fp, CompoundTag beTag, boolean changed) {
+        if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+            FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+                    .result()
+                    .ifPresentOrElse(fp::setWholeSettingV2, () -> {
+                        if (player != null) {
+                            player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_setting_failed"));
+                        }
+                    });
+            fp.setChanged();
+            changed = true;
+        }
+        FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
+        if (furnacePatternFromTag != null) {
+            fp.updatePattern(furnacePatternFromTag);
+            furnacePatternFromTag.referenceBlock().ifPresent(x -> {
+                BlockState refState = BuiltInRegistries.BLOCK.get(x).defaultBlockState();
+                SoundType soundType = refState.getSoundType(level, pos, player);
+
+                level.playSound(
+                        null,
+                        pos,
+                        soundType.getPlaceSound(),
+                        SoundSource.BLOCKS,
+                        (soundType.getVolume() + 1.0F) / 2.0F,
+                        soundType.getPitch() * 0.8F
+                );
+            });
+            fp.setChanged();
+            changed = true;
+        } else {
+            if (player != null)
+                player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_pattern_failed"));
+        }
+        return changed;
+    }
+
 
     private static void applyJovialFromItemTag(Level level, BlockPos pos, ItemStack stack) {
         String key = ModBlockState.JOVIAL_STATE.getName();
+        String raw;
         //? 1.20.1 {
         
         CompoundTag root = stack.getTag();
@@ -186,13 +182,12 @@ public class FurnacePatternHolderItem extends BlockItem {
         if (!stateTag.contains(key, CompoundTag.TAG_STRING)) {
             return;
         }
-        String raw = stateTag.getString(key);
+        raw = stateTag.getString(key);
         
         //? } else {
 
         /*if (!stack.has(DataComponents.BLOCK_STATE)) return;
-        var raw = stack.get(DataComponents.BLOCK_STATE).properties().get(key);
-
+        raw = stack.get(DataComponents.BLOCK_STATE).properties().get(key);
         *///?}
 
         var jovial = ModBlockState.JOVIAL_STATE.getPossibleValues().stream()
@@ -213,6 +208,7 @@ public class FurnacePatternHolderItem extends BlockItem {
 
     @Override
     public InteractionResult place(BlockPlaceContext context) {
+        if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
         ItemStack itemInHand = context.getItemInHand();
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(itemInHand);
         if (furnacePatternFromTag == null) {

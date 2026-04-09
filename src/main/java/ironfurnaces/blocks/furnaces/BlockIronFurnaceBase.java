@@ -4,6 +4,7 @@ import ironfurnaces.Config;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.client.data.FurnaceWorkSpeedDataStorage;
+import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
 import ironfurnaces.items.ItemXmas;
@@ -12,7 +13,13 @@ import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModItems;
+import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
+import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.util.DirectionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -31,7 +38,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -49,7 +58,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 //? 1.20.1 {
-import net.minecraftforge.network.NetworkHooks;
+
 //? } else {
 /*import ironfurnaces.registration.ModDataComponents;
 import net.minecraft.core.component.DataComponents;
@@ -150,6 +159,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
 
     /*@Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        interactWith(level, pos, player);
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
@@ -281,14 +291,22 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         if (!world.isClientSide)
         {
             BlockEntity tileEntity = world.getBlockEntity(pos);
-            if (tileEntity instanceof MenuProvider) {
-                //? forge
-                NetworkHooks.openScreen((ServerPlayer) player, (MenuProvider)tileEntity, tileEntity.getBlockPos());
+            if (tileEntity instanceof UnifiedTileEntity unifiedTile) {
+                ModMenus.UNIFIED_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.literal("");
+                    }
+
+                    @Override
+                    public @org.jetbrains.annotations.Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+                        return new LegacyUnifiedMenu(ModMenus.UNIFIED_MENU.get(), containerId, world, pos, playerInventory, player);
+                    }
+                }, buf -> {
+                    buf.writeBlockPos(pos);
+                });
                 player.awardStat(Stats.INTERACT_WITH_FURNACE);
-                if (tileEntity instanceof BlockIronFurnaceTileBase)
-                {
-                    ((BlockIronFurnaceTileBase) tileEntity).furnaceSettings.set(10, 0);
-                }
+                unifiedTile.furnaceSettings.set(10, 0);
             }
         }
     }

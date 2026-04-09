@@ -39,6 +39,8 @@ public class ModLangs {
     public static final Component REDSTONE_VALUE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "redstone_value", "Subtraction Value: %s");
     public static final Component USAGE_1 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.1", "Right-click to copy settings");
     public static final Component USAGE_2 = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "usage.2", "Sneak & right-click to apply settings");
+    public static final Component NEW_USAGE_1 = REGISTRATE.addRawLang("ironfurnaces.item.new_item_copy." + "usage.1", "Sneak & right-click to copy settings");
+    public static final Component NEW_USAGE_2 = REGISTRATE.addRawLang("ironfurnaces.item.new_item_copy." + "usage.2", "Right-click to apply settings");
     public static final Component TIP_SETTING_APPLIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_applied", "Settings Applied");
     public static final Component TIP_SETTING_COPIED = REGISTRATE.addRawLang("ironfurnaces.item.item_copy." + "tip.setting_copied", "Settings Copied");
     public static final Component FACED_DIRECTION = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "faced_direction", "Faced Direction: %s");

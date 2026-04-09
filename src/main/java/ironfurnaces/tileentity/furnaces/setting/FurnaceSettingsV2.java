@@ -4,16 +4,30 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.With;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+//? 1.20.1 {
+
+//? } else {
+/*import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+*///?}
+
+import java.util.*;
 import java.util.function.Function;
+
+import static net.minecraft.network.chat.Component.translatable;
 
 @With
 public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean autoInput, boolean autoOutput,
@@ -58,6 +72,96 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
     public FurnaceSettingsV2 withRelativeChanged(Direction blockFacing, RelativeFace relativeFace, IOMode ioMode) {
         Direction worldSide = RelativeFaceHelper.toWorld(blockFacing, relativeFace);
         return this.withDirectionChanged(worldSide, ioMode);
+    }
+
+    public ItemStack writeToStack(ItemStack stack){
+        //? 1.20.1 {
+        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, this)
+                .result()
+                .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
+        return stack;
+        //? } else {
+        /*CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> CODEC.encodeStart(NbtOps.INSTANCE, this).result().ifPresent(tag -> x.put(NBT_KEY, tag)));
+        return stack;
+        *///?}
+    }
+
+    public static FurnaceSettingsV2 getSettingFromStack(ItemStack stack){
+        //? 1.20.1 {
+        CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+            DEFAULT.writeToStack(stack);
+            return DEFAULT;
+        }
+        return FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+                .result()
+                .orElseGet(() -> {
+                    DEFAULT.writeToStack(stack);
+                    return DEFAULT;
+                });
+        //? } else {
+        /*if (stack.has(DataComponents.CUSTOM_DATA)){
+            var tag = stack.get(DataComponents.CUSTOM_DATA).copyTag().get(NBT_KEY);
+            if (tag != null){
+                return CODEC.parse(NbtOps.INSTANCE, tag).result().orElse(DEFAULT);
+            }
+        }
+        DEFAULT.writeToStack(stack);
+        return DEFAULT;
+        *///?}
+    }
+
+    public static void removeSetting(ItemStack stack){
+        //? 1.20.1 {
+        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        beTag.remove(FurnaceSettingsV2.NBT_KEY);
+        //? } else {
+        /*CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> x.remove(NBT_KEY));
+        *///?}
+    }
+
+    public List<Component> toTooltips(){
+        List<Component> tooltips = new ArrayList<>();
+        tooltips.add(Component.literal(""));
+
+        this.IOSetting().forEach((direction, ioMode) -> {
+            tooltips.add(translatable(
+                    "ironfurnaces.furnace_setting.direction." + direction.toString().toLowerCase(Locale.ROOT),
+                    translatable(ioMode.translationKey).withStyle(ChatFormatting.GREEN)
+            ).withStyle(ChatFormatting.GRAY));
+        });
+
+        MutableComponent enable = translatable("ironfurnaces.furnace_setting.setting_enable");
+        MutableComponent disable = translatable("ironfurnaces.furnace_setting.setting_disable");
+        Function<Boolean, MutableComponent> choose = b -> b ? enable.withStyle(ChatFormatting.GREEN) : disable.withStyle(ChatFormatting.RED);
+
+        tooltips.add(translatable(
+                "ironfurnaces.furnace_setting.auto_input",
+                choose.apply(this.autoInput())
+        ).withStyle(ChatFormatting.GRAY));
+
+        tooltips.add(translatable(
+                "ironfurnaces.furnace_setting.auto_output",
+                choose.apply(this.autoOutput())
+        ).withStyle(ChatFormatting.GRAY));
+
+        tooltips.add(translatable(
+                "ironfurnaces.furnace_setting.redstone_mode",
+                translatable(this.redStoneMode().translationKey).withStyle(ChatFormatting.GREEN)
+        ).withStyle(ChatFormatting.GRAY));
+
+        tooltips.add(translatable(
+                "ironfurnaces.furnace_setting.redstone_value",
+                Component.literal(this.subtractionNumber() + "").withStyle(ChatFormatting.GREEN)
+        ).withStyle(ChatFormatting.GRAY));
+
+        tooltips.add(translatable(
+                "ironfurnaces.furnace_setting.auto_fill",
+                choose.apply(this.autoFill())
+        ).withStyle(ChatFormatting.GRAY));
+
+        return tooltips;
     }
 
     public void onChanged() {

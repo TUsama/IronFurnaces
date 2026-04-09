@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ItemFurnaceCopyV2 extends Item {
@@ -43,43 +44,33 @@ public class ItemFurnaceCopyV2 extends Item {
     
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        StreamSetting setting = null;
         //? 1.20.1 {
         if (stack.hasTag() && stack.getTag().contains(WHOLE_KEY)) {
-            StreamSetting.CODEC.parse(NbtOps.INSTANCE, stack.getTag().get(WHOLE_KEY))
+            setting = StreamSetting.CODEC.parse(NbtOps.INSTANCE, stack.getTag().get(WHOLE_KEY))
                     .result()
-                    .ifPresent(x -> {
-                        x.settingsV2.IOSetting().forEach((direction, ioMode) -> {
-                            tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction." + direction.toString().toLowerCase(Locale.ROOT), Component.translatable(ioMode.translationKey))
-                                    .withStyle(ChatFormatting.GRAY));
-
-                        });
-                        MutableComponent enable = Component.translatable("ironfurnaces.furnace_setting.setting_enable");
-                        MutableComponent disable = Component.translatable("ironfurnaces.furnace_setting.setting_disable");
-                        Function<Boolean, Component> choose = b -> b ? enable : disable;
-
-                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_input", choose.apply(x.settingsV2.autoInput())).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.auto_output", choose.apply(x.settingsV2.autoOutput())).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", Component.translatable(x.settingsV2.redStoneMode().translationKey)).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.redstone_value", x.settingsV2.subtractionNumber()).withStyle(ChatFormatting.GRAY));
-                        tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", x.direction.toString().toLowerCase()).withStyle(ChatFormatting.GRAY));
-                    });
-
-
+                    .orElse(null);
         }
         //? } else {
+        /*if (stack.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
+            setting = stack.get(ModDataComponents.PERSISTENT_STREAM_SETTING);
+        }
+        *///?}
+        if (setting != null) {
+            tooltip.addAll(setting.settingsV2.toTooltips());
+            tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", setting.direction.toString()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.literal(""));
+            tooltip.add(Component.translatable("ironfurnaces.item.new_item_copy.usage.1").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("ironfurnaces.item.new_item_copy.usage.2").withStyle(ChatFormatting.GRAY));
+        }
 
 
-        //?}
-
-        tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.1").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.2").withStyle(ChatFormatting.GRAY));
     }
 
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
-        if (ctx.getLevel().isClientSide) return InteractionResult.PASS;
+        if (ctx.getLevel().isClientSide) return InteractionResult.SUCCESS;
 
         Level world = ctx.getLevel();
         BlockPos pos = ctx.getClickedPos();
@@ -87,8 +78,8 @@ public class ItemFurnaceCopyV2 extends Item {
         Player player = ctx.getPlayer();
         ItemStack copyItem = ctx.getItemInHand();
         if (world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2) {
-            StreamSetting streamSetting = new StreamSetting(v2.getSettingsV2(), blockState.getValue(BlockStateProperties.HORIZONTAL_FACING));
             if (player.isCrouching()) {
+                StreamSetting streamSetting = new StreamSetting(v2.getSettingsV2(), blockState.getValue(BlockStateProperties.HORIZONTAL_FACING));
                 //? 1.20.1 {
                 StreamSetting.CODEC.encodeStart(NbtOps.INSTANCE, streamSetting)
                         .resultOrPartial(string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_write")))
@@ -103,36 +94,32 @@ public class ItemFurnaceCopyV2 extends Item {
                 *///?}
 
             } else {
+                StreamSetting setting = null;
                 //? 1.20.1 {
                 CompoundTag tag = copyItem.getTag();
                 if (tag != null && tag.contains(WHOLE_KEY)) {
-                    StreamSetting.CODEC.parse(NbtOps.INSTANCE, tag.get(WHOLE_KEY))
-                            .resultOrPartial((string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_parse"))))
-                            .ifPresentOrElse(x -> {
-                                v2.setWholeSettingV2(x.settingsV2());
-                                if (blockState.getValue(BlockStateProperties.HORIZONTAL_FACING).equals(x.direction)) {
-                                    blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, x.direction);
-                                }
-                                player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
-                            }, () -> {
-                                copyItem.getTag().remove(WHOLE_KEY);
-                            });
-                            }
+                    Optional<StreamSetting> streamSetting = StreamSetting.CODEC.parse(NbtOps.INSTANCE, tag.get(WHOLE_KEY))
+                            .resultOrPartial((string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_parse"))));
+                    if (streamSetting.isPresent()){
+                        setting = streamSetting.get();
+                    } else {
+                        copyItem.getTag().remove(WHOLE_KEY);
+                    }
+                }
                 //? } else {
                     /*if (copyItem.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
-                        var s = copyItem.get(ModDataComponents.PERSISTENT_STREAM_SETTING);
-                        v2.setWholeSettingV2(s.settingsV2());
-                        if (blockState.getValue(BlockStateProperties.HORIZONTAL_FACING).equals(s.direction)) {
-                            blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, s.direction);
-                        }
-                        player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
+                        setting = copyItem.get(ModDataComponents.PERSISTENT_STREAM_SETTING);
+
                     }
-
-
                 *///?}
 
-                    world.setBlock(pos, blockState, 3);
+                if (setting != null){
+                    v2.setWholeSettingV2(setting.settingsV2());
+                    if (!blockState.getValue(BlockStateProperties.HORIZONTAL_FACING).equals(setting.direction)) {
+                        world.setBlock(pos, blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, setting.direction), 3);
+                    }
                     player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));
+                }
 
             }
             return InteractionResult.CONSUME;
@@ -144,8 +131,8 @@ public class ItemFurnaceCopyV2 extends Item {
     public record StreamSetting(FurnaceSettingsV2 settingsV2, Direction direction){
         public static final Codec<StreamSetting> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        FurnaceSettingsV2.CODEC.fieldOf(SETTING_KEY).forGetter(x -> x.settingsV2),
-                        Direction.CODEC.fieldOf(DIRECTION_KEY).forGetter(x -> x.direction)
+                        FurnaceSettingsV2.CODEC.fieldOf(SETTING_KEY).forGetter(StreamSetting::settingsV2),
+                        Direction.CODEC.fieldOf(DIRECTION_KEY).forGetter(StreamSetting::direction)
                 ).apply(instance, StreamSetting::new));
     }
 }
