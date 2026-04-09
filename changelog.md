@@ -1,6 +1,6 @@
 ### 0.3.0
 bump to 1.21.1 neoforge
-
+fix a issue that copy tool can't apply direction to the applied furnace
 
 ### 0.2.4
 preparing port to 1.21.1
