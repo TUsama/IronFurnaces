@@ -1,61 +1,46 @@
 package ironfurnaces.gui.furnaces;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
-import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.gui.furnaces.component.*;
+import ironfurnaces.gui.furnaces.renderer.AbstractPatternScreenRenderHandler;
+import ironfurnaces.gui.furnaces.renderer.PatternScreenRenderHandlerManager;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.network.C2SUpdateFurnaceSettingPacket;
 import ironfurnaces.network.C2SUpdateMenuPacket;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.menu.MenuConstant;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.furnaces.setting.RelativeFaceHelper;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.FastColor;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractFurnaceMenu;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
 import java.util.function.Function;
 
 public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePatternMenu> {
 
 
-    private static final ResourceLocation VANILLA = ResourceLocationUtils.make("minecraft", "textures/gui/container/furnace.png");
+
     public static final ResourceLocation WIDGET = IronFurnaces.gui("button_widget");
 
-    private static final Function<FurnaceMode, ResourceLocation> DEFAULT_TEX = Util.memoize((mode) -> switch (mode){
-        case FURNACE -> VANILLA;
-        default -> IronFurnaces.gui(mode.toString().toLowerCase(Locale.ROOT) + "/default");
-    });
-    private FurnaceMode mode;
+    private AbstractPatternScreenRenderHandler renderHandler;
+
     protected ImageButton autoInputButton;
     protected ImageButton autoOutputButton;
 
     protected ImageButton redstoneModeButton;
 
-
-    protected ImageButton autoFillButton;
 
     protected ImageButton subtractionValueDecButton;
     protected ImageButton subtractionValueIncButton;
@@ -63,8 +48,6 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
     protected ImageButton settingsTabButton;
     protected ImageButton remainingCacheTabButton;
     protected ImageButton augmentCacheTabButton;
-    private PageButton forwardButton;
-    private PageButton backButton;
 
     protected WidgetGroup settingsPanelGroup;
     protected WidgetGroup remainingCachePanelGroup;
@@ -77,9 +60,6 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
     protected IOButton leftIoButton;
     protected IOButton rightIoButton;
 
-    protected WidgetGroup factoryGroup;
-    protected WidgetGroup generatorGroup;
-    private WidgetGroup pageGroup;
     // 左侧标签栏的基准位置：紧贴原版熔炉背景左边
     private static final int SIDE_TAB_OFFSET_X = -MenuConstant.SIDE_BUTTON_WIDTH;
 
@@ -90,8 +70,9 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
     public FurnacePatternScreen(FurnacePatternMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
-        this.mode = menu.blockEntity.getMode();
+        updateRenderHandler(menu.getMode().getId());
     }
+
     @Override
     protected void init() {
         super.init();
@@ -144,19 +125,6 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         int i = topPos + MenuConstant.SIDE_PANEL_HEIGHT - 25;
 
-        this.autoFillButton = new BaseBoolStatuImageButton(0, 0, squareLength, squareLength, "auto_fill", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withAutoFill(!menu.getSettingsV2().autoFill()), menu.bePos)), () -> menu.getSettingsV2().autoFill()){
-            @Override
-            public @Nullable Tooltip getTooltip() {
-                return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_fill", menu.getSettingsV2().autoFill()));
-            }
-
-            @Override
-            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-                this.setTooltip(getTooltip());
-            }
-        };
-        this.autoFillButton.setPosition(leftPos + 9, topPos + 56);
 
         this.subtractionValueIncButton = new BaseImageButton(buttonStartX + squareLength + 2, i, squareLength, squareLength, "redstone_mode_comparator_subtraction_plus", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(menu.getSettingsV2().withSubtractionNumber(Math.min(menu.getSettingsV2().subtractionNumber() + 1, 15)), menu.bePos))){
             @Override
@@ -256,17 +224,13 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         ));
         
         this.settingsTabButton.setTooltip(Tooltip.create(Component.translatable("screen.ironfurnaces.side_tab.setting")));
-        int y = topPos + 70;
-        int i1 = leftPos + 70;
-        this.forwardButton = new PageButton(i1 + 38, y, true, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(3)), false);
-        this.backButton = new PageButton(i1 - 8, y, false, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(4)), false);
 
 
-        this.pageGroup = new WidgetGroup(forwardButton, backButton);
+
+
         this.addRenderableWidget(autoInputButton);
         this.addRenderableWidget(autoOutputButton);
         this.addRenderableWidget(redstoneModeButton);
-        this.addRenderableWidget(autoFillButton);
         this.addRenderableWidget(subtractionValueIncButton);
         this.addRenderableWidget(subtractionValueDecButton);
         this.addRenderableWidget(upIoButton);
@@ -275,8 +239,6 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         this.addRenderableWidget(leftIoButton);
         this.addRenderableWidget(rightIoButton);
         this.addRenderableWidget(faceIoButton);
-        this.addRenderableWidget(forwardButton);
-        this.addRenderableWidget(backButton);
 
 
         // =========================
@@ -323,194 +285,55 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
         this.augmentCachePanelGroup = new WidgetGroup();
 
-
-
-
         // 初始全部隐藏 panel
         this.settingsPanelGroup.deactivateAll();
 
-
-        this.energyArea = new AbstractWidget(0, 0, 14, 42, Component.empty()) {
-            @Override
-            protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-                this.setTooltip(Tooltip.create(
-                        Component.translatable("screen.ironfurnaces.energy_slot", menu.getEnergyStored(), menu.getMaxEnergy())
-                ));
-            }
-
-            @Override
-            protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
-            }
-
-        };
-
-        this.addRenderableWidget(energyArea);
-
-        this.factoryGroup = new WidgetGroup(energyArea, autoFillButton);
-        this.generatorGroup = new WidgetGroup(energyArea);
-
-
     }
-    private AbstractWidget energyArea;
 
-    private ResourceLocation pickTexture(ResourceLocation wanted) {
-        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        return resourceManager.getResource(wanted).isPresent() ? wanted : DEFAULT_TEX.apply(mode);
+    public void updateRenderHandler(String id){
+        if (this.renderHandler != null){
+            for (AbstractWidget renderable : this.renderHandler.getRenderables()) {
+                this.removeWidget(renderable);
+            }
+            for (AbstractWidget abstractWidget : this.renderHandler.getRenderableWidget()) {
+                this.removeWidget(abstractWidget);
+            }
+            for (AbstractWidget abstractWidget : this.renderHandler.getWidget()) {
+                this.removeWidget(abstractWidget);
+            }
+        }
+
+        this.renderHandler = PatternScreenRenderHandlerManager.INSTANCE.get(id, this);
+
+        for (AbstractWidget renderable : this.renderHandler.getRenderables()) {
+            this.addRenderableOnly(renderable);
+        }
+        for (AbstractWidget abstractWidget : this.renderHandler.getRenderableWidget()) {
+            this.addRenderableWidget(abstractWidget);
+        }
+        for (AbstractWidget abstractWidget : this.renderHandler.getWidget()) {
+            this.addWidget(abstractWidget);
+        }
     }
+
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        this.mode = menu.getMode();
-        switch (this.mode){
-            case FURNACE -> renderFurnaceBg(guiGraphics, partialTick, mouseX, mouseY);
-            case FACTORY -> renderFactoryBg(guiGraphics, partialTick, mouseX, mouseY);
-            case GENERATOR -> renderGeneratorBg(guiGraphics, partialTick, mouseX, mouseY);
-        }
+        renderHandler.renderBg(guiGraphics, partialTick, mouseX, mouseY);
     }
-    //? >1.20.1
-    //private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
-
-    private void renderFurnaceBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(VANILLA, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        if (this.menu.isLit()) {
-            //? 1.20.1 {
-            int k = this.menu.getLitProgress();
-            guiGraphics.blit(VANILLA, i + 56, j + 36 + 12 - k, 176, 12 - k, 14, k + 1);
-            //? } else {
-            /*int k = 14;
-            int l = Mth.ceil(this.menu.getLitProgress()) + 1;
-            guiGraphics.blitSprite(VANILLA_LIT_PROGRESS, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
-            *///?}
-
-        }
-
-        int l = this.menu.getBurnProgress(0);
-        guiGraphics.blit(VANILLA, i + 79, j + 34, 176, 14, l + 1, 16);
-    }
-
-    private void renderFactoryBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        ResourceLocation texture = pickTexture(getCurrentTexture());
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(texture, i, j, 0, 0, this.imageWidth, this.imageHeight);
-
-        int columns = 3;
-        int visibleRows = 3;
-        int pageSize = columns * visibleRows;
-
-        int currentPage = this.menu.factoryInput.getCurrentPage();
-        int startIndex = currentPage * pageSize;
-        int endIndex = Math.min(startIndex + pageSize, this.menu.factoryInput.size);
-        int slotIndex = 0;
-        for (int index = startIndex; index < endIndex; index++) {
-            int indexInPage = index % pageSize;
-            int col = indexInPage % columns;
-            int row = indexInPage / columns;
-
-            guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
-            int verticalBurnProgress = menu.getVerticalBurnProgress(slotIndex);
-            if (verticalBurnProgress != 0){
-                guiGraphics.fill(i + 35 + col * 18 + 1, j + 16 + row * 18 + verticalBurnProgress, i + 35 + col * 18 + 18, j + 16 + row * 18 + 18, FastColor.ARGB32.color(100, 255, 255, 255));
-                //guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18 - verticalBurnProgress, 176, 55, 18, 18);
-            }
-            guiGraphics.blit(texture, i + 105 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
-            slotIndex++;
-        }
-
-        if (this.menu.isLit()) {
-            int k = this.menu.getLitProgress();
-            guiGraphics.blit(texture, i + 89, j + 36 - k + 15, 176, 12 - k, 14, k + 1);
-        }
-
-        int barHeight = 42;
-        int barX = i + 9;
-        int barY = j + 7;
-
-        int l = this.menu.getMaxEnergy() > 0
-                ? this.menu.getEnergyStored() * barHeight / this.menu.getMaxEnergy()
-                : 0;
-
-        energyArea.setPosition(barX, barY);
-
-        if (l > 0) {
-            guiGraphics.blit(texture, barX, barY + (barHeight - l), 176, 14 + (barHeight - l), 14, l);
-        }
-    }
-
-    private void renderGeneratorBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        ResourceLocation texture = pickTexture(getCurrentTexture());
-        int i = this.leftPos;
-        int j = this.topPos;
-
-        guiGraphics.blit(texture, i, j, 0, 0, this.imageWidth, this.imageHeight);
-
-        if (this.menu.isLit()) {
-            int k = this.menu.getLitProgress();
-            guiGraphics.blit(texture, i + 57, j + 36 - k, 176, 12 - k, 14, k + 1);
-        }
-
-        int barHeight = 42;
-        int barX = i + 109;
-        int barY = j + 22;
-
-        int l = this.menu.getMaxEnergy() > 0
-                ? this.menu.getEnergyStored() * barHeight / this.menu.getMaxEnergy()
-                : 0;
-
-        energyArea.setPosition(barX, barY);
-
-        if (l > 0) {
-            guiGraphics.blit(
-                    texture,
-                    barX,
-                    barY + (barHeight - l),   // 目标 y 下移，保证从底部开始长
-                    176,
-                    14 + (barHeight - l),     // 纹理 v 也同步下移
-                    14,
-                    l
-            );
-        }
-    }
-
-    private ResourceLocation getCurrentTexture() {
-        FurnacePattern pattern = this.menu.blockEntity.getPattern();
-
-        return IronFurnaces.gui(mode.toString().toLowerCase(Locale.ROOT) + "/" + pattern.id().getPath());
-    }
-
 
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.positionContext.zero();
-        this.mode = menu.getMode();
-        switch (this.mode){
-            case FURNACE -> {
-                factoryGroup.deactivateAll();
-                generatorGroup.deactivateAll();
-            }
-            case FACTORY -> {
-                generatorGroup.deactivateAll();
-                factoryGroup.activeAll();
-            }
-            case GENERATOR -> {
-                factoryGroup.deactivateAll();
-                generatorGroup.activeAll();
-            }
-        }
-        if (this.menu.factoryInput.getPageCount() > 1 && this.mode.equals(FurnaceMode.FACTORY)) {
-            this.pageGroup.activeAll();
-        } else {
-            this.pageGroup.deactivateAll();
-        }
         this.menu.updateMode();
         //~ if >1.20.1 'guiGraphics' -> 'guiGraphics, mouseX, mouseY, partialTick'
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-
+        if (renderHandler.needRenderCustomTooltip(guiGraphics, mouseX, mouseY)) {
+            renderHandler.renderCustomTooltip(guiGraphics, mouseX, mouseY);
+        } else {
+            super.renderTooltip(guiGraphics, mouseX, mouseY);
+        }
     }
 }

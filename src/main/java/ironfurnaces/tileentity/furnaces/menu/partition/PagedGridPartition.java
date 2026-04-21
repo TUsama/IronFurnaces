@@ -1,4 +1,4 @@
-package ironfurnaces.tileentity.furnaces.menu;
+package ironfurnaces.tileentity.furnaces.menu.partition;
 
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;

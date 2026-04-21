@@ -11,7 +11,6 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 //? 1.20.1 {
 import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.RequirementsStrategy;
 //? } else {
 /*import net.minecraft.advancements.AdvancementType;
 *///?}
@@ -25,7 +24,7 @@ public class ModAdvancements {
                         ModItems.RAINBOW_COAL.get(),
                         x.title(IronFurnaces.MOD_ID, "rainbow_coal", "Taste the Rainbow!").withStyle(ChatFormatting.LIGHT_PURPLE),
                         x.desc(IronFurnaces.MOD_ID, "rainbow_coal", "Obtain the Rainbow Coal"),
-                        IronFurnaces.vanilla("textures/gui/advancements/backgrounds/stone.png"),
+                        IronFurnaces.parse("textures/gui/advancements/backgrounds/stone.png"),
                         //~ if >1.20.1 'FrameType.TASK' -> 'AdvancementType.TASK'
                         FrameType.TASK,
                         false,

@@ -1,24 +1,22 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.function.IntConsumer;
 
 @Accessors(fluent = true, chain = true)
-public class OutputCache extends PatternCache implements ICacheFillStats {
+public class OutputCache extends ResizableCache implements ICacheFillStats {
     @Setter
     private IntConsumer contentChangeCallback;
 
 
-    public OutputCache(FurnaceMode mode, IFurnaceStats stats) {
-        super(stats.inputSlotAmount(), mode, stats.inputSlotAmount());
+    public OutputCache(AbstractFurnaceModeHandler mode, IFurnaceStats stats) {
+        super(stats.inputSlotAmount(), mode);
     }
 
     @Override
@@ -28,6 +26,11 @@ public class OutputCache extends PatternCache implements ICacheFillStats {
             contentChangeCallback.accept(slot);
         }
         recomputeFillStats();
+    }
+
+    @Override
+    protected int updateSlotAmount(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
+        return FurnaceModeManager.INSTANCE.getMaxOutputSlot(stats);
     }
 
 

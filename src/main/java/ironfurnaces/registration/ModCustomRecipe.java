@@ -46,7 +46,7 @@ public class ModCustomRecipe {
             .entry(GENERATOR_ID, builderCallback -> new CustomRecipeBuilder<>(REGISTRATE, REGISTRATE, GENERATOR_ID, builderCallback, GeneratorRecipe.Serializer::new))
             .jei(GeneratorRecipe.class)
             .addMiscData(ProviderType.LANG, x -> {
-                x.add(IronFurnaces.MOD_ID + ".jei_" + "category_blasting", "Blasting Generation");
+                x.add(IronFurnaces.MOD_ID + ".jei_" + "category_blasting", "Cracking Generation");
             })
             .recipe((ctx, provider) -> {
 

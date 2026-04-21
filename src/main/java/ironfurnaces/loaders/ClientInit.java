@@ -1,6 +1,8 @@
 //~ replace_entry_point
 package ironfurnaces.loaders;
 
+import com.clefal.nirvana_lib.utils.ModUtils;
+import ironfurnaces.compat.farmer_delight.FDCompat;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.tileentity.furnaces.pattern.render.PatternHolderBlockEntityRenderer;
 import lombok.experimental.UtilityClass;
@@ -17,6 +19,10 @@ public class ClientInit {
         modBus.<FMLClientSetupEvent>addListener(EventPriority.LOWEST, x -> {
             BlockEntityRenderers.register(ModBlockEntities.PATTERN_HOLDER.get(), context -> PatternHolderBlockEntityRenderer.getInstance());
         });
+
+        if (ModUtils.isModLoaded("farmersdelight")){
+            FDCompat.registerClient();
+        }
     }
 
 }

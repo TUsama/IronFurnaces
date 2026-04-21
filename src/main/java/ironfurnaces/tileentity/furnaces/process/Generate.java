@@ -110,34 +110,7 @@ public abstract class Generate extends ProcessingInstance {
     public float getDoneProgress() {
         return currentOutput / (expectedTotalOutput);
     }
-    //better than map+static create()
-    public static Generate getGenerateInstance(int index, int eachTickOutPut, ItemStack stack, FurnacePatternBlockEntity blockEntity){
-        return switch (blockEntity.getAugments().getCurrentRecipeType()){
-            case NORMAL -> {
-                int burnTime = FuelBurnTimeUtil.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().recipeType.get());
-                if (burnTime > 0) yield new SmeltGenerate(index, burnTime, eachTickOutPut);
-                yield null;
-            }
-            case SMOKE -> {
-                Item item = stack.getItem();
-                FoodProperties foodProperties = item.getFoodProperties(stack, null);
-                if (foodProperties != null && foodProperties.getNutrition() > 0) {
-                    yield new SmokingGenerate(index, foodProperties.getNutrition() * FurnaceConfig.config.nutrition_to_energy_factor, eachTickOutPut);
-                }
-                yield null;
-            }
-            case GENERATE_BLAST -> {
-                var recipe = blockEntity.getRecipe(stack);
-                //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
-                if (recipe.isPresent() && recipe.get() instanceof GeneratorRecipe generatorRecipe) {
-                    yield new BlastGenerate(index, generatorRecipe.getEnergy(), eachTickOutPut);
-                }
 
-                yield null;
-            }
-            case BLAST -> null;
-        };
-    }
 
     public static class SmeltGenerate extends Generate {
         public static final MapCodec<SmeltGenerate> CODEC = simpleGenerateCodec(SmeltGenerate::new);

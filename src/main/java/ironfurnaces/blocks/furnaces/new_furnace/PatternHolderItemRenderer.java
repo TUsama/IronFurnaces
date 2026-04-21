@@ -4,16 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
+import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.SmeltRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.render.PatternHolderVisualRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
@@ -50,7 +48,7 @@ public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
                 false,
                 net.minecraft.core.Direction.NORTH,
                 JovialState.NONE,
-                AugmentCache.HandlingRecipeType.NORMAL,
+                SmeltRecipeTypeHandler.INSTANCE,
                 poseStack,
                 buffers,
                 packedLight,

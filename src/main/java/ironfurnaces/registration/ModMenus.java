@@ -40,8 +40,10 @@ public class ModMenus {
                         IFurnaceStats iFurnaceStats = buffer.readJsonWithCodec(IFurnaceStats.CODEC);
                         BlockPos blockPos = buffer.readBlockPos();
                         FurnacePatternBlockEntity blockEntity = ((FurnacePatternBlockEntity) inv.player.level().getBlockEntity(blockPos));
+                        blockEntity.getAugments().refreshState();
+                        blockEntity.getAugments().displayMessages();
                         blockEntity.updatePattern(pattern);
-                        blockEntity.updateFurnaceStats(iFurnaceStats, false);
+                        blockEntity.updateFurnaceStats(iFurnaceStats);
                         return new FurnacePatternMenu(type, windowId, blockEntity, inv, blockPos, blockEntity.getDataAccess());
                     },
 

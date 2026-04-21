@@ -706,13 +706,17 @@ public class LegacyFurnaceBlocks {
     }
 
     protected static void  whenAllthemodium(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, String path, String id, RegistrateRecipeProvider provider) {
+        whenHasMod(consumer, ctx, path, id, "allthemodium", provider);
+    }
+
+    protected static void  whenHasMod(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, String path, String id, String modId, RegistrateRecipeProvider provider) {
         //? 1.20.1 {
         consumer.accept(x -> ConditionalRecipe.builder()
-                .addCondition(new ModLoadedCondition("allthemodium"))
+                .addCondition(new ModLoadedCondition(modId))
                 .addRecipe(x).build(provider, IronFurnaces.id(path + "/" + id)));
         //? } else {
-        /*consumer.accept(new ConditionalRecipeOutput(provider, Stream.of(new ModLoadedCondition("allthemodium")).toArray(ICondition[]::new)));
-        *///?}
+        /*consumer.accept(new ConditionalRecipeOutput(provider, Stream.of(new ModLoadedCondition(modId)).toArray(ICondition[]::new)));
+         *///?}
     }
 
     @SafeVarargs

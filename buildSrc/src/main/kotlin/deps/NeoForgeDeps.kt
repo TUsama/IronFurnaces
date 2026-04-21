@@ -9,6 +9,10 @@ object NeoForgeDeps {
                     modstitchModImplementation ("com.tterrag.registrate:Registrate:MC1.21-1.3.0+67")
                     modstitchJiJ ("com.tterrag.registrate:Registrate:MC1.21-1.3.0+67")
 
+                    modstitchModCompileOnly ("curse.maven:project-mmo-353935:7623313")
+
+                    modstitchModCompileOnly ("curse.maven:farmers-delight-398521:7801529")
+
                 }
 
                 "1.21.4" -> {

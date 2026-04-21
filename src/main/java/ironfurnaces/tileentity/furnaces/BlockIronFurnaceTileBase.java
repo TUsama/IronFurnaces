@@ -30,7 +30,6 @@ import ironfurnaces.util.LRUCache;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.*;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +64,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 //? forge {
 import net.minecraft.world.inventory.RecipeHolder;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -1735,7 +1733,7 @@ RecipeHolder,
         CompoundTag compoundnbt = tag.getCompound("RecipesUsed");
 
         for (String s : compoundnbt.getAllKeys()) {
-            recipes.put(IronFurnaces.vanilla(s), compoundnbt.getInt(s));
+            recipes.put(IronFurnaces.parse(s), compoundnbt.getInt(s));
         }
         furnaceSettings.read(tag);
 

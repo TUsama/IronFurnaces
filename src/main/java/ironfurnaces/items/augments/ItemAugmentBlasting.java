@@ -1,13 +1,13 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
+import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
+import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.BlastRecipeTypeHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 
@@ -22,8 +22,8 @@ public class ItemAugmentBlasting extends ItemAugmentRed {
     }
 
     @Override
-    public AugmentCache.HandlingRecipeType getRecipeType() {
-        return AugmentCache.HandlingRecipeType.BLAST;
+    public IRecipeTypeHandler getRecipeTypeHandler() {
+        return BlastRecipeTypeHandler.INSTANCE;
     }
 
     @Override

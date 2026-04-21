@@ -1,8 +1,8 @@
-package ironfurnaces.tileentity.furnaces.menu;
+package ironfurnaces.tileentity.furnaces.menu.partition;
 
+import ironfurnaces.tileentity.furnaces.menu.Partition;
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.items.IItemHandler;

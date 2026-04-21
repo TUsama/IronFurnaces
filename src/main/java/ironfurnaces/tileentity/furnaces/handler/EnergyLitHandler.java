@@ -33,7 +33,8 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
     public void tick(FurnacePatternBlockEntity tile) {
         FuelCache fuel = tile.getFuel();
         int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.usedStats.energyConsumerPerTick());
-        if (tile.getInstanceManager().needLit(tile) && tile.getInstanceManager().hasInstances() && fuel.getEnergyStored() >= cost){
+        boolean b = tile.getInstanceManager().needLit(tile);
+        if (b && tile.getInstanceManager().hasInstances() && fuel.getEnergyStored() >= cost){
             fuel.extractEnergy(cost, false);
             isLit = true;
         } else {
@@ -67,10 +68,6 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
         return isLit ? 1 : 0;
     }
 
-    @Override
-    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
-
-    }
 
 
 }

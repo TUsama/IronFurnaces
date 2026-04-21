@@ -47,7 +47,7 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
         if (litTime == 0 && tile.getInstanceManager().needLit(tile)) {
 
             ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
-            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(FuelBurnTimeUtil.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().recipeType.get()));
+            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(FuelBurnTimeUtil.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().getRecipeType()));
 
             if (burnTime > 0) {
                 litTime = burnTime;

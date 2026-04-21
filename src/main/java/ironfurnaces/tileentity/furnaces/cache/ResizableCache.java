@@ -1,9 +1,9 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.NonNullList;
@@ -16,22 +16,19 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class PatternCache extends ItemStackHandler implements IModeSensitive, ICacheIndex, IPatternSensitive, ICacheFillStats{
-    protected FurnaceMode mode;
-    protected int inputSlotAmount;
+public abstract class ResizableCache extends ItemStackHandler implements ICacheIndex,ICacheFillStats, INeedUpdate{
+    protected AbstractFurnaceModeHandler mode;
     @Nullable
     private int[] cacheSlotArray;
     private final FillStats fill_stats = new FillStats();
 
-    public PatternCache(FurnaceMode mode, int inputSlotAmount) {
+    public ResizableCache(AbstractFurnaceModeHandler mode) {
         this.mode = mode;
-        this.inputSlotAmount = inputSlotAmount;
     }
 
-    public PatternCache(int size, FurnaceMode mode, int inputSlotAmount) {
+    public ResizableCache(int size, AbstractFurnaceModeHandler mode) {
         super(size);
         this.mode = mode;
-        this.inputSlotAmount = inputSlotAmount;
     }
 
 
@@ -53,19 +50,7 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
         return super.extractItem(slot, amount, simulate);
     }
 
-    @Override
-    protected void onContentsChanged(int slot) {
-        super.onContentsChanged(slot);
-    }
 
-    @Override
-    public int getSlots() {
-        return switch (mode){
-            case FURNACE -> 1;
-            case GENERATOR -> 0;
-            case FACTORY -> inputSlotAmount;
-        };
-    }
 
     public void handleStacksInUnavailableSlots(Level level, Consumer<Int2ObjectMap<ItemStack>> consumer) {
         Int2ObjectMap<ItemStack> stacksInUnavailableSlots = findStacksInUnavailableSlots(level);
@@ -106,8 +91,9 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
     }
 
     @Override
-    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
+    public void update(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         this.mode = mode;
+        resizeSlots(mode, recipeTypeHandler, stats, blockEntity);
         int slots = this.getSlots();
         int[] ints = new int[slots];
         for (int i = 0; i < slots; i++) {
@@ -116,33 +102,38 @@ public abstract class PatternCache extends ItemStackHandler implements IModeSens
         cacheSlotArray = ints;
     }
 
-    @Override
-    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
-        int newSize = stats.inputSlotAmount();
+    protected abstract int updateSlotAmount(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity);
+
+    private void resizeSlots(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity){
+        int newSize = updateSlotAmount(mode, recipeTypeHandler, stats, blockEntity);
         NonNullList<ItemStack> oldStacks = this.stacks;
-        NonNullList<ItemStack> newList = NonNullList.withSize(newSize, ItemStack.EMPTY);
+        if (oldStacks.size() != newSize){
+            blockEntity.closeMenu();
+            NonNullList<ItemStack> newList = NonNullList.withSize(newSize, ItemStack.EMPTY);
 
-        int keepSize = Math.min(oldStacks.size(), newSize);
-        for (int i = 0; i < keepSize; i++) {
-            newList.set(i, oldStacks.get(i).copy());
-        }
-
-        // 先处理溢出部分，避免丢物品
-        if (oldStacks.size() > newSize) {
-            ArrayList<ItemStack> itemStacks = new ArrayList<>();
-            for (int i = newSize; i < oldStacks.size(); i++) {
-                ItemStack overflow = oldStacks.get(i);
-                if (!overflow.isEmpty()) {
-                    itemStacks.add(overflow.copy());
-                }
+            int keepSize = Math.min(oldStacks.size(), newSize);
+            for (int i = 0; i < keepSize; i++) {
+                newList.set(i, oldStacks.get(i).copy());
             }
-            blockEntity.returnOrDropStack(itemStacks, blockEntity.getOwner());
+
+            // 先处理溢出部分，避免丢物品
+            if (oldStacks.size() > newSize) {
+                ArrayList<ItemStack> itemStacks = new ArrayList<>();
+                for (int i = newSize; i < oldStacks.size(); i++) {
+                    ItemStack overflow = oldStacks.get(i);
+                    if (!overflow.isEmpty()) {
+                        itemStacks.add(overflow.copy());
+                    }
+                }
+                blockEntity.returnOrDropStack(itemStacks, blockEntity.getOwner());
+            }
+
+            this.stacks = newList;
+            recomputeFillStats();
         }
 
-        this.stacks = newList;
-        this.inputSlotAmount = newSize;
-        recomputeFillStats();
     }
+
     @Override
     public int[] getCacheIndex() {
         return cacheSlotArray;

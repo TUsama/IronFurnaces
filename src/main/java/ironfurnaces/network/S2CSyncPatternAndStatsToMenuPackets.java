@@ -1,10 +1,15 @@
 package ironfurnaces.network;
 
 import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
+import ironfurnaces.gui.furnaces.FurnacePatternScreen;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.EffectiveFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -12,7 +17,7 @@ public class S2CSyncPatternAndStatsToMenuPackets implements S2CModPacket<S2CSync
     private FurnacePattern pattern;
     private IFurnaceStats stats;
 
-    public S2CSyncPatternAndStatsToMenuPackets(FurnacePattern pattern, IFurnaceStats stats) {
+    public S2CSyncPatternAndStatsToMenuPackets(FurnacePattern pattern, String modeId, IFurnaceStats stats) {
         this.pattern = pattern;
         this.stats = stats;
     }
@@ -23,15 +28,22 @@ public class S2CSyncPatternAndStatsToMenuPackets implements S2CModPacket<S2CSync
     @Override
     public void handleClient() {
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.containerMenu instanceof FurnacePatternMenu furnacePatternMenu) {
-            FurnacePattern furnacePattern = furnacePatternMenu.blockEntity.getPattern();
+            FurnacePatternBlockEntity blockEntity = furnacePatternMenu.blockEntity;
+            FurnacePattern furnacePattern = blockEntity.getPattern();
+            AugmentCache augments = blockEntity.getAugments();
+
             if (furnacePattern != pattern){
-                furnacePatternMenu.blockEntity.updatePattern(pattern);
+                blockEntity.updatePattern(pattern);
             }
 
-            if (!furnacePatternMenu.blockEntity.usedStats.equals(stats)){
-                furnacePatternMenu.blockEntity.updateFurnaceStats(stats, false);
+            if (!blockEntity.usedStats.equals(stats)){
+                blockEntity.updateFurnaceStats(stats);
             }
 
+            augments.refreshState();
+            if (Minecraft.getInstance().screen instanceof FurnacePatternScreen screen) {
+                screen.updateRenderHandler(blockEntity.getMode().getId());
+            }
 
         }
     }

@@ -1,7 +1,8 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import ironfurnaces.tileentity.furnaces.pattern.mode.internal.GeneratorModeHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -10,8 +11,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 
-
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemAugmentGenerator extends ItemAugmentBlue {
@@ -21,8 +20,8 @@ public class ItemAugmentGenerator extends ItemAugmentBlue {
     }
 
     @Override
-    public FurnaceMode getMode() {
-        return FurnaceMode.GENERATOR;
+    public AbstractFurnaceModeHandler getModeHandler() {
+        return GeneratorModeHandler.INSTANCE;
     }
 
     

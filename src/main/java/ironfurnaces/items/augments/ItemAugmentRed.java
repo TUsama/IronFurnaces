@@ -1,7 +1,6 @@
 package ironfurnaces.items.augments;
 
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
-import net.minecraft.world.item.crafting.RecipeType;
+import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
 
 public abstract class ItemAugmentRed extends ItemAugment {
 
@@ -10,7 +9,7 @@ public abstract class ItemAugmentRed extends ItemAugment {
         super(properties);
     }
 
-    public abstract AugmentCache.HandlingRecipeType getRecipeType();
+    public abstract IRecipeTypeHandler getRecipeTypeHandler();
     public abstract int getType();
 
 }

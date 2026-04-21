@@ -4,14 +4,12 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.Codec;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.cache.IPatternSensitive;
-import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public interface IFurnaceLitHandler extends IPatternSensitive {
+public interface IFurnaceLitHandler{
     Codec<IFurnaceLitHandler> CODEC = Codec.STRING.dispatch(IFurnaceLitHandler::getType, string ->
             {
                 var codec = switch (string) {
@@ -50,8 +48,5 @@ public interface IFurnaceLitHandler extends IPatternSensitive {
         }
     }
 
-    @Override
-    default void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity){
 
-    }
 }

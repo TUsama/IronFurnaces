@@ -1,5 +1,7 @@
 package ironfurnaces.loaders;
 
+import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.BusBuilder;
+import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.IEventBus;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import com.tterrag.registrate.Registrate;
 import lombok.experimental.UtilityClass;
@@ -18,6 +20,13 @@ public class IronFurnaces {
     public static final String VERSION = "416";
     public static final String MOD_ID = "ironfurnaces";
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
+    public static final IEventBus bus = BusBuilder.builder().setExceptionHandler((iEventBus, event, eventListeners, i, throwable) -> {
+        try {
+            throw throwable;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }).build();
 
     public ResourceLocation id(String path){
         return ResourceLocationUtils.make(MOD_ID, path);
@@ -32,7 +41,7 @@ public class IronFurnaces {
         return ResourceLocationUtils.make(MOD_ID, "textures/gui/sprites/" + id + ".png");
     }
 
-    public ResourceLocation vanilla(String path){
+    public ResourceLocation parse(String path){
         //? 1.20.1 {
         return new ResourceLocation(path);
         //? } else {

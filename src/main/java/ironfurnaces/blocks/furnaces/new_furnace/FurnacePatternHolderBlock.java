@@ -1,9 +1,6 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import ironfurnaces.Config;
-import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
@@ -13,11 +10,8 @@ import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
-import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
@@ -32,11 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -49,7 +39,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -81,11 +70,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 *///?}
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static net.minecraft.network.chat.Component.translatable;
 
@@ -97,8 +84,6 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         super(properties.destroyTime(3F));
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(BlockStateProperties.LIT, false)
-                //.setValue(ModBlockState.FURNACE_MODE, FurnaceMode.FURNACE)
-                .setValue(ModBlockState.HANDLING_RECIPE_TYPE, AugmentCache.HandlingRecipeType.NORMAL)
                 .setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE));
     }
     //? >1.20.1 {
@@ -441,7 +426,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             if (!(world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2)) {
                 return;
             }
-            RecipeType<?> currentRecipeType = v2.getAugments().getCurrentRecipeType().recipeType.get();
+            RecipeType<?> currentRecipeType = v2.getAugments().getCurrentRecipeType().getRecipeType();
             if (currentRecipeType == RecipeType.SMOKING) {
                 double lvt_5_1_ = (double) pos.getX() + 0.5D;
                 double lvt_7_1_ = (double) pos.getY();
@@ -492,7 +477,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
         if (world.getBlockEntity(pos) instanceof FurnacePatternBlockEntity v2 && v2.getPattern().isRainbow()) {
-            if (state.getValue(BlockStateProperties.LIT) && v2.getMode().equals(FurnaceMode.GENERATOR)) {
+            if (state.getValue(BlockStateProperties.LIT) && v2.getMode().isGenerator()) {
                  {
                     for (Direction direction : Direction.values()) {
                         if (Direction.from3DDataValue(direction.get3DDataValue()) != Direction.UP
@@ -534,6 +519,10 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                             PlayerDataHandler.editFurnacesList(owner, x -> x.remove(world.dimension(), pos));
                         }
                     }
+                }
+
+                for (int i = 0; i < furnace.getViewOnly().getSlots(); i++) {
+                    furnace.getViewOnly().setStackInSlot(i, ItemStack.EMPTY);
                 }
 
                 Containers.dropContents(world, pos, furnace);
@@ -595,7 +584,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, ModBlockState.HANDLING_RECIPE_TYPE, ModBlockState.JOVIAL_STATE);
+        builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, ModBlockState.JOVIAL_STATE);
     }
 
     @Override

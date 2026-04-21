@@ -22,6 +22,8 @@ object ForgeDeps {
             modstitchLegacyModRuntimeOnly("curse.maven:common-capabilities-247007:7229322")
             modstitchLegacyModRuntimeOnly("curse.maven:cyclops-core-232758:7637992")
 
+            modstitchLegacyModCompileOnly("curse.maven:farmers-delight-398521:7801523")
+            modstitchLegacyModRuntimeOnly ("curse.maven:farmers-delight-398521:7801523")
         }
     }
 }

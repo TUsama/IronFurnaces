@@ -2,10 +2,9 @@ package ironfurnaces.tileentity.furnaces.pattern.render;
 
 import ironfurnaces.items.JovialState;
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
+import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +43,7 @@ public final class PatternPreviewTextureResolver {
             String patternPath,
             boolean lit,
             JovialState jovial,
-            AugmentCache.HandlingRecipeType type
+            IRecipeTypeHandler type
     ) {
 
         TextureKey key = new TextureKey(patternPath, lit, jovial, type);
@@ -81,7 +80,7 @@ public final class PatternPreviewTextureResolver {
         return CubeTextures.frontSideTopBottom(front, side, top, bottom);
     }
 
-    private static String[] makeRL(String patternPath, JovialState jovial, boolean lit, AugmentCache.HandlingRecipeType type) {
+    private static String[] makeRL(String patternPath, JovialState jovial, boolean lit, IRecipeTypeHandler type) {
         String[] strings = new String[2];
 
         strings[0] = switch (jovial){
@@ -95,11 +94,9 @@ public final class PatternPreviewTextureResolver {
             s.append("_on");
         }
 
-        switch (type){
-            case BLAST -> s.append("_blast");
-            case SMOKE -> s.append("_smoke");
-            default -> {}
-        }
+        type.buildTextureName(s);
+
+
         strings[1] = s.toString();
         return strings;
     }
@@ -138,7 +135,7 @@ public final class PatternPreviewTextureResolver {
             String patternPath,
             boolean lit,
             JovialState jovial,
-            AugmentCache.HandlingRecipeType type
+            IRecipeTypeHandler type
     ) {
     }
 }

@@ -1,9 +1,9 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 // a copy from CombinedInvWrapper, but with recalc when furnace mode updated.
-public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandlerModifiable, ICacheFillStats, IPatternSensitive{
+public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICacheFillStats, INeedUpdate{
     private int[] cacheIndex;
     @Getter
     protected final IItemHandlerModifiable[] itemHandler;
@@ -27,6 +27,7 @@ public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandle
         int index = 0;
         for (int i = 0; i < itemHandler.length; i++)
         {
+            if (itemHandler[i] instanceof ViewOnlyCache) continue;
             index += itemHandler[i].getSlots();
             baseIndex[i] = index;
         }
@@ -39,17 +40,6 @@ public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandle
         return cacheIndex;
     }
 
-    @Override
-    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
-        int index = 0;
-        for (int i = 0; i < itemHandler.length; i++)
-        {
-            index += itemHandler[i].getSlots();
-            baseIndex[i] = index;
-        }
-        this.slotCount = index;
-        cacheIndex = IntStream.range(0, getSlots()).toArray();
-    }
 
     // returns the handler index for the slot
     protected int getIndexForSlot(int slot)
@@ -150,8 +140,9 @@ public class IFCombinedCache implements ICacheIndex, IModeSensitive, IItemHandle
         //don't need here
     }
 
+
     @Override
-    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
+    public void update(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         int index = 0;
         for (int i = 0; i < itemHandler.length; i++)
         {

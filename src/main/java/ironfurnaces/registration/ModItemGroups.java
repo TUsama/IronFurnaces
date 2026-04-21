@@ -1,5 +1,6 @@
 package ironfurnaces.registration;
 
+import com.clefal.nirvana_lib.utils.ModUtils;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
@@ -52,9 +53,14 @@ public class ModItemGroups {
                                 entries.accept(ModItems.ITEM_HEATER.get());
                                 entries.accept(ModItems.BLASTING_AUGMENT.get());
                                 entries.accept(ModItems.SMOKING_AUGMENT.get());
-                                entries.accept(ModItems.FACTORY_AUGMENT.get());
 
+
+                                entries.accept(ModItems.FACTORY_AUGMENT.get());
                                 entries.accept(ModItems.GENERATOR_AUGMENT.get());
+                                if (ModUtils.isModLoaded("farmersdelight")) {
+                                    entries.accept(FarmerDelightCompat.FD_AUGMENT.get());
+                                }
+
                                 entries.accept(ModItems.SPEED_AUGMENT.get());
                                 entries.accept(ModItems.FUEL_AUGMENT.get());
                                 entries.accept(ModItems.ITEM_SPOOKY.get());

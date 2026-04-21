@@ -1,6 +1,6 @@
 package ironfurnaces.items.augments;
 
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 
 public abstract class ItemAugmentBlue extends ItemAugment {
 
@@ -9,7 +9,7 @@ public abstract class ItemAugmentBlue extends ItemAugment {
         super(properties);
     }
 
-    public abstract FurnaceMode getMode();
+    public abstract AbstractFurnaceModeHandler getModeHandler();
 
 
 }

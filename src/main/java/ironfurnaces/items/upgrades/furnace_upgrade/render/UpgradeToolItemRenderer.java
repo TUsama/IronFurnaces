@@ -6,7 +6,7 @@ import com.mojang.math.Axis;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.items.upgrades.furnace_upgrade.IUpgradeStorage;
 import ironfurnaces.loaders.IronFurnaces;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
+import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.SmeltRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.pattern.render.PatternPreviewTextureResolver;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
 import net.minecraft.client.Minecraft;
@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
 
@@ -155,7 +154,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
                 patternPath,
                 false,
                 JovialState.NONE,
-                AugmentCache.HandlingRecipeType.NORMAL
+                SmeltRecipeTypeHandler.INSTANCE
         );
 
         TextureAtlasSprite sprite = getBlockSprite(textures.front());

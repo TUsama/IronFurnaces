@@ -6,12 +6,10 @@ import ironfurnaces.loaders.IronFurnaces;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -133,7 +131,7 @@ public final class RecipeAwardHandler {
 
         CompoundTag recipesTag = tag.getCompound(NBT_KEY_RECIPES_USED);
         for (String key : recipesTag.getAllKeys()) {
-            ResourceLocation id = IronFurnaces.vanilla(key);
+            ResourceLocation id = IronFurnaces.parse(key);
             recipesUsed.put(id, recipesTag.getInt(key));
         }
     }

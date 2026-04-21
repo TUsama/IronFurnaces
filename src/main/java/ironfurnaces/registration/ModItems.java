@@ -708,7 +708,7 @@ public class ModItems {
     }
 
 
-    private static <T extends Item> ItemBuilder<T, Registrate> registerItem(
+    protected static <T extends Item> ItemBuilder<T, Registrate> registerItem(
             String name,
             String langName,
             NonNullFunction<Item.Properties, T> factory
@@ -717,14 +717,14 @@ public class ModItems {
                 .lang(langName);
     }
 
-    private static <T extends Item> ItemBuilder<T, Registrate> registerItem(
+    protected static <T extends Item> ItemBuilder<T, Registrate> registerItem(
             String name,
             NonNullFunction<Item.Properties, T> factory
     ) {
         return core(name, factory);
     }
 
-    private static <T extends Item> ItemBuilder<T, Registrate> core(
+    protected static <T extends Item> ItemBuilder<T, Registrate> core(
             String name,
             NonNullFunction<Item.Properties, T> factory
     ) {

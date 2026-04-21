@@ -6,6 +6,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
+import ironfurnaces.tileentity.furnaces.process.compat.MealTransfer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraftforge.items.IItemHandler;
@@ -18,7 +20,9 @@ public abstract class ProcessingInstance {
             Burn.Smoking.TYPE, Burn.Smoking.CODEC,
             Generate.SmeltGenerate.TYPE, Generate.SmeltGenerate.CODEC,
             Generate.BlastGenerate.TYPE, Generate.BlastGenerate.CODEC,
-            Generate.SmokingGenerate.TYPE, Generate.SmokingGenerate.CODEC
+            Generate.SmokingGenerate.TYPE, Generate.SmokingGenerate.CODEC,
+            Cooking.TYPE, Cooking.CODEC,
+            MealTransfer.TYPE, MealTransfer.CODEC
     );
 
     public static final Codec<ProcessingInstance> DISPATCH_CODEC = Codec.STRING.dispatch(

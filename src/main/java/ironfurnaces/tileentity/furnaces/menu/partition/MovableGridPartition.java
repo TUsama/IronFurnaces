@@ -1,4 +1,4 @@
-package ironfurnaces.tileentity.furnaces.menu;
+package ironfurnaces.tileentity.furnaces.menu.partition;
 
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import lombok.Getter;
@@ -16,9 +16,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 @Accessors(fluent = true, chain = true)
-public class MovableGridPartition extends GridPartition{
-    @Getter
-    protected final List<Slot> trackedSlot;
+public class MovableGridPartition extends TrackSlotPartition{
     @Setter
     private IntSupplier yMovementProvider;
     @Setter
@@ -26,7 +24,6 @@ public class MovableGridPartition extends GridPartition{
 
     public MovableGridPartition(int size, Vector2i startPoint, BooleanSupplier interactable, IItemHandler handler, int containerStartIndex, int columns) {
         super(size, startPoint, interactable, handler, containerStartIndex, columns);
-        this.trackedSlot = new ArrayList<>();
     }
 
     public void handleSlot(){
@@ -49,11 +46,4 @@ public class MovableGridPartition extends GridPartition{
 
     }
 
-
-    @Override
-    public Slot makeSlot(int localIndex) {
-        Slot slot = super.makeSlot(localIndex);
-        this.trackedSlot.add(slot);
-        return slot;
-    }
 }

@@ -1,3 +1,13 @@
+### 0.3.2
+code refactor for mod compat
+fuel will go to fuel slot firstly 
+
+### 0.3.1
+add vanilla smelt event and pmmo smelt event support for new furnaces(only for smelting)
+fix a bug that only heater can be used as fuel when furnace in Blast mode.
+code refactor for mod compat
+
+
 ### 0.3.0
 bump to 1.21.1 neoforge
 fix a issue that copy tool can't apply direction to the applied furnace

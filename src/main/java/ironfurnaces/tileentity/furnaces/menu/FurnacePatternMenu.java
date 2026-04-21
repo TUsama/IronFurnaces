@@ -1,30 +1,39 @@
 package ironfurnaces.tileentity.furnaces.menu;
 
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.RemainingCache;
+import ironfurnaces.tileentity.furnaces.menu.handler.AbstractCompatMenuHandler;
+import ironfurnaces.tileentity.furnaces.menu.partition.GridPartition;
+import ironfurnaces.tileentity.furnaces.menu.partition.MovableGridPartition;
+import ironfurnaces.tileentity.furnaces.menu.partition.PagedGridPartition;
 import ironfurnaces.tileentity.furnaces.menu.slot.BooleanDataSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.IntDataSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.util.FuelBurnTimeUtil;
 import it.unimi.dsi.fastutil.ints.Int2FloatLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
+import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class FurnacePatternMenu extends DistributePartitionContainerMenu {
@@ -50,6 +59,9 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     int litTime;
     int litDuration;
     private ContainerData data;
+    private IdentityHashMap<DataSlot, Integer> indexMap = new IdentityHashMap<>();
+    @Getter
+    private final Map<String, AbstractCompatMenuHandler> allMenuHandlers;
 
 
     public FurnacePatternMenu(@Nullable MenuType<?> menuType, int containerId, FurnacePatternBlockEntity blockEntity, Inventory playerInventory, BlockPos pos, ContainerData data) {
@@ -62,8 +74,8 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         playerMainInv = this.addPartition(this.createPlayerMainInventoryPartition(playerInventory));
 
         Consumer<DynamicAccessSlot> noPlace = x -> x.appendMayPlaceCallback(() -> false);
-        this.furnaceInput = this.addPartition(new GridPartition(1, new Vector2i(56, 17), () -> getMode().equals(FurnaceMode.FURNACE), blockEntity.getInput(), 0, 1));
-        this.furnaceOutput = this.addPartition(new GridPartition(1, new Vector2i(116, 35), () -> getMode().equals(FurnaceMode.FURNACE), blockEntity.getOutput(), 0, 1)
+        this.furnaceInput = this.addPartition(new GridPartition(1, new Vector2i(56, 17), () -> getMode().isFurnace(), blockEntity.getInput(), 0, 1));
+        this.furnaceOutput = this.addPartition(new GridPartition(1, new Vector2i(116, 35), () -> getMode().isFurnace(), blockEntity.getOutput(), 0, 1)
                 .setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
                     DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition) {
                         @Override
@@ -81,9 +93,9 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                     noPlace.accept(dynamicAccessSlot);
                     return dynamicAccessSlot;
                 }));
-        this.factoryInput = addPartition(new PagedGridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(36, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getInput(), 0, 3, 3));
+        this.factoryInput = addPartition(new PagedGridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(36, 17), () -> getMode().isFactory(), blockEntity.getInput(), 0, 3, 3));
 
-        this.factoryOutput = addPartition(new PagedGridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(106, 17), () -> getMode().equals(FurnaceMode.FACTORY), blockEntity.getOutput(), 0, 3, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
+        this.factoryOutput = addPartition(new PagedGridPartition(blockEntity.usedStats.inputSlotAmount(), new Vector2i(106, 17), () -> getMode().isFactory(), blockEntity.getOutput(), 0, 3, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
             DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition) {
                 @Override
                 public void onTake(Player player, ItemStack stack) {
@@ -101,10 +113,10 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
             return dynamicAccessSlot;
         }));
 
-        this.fuel = addPartition(new MovableGridPartition(1, new Vector2i(56, 53), () -> getMode().equals(FurnaceMode.FURNACE) || getMode().equals(FurnaceMode.GENERATOR), blockEntity.getFuel(), 0, 1)
+        this.fuel = addPartition(new MovableGridPartition(1, new Vector2i(56, 53), () -> getMode().isFurnace() || getMode().isGenerator(), blockEntity.getFuel(), 0, 1)
                 .yMovementProvider(() -> {
                     int i = 53;
-                    i += getMode().equals(FurnaceMode.GENERATOR) ? -13 : 0;
+                    i += getMode().isGenerator() ? -13 : 0;
                     return i;
 
                 })
@@ -125,7 +137,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 } else {
                     slot = new PartitionAccessSlot(this.handler, containerIndex, x, y, this);
                 }
-                this.trackedSlot().add(slot);
+                this.getTrackedSlot().add(slot);
                 return slot;
             }
         }
@@ -144,12 +156,23 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
             return i;
 
         }).menuSlots(this.slots).withDynamicAccessSlot(noPlace));
-
+        this.allMenuHandlers = FurnaceModeManager.INSTANCE.getAllMenuHandlers(this);
 
         PartitionGroup playerInv = PartitionGroup.of(playerMainInv, playerHotBarInv);
         PartitionGroup allInput = PartitionGroup.of(factoryInput, furnaceInput);
         PartitionGroup allOutput = PartitionGroup.of(factoryOutput, furnaceOutput);
-        List<QuickMoveRule> build = QuickMoveRuleBuilder.create()
+        Collection<AbstractCompatMenuHandler> values = allMenuHandlers.values();
+        for (AbstractCompatMenuHandler allMenuHandler : values) {
+            allInput.addAll(allMenuHandler.getInput());
+            allOutput.addAll(allMenuHandler.getOutput());
+            for (Partition partition : allMenuHandler.getPartitions()) {
+                this.addPartition(partition);
+            }
+        }
+        var build = QuickMoveRuleBuilder.create()
+                .rule()
+                .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().getRecipeType()) > 0 && this.fuel.isAvailable())
+                .oneWay(playerInv, fuel)
                 .rule()
                 .when(x -> blockEntity.getInput().isItemValid(0, x.stack()))
                 .oneWay(playerInv, allInput)
@@ -162,12 +185,11 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 .rule()
                 .oneWay(this.fuel, playerInv)
                 .rule()
-                .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().recipeType.get()) > 0 && this.fuel.isAvailable())
-                .oneWay(playerInv, fuel)
-                .rule()
-                .bidirectional(playerInv, augment)
-                .build();
-        this.addQuickMoveRule(build);
+                .bidirectional(playerInv, augment);
+        for (AbstractCompatMenuHandler allMenuHandler : values) {
+            allMenuHandler.buildRule(build);
+        }
+        this.addQuickMoveRule(build.build());
 
 
         this.addDataSlot(new BooleanDataSlot(
@@ -216,10 +238,15 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 this.factoryOutput::getCurrentPage,
                 this.factoryOutput::setCurrentPage
         ));
+        for (AbstractCompatMenuHandler allMenuHandler : values) {
+            for (DataSlot dataSlot : allMenuHandler.getDataSlots()) {
+                this.addDataSlot(dataSlot);
+            }
+        }
 
     }
 
-    public FurnaceMode getMode() {
+    public AbstractFurnaceModeHandler getMode() {
         return this.blockEntity.getMode();
     }
 
@@ -273,6 +300,17 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         return this.litTime * 13 / i;
     }
 
+
+    @NotNull
+    @Override
+    protected DataSlot addDataSlot(@NotNull DataSlot intValue) {
+        this.indexMap.put(intValue, this.indexMap.size());
+        return super.addDataSlot(intValue);
+    }
+
+    public int getDataSlotIndex(DataSlot slot){
+        return this.indexMap.getOrDefault(slot, -1);
+    }
 
     @Override
     public boolean stillValid(Player player) {

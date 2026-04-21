@@ -17,14 +17,24 @@ public final class PartitionGroup {
 
         List<Partition> copy = new ArrayList<>(partitions.size());
         for (Partition partition : partitions) {
-            copy.add(Objects.requireNonNull(partition, "partition"));
+            copy.add(Objects.requireNonNull(partition, "partition is null"));
         }
-        this.partitions = List.copyOf(copy);
+        this.partitions = new ArrayList<>(copy);
     }
 
     public static PartitionGroup of(Partition... partitions) {
-        Objects.requireNonNull(partitions, "partitions");
+        Objects.requireNonNull(partitions, "partitions are null");
         return new PartitionGroup(Arrays.asList(partitions));
+    }
+
+    public PartitionGroup add(Partition partition){
+        this.partitions.add(partition);
+        return this;
+    }
+
+    public PartitionGroup addAll(Collection<Partition> partition){
+        this.partitions.addAll(partition);
+        return this;
     }
 
     public List<Partition> partitions() {

@@ -2,7 +2,7 @@ package ironfurnaces.tileentity.furnaces.pattern.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import ironfurnaces.items.JovialState;
-import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
+import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 
@@ -15,7 +15,7 @@ public final class PatternHolderVisualRenderer {
             boolean lit,
             Direction facing,
             JovialState jovial,
-            AugmentCache.HandlingRecipeType recipeType,
+            IRecipeTypeHandler recipeType,
             PoseStack poseStack,
             MultiBufferSource buffers,
             int packedLight,

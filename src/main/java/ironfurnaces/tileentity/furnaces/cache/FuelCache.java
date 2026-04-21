@@ -3,19 +3,17 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.furnaces.FurnaceMode;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
-import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
+import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 //? 1.20.1 {
 
@@ -26,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Accessors(fluent = true, chain = true)
-public class FuelCache extends ItemStackHandler implements IEnergyStorage, IModeSensitive, ICacheIndex, ICacheFillStats, IPatternSensitive {
+public class FuelCache extends ResizableCache implements IEnergyStorage {
     private final static int[] cacheIndex = new int[0];
         @Getter
     private FEnergyStorage energy;
@@ -35,11 +33,10 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     @Setter
     private Consumer<FuelCache> contentChangeCallback;
 
-
-    public FuelCache( FEnergyStorage energy) {
+    public FuelCache(AbstractFurnaceModeHandler mode, FEnergyStorage energy) {
+        super(mode);
         this.energy = energy;
     }
-
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
@@ -80,16 +77,18 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
         return burnableFunction.test(stack) || stack.getItem() instanceof ItemHeater;
     }
 
+    /*
+
     @Override
     public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
         if (mode.equals(FurnaceMode.FACTORY) && !this.stacks.isEmpty()){
-            blockEntity.addLevelRunnable(() -> {
+            blockEntity.addLevelConsumer(level -> {
                 blockEntity.returnOrDropStack(this.stacks, blockEntity.getOwner());
 
             });
         }
     }
-
+*/
     @Override
     protected void onContentsChanged(int slot) {
         if (contentChangeCallback != null) {
@@ -100,34 +99,17 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
     }
 
     @Override
-    public int[] getCacheIndex() {
-        return cacheIndex;
+    public void update(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
+        super.update(mode, recipeTypeHandler, stats, blockEntity);
+        this.energy.setCapacity(stats.energyCapacity());
+        this.energy.setMaxTransfer(stats.energyCapacity());
     }
-
-    private final FillStats fill_stats = new FillStats();
 
     @Override
-    public FillStats getFillStats() {
-        return fill_stats;
+    protected int updateSlotAmount(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
+        return FurnaceModeManager.INSTANCE.getMaxFuelSlot(stats);
     }
 
-    public void recomputeFillStats() {
-        int slots = getSlots();
-        fill_stats.slot_count = slots;
-        fill_stats.fill_sum = 0.0f;
-        fill_stats.non_empty = 0;
-
-        for (int i = 0; i < slots; i++) {
-            ItemStack s = getStackInSlot(i);
-            if (s.isEmpty()) continue;
-
-            fill_stats.non_empty++;
-            int cap = Math.min(getSlotLimit(i), s.getMaxStackSize());
-            if (cap > 0) {
-                fill_stats.fill_sum += (float) s.getCount() / (float) cap;
-            }
-        }
-    }
 
     @Override
     public CompoundTag serializeNBT() {
@@ -152,9 +134,4 @@ public class FuelCache extends ItemStackHandler implements IEnergyStorage, IMode
         recomputeFillStats();
     }
 
-    @Override
-    public void updateFurnacePatternStats(IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
-        this.energy.setCapacity(stats.energyCapacity());
-        this.energy.setMaxTransfer(stats.energyCapacity());
-    }
 }
