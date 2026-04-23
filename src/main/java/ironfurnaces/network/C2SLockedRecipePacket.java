@@ -31,9 +31,10 @@ public class C2SLockedRecipePacket implements C2SModPacket<C2SLockedRecipePacket
 
             if (recipeType instanceof FarmerDelightCookingRecipeTypeHandler handler){
                 if (handler.isLocking) {
-                    handler.resetLock();
+                    handler.setLockedRecipe(null);
                 } else {
                     handler.setLockedToLastRecipe();
+                    handler.sortByCurrentLockedRecipe(patternBlockEntity.getInput());
                 }
 
             }

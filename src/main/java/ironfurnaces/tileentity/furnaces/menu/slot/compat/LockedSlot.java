@@ -26,9 +26,6 @@ public class LockedSlot extends DynamicAccessSlot {
     @Nullable
     @Override
     public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-        /*if (menu.get().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler recipeTypeHandler){
-            return Pair.of(InventoryMenu.BLOCK_ATLAS, recipeTypeHandler.showAvailableItem(this.getSlotIndex()));
-        }*/
         return super.getNoItemIcon();
     }
 

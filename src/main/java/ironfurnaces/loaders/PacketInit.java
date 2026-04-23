@@ -10,6 +10,11 @@ public class PacketInit {
         NetworkUtils.registerPacket(S2CSyncFurnaceSpeedPacket::new);
         NetworkUtils.registerPacket(S2CSyncInstancesToMenuPackets::new);
         NetworkUtils.registerPacket(S2CSyncPatternAndStatsToMenuPackets::new);
+        NetworkUtils.registerPacket(S2CSyncFDDataPacket::new);
+
+
+
+
         NetworkUtils.registerPacket(C2SSettingsButtonPacket::new);
         NetworkUtils.registerPacket(C2SUpdateMenuPacket::new);
         NetworkUtils.registerPacket(C2SUpdateFurnaceSettingPacket::new);

@@ -598,7 +598,6 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     public void syncToViewer(S2CModPacket<?>... packet) {
         if (viewers.isEmpty()) return;
-        if (!hasLevel() || getLevel().isClientSide) return;
         Iterator<UUID> iterator = viewers.iterator();
         while (iterator.hasNext()) {
             UUID next = iterator.next();

@@ -7,11 +7,13 @@ import ironfurnaces.gui.furnaces.renderer.PatternScreenRenderHandlerManager;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.network.C2SUpdateFurnaceSettingPacket;
 import ironfurnaces.network.C2SUpdateMenuPacket;
+import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelightCookingRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.menu.MenuConstant;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.furnaces.setting.RelativeFaceHelper;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -33,7 +35,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
 
     public static final ResourceLocation WIDGET = IronFurnaces.gui("button_widget");
-
+    @Getter
     private AbstractPatternScreenRenderHandler renderHandler;
 
     protected ImageButton autoInputButton;

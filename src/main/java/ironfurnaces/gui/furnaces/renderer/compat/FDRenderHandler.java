@@ -2,6 +2,7 @@ package ironfurnaces.gui.furnaces.renderer.compat;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
+import com.mojang.blaze3d.systems.RenderSystem;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.gui.furnaces.component.BaseImageButton;
 import ironfurnaces.gui.furnaces.renderer.AbstractPatternScreenRenderHandler;
@@ -18,19 +19,25 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.LockIconButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.opengl.GL11;
 import vectorwing.farmersdelight.common.block.entity.container.CookingPotMenu;
+import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.utility.TextUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
     private static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocationUtils.make("farmersdelight", "textures/gui/cooking_pot.png");
@@ -45,7 +52,17 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         this.lockRecipeButton = new LockIconButton(0, 0, button -> {
             System.out.println("press");
             NetworkUtils.sendToServer(new C2SLockedRecipePacket(screen.getMenu().bePos));
-        });
+        }){
+            @Override
+            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+                if (this.isHovered() && screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                    List<Component> components = handler.buildTooltips(Minecraft.getInstance().level);
+                    guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
+                }
+
+            }
+        };
     }
 
     @Override
@@ -53,15 +70,19 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         return List.of(lockRecipeButton, energyArea);
     }
 
+    public void setLockedButtonActive(boolean active){
+        this.lockRecipeButton.active = active;
+    }
+
     @Override
     public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
-            System.out.println("1: " + handler.isLocking);
             this.lockRecipeButton.setLocked(handler.isLocking);
         } else {
-            System.out.println(2);
             this.lockRecipeButton.setLocked(false);
         }
+
+
         int guiLeft = screen.getGuiLeft();
         int guiTop = screen.getGuiTop();
 
@@ -88,6 +109,23 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         guiGraphics.blit(ENERGY_BAR, barX, barY, 0, 0, 14, 42, 28, 42);
         if (k > 0) {
             guiGraphics.blit(ENERGY_BAR, barX, barY + (barHeight - k), 14, k, 14, (barHeight - k), 14, k, 28, 42);
+        }
+        if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler && handler.isLocking){
+
+            for (int i = 0; i < 6; i++) {
+                ResourceLocation resourceLocation = handler.showAvailableItem(i, Minecraft.getInstance().level.getGameTime());
+                if (resourceLocation != null){
+                    Item value = ForgeRegistries.ITEMS.getValue(resourceLocation);
+                    if (value != null){
+                        int x = guiLeft + 30 + (i % 3) * 18;
+                        int y = guiTop + 17 + (i / 3) * 18;
+
+                        guiGraphics.renderItem(value.getDefaultInstance(), x, y);
+                        guiGraphics.fill(x, y, x + 16, y + 16, 0x80FFFFFF);
+                    }
+                }
+            }
+
         }
     }
 
@@ -120,5 +158,7 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
                 guiGraphics.renderTooltip(Minecraft.getInstance().font, slotUnderMouse.getItem(), x, y);
             }
         }
+
+
     }
 }

@@ -6,6 +6,11 @@ import net.minecraft.network.chat.Component;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModLangs {
+    public static final Component CURRENT_LOCKED_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "current_locked_recipe", "Current locked to recipe: %s");
+    public static final Component NO_CURRENT_LOCKED_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "no_current_locked_recipe", "No recipe locked");
+    public static final Component LAST_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "last_recipe", "The last recipe crafted is: %s");
+    public static final Component CLICK_TO_LOCK = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "click_to_lock", "Click to lock to the last crafted recipe");
+    public static final Component NO_LAST_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "no_last_recipe", "No last recipe can be locked");
     public static final Component TRANSFER_REMINDER = REGISTRATE.addRawLang("container.ironfurnaces.item_transfer." + "transfer_reminder", "The %1$s at %2$s has transferred items to your inventory due to the modification: ");
     public static final Component RAINBOW_FURNACE = REGISTRATE.addRawLang("block.ironfurnaces.rainbow_furnace", "Rainbow Furnace");
     public static final Component RESET_SETTING_HINT = REGISTRATE.addRawLang("item.ironfurnaces.furnace_pattern_holder." + "reset_setting_hint", "Sneak + shift will reset the Furnace setting.");

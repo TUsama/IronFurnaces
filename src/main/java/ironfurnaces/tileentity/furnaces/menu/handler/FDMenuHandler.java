@@ -1,7 +1,8 @@
 package ironfurnaces.tileentity.furnaces.menu.handler;
 
-import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.mojang.datafixers.util.Pair;
+import ironfurnaces.gui.furnaces.FurnacePatternScreen;
+import ironfurnaces.gui.furnaces.renderer.compat.FDRenderHandler;
 import ironfurnaces.network.S2CSyncFDDataPacket;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelightCookingRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
@@ -16,6 +17,7 @@ import ironfurnaces.tileentity.furnaces.menu.slot.compat.LockedSlot;
 import ironfurnaces.tileentity.furnaces.pattern.mode.compat.FDCompatModeHandler;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
@@ -33,8 +35,10 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
     private Partition foodContainer;
     private Partition meal;
     private TrackSlotPartition preMeal;
-    private BooleanDataSlot shouldActiveDataSlot;
-    private ContainerListener shouldActiveDataSlotListener;
+    private BooleanDataSlot isLockingDataSlot;
+    private BooleanDataSlot lockedRecipeChangeDataSlot;
+    private BooleanDataSlot lastRecipeChangeDataSlot;
+    private ContainerListener dataSlotListener;
     @Getter
     private boolean shouldActive = false;
     @Setter
@@ -52,17 +56,36 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
         });
 
         this.preMeal = new TrackSlotPartition(1, new Vector2i(124, 26), () -> getMenu().getMode().getId().equals(FDCompatModeHandler.ID), getMenu().blockEntity.getViewOnly(), 0, 1).setCreator((itemHandler, index, xPosition, yPosition, partition) -> new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition).appendMayPlaceCallback(() -> false).appendMayPickupCallback(() -> false));
-        this.shouldActiveDataSlot = new BooleanDataSlot(() -> {
+        this.isLockingDataSlot = new BooleanDataSlot(() -> {
             if (menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
-                return handler.isLocking;
+                return handler.getLockedRecipe() != null || handler.getLastRecipe() != null;
             }
             return false;
         }, x -> {
-            if (menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
-                handler.isLocking = x;
+            if (Minecraft.getInstance().screen instanceof FurnacePatternScreen screen && screen.getRenderHandler() instanceof FDRenderHandler fdRenderHandler){
+                fdRenderHandler.setLockedButtonActive(x);
             }
         });
-        this.shouldActiveDataSlotListener = new ContainerListener() {
+
+        this.lockedRecipeChangeDataSlot = new BooleanDataSlot(() -> {
+            if (menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                return handler.getLockedRecipe() == null;
+            }
+            return false;
+        }, x -> {
+
+        });
+
+        this.lastRecipeChangeDataSlot = new BooleanDataSlot(() -> {
+            if (menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                return handler.getLastRecipe() == null;
+            }
+            return false;
+        }, x -> {
+
+        });
+
+        this.dataSlotListener = new ContainerListener() {
             @Override
             public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
 
@@ -70,11 +93,20 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
 
             @Override
             public void dataChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
-                var menu = (FurnacePatternMenu) containerMenu;
-                if (dataSlotIndex == menu.getDataSlotIndex(shouldActiveDataSlot) && menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
-                    menu.blockEntity.syncToViewer(new S2CSyncFDDataPacket(handler.getLockedRecipe().getId()));
-
+                if (containerMenu instanceof FurnacePatternMenu menu){
+                    if ((dataSlotIndex == menu.getDataSlotIndex(isLockingDataSlot) || dataSlotIndex == menu.getDataSlotIndex(lockedRecipeChangeDataSlot) || dataSlotIndex == menu.getDataSlotIndex(lastRecipeChangeDataSlot)) && menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                        ResourceLocation locked = handler.getLockedRecipe() != null ? handler.getLockedRecipe().getId() : null;
+                        ResourceLocation last = handler.getLastRecipe() != null ? handler.getLastRecipe().getId() : null;
+                        System.out.println("the locked is: " + locked + ", the last is: " + last);
+                        System.out.println("the level is client? " + menu.blockEntity.getLevel().isClientSide);
+                        if (menu.blockEntity.hasLevel() && !menu.blockEntity.getLevel().isClientSide && menu.player.containerMenu instanceof FurnacePatternMenu) {
+                            menu.blockEntity.syncToViewer(new S2CSyncFDDataPacket(locked, last));
+                        } else {
+                            System.out.println("too early, is not FurnacePatternMenu!");
+                        }
+                    }
                 }
+
             }
         };
         this.meal = new GridPartition(1, new Vector2i(124, 55), () -> getMenu().getMode().getId().equals(FDCompatModeHandler.ID), getMenu().blockEntity.getOutput(), 0, 1);
@@ -99,12 +131,12 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
 
     @Override
     public List<DataSlot> getDataSlots() {
-        return List.of(shouldActiveDataSlot);
+        return List.of(isLockingDataSlot, lockedRecipeChangeDataSlot, lastRecipeChangeDataSlot);
     }
 
     @Override
     public List<ContainerListener> getDataContainerListener() {
-        return List.of();
+        return List.of(dataSlotListener);
     }
 
     @Override

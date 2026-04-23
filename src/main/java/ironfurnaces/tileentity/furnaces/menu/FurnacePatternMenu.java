@@ -50,6 +50,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     public final MovableGridPartition augment;
     public Int2FloatLinkedOpenHashMap instances = new Int2FloatLinkedOpenHashMap();
     public BlockPos bePos;
+    public Player player;
     @Getter
     public boolean openSetting = false;
     @Getter
@@ -70,6 +71,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         this.bePos = pos;
         this.data = data;
         addDataSlots(data);
+        this.player = playerInventory.player;
         playerHotBarInv = this.addPartition(this.createPlayerHotbarPartition(playerInventory));
         playerMainInv = this.addPartition(this.createPlayerMainInventoryPartition(playerInventory));
 
@@ -242,7 +244,11 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
             for (DataSlot dataSlot : allMenuHandler.getDataSlots()) {
                 this.addDataSlot(dataSlot);
             }
+            for (ContainerListener containerListener : allMenuHandler.getDataContainerListener()) {
+                addSlotListener(containerListener);
+            }
         }
+        System.out.println("menu init");
 
     }
 

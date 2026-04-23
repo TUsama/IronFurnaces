@@ -13,23 +13,43 @@ import java.util.Optional;
 
 public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
     private ResourceLocation lockedRecipe;
+    private ResourceLocation lastRecipe;
 
     public S2CSyncFDDataPacket() {
     }
 
-    public S2CSyncFDDataPacket(ResourceLocation lockedRecipe) {
+    public S2CSyncFDDataPacket(ResourceLocation lockedRecipe, ResourceLocation lastRecipe) {
         this.lockedRecipe = lockedRecipe;
+        this.lastRecipe = lastRecipe;
     }
 
     @Override
     public void handleClient() {
+        System.out.println("handle on client!");
         if (Minecraft.getInstance().screen instanceof FurnacePatternScreen patternScreen){
             if (patternScreen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler) {
-                Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lockedRecipe);
-                if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
-                    handler.setLastRecipe(cookingPotRecipe);
-                    handler.setLockedToLastRecipe();
+                if (lockedRecipe != null) {
+                    Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lockedRecipe);
+                    if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
+                        System.out.println("set lockedRecipe to: " + lockedRecipe);
+                        handler.setLockedRecipe(cookingPotRecipe);
+                    }
+                    handler.isLocking = true;
+                } else {
+                    handler.setLockedRecipe(null);
+                    handler.isLocking = false;
                 }
+                if (lastRecipe != null) {
+                    Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lastRecipe);
+                    if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
+                        System.out.println("set lastRecipe to: " + lastRecipe);
+                        handler.setLastRecipe(cookingPotRecipe);
+
+                    }
+                } else {
+                    handler.setLastRecipe(null);
+                }
+
 
             }
         }
@@ -37,12 +57,36 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
 
     @Override
     public void write(FriendlyByteBuf friendlyByteBuf) {
-        friendlyByteBuf.writeResourceLocation(lockedRecipe);
+        if (lockedRecipe != null){
+            friendlyByteBuf.writeResourceLocation(lockedRecipe);
+        } else {
+            friendlyByteBuf.writeUtf("null");
+        }
+
+        if (lastRecipe != null){
+            friendlyByteBuf.writeResourceLocation(lastRecipe);
+        } else {
+            friendlyByteBuf.writeUtf("null");
+        }
+
     }
 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
-        this.lockedRecipe = friendlyByteBuf.readResourceLocation();
+        String s = friendlyByteBuf.readUtf();
+        if (s.equals("null")){
+            this.lockedRecipe = null;
+        } else {
+            this.lockedRecipe = ResourceLocation.tryParse(s);
+        }
+
+        String s2 = friendlyByteBuf.readUtf();
+        if (s2.equals("null")){
+            this.lastRecipe = null;
+        } else {
+            this.lastRecipe = ResourceLocation.tryParse(s2);
+        }
+
     }
 
     @Override
