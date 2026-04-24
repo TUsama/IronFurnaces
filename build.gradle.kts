@@ -254,13 +254,13 @@ stonecutter {
     }
 
     replacements.string(current.version > "1.20.1", "replace_INBTSerializable") {
-        replace("public CompoundTag getUpdateTag()", "public CompoundTag getUpdateTag(HolderLookup.Provider registries)")
-        replace("public void load(CompoundTag tag)", "public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries)")
+        replace(" CompoundTag getUpdateTag()", " CompoundTag getUpdateTag(HolderLookup.Provider registries)")
+        replace(" void load(CompoundTag tag)", " void loadAdditional(CompoundTag tag, HolderLookup.Provider registries)")
         replace("void saveAdditional(CompoundTag tag)", "void saveAdditional(CompoundTag tag, HolderLookup.Provider registries)")
         replace("super.saveAdditional(tag);", "super.saveAdditional(tag, registries);")
-        replace("public CompoundTag serializeNBT()", "public CompoundTag serializeNBT(HolderLookup.Provider registries)")
-        replace("public void deserializeNBT(CompoundTag nbt)", "public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt)")
-        replace("public void deserializeNBT(CompoundTag compoundTag)", "public void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag)")
+        replace(" CompoundTag serializeNBT()", " CompoundTag serializeNBT(HolderLookup.Provider registries)")
+        replace(" void deserializeNBT(CompoundTag nbt)", " void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt)")
+        replace(" void deserializeNBT(CompoundTag compoundTag)", " void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag)")
         replace("super.load(tag);", "super.loadAdditional(tag, registries);")
         replace("serializeNBT()", "serializeNBT(registries)")
         replace("deserializeNBT(tag", "deserializeNBT(registries, tag")

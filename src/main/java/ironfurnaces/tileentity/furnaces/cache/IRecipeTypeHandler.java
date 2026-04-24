@@ -1,16 +1,19 @@
+//~ replace_INBTSerializable
+//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.common.util.INBTSerializable;
-
+//? 1.20.1 {
+//?} else {
+//?}
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -23,14 +26,15 @@ public interface IRecipeTypeHandler extends INBTSerializable<CompoundTag> {
 
     void provideInstance(FurnacePatternBlockEntity blockEntity);
     List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode);
-    default Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck, List<ItemStack> stacks){
-        //~ if >1.20.1 'SimpleContainer' -> 'SingleRecipeInput'
-        return quickCheck.apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SimpleContainer(stacks.toArray(new ItemStack[0])), blockEntity.getLevel());
+    default Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks){
+        //~ if >1.20.1 'SimpleContainer(stacks.toArray(new ItemStack[0]))' -> 'SingleRecipeInput(stacks.get(0))'
+        return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SimpleContainer(stacks.toArray(new ItemStack[0])), blockEntity.getLevel());
+    }
+    default boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks){
+        return getRecipe(blockEntity, stacks).isPresent();
     }
 
-    default boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck, List<ItemStack> stacks){
-        return getRecipe(blockEntity, quickCheck, stacks).isPresent();
-    }
+
 
     @Override
     default CompoundTag serializeNBT(){

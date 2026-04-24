@@ -49,7 +49,7 @@ public class PatternHolderBlockEntityRenderer implements BlockEntityRenderer<Fur
                 lit,
                 facing,
                 jovial,
-                SmeltRecipeTypeHandler.INSTANCE,
+                be.getAugments().getCurrentRecipeType(),
                 poseStack,
                 buffers,
                 packedLight,

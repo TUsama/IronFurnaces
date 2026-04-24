@@ -20,6 +20,7 @@ public class MealTransfer extends ProcessingInstance {
         var recipe = tile.getRecipe(ItemStack.EMPTY);
         ItemStack currentContainer = tile.getInput().getStackInSlot(Cooking.CONTAINER);
         ItemStack preMeal = tile.getViewOnly().getStackInSlot(Cooking.PREMEAL);
+        //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
         if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe) {
             ItemStack outputContainer = cookingPotRecipe.getOutputContainer();
             return currentContainer.is(outputContainer.getItem()) && preMeal.is(cookingPotRecipe.getResultItem(tile.getLevel().registryAccess()).getItem());
@@ -44,7 +45,7 @@ public class MealTransfer extends ProcessingInstance {
 
         ItemStack currentContainer = tile.getInput().getStackInSlot(Cooking.CONTAINER);
         ItemStack preMeal = tile.getViewOnly().getStackInSlot(Cooking.PREMEAL);
-
+        //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
         if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe) {
 
             ItemStack outputContainer = cookingPotRecipe.getOutputContainer();

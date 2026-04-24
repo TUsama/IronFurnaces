@@ -96,7 +96,6 @@ public final class PatternPreviewTextureResolver {
 
         type.buildTextureName(s);
 
-
         strings[1] = s.toString();
         return strings;
     }

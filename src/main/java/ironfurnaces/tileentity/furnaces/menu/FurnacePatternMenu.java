@@ -248,7 +248,6 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 addSlotListener(containerListener);
             }
         }
-        System.out.println("menu init");
 
     }
 

@@ -54,7 +54,8 @@ public class Cooking extends ProcessingInstance {
     @Override
     public boolean needLit(FurnacePatternBlockEntity tile) {
         if (tile.getInput().getFillStats().fillRatio() > 0f) {
-            Optional<? extends Recipe> recipe = tile.getRecipe(ItemStack.EMPTY);
+            var recipe = tile.getRecipe(ItemStack.EMPTY);
+            //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
             if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe) {
                 ItemStack resultItem = cookingPotRecipe.getResultItem(tile.getLevel().registryAccess()).copy();
                 if (resultItem.isEmpty()) return false;
@@ -82,6 +83,7 @@ public class Cooking extends ProcessingInstance {
         //这里不用能cache，性能会稍微差一些，不过应该不会有人堆厨锅阵列……
         //因为cache存的只有一个物品
         var recipe = tile.getRecipe(ItemStack.EMPTY);
+        //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
         if (recipe.isEmpty() || !(recipe.get() instanceof CookingPotRecipe cookingPotRecipe)) return TickResult.DISCARD;
         ItemStack resultItem = cookingPotRecipe.getResultItem(tile.getLevel().registryAccess()).copy();
         resultItem.setCount(resultItem.getCount() * batch);
@@ -105,10 +107,10 @@ public class Cooking extends ProcessingInstance {
     public void whenDone(FurnacePatternBlockEntity tile) {
 
         Level level = tile.getLevel();
-        Optional<? extends Recipe> recipe = tile.getRecipe(ItemStack.EMPTY);
+        var recipe = tile.getRecipe(ItemStack.EMPTY);
         if (recipe.isPresent()){
-            Recipe recipe1 = recipe.get();
-            //~ if >1.20.1 'x.getResultItem' -> 'x.value().getResultItem'
+            var recipe1 = recipe.get();
+            //~ if >1.20.1 'recipe1.getResultItem' -> 'recipe1.value().getResultItem'
             ItemStack resultItem = recipe1.getResultItem(level.registryAccess()).copy();
             resultItem.setCount(resultItem.getCount() * batch);
             tile.getViewOnly().insertItem(PREMEAL, resultItem, false);
@@ -121,6 +123,7 @@ public class Cooking extends ProcessingInstance {
                 tile.setRecipeUsed(recipe1);
             }
             if (tile.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler) {
+                //~ if >1.20.1 '((CookingPotRecipe) recipe1)' -> 'recipe1'
                 handler.setLastRecipe(((CookingPotRecipe) recipe1));
             }
             super.whenDone(tile);

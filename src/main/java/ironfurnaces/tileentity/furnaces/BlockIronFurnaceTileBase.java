@@ -30,6 +30,7 @@ import ironfurnaces.util.LRUCache;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -1682,16 +1683,14 @@ RecipeHolder,
         }
 
         if (ModUtils.isModLoaded("pmmo")) {
-            handleSmeltedPMMO(input, level, worldPosition);
+            //~ if >1.20.1 'input' -> 'input, result.copyWithCount(totalOutput)'
+            FurnaceHandler.handle(new FurnaceBurnEvent(input, level, worldPosition));
         }
 
         input.shrink(operations);
     }
 
-
-    private void handleSmeltedPMMO(ItemStack stack, Level level, BlockPos pos) {
-        FurnaceHandler.handle(new FurnaceBurnEvent(stack, level, pos));
-    }
+    
 
 
     @Override

@@ -2,6 +2,8 @@ package ironfurnaces.gui.furnaces.renderer;
 
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHandler{
 
@@ -23,7 +25,7 @@ public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHand
             guiGraphics.blit(VANILLA, i + 56, j + 36 + 12 - k, 176, 12 - k, 14, k + 1);
             //? } else {
             /*int k = 14;
-            int l = Mth.ceil(this.menu.getLitProgress()) + 1;
+            int l = Mth.ceil(screen.getMenu().getLitProgress()) + 1;
             guiGraphics.blitSprite(VANILLA_LIT_PROGRESS, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
             *///?}
 

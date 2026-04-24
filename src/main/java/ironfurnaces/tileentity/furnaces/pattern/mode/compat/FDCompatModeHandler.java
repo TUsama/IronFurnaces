@@ -46,7 +46,7 @@ public class FDCompatModeHandler extends CompatModeHandler {
     @NotNull
     @Override
     public Rect2i getArea(FurnacePatternMenu menu) {
-        return new Rect2i(79, 35, 23, 16);
+        return new Rect2i(89, 26, 23, 16);
     }
 
     @Override

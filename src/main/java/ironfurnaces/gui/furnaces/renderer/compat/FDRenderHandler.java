@@ -2,37 +2,31 @@ package ironfurnaces.gui.furnaces.renderer.compat;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
-import com.mojang.blaze3d.systems.RenderSystem;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
-import ironfurnaces.gui.furnaces.component.BaseImageButton;
 import ironfurnaces.gui.furnaces.renderer.AbstractPatternScreenRenderHandler;
 import ironfurnaces.gui.furnaces.renderer.FactoryRenderHandler;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.network.C2SLockedRecipePacket;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelightCookingRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
-import ironfurnaces.tileentity.furnaces.menu.handler.FDMenuHandler;
-import ironfurnaces.tileentity.furnaces.pattern.mode.compat.FDCompatModeHandler;
-import ironfurnaces.tileentity.furnaces.pattern.mode.internal.FactoryModeHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.LockIconButton;
-import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.lwjgl.opengl.GL11;
-import vectorwing.farmersdelight.common.block.entity.container.CookingPotMenu;
-import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.utility.TextUtils;
+//? 1.20.1 {
+import net.minecraftforge.registries.ForgeRegistries;
+//?} else {
+//?}
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -50,13 +44,15 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
     public FDRenderHandler(FurnacePatternScreen screen) {
         super(screen);
         this.lockRecipeButton = new LockIconButton(0, 0, button -> {
-            System.out.println("press");
             NetworkUtils.sendToServer(new C2SLockedRecipePacket(screen.getMenu().bePos));
-        }){
+        }) {
             @Override
             public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                    this.active = handler.getLastRecipe() != null || handler.getLockedRecipe() != null;
+                }
                 super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-                if (this.isHovered() && screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+                if (this.isHovered() && screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler) {
                     List<Component> components = handler.buildTooltips(Minecraft.getInstance().level);
                     guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
                 }
@@ -70,13 +66,10 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         return List.of(lockRecipeButton, energyArea);
     }
 
-    public void setLockedButtonActive(boolean active){
-        this.lockRecipeButton.active = active;
-    }
 
     @Override
     public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
+        if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler) {
             this.lockRecipeButton.setLocked(handler.isLocking);
         } else {
             this.lockRecipeButton.setLocked(false);
@@ -110,13 +103,14 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         if (k > 0) {
             guiGraphics.blit(ENERGY_BAR, barX, barY + (barHeight - k), 14, k, 14, (barHeight - k), 14, k, 28, 42);
         }
-        if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler && handler.isLocking){
+        if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler && handler.isLocking) {
 
             for (int i = 0; i < 6; i++) {
                 ResourceLocation resourceLocation = handler.showAvailableItem(i, Minecraft.getInstance().level.getGameTime());
-                if (resourceLocation != null){
+                if (resourceLocation != null) {
+                    //~ if >1.20.1 'ForgeRegistries.ITEMS.getValue' -> 'BuiltInRegistries.ITEM.get'
                     Item value = ForgeRegistries.ITEMS.getValue(resourceLocation);
-                    if (value != null){
+                    if (value != null) {
                         int x = guiLeft + 30 + (i % 3) * 18;
                         int y = guiTop + 17 + (i / 3) * 18;
 
@@ -145,6 +139,7 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
                 List<Component> tooltip = new ArrayList<>();
 
                 ItemStack mealStack = slotUnderMouse.getItem();
+                //~ if >1.20.1 '.color' -> '.color()'
                 tooltip.add(((MutableComponent) mealStack.getItem().getDescription()).withStyle(mealStack.getRarity().color));
 
                 ItemStack containerStack = slotUnderMouse.getItem().getCraftingRemainingItem();

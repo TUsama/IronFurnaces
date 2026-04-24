@@ -8,7 +8,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
+//? 1.20.1 {
 
+//?} else {
+/*
+import net.minecraft.world.item.crafting.RecipeHolder;
+*/
+//?}
 import java.util.Optional;
 
 public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
@@ -25,13 +31,13 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
 
     @Override
     public void handleClient() {
-        System.out.println("handle on client!");
         if (Minecraft.getInstance().screen instanceof FurnacePatternScreen patternScreen){
             if (patternScreen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler) {
                 if (lockedRecipe != null) {
-                    Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lockedRecipe);
+                    var recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lockedRecipe);
+                    //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
                     if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
-                        System.out.println("set lockedRecipe to: " + lockedRecipe);
+                        //~ if >1.20.1 'cookingPotRecipe' -> '((RecipeHolder<CookingPotRecipe>) recipe.get())'
                         handler.setLockedRecipe(cookingPotRecipe);
                     }
                     handler.isLocking = true;
@@ -40,9 +46,10 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
                     handler.isLocking = false;
                 }
                 if (lastRecipe != null) {
-                    Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lastRecipe);
+                    var recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lastRecipe);
+                    //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
                     if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
-                        System.out.println("set lastRecipe to: " + lastRecipe);
+                        //~ if >1.20.1 'cookingPotRecipe' -> '((RecipeHolder<CookingPotRecipe>) recipe.get())'
                         handler.setLastRecipe(cookingPotRecipe);
 
                     }

@@ -1,5 +1,6 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
+import com.mojang.serialization.MapCodec;
 import ironfurnaces.Config;
 import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
@@ -26,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

@@ -8,6 +8,7 @@ import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
+import ironfurnaces.network.S2CSyncAugmentPacket;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
 import ironfurnaces.tileentity.furnaces.cache.*;
@@ -656,11 +657,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     public Optional<? extends Recipe> getRecipe(@NotNull ItemStack stack) {
-        return this.getAugments().getCurrentRecipeType().getRecipe(this, quickCheck, List.of(stack));
+        return this.getAugments().getCurrentRecipeType().getRecipe(this, List.of(stack));
     }
 
     private boolean allowPlaceItem(@NotNull ItemStack stack){
-        return this.getAugments().getCurrentRecipeType().allowPlaceItem(this, quickCheck, List.of(stack));
+        return this.getAugments().getCurrentRecipeType().allowPlaceItem(this, List.of(stack));
     }
 
     private void tryProcessInput() {

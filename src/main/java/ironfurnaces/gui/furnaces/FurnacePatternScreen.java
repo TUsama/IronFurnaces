@@ -72,7 +72,6 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
     public FurnacePatternScreen(FurnacePatternMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
-        updateRenderHandler(menu.getMode().getId());
     }
 
     @Override
@@ -241,7 +240,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         this.addRenderableWidget(leftIoButton);
         this.addRenderableWidget(rightIoButton);
         this.addRenderableWidget(faceIoButton);
-
+        updateRenderHandler(menu.getMode().getId());
 
         // =========================
         // remaining

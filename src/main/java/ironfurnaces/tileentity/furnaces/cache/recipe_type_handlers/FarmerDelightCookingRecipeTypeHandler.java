@@ -1,9 +1,10 @@
+//~ replace_INBTSerializable
+//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers;
 
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
-import ironfurnaces.tileentity.furnaces.cache.InputCache;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
@@ -11,41 +12,43 @@ import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import ironfurnaces.tileentity.furnaces.process.compat.MealTransfer;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.Minecraft;
+import net.minecraft.Util;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.ArrayUtils;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
 import vectorwing.farmersdelight.integration.jei.FDRecipeTypes;
+//? 1.20.1 {
+import net.minecraftforge.registries.ForgeRegistries;
+//?} else {
+//?}
 
 import java.util.*;
-import java.util.function.Function;
 
 public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler {
     @Setter
     @Getter
+            //~ if >1.20.1 'CookingPotRecipe' -> 'RecipeHolder<CookingPotRecipe>'
     private CookingPotRecipe lastRecipe;
     @Getter
     @Setter
+            //~ if >1.20.1 'CookingPotRecipe' -> 'RecipeHolder<CookingPotRecipe>'
     private CookingPotRecipe lockedRecipe;
     private ResourceLocation tempResourceLocation;
 
     public boolean isLocking;
+    private RecipeManager.CachedCheck<RecipeWrapper, ?> quickCheck = RecipeManager.createCheck(ModRecipeTypes.COOKING.get());
 
     public static FarmerDelightCookingRecipeTypeHandler getInstance() {
         return new FarmerDelightCookingRecipeTypeHandler();
@@ -58,12 +61,12 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     }
 
     @Override
-    public Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck, List<ItemStack> stacks) {
-        return quickCheck.apply(ModRecipeTypes.COOKING.get()).getRecipeFor(new RecipeWrapper(blockEntity.getInput()), blockEntity.getLevel());
+    public Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
+        return this.quickCheck.getRecipeFor(new RecipeWrapper(blockEntity.getInput()), blockEntity.getLevel());
     }
 
     @Override
-    public boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck, List<ItemStack> stacks) {
+    public boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
         //let the LockedSlot handle the place
         return true;
     }
@@ -83,6 +86,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         IFurnaceStats<?> usedStats = blockEntity.getUsedStats();
         ProcessingInstanceManager instanceManager = blockEntity.getInstanceManager();
         blockEntity.getRecipe(ItemStack.EMPTY)
+                //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
                 .filter(x -> x instanceof CookingPotRecipe)
                 .ifPresent(x -> {
                     if (!instanceManager.getWorkingIndexes().contains(0)) instanceManager.addInstance(new Cooking(usedStats.smeltTick(), 1));
@@ -103,6 +107,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     public CompoundTag serializeNBT() {
         CompoundTag compoundTag = new CompoundTag();
         if (lockedRecipe != null) {
+            //~ if >1.20.1 'lockedRecipe.getId()' -> 'lockedRecipe.id()'
             compoundTag.putString("CookingPotRecipeId", lockedRecipe.getId().toString());
         }
 
@@ -135,7 +140,9 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         if (lockedRecipe == null) {
             if (tempResourceLocation != null) {
                 level.getRecipeManager().byKey(tempResourceLocation)
+                        //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
                         .filter(x -> x instanceof CookingPotRecipe)
+                        //~ if >1.20.1 'lockedRecipe = (CookingPotRecipe) x' -> 'lockedRecipe = (RecipeHolder<CookingPotRecipe>) x'
                         .ifPresent(x -> lockedRecipe = (CookingPotRecipe) x);
                 tempResourceLocation = null;
             } else {
@@ -145,6 +152,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
 
         }
         isLocking = true;
+        //~ if >1.20.1 'lockedRecipe.getIngredients()' -> 'lockedRecipe.value().getIngredients()'
         NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
         if (i > ingredients.size() - 1) {
             return false;
@@ -156,25 +164,29 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
 
     public ResourceLocation showAvailableItem(int i, long gameTime) {
         if (lockedRecipe == null) return null;
-        if (i < 0 || i >= lockedRecipe.getIngredients().size()) return null;
+        //~ if >1.20.1 'lockedRecipe.getIngredients()' -> 'lockedRecipe.value().getIngredients()'
+        NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
+        if (i < 0 || i >= ingredients.size()) return null;
 
-        ItemStack[] items = lockedRecipe.getIngredients().get(i).getItems();
+        ItemStack[] items = ingredients.get(i).getItems();
         if (ArrayUtils.isEmpty(items)) return null;
 
         int period = 20; // 每秒切换一次
         int index = (int) ((gameTime / period) % items.length);
-
+        //~ if >1.20.1 'ForgeRegistries.ITEMS' -> 'BuiltInRegistries.ITEM'
         return ForgeRegistries.ITEMS.getKey(items[index].getItem());
     }
 
     public List<Component> buildTooltips(Level level){
         ArrayList<Component> components = new ArrayList<>();
         if (this.lockedRecipe != null){
+            //~ if >1.20.1 'lockedRecipe' -> 'lockedRecipe.value()'
             ItemStack resultItem = lockedRecipe.getResultItem(level.registryAccess());
             components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.current_locked_recipe", Component.literal(resultItem.getCount() + "x ").append(resultItem.getDisplayName())));
         } else {
             components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.no_current_locked_recipe"));
             if (lastRecipe != null){
+                //~ if >1.20.1 'lastRecipe' -> 'lastRecipe.value()'
                 ItemStack resultItem = lastRecipe.getResultItem(level.registryAccess());
                 components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.last_recipe", Component.literal(resultItem.getCount() + "x ").append(resultItem.getDisplayName())));
                 components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.click_to_lock"));
@@ -200,7 +212,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
             }
             return leftovers;
         }
-
+        //~ if >1.20.1 'lockedRecipe' -> 'lockedRecipe.value()'
         NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
         int totalSlots = modifiable.getSlots();
         int arrangeSlots = Math.min(totalSlots, ingredients.size());
@@ -433,24 +445,23 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     }
 
     private static final class ItemStackKey {
-        private final Item item;
-        private final CompoundTag tag;
+        private final ItemStack stack;
+
 
         ItemStackKey(ItemStack stack) {
-            this.item = stack.getItem();
-            this.tag = stack.getTag() == null ? null : stack.getTag().copy();
+            this.stack = stack;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (!(obj instanceof ItemStackKey other)) return false;
-            return this.item == other.item && Objects.equals(this.tag, other.tag);
+            return ItemHandlerHelper.canItemStacksStack(this.stack, other.stack);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(item, tag);
+            return Objects.hash(stack);
         }
     }
 

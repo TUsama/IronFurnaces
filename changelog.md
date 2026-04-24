@@ -1,3 +1,7 @@
+### 0.4.0
+add Farmer Delight Cooking Pot compat, when FD installed, Cooking Pot augment will be registered. The furnace will act like a cooking pot when augment is used. The cooking speed is same as the smelt speed. cooking pot mode will use energy as fuel.
+Add a recipe lock function when furnace is in cooking pot mode.
+
 ### 0.3.2
 code refactor for mod compat
 fuel will go to fuel slot firstly 
