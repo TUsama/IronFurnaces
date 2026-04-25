@@ -15,6 +15,7 @@ import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.compat.LockedSlot;
 import ironfurnaces.tileentity.furnaces.pattern.mode.compat.FDCompatModeHandler;
+import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -128,6 +129,10 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
 
     @Override
     public QuickMoveRuleBuilder buildRule(QuickMoveRuleBuilder builder) {
+        builder
+                .rule()
+                .when(x -> !getMenu().blockEntity.getViewOnly().getStackInSlot(Cooking.PREMEAL).isEmpty() && getMenu().blockEntity.getInput().isItemValid(Cooking.CONTAINER, x.stack()) && getMenu().blockEntity.getInput().insertItem(Cooking.CONTAINER, x.stack(), true).isEmpty())
+                .bidirectional(getMenu().getPlayerInv(), foodContainer);
         return builder;
     }
 }

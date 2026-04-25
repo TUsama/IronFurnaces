@@ -77,9 +77,11 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
         int visibleRows = 3;
         int pageSize = columns * visibleRows;
         FurnacePatternMenu menu = screen.getMenu();
-        int currentPage = menu.factoryInput.getCurrentPage();
+
+        var input = menu.getFactoryInput();
+        int currentPage = input.getCurrentPage();
         int startIndex = currentPage * pageSize;
-        int endIndex = Math.min(startIndex + pageSize, menu.factoryInput.size);
+        int endIndex = Math.min(startIndex + pageSize, input.size);
         int slotIndex = 0;
         for (int index = startIndex; index < endIndex; index++) {
             int indexInPage = index % pageSize;
@@ -115,7 +117,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
         if (l > 0) {
             guiGraphics.blit(texture, barX, barY + (barHeight - l), 176, 14 + (barHeight - l), 14, l);
         }
-        if (menu.factoryInput.getPageCount() > 1) {
+        if (input.getPageCount() > 1) {
             pageGroup.activeAll();
         } else {
             pageGroup.deactivateAll();

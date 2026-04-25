@@ -35,22 +35,26 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
+@Getter
 public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     public static final String ID = "furnace_pattern_menu";
     public final FurnacePatternBlockEntity blockEntity;
-    public final Partition playerMainInv;
-    public final Partition playerHotBarInv;
-    public final Partition furnaceInput;
-    public final Partition furnaceOutput;
-    public final PagedGridPartition factoryInput;
-    public final PagedGridPartition factoryOutput;
-    public final MovableGridPartition remaining;
-    public final MovableGridPartition fuel;
-    public final MovableGridPartition augment;
+    private final Partition playerMainInv;
+    private final Partition playerHotBarInv;
+    private final Partition furnaceInput;
+    private final Partition furnaceOutput;
+    private final PagedGridPartition factoryInput;
+    private final PagedGridPartition factoryOutput;
+    private final MovableGridPartition remaining;
+    private final MovableGridPartition fuel;
+    private final MovableGridPartition augment;
+    private final PartitionGroup playerInv;
+    private final PartitionGroup allInput;
+    private final PartitionGroup allOutput;
+
     public Int2FloatLinkedOpenHashMap instances = new Int2FloatLinkedOpenHashMap();
-    public BlockPos bePos;
-    public Player player;
+    public final BlockPos bePos;
+    public final Player player;
     @Getter
     public boolean openSetting = false;
     @Getter
@@ -160,9 +164,9 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         }).menuSlots(this.slots).withDynamicAccessSlot(noPlace));
         this.allMenuHandlers = FurnaceModeManager.INSTANCE.getAllMenuHandlers(this);
 
-        PartitionGroup playerInv = PartitionGroup.of(playerMainInv, playerHotBarInv);
-        PartitionGroup allInput = PartitionGroup.of(factoryInput, furnaceInput);
-        PartitionGroup allOutput = PartitionGroup.of(factoryOutput, furnaceOutput);
+        this.playerInv = PartitionGroup.of(playerMainInv, playerHotBarInv);
+        this.allInput = PartitionGroup.of(factoryInput, furnaceInput);
+        this.allOutput = PartitionGroup.of(factoryOutput, furnaceOutput);
         Collection<AbstractCompatMenuHandler> values = allMenuHandlers.values();
         for (AbstractCompatMenuHandler allMenuHandler : values) {
             allInput.addAll(allMenuHandler.getInput());
@@ -175,11 +179,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 .rule()
                 .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().getRecipeType()) > 0 && this.fuel.isAvailable())
                 .oneWay(playerInv, fuel)
-                .rule()
-                .when(x -> blockEntity.getInput().isItemValid(0, x.stack()))
-                .oneWay(playerInv, allInput)
-                .rule()
-                .oneWay(allInput, playerInv)
+
                 .rule()
                 .oneWay(allOutput, playerInv)
                 .rule()
@@ -191,8 +191,14 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         for (AbstractCompatMenuHandler allMenuHandler : values) {
             allMenuHandler.buildRule(build);
         }
-        this.addQuickMoveRule(build.build());
 
+        build.rule()
+                .when(x -> blockEntity.getInput().isItemValid(0, x.stack()))
+                .oneWay(playerInv, allInput)
+                .rule()
+                .oneWay(allInput, playerInv);
+
+        this.addQuickMoveRule(build.build());
 
         this.addDataSlot(new BooleanDataSlot(
                 this::isOpenSetting,
