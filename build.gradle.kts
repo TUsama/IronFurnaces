@@ -32,6 +32,7 @@ modstitch {
     minecraftVersion = minecraft
     javaVersion = when (minecraft){
         "1.20.1" -> 17
+        "26.1.2" -> 25
         else -> 21
     }
 
@@ -69,6 +70,7 @@ modstitch {
                     "1.21.8" -> 64
                     "1.21.10" -> 69
                     "1.21.11" -> 70.0
+                    "26.1.2" -> 84.0
                 else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
             }.toString())
 
@@ -130,7 +132,7 @@ modstitch {
                 register("client") {
                     client()
                 }
-                if(minecraftVersionSplit[2].toInt() >= 4 ){
+                if(minecraftVersionSplit[2].toInt() >= 4 || minecraft == "26.1.2"){
                     register("clientData") {
                         clientData()
                         programArguments.addAll("--mod", mod_id, "--all", "--output", file("generated").getAbsolutePath(), "--existing", file("../../src/main/resources/").getAbsolutePath())
@@ -273,6 +275,47 @@ stonecutter {
         replace("net.minecraftforge.fml", "net.neoforged.fml")
     }
 
+
+    if (current.parsed.eq("1.21.1")){
+
+    }
+
+
+    if (current.parsed.eq("26.1.2")){
+        replacements.string(current.parsed.eq("26.1.2")) {
+            replace("com.tterrag.registrate.Registrate", "dev.anvilcraft.lib.v2.registrum.Registrum")
+            replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
+            replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
+            replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
+            replace("providers.RegistrumRecipeProvider", "providers.generators.RegistrumRecipeProvider")
+            replace("RegistrateLangProvider", "RegistrumLangProvider")
+            replace("AbstractRegistrate", "AbstractRegistrum")
+        }
+    } else {
+        replacements.string(current.parsed.eq("1.21.1")) {
+            replace("com.tterrag.registrate.Registrate", "dev.anvilcraft.lib.v2.registrum.Registrum")
+            replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
+            replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
+            replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
+            replace("providers.RegistrateRecipeProvider", "providers.RegistrumRecipeProvider")
+            replace("RegistrateLangProvider", "RegistrumLangProvider")
+            replace("AbstractRegistrate", "AbstractRegistrum")
+        }
+    }
+
+
+    replacements.string(current.version > "1.20.1", "replace_Registrate") {
+        replace("Registrate", "Registrum")
+    }
+
+    replacements.string(eval(current.version, ">1.21.1")) {
+        replace("net.minecraft.Util", "net.minecraft.util.Util")
+    }
+
+    replacements.regex(current.parsed.eq("26.1.2"), "replace_rl") {
+        replace("\\bResourceLocation\\b" to "Identifier", "Identifier" to "ResourceLocation")
+    }
+
 }
 
 sourceSets["main"].resources.srcDir("generated")
@@ -305,6 +348,7 @@ dependencies {
             "1.21.4" -> "1.21.3"
             "1.21.8" -> "1.21.6"
             "1.21.10" -> "1.21.9"
+            "26.1.2" -> "26.1"
             else -> minecraft
         }
         var fzzyString : String = "";

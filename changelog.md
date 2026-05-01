@@ -1,3 +1,13 @@
+### 0.4.2
+fix crash when try to modify the energy in legacy furnaces
+fix an issue in 1.21.1 that new furnaces don't have ItemHandler capability, now pipes or others logistics things can interact with it correctly.
+fix an issue in 1.21.1 that only legacy copper furnace has energy and item capability.
+
+
+### 0.4.1
+improve quick move in cooking pot menu
+port 1.21.1 to Registrum for further version support
+
 ### 0.4.0
 add Farmer Delight Cooking Pot compat, when FD installed, Cooking Pot augment will be registered. The furnace will act like a cooking pot when augment is used. The cooking speed is same as the smelt speed. cooking pot mode will use energy as fuel.
 Add a recipe lock function when furnace is in cooking pot mode.
