@@ -228,7 +228,7 @@ public class FurnacePatternHolderItem extends BlockItem {
 
         return result;
     }
-
+    //? forge {
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
@@ -238,4 +238,6 @@ public class FurnacePatternHolderItem extends BlockItem {
             }
         });
     }
+    //?}
+
 }

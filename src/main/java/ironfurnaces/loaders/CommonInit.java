@@ -20,7 +20,7 @@ public class CommonInit {
         ModBlocks.register();
         ModBlockEntities.register();
         ModItems.register();
-        if (runningDataGen || ModUtils.isModLoaded("farmersdelight")){
+        if (ModUtils.isModLoaded("farmersdelight")){
             FDCompat.registerCommon();
         }
         LegacyFurnaceBlocks.register();

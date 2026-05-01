@@ -14,7 +14,6 @@ public class FDCompat {
     public void registerCommon(){
         FarmerDelightCompat.register();
         FurnaceModeManager.INSTANCE.register(FDCompatModeHandler.ID, FDCompatModeHandler.INSTANCE);
-        boolean runningDataGen = DatagenModLoader.isRunningDataGen();
 
     }
 

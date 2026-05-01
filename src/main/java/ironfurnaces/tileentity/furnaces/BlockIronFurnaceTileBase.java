@@ -21,7 +21,7 @@ import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.registration.ModCustomRecipe;
-import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.TileEntityInventory;
 import ironfurnaces.util.DirectionUtil;
 import ironfurnaces.util.FuelBurnTimeUtil;
@@ -38,7 +38,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -62,17 +61,18 @@ import net.minecraft.world.phys.Vec3;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 //? forge {
 import net.minecraft.world.inventory.RecipeHolder;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.SimpleContainer;
 //?} else {
 /*import net.minecraft.world.inventory.RecipeCraftingHolder;
 *///?}
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -773,10 +773,10 @@ RecipeHolder,
             if (!furnaceTile.level.isClientSide) {
                 VanillaCapabilityHandler.withBlockEnergyStorage(furnaceTile, null, iEnergyStorage -> {
                     if (!iEnergyStorage.canReceive()) {
-                        ((FEnergyStorage) iEnergyStorage).setMaxReceive(iEnergyStorage.getMaxEnergyStored());
+                        ((EnergyWrapper) iEnergyStorage).setMaxReceive(iEnergyStorage.getMaxEnergyStored());
                     }
                     if (iEnergyStorage.canExtract()) {
-                        ((FEnergyStorage) iEnergyStorage).setMaxExtract(0);
+                        ((EnergyWrapper) iEnergyStorage).setMaxExtract(0);
                     }
                 });
 
@@ -868,10 +868,10 @@ RecipeHolder,
             if (!level.isClientSide) {
                 VanillaCapabilityHandler.withBlockEnergyStorage(furnaceTile, null, iEnergyStorage -> {
                     if (iEnergyStorage.canReceive()) {
-                        ((FEnergyStorage) iEnergyStorage).setMaxReceive(0);
+                        ((EnergyWrapper) iEnergyStorage).setMaxReceive(0);
                     }
                     if (!iEnergyStorage.canExtract()) {
-                        ((FEnergyStorage) iEnergyStorage).setMaxExtract(iEnergyStorage.getMaxEnergyStored());
+                        ((EnergyWrapper) iEnergyStorage).setMaxExtract(iEnergyStorage.getMaxEnergyStored());
                     }
                 });
 
@@ -956,10 +956,10 @@ RecipeHolder,
         } else if (furnaceTile.isFurnace()) {
             VanillaCapabilityHandler.withBlockEnergyStorage(furnaceTile, null, iEnergyStorage -> {
                 if (iEnergyStorage.canReceive()) {
-                    ((FEnergyStorage) iEnergyStorage).setMaxReceive(0);
+                    ((EnergyWrapper) iEnergyStorage).setMaxReceive(0);
                 }
                 if (iEnergyStorage.canExtract()) {
-                    ((FEnergyStorage) iEnergyStorage).setMaxExtract(0);
+                    ((EnergyWrapper) iEnergyStorage).setMaxExtract(0);
                 }
             });
 

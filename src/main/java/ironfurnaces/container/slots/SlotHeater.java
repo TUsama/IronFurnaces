@@ -1,7 +1,7 @@
 package ironfurnaces.container.slots;
 
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 

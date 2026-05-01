@@ -98,13 +98,11 @@ public class FEnergyStorage extends EnergyStorage {
     }
 
     public EnergyStorage setMaxReceive(int maxReceive) {
-
         this.maxReceive = maxReceive;
         return this;
     }
 
     public EnergyStorage setMaxExtract(int maxExtract) {
-
         this.maxExtract = maxExtract;
         return this;
     }

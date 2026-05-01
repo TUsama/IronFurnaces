@@ -103,7 +103,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private ProcessingInstanceManager instanceManager;
     private AbstractFurnaceModeHandler mode;
     private IFurnaceLitHandler litHandler;
-    private FurnaceSettingsV2 settingsV2 = FurnaceSettingsV2.DEFAULT;
+    private FurnaceSettingsV2 settingsV2;
     //~ if >1.20.1 'LazyOptional<IItemHandlerModifiable>' -> 'IItemHandlerModifiable'
     private EnumMap<Direction, LazyOptional<IItemHandlerModifiable>> sidedHandlers;
     private Set<UUID> viewers = new HashSet<>();
@@ -165,7 +165,10 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         this.allOutput = new IFCombinedCache(output, remaining);
         this.inputAndOutput = new IFCombinedCache(this.input, this.allOutput);
         this.augments.refreshState();
+
         this.sidedHandlers = new EnumMap<>(Direction.class);
+
+
         ContainerDataBuilder builder = ContainerDataBuilder.create()
                 .intValue(
                         () -> this.getFuel().getEnergyStored(),
@@ -242,6 +245,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 )
         ;
         this.dataAccess = builder.build();
+        this.setWholeSettingV2(FurnaceSettingsV2.DEFAULT);
         recalcSideIOCap();
         markForClientUpdate();
     }
@@ -450,8 +454,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                     .result()
                     .ifPresent(parsed -> {
                         if (!this.settingsV2.equals(parsed)) {
-                            this.settingsV2 = parsed;
-                            recalcSideIOCap();
+                            setWholeSettingV2(parsed);
                         }
                     });
         }
@@ -670,12 +673,16 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
 
     public void setWholeSettingV2(FurnaceSettingsV2 setting) {
-        boolean b = setting.IOSetting().equals(this.settingsV2.IOSetting());
+        boolean b = true;
+        if (this.settingsV2 != null) {
+            b = setting.IOSetting().equals(this.settingsV2.IOSetting());
+        }
+
         this.settingsV2 = setting;
         if (!b) {
             recalcSideIOCap();
         }
-        setChanged();
+        markForClientUpdate();
     }
 
     protected void autoIO() {
@@ -885,7 +892,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     public void addLevelConsumer(Consumer<Level> runnable){
-        this.levelRunnable.add(runnable);
+        if (hasLevel()){
+            runnable.accept(this.getLevel());
+        } else {
+            this.levelRunnable.add(runnable);
+        }
     }
 
 
@@ -1002,7 +1013,15 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             sidedHandlers.put(dir, LazyOptional.of(() -> handler));
         }
         //?} else {
-        /*if (this.hasLevel()) this.getLevel().invalidateCapabilities(this.getBlockPos());
+        /*addLevelConsumer(level1 -> {
+            level1.invalidateCapabilities(this.getBlockPos());
+            sidedHandlers.clear();
+            for (Direction dir : Direction.values()) {
+                FurnaceSettingsV2.IOMode mode = settingsV2.IOSetting().get(dir);
+                IItemHandlerModifiable handler = mode.handlerSelector.apply(this);
+                sidedHandlers.put(dir, handler);
+            }
+        });
         *///?}
     }
     //? 1.20.1 {

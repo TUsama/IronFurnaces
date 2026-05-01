@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import net.minecraft.resources.ResourceLocation;

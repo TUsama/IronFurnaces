@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.tileentity.furnaces.pattern.upgrade;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;

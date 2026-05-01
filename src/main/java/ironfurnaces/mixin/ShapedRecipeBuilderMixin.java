@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.mixin;
 
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;

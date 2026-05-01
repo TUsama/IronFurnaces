@@ -5,7 +5,7 @@ import ironfurnaces.container.slots.SlotHeater;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;

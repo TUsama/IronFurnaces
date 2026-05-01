@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
 import ironfurnaces.loaders.IronFurnaces;

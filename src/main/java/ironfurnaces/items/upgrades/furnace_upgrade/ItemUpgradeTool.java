@@ -213,9 +213,12 @@ public class ItemUpgradeTool extends Item {
         return whenInvalided(context, player);
     }
 
+    //? forge {
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new UpgradeToolClientExtensions());
     }
+    //?}
+
 
 }

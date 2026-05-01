@@ -3,9 +3,8 @@ package ironfurnaces.tileentity.furnaces.handler;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.util.FuelBurnTimeUtil;
 import lombok.Getter;
@@ -13,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 @Getter

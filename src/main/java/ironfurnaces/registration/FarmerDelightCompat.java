@@ -1,10 +1,9 @@
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import ironfurnaces.items.augments.compat.ItemAugmentFarmerDelightCooking;
-import ironfurnaces.items.upgrades.ItemUpgradeIron;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.util.CriterionUtil;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 
@@ -21,8 +20,8 @@ public class FarmerDelightCompat {
                                 .pattern("###")
                                 .define('#', bindForge("ingots/iron"))
                                 .define('X', vectorwing.farmersdelight.common.registry.ModItems.COOKING_POT.get())
-                                .unlockedBy("has_iron", RegistrateRecipeProvider.has(bindForge("ingots/iron")))
-                                .unlockedBy("has_pot", RegistrateRecipeProvider.has(vectorwing.farmersdelight.common.registry.ModItems.COOKING_POT.get()))
+                                .unlockedBy("has_iron", CriterionUtil.has(bindForge("ingots/iron"), provider))
+                                .unlockedBy("has_pot", CriterionUtil.has(vectorwing.farmersdelight.common.registry.ModItems.COOKING_POT.get(), provider))
                                 .save(x, IronFurnaces.id("augments/" + ctx.getName())), ctx, "compat/farmersdelight", ctx.getName(), "farmersdelight", provider);
 
                     })

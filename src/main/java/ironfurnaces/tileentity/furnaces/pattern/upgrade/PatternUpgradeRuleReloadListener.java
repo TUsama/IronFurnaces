@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.tileentity.furnaces.pattern.upgrade;
 
 import com.google.gson.Gson;
@@ -6,19 +7,22 @@ import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
 
 import java.util.*;
-
+//~ if > 1.21.11 'SimpleJsonResourceReloadListener' -> 'SimpleJsonResourceReloadListener<JsonElement>'
 public final class PatternUpgradeRuleReloadListener extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().create();
 
     public PatternUpgradeRuleReloadListener() {
+        //~ if > 1.21.11 'GSON, PatternUpgradeRuleManager.DIRECTORY' -> 'ExtraCodecs.JSON, FileToIdConverter.json(PatternUpgradeRuleManager.DIRECTORY)'
         super(GSON, PatternUpgradeRuleManager.DIRECTORY);
     }
 

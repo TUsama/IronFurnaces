@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.registration;
 
 import com.mojang.serialization.Codec;
@@ -10,7 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
+
 //? 1.20.1 {
 
 //? } else {

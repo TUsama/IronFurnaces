@@ -1,3 +1,4 @@
+//~ replace_Registrate
 package ironfurnaces.registration;
 
 import com.tterrag.registrate.Registrate;

@@ -5,7 +5,7 @@ import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

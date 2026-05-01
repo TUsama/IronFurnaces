@@ -77,6 +77,14 @@ public class EnergyWrapper
     public void setCapacity(int capacity) {
         storage.lazyMap(x -> x.setCapacity(capacity));
     }
+
+    public void setMaxReceive(int maxReceive) {
+        storage.lazyMap(x -> x.setMaxReceive(maxReceive));
+    }
+
+    public void setMaxExtract(int maxExtract) {
+        storage.lazyMap(x -> x.setMaxExtract(maxExtract));
+    }
     //?} else {
 
     /*@Override
@@ -115,6 +123,14 @@ public class EnergyWrapper
 
     public void setCapacity(int capacity) {
         storage.setCapacity(capacity);
+    }
+
+    public void setMaxReceive(int maxReceive) {
+        storage.setMaxReceive(maxReceive);
+    }
+
+    public void setMaxExtract(int maxExtract) {
+        storage.setMaxExtract(maxExtract);
     }
 
     *///?}

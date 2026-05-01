@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.google.gson.Gson;
@@ -8,16 +9,20 @@ import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
-
+//? >1.21.11 {
+/*import net.minecraft.resources.FileToIdConverter;
+*///?}
 import java.util.HashMap;
 import java.util.Map;
-
+//~ if > 1.21.11 'SimpleJsonResourceReloadListener' -> 'SimpleJsonResourceReloadListener<JsonElement>'
 public class FurnacePatternDefinitionReloadListener extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = new GsonBuilder().create();
 
     public FurnacePatternDefinitionReloadListener() {
+        //~ if > 1.21.11 'GSON, FurnacePatternManager.DIRECTORY' -> 'ExtraCodecs.JSON, FileToIdConverter.json(FurnacePatternManager.DIRECTORY)'
         super(GSON, FurnacePatternManager.DIRECTORY);
     }
 

@@ -30,7 +30,8 @@ public class OutputCache extends ResizableCache implements ICacheFillStats {
 
     @Override
     protected int updateSlotAmount(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
-        return FurnaceModeManager.INSTANCE.getMaxOutputSlot(stats);
+        int maxOutputSlot = FurnaceModeManager.INSTANCE.getMaxOutputSlot(stats);
+        return maxOutputSlot;
     }
 
 

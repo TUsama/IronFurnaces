@@ -1,4 +1,6 @@
+//? <1.21.11 {
 //~ replace_INBTSerializable
+//~ replace_Registrate
 package ironfurnaces.registration;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
@@ -763,3 +765,4 @@ public class LegacyFurnaceBlocks {
         return IronFurnaces.id("furnaces/" + furnaceName);
     }
 }
+//?}

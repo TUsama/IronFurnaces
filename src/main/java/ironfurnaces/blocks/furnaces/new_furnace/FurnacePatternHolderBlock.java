@@ -76,6 +76,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import static ironfurnaces.registration.ModBlocks.getReferenceStateOrNull;
 import static net.minecraft.network.chat.Component.translatable;
 
 public class FurnacePatternHolderBlock extends BaseEntityBlock implements EntityBlock {
@@ -95,34 +96,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         return CODEC;
     }
     *///?}
-    @Nullable
-    private FurnacePatternBlockEntity getPatternHolder(BlockGetter level, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos);
-        return be instanceof FurnacePatternBlockEntity holder ? holder : null;
-    }
 
-    private Optional<Block> getReferenceBlock(BlockGetter level, BlockPos pos) {
-        FurnacePatternBlockEntity holder = getPatternHolder(level, pos);
-        if (holder == null) {
-            return Optional.empty();
-        }
-
-        FurnacePattern pattern = holder.getPattern();
-        if (pattern == null) {
-            return Optional.empty();
-        }
-
-        return pattern.referenceBlock()
-                //~ if >1.20.1 'ForgeRegistries.BLOCKS::getValue' -> 'BuiltInRegistries.BLOCK::get'
-                .map(ForgeRegistries.BLOCKS::getValue)
-                .filter(block -> block != null && block != Blocks.AIR);
-    }
-
-    private BlockState getReferenceStateOrNull(BlockGetter level, BlockPos pos) {
-        return getReferenceBlock(level, pos)
-                .map(Block::defaultBlockState)
-                .orElse(null);
-    }
 
     @Override
     public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
@@ -593,7 +567,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     public @org.jetbrains.annotations.Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PATTERN_HOLDER.create(pos, state);
     }
-
+    //? forge {
     @Override
     public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
         consumer.accept(new IClientBlockExtensions() {
@@ -641,4 +615,5 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             }
         });
     }
+    //?}
 }

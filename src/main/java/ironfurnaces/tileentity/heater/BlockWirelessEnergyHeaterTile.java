@@ -1,17 +1,14 @@
 //~ replace_serialization
-package ironfurnaces.tileentity;
+package ironfurnaces.tileentity.heater;
 
-import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.adaptor.energy.IEnergyWrapperHolder;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
-import ironfurnaces.registration.ModMenus;
+import ironfurnaces.tileentity.TileEntityInventory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,11 +21,12 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
+
+import javax.annotation.Nullable;
 //?} else {
 /*import net.minecraft.core.HolderLookup;
 *///?}
 
-import javax.annotation.Nullable;
 
 public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implements IEnergyWrapperHolder {
 
@@ -59,7 +57,12 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        //? <1.21.11 {
         this.getWrapper().receiveEnergy(tag.getInt("Energy"), false);
+        //?} else {
+        /*tag.getInt("Energy").ifPresent(x -> this.getWrapper().receiveEnergy(x, false));
+        *///?}
+
     }
 
     @Override

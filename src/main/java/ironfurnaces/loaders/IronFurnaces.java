@@ -1,9 +1,17 @@
+//~ replace_rl
 package ironfurnaces.loaders;
 
 import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.BusBuilder;
 import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.IEventBus;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
+//? 1.20.1 {
+
 import com.tterrag.registrate.Registrate;
+//?} else {
+/*import com.tterrag.registrate.Registrate;
+*///?}
+
+
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -14,11 +22,8 @@ import org.apache.logging.log4j.Logger;
 @UtilityClass
 public class IronFurnaces {
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final String GITHUB_BRANCH = "1.20.1";
-    public static final String MC_VERSION = "1.20.1";
-    public static final String RELEASE_TYPE = "-beta";
-    public static final String VERSION = "416";
     public static final String MOD_ID = "ironfurnaces";
+    //~ if >1.20.1 'Registrate' -> 'Registrum'
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
     public static final IEventBus bus = BusBuilder.builder().setExceptionHandler((iEventBus, event, eventListeners, i, throwable) -> {
         try {

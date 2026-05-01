@@ -21,32 +21,6 @@ public class ModItemGroups {
                             .icon(LegacyFurnaceBlocks.IRON_FURNACE::asStack)
                             .withTabsBefore(CreativeModeTabs.COMBAT)
                             .displayItems((ctx, entries) -> {
-/*
-                        entries.accept(LegacyFurnaceBlocks.IRON_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.GOLD_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.DIAMOND_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.EMERALD_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.NETHERITE_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.COPPER_FURNACE.get());
-                        entries.accept(LegacyFurnaceBlocks.SILVER_FURNACE.get());
-
-                        entries.accept(ModItems.IRON_UPGRADE.get());
-                        entries.accept(ModItems.GOLD_UPGRADE.get());
-                        entries.accept(ModItems.DIAMOND_UPGRADE.get());
-                        entries.accept(ModItems.EMERALD_UPGRADE.get());
-                        entries.accept(ModItems.OBSIDIAN_UPGRADE.get());
-                        entries.accept(ModItems.CRYSTAL_UPGRADE.get());
-                        entries.accept(ModItems.NETHERITE_UPGRADE.get());
-                        entries.accept(ModItems.COPPER_UPGRADE.get());
-                        entries.accept(ModItems.SILVER_UPGRADE.get());
-
-                        entries.accept(ModItems.OBSIDIAN2_UPGRADE.get());
-                        entries.accept(ModItems.IRON2_UPGRADE.get());
-                        entries.accept(ModItems.GOLD2_UPGRADE.get());
-                        entries.accept(ModItems.SILVER2_UPGRADE.get());
-                        */
                                 entries.accept(ModBlocks.HEATER.get());
                                 entries.accept(ModBlocks.PATTERN_HOLDER.get());
                                 entries.accept(ModItems.UPGRADE_TOOL.get());
