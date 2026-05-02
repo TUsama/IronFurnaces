@@ -34,6 +34,7 @@ object NeoForgeDeps {
                     "dev.anvilcraft.lib:anvillib-registrum-neoforge-26.1:2.0.0+snapshot.328".let {
                         modstitchModCompileOnly(it)
                         modstitchModRuntimeOnly(it)
+                        modstitchJiJ (it)
                     }
                 }
             }

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.mixin.ShapedRecipeBuilderMixin;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 
@@ -17,6 +18,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -38,8 +40,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
+//~ if 26.1.2 'FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder' -> 'FurnacePatternHolderRecipeBuilder'
 public class FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder {
+
+    //? 26.1.2 {
+    /*public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId) {
+        return shaped(getter, category, result, patternId, 1);
+    }
+
+    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId, int count) {
+
+        return new ShapedRecipeBuilder(getter, category, Util.make(() -> {
+            ItemStack copy = result.asItem().getDefaultInstance();
+            IPatternAccessor.writePatternToItemStack(copy, patternId);
+            copy.setCount(count);
+            return copy;
+        }), count);
+
+
+    }
+    *///?} else {
+
 
 
     public FurnacePatternHolderRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
@@ -51,8 +72,11 @@ public class FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShape
     }
 
     public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId, int count) {
+
         return new FurnacePatternHolderRecipeBuilder(category, result, count, stack -> IPatternAccessor.writePatternToItemStack(stack, patternId));
+
+
     }
 
-
+    //?}
 }

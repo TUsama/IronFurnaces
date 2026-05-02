@@ -276,32 +276,23 @@ stonecutter {
     }
 
 
-    if (current.parsed.eq("1.21.1")){
-
+    replacements.string(!current.parsed.eq("1.20.1")) {
+        replace("com.tterrag.registrate.Registrate", "dev.anvilcraft.lib.v2.registrum.Registrum")
+        replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
+        replace("RegistrateLangProvider", "RegistrumLangProvider")
+        replace("AbstractRegistrate", "AbstractRegistrum")
+    }
+    replacements.string(current.parsed.eq("26.1.2")) {
+        replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.registrum.util.nullness")
+        replace("providers.RegistrateRecipeProvider", "providers.generators.RegistrumRecipeProvider")
+        replace("critereon.", "criterion.")
+    }
+    replacements.string(current.parsed.eq("1.21.1")) {
+        replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
+        replace("providers.RegistrateRecipeProvider", "providers.RegistrumRecipeProvider")
     }
 
 
-    if (current.parsed.eq("26.1.2")){
-        replacements.string(current.parsed.eq("26.1.2")) {
-            replace("com.tterrag.registrate.Registrate", "dev.anvilcraft.lib.v2.registrum.Registrum")
-            replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
-            replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
-            replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
-            replace("providers.RegistrumRecipeProvider", "providers.generators.RegistrumRecipeProvider")
-            replace("RegistrateLangProvider", "RegistrumLangProvider")
-            replace("AbstractRegistrate", "AbstractRegistrum")
-        }
-    } else {
-        replacements.string(current.parsed.eq("1.21.1")) {
-            replace("com.tterrag.registrate.Registrate", "dev.anvilcraft.lib.v2.registrum.Registrum")
-            replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
-            replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
-            replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
-            replace("providers.RegistrateRecipeProvider", "providers.RegistrumRecipeProvider")
-            replace("RegistrateLangProvider", "RegistrumLangProvider")
-            replace("AbstractRegistrate", "AbstractRegistrum")
-        }
-    }
 
 
     replacements.string(current.version > "1.20.1", "replace_Registrate") {
@@ -313,6 +304,10 @@ stonecutter {
     }
 
     replacements.regex(current.parsed.eq("26.1.2"), "replace_rl") {
+        replace("\\bResourceLocation\\b" to "Identifier", "Identifier" to "ResourceLocation")
+    }
+
+    replacements.regex(current.parsed.eq("26.1.2")) {
         replace("\\bResourceLocation\\b" to "Identifier", "Identifier" to "ResourceLocation")
     }
 

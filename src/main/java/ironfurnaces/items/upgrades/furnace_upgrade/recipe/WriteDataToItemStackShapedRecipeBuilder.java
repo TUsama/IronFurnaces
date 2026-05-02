@@ -1,4 +1,5 @@
 //~ replace_rl
+//? <1.21.11 {
 package ironfurnaces.items.upgrades.furnace_upgrade.recipe;
 
 import com.google.gson.JsonArray;
@@ -6,17 +7,19 @@ import com.google.gson.JsonObject;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.mixin.ShapedRecipeBuilderMixin;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -27,10 +30,14 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.advancements.RequirementsStrategy;
 import ironfurnaces.mixin.ShapedRecipeBuilderResultAccessor;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 //? } else {
 /*import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+//? >1.21.11 {
+/^import net.minecraft.world.item.ItemStackTemplate;
+^///?}
 *///?}
 
 
@@ -41,11 +48,13 @@ import java.util.function.Consumer;
 
 public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder {
     private final Consumer<ItemStack> writer;
-
+    //~ if > 1.21.11 '(RecipeCategory category' -> '(HolderGetter<Item> items, RecipeCategory category'
     public WriteDataToItemStackShapedRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
+
+
         //? 1.20.1 {
         super(category, result, count);
-        //?} else {
+         //?} else {
         /*super(category, Util.make(() -> {
             ItemStack copy = result.asItem().getDefaultInstance();
             writer.accept(copy);
@@ -53,6 +62,8 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
             return copy;
         }));
         *///?}
+
+
         this.writer = writer;
     }
 
@@ -139,3 +150,4 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
     }
     //? }
 }
+//?}

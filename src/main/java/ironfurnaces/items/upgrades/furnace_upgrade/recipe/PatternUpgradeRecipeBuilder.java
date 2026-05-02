@@ -13,6 +13,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -20,6 +21,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.Util;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
@@ -40,9 +42,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
+//~ if 26.1.2 'PatternUpgradeRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder' -> 'PatternUpgradeRecipeBuilder'
 public class PatternUpgradeRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder {
+    //? 26.1.2 {
+    /*public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, ItemUpgradeTool result, String upgradeId) {
+        return shaped(getter, category, result, upgradeId, 1);
+    }
 
+    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, ItemUpgradeTool result, String upgradeId, int count) {
+        return ShapedRecipeBuilder.shaped(getter, category, Util.make(() -> {
+            ItemStack copy = result.asItem().getDefaultInstance();
+            IUpgradeStorage.writeRule(copy, ResourceLocation.parse(upgradeId));
+            copy.setCount(count);
+            return copy.getItem();
+        }), count);
+    }
+
+    *///?} else {
     public PatternUpgradeRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
         super(category, result, count, writer);
     }
@@ -55,4 +71,6 @@ public class PatternUpgradeRecipeBuilder extends WriteDataToItemStackShapedRecip
         return new PatternUpgradeRecipeBuilder(category, result, count, stack -> IUpgradeStorage.writeRule(stack, upgradeId));
     }
 
+
+    //?}
 }

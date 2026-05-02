@@ -1569,7 +1569,7 @@ RecipeHolder,
     }
 
     public boolean isRainbowFurnace() {
-        return this.self().getIdentifier().equals(BlockMillionFurnace.ID);
+        return this.self().getResourceLocation().equals(BlockMillionFurnace.ID);
     }
 
     protected void smelt(@Nullable Recipe<?> recipe) {

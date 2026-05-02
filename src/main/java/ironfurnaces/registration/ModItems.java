@@ -5,12 +5,8 @@ package ironfurnaces.registration;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.util.entry.ItemEntry;
-//? <1.21.11 {
-
 import com.tterrag.registrate.util.nullness.NonNullFunction;
-//?} else {
-/*import com.tterrag.registrate.util.nullness.NonNullFunction;
-*///?}
+
 
 
 import ironfurnaces.items.*;
@@ -19,25 +15,20 @@ import ironfurnaces.items.upgrades.*;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
 import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
-import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
+import ironfurnaces.registration.util.IDUtil;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.crafting.conditions.ICondition;
 //? 1.20.1 {
 import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 //? } else {
-/*import net.minecraftforge.common.conditions.TagEmptyCondition;
-import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
-*///?}
-
-import java.util.List;
+//?}
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -55,7 +46,7 @@ public class ModItems {
                                 .define('#', bindForge("ingots/iron"))
                                 .define('X', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_iron", CriterionUtil.has(bindForge("ingots/iron"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -70,7 +61,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/iron"))
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -85,7 +76,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/gold"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -99,7 +90,7 @@ public class ModItems {
                                 .define('#', bindForge("gems/emerald"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_emerald", CriterionUtil.has(bindForge("gems/emerald"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -113,7 +104,7 @@ public class ModItems {
                                 .define('X', bindForge("gems/emerald"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -127,7 +118,7 @@ public class ModItems {
                                 .define('#', bindForge("glass"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -142,7 +133,7 @@ public class ModItems {
                                 .define('S', bindVanilla("soul_fire_base_blocks"))
                                 .define('N', Items.NETHERITE_INGOT)
                                 .unlockedBy("has_netherite", CriterionUtil.has(Items.NETHERITE_INGOT, provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -156,13 +147,13 @@ public class ModItems {
                                 .define('#', bindForge("ingots/copper"))
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_copper", CriterionUtil.has(bindForge("ingots/copper"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
     public static final ItemEntry<ItemUpgradeSilver> SILVER_UPGRADE =
             registerItem("upgrade_silver", "Upgrade: Copper -> Silver", ItemUpgradeSilver::new).recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("###")
                                 .pattern("#S#")
                                 .pattern("#X#")
@@ -170,7 +161,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/copper"))
                                 .define('S', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
 
                     })
                     .register();
@@ -185,7 +176,7 @@ public class ModItems {
                                 .define('X', bindForge("glass"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -200,14 +191,14 @@ public class ModItems {
                                 .define('X', bindForge("ingots/copper"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
     public static final ItemEntry<ItemUpgradeGold2> GOLD2_UPGRADE =
             registerItem("upgrade_gold2", "Upgrade: Silver -> Gold", ItemUpgradeGold2::new)
                     .recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("#Y#")
@@ -215,7 +206,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/silver"))
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), bindForge("ingots/silver"));
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), bindForge("ingots/silver"));
                         ;
                     })
                     .register();
@@ -223,7 +214,7 @@ public class ModItems {
     public static final ItemEntry<ItemUpgradeSilver2> SILVER2_UPGRADE =
             registerItem("upgrade_silver2", "Upgrade: Iron -> Silver", ItemUpgradeSilver2::new)
                     .recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("#G#")
                                 .pattern("GXG")
                                 .pattern("#G#")
@@ -231,7 +222,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/iron"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
                         ;
                     })
                     .register();
@@ -239,7 +230,7 @@ public class ModItems {
     public static final ItemEntry<ItemUpgradeAllthemodium> ALLTHEMODIUM_UPGRADE =
             registerItem("upgrade_allthemodium", "Upgrade: Netherite -> Allthemodium",
                     ItemUpgradeAllthemodium::new).recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("B#B")
                                 .pattern("#X#")
                                 .pattern("B#B")
@@ -247,14 +238,14 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/allthemodium"))
                                 .define('X', ModItemTags.NETHERITE_UPGRADE)
                                 .unlockedBy("has_allthemodium", CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
                     })
                     .register();
 
     public static final ItemEntry<ItemUpgradeVibranium> VIBRANIUM_UPGRADE =
             registerItem("upgrade_vibranium", "Upgrade: Allthemodium -> Vibranium",
                     ItemUpgradeVibranium::new).recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("B#B")
                                 .pattern("#X#")
                                 .pattern("B#B")
@@ -262,7 +253,7 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/vibranium"))
                                 .define('X', bindForge("ingots/allthemodium"))
                                 .unlockedBy("has_vibranium", CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
 
                     })
                     .register();
@@ -270,7 +261,7 @@ public class ModItems {
     public static final ItemEntry<ItemUpgradeUnobtainium> UNOBTAINIUM_UPGRADE =
             registerItem("upgrade_unobtainium", "Upgrade: Vibranium -> Unobtainium",
                     ItemUpgradeUnobtainium::new).recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("B#B")
                                 .pattern("#X#")
                                 .pattern("B#B")
@@ -278,7 +269,7 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/unobtainium"))
                                 .define('X', bindForge("ingots/vibranium"))
                                 .unlockedBy("has_unobtainium", CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
 
                     })
                     .register();
@@ -294,7 +285,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.COMPARATOR)
                                 .unlockedBy("has_comparator", CriterionUtil.has(Items.COMPARATOR, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .register();
 
@@ -310,7 +301,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.BLAST_FURNACE)
                                 .unlockedBy("has_blast_furnace", CriterionUtil.has(Items.BLAST_FURNACE, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
                     })
                     .register();
@@ -327,7 +318,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.SMOKER)
                                 .unlockedBy("has_smoker", CriterionUtil.has(Items.SMOKER, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
 
                     }).register();
@@ -344,7 +335,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.PISTON)
                                 .unlockedBy("has_piston", CriterionUtil.has(Items.PISTON, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -360,7 +351,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.REPEATER)
                                 .unlockedBy("has_repeater", CriterionUtil.has(Items.REPEATER, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
 
                     }).register();
@@ -377,7 +368,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.SUGAR)
                                 .unlockedBy("has_sugar", CriterionUtil.has(Items.SUGAR, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -393,7 +384,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.COAL)
                                 .unlockedBy("has_coal", CriterionUtil.has(Items.COAL, provider))
-                                .save(provider, makeID("augments/" + ctx.getName()));
+                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -403,7 +394,7 @@ public class ModItems {
                                 .requires(Items.CARVED_PUMPKIN)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .register();
 
@@ -415,7 +406,7 @@ public class ModItems {
                                 .requires(Items.PAPER)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .register();
 
@@ -429,7 +420,7 @@ public class ModItems {
                                 .define('#', Items.PAPER)
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .register();
 
@@ -443,13 +434,14 @@ public class ModItems {
                                 .define('#', Items.PAPER)
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .lang("Copy Tool")
                     .register();
 
     public static final ItemEntry<Item> RAINBOW_CORE =
             registerItem("rainbow_core", Item::new).recipe((ctx, provider) -> {
+                        //? <1.21.11 {
                         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("ROY")
                                 .pattern("FGF")
@@ -463,7 +455,8 @@ public class ModItems {
                                 .define('P', Items.PURPLE_STAINED_GLASS)
                                 .define('M', Items.MAGENTA_STAINED_GLASS)
                                 .unlockedBy("has_netherite_furnace", CriterionUtil.has(LegacyFurnaceBlocks.NETHERITE_FURNACE.get(), provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider, IDUtil.makeID(ctx.getName()));
+                        //?}
                     })
                     .register();
 
@@ -471,7 +464,7 @@ public class ModItems {
             registerItem("rainbow_plating", Item::new)
                     .recipe((ctx, provider) -> {
                         //? <1.21.11 {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+                        ConditionRecipeUtil.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
                                 .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())
@@ -481,7 +474,7 @@ public class ModItems {
                                 .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.SILVER_FURNACE.get())
                                 .unlockedBy("has_iron_furnace", CriterionUtil.has(LegacyFurnaceBlocks.IRON_FURNACE.get(), provider))
-                                .save(x, makeID(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
+                                .save(x, IDUtil.makeID(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
                         //?}
 
                         //? forge {
@@ -510,7 +503,7 @@ public class ModItems {
                                 .requires(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
                                 .unlockedBy("has_iron_furnace", CriterionUtil.has(LegacyFurnaceBlocks.IRON_FURNACE.get(), provider))
-                                .save(new ConditionalRecipeOutput(provider, List.of(new TagEmptyCondition(ModItemTags.SILVER.location())).toArray(ICondition[]::new)), makeID(ctx.getName() + "_no_silver"));
+                                .save(new ConditionalRecipeOutput(provider, List.of(new TagEmptyCondition(ModItemTags.SILVER.location())).toArray(ICondition[]::new)), IDUtil.makeID(ctx.getName() + "_no_silver"));
                         //?}
 
                         *///?}
@@ -522,7 +515,7 @@ public class ModItems {
             registerItem("rainbow_coal", ItemRainbowCoal::new)
                     .recipe((ctx, provider) -> {
                         //? <1.21.11 {
-                        LegacyFurnaceBlocks.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenHasTags(x -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
                                 .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.DIAMOND_FURNACE.get())
@@ -531,7 +524,7 @@ public class ModItems {
                                 .requires(LegacyFurnaceBlocks.CRYSTAL_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.COPPER_FURNACE.get())
                                 .unlockedBy("has_iron_furnace", CriterionUtil.has(LegacyFurnaceBlocks.IRON_FURNACE.get(), provider))
-                                .save(provider, makeID(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
+                                .save(provider, IDUtil.makeID(ctx.getName())), ctx, provider, "", ctx.getName(), ModItemTags.SILVER);
                         //?}
 
                     }).register();
@@ -541,7 +534,7 @@ public class ModItems {
                     .model((ctx, prov) -> prov.getBuilder(ctx.getName())
                             .parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity")))
                     .recipe((ctx, provider) -> {
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_gold"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold"))
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("#Y#")
@@ -549,18 +542,18 @@ public class ModItems {
                                 .define('X', bindForge("ingots/iron"))
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_gold")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_gold"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_iron"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_iron"))
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("ingots/iron"))
                                 .define('X', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_iron", CriterionUtil.has(bindForge("ingots/iron"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_iron")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_iron"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_diamond"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_diamond"))
                                 .pattern("###")
                                 .pattern("GXG")
                                 .pattern("###")
@@ -568,18 +561,18 @@ public class ModItems {
                                 .define('X', bindForge("ingots/gold"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_diamond")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_diamond"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_emerald"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_emerald"))
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("gems/emerald"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_emerald", CriterionUtil.has(bindForge("gems/emerald"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_emerald")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_emerald"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_obsidian"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_obsidian"))
                                 .pattern("#Y#")
                                 .pattern("YXY")
                                 .pattern("#Y#")
@@ -587,18 +580,18 @@ public class ModItems {
                                 .define('X', bindForge("gems/emerald"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_obsidian")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_obsidian"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_crystal"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_crystal"))
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("glass"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_crystal")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_crystal"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_netherite"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_netherite"))
                                 .pattern("N#N")
                                 .pattern("#X#")
                                 .pattern("NSN")
@@ -607,19 +600,19 @@ public class ModItems {
                                 .define('S', bindVanilla("soul_fire_base_blocks"))
                                 .define('N', Items.NETHERITE_INGOT)
                                 .unlockedBy("has_netherite", CriterionUtil.has(Items.NETHERITE_INGOT, provider))
-                                .save(provider, newUpgrade(makeID("upgrade_netherite")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_netherite"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_copper"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_copper"))
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")
                                 .define('#', bindForge("ingots/copper"))
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_copper", CriterionUtil.has(bindForge("ingots/copper"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_copper")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_copper"));
 
-                        LegacyFurnaceBlocks.whenHasTags(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_silver"))
+                        ConditionRecipeUtil.whenHasTags(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_silver"))
                                                 .pattern("###")
                                                 .pattern("#S#")
                                                 .pattern("#X#")
@@ -627,11 +620,11 @@ public class ModItems {
                                                 .define('X', bindForge("ingots/copper"))
                                                 .define('S', bindVanilla("stone_tool_materials"))
                                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_silver"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_silver")),
                                 ctx, provider, "new_upgrades", "upgrade_silver", ModItemTags.SILVER
                         );
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_obsidian2"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_obsidian2"))
                                 .pattern("#Y#")
                                 .pattern("YXY")
                                 .pattern("#Y#")
@@ -639,9 +632,9 @@ public class ModItems {
                                 .define('X', bindForge("glass"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_obsidian2")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_obsidian2"));
 
-                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_iron2"))
+                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_iron2"))
                                 .pattern("###")
                                 .pattern("GXG")
                                 .pattern("###")
@@ -649,10 +642,10 @@ public class ModItems {
                                 .define('X', bindForge("ingots/copper"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, newUpgrade(makeID("upgrade_iron2")));
+                                .save(provider, IDUtil.newUpgrade("upgrade_iron2"));
 
-                        LegacyFurnaceBlocks.whenHasTags(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_gold2"))
+                        ConditionRecipeUtil.whenHasTags(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold2"))
                                                 .pattern("###")
                                                 .pattern("#X#")
                                                 .pattern("#Y#")
@@ -660,12 +653,12 @@ public class ModItems {
                                                 .define('X', bindForge("ingots/silver"))
                                                 .define('Y', bindForge("storage_blocks/gold"))
                                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_gold2"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_gold2")),
                                 ctx, provider, "new_upgrades", "upgrade_gold2", bindForge("ingots/silver")
                         );
 
-                        LegacyFurnaceBlocks.whenHasTags(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_silver2"))
+                        ConditionRecipeUtil.whenHasTags(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_silver2"))
                                                 .pattern("#G#")
                                                 .pattern("GXG")
                                                 .pattern("#G#")
@@ -673,12 +666,12 @@ public class ModItems {
                                                 .define('X', bindForge("ingots/iron"))
                                                 .define('G', bindForge("glass"))
                                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_silver2"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_silver2")),
                                 ctx, provider, "new_upgrades", "upgrade_silver2", ModItemTags.SILVER
                         );
 
-                        LegacyFurnaceBlocks.whenAllthemodium(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_allthemodium"))
+                        ConditionRecipeUtil.whenAllthemodium(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_allthemodium"))
                                                 .pattern("B#B")
                                                 .pattern("#X#")
                                                 .pattern("B#B")
@@ -686,12 +679,12 @@ public class ModItems {
                                                 .define('B', bindForge("storage_blocks/allthemodium"))
                                                 .define('X', ModItemTags.NETHERITE_UPGRADE)
                                                 .unlockedBy("has_allthemodium", CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_allthemodium"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_allthemodium")),
                                 ctx, "new_upgrades", "upgrade_allthemodium", provider
                         );
 
-                        LegacyFurnaceBlocks.whenAllthemodium(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_vibranium"))
+                        ConditionRecipeUtil.whenAllthemodium(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_vibranium"))
                                                 .pattern("B#B")
                                                 .pattern("#X#")
                                                 .pattern("B#B")
@@ -699,12 +692,12 @@ public class ModItems {
                                                 .define('B', bindForge("storage_blocks/vibranium"))
                                                 .define('X', bindForge("ingots/allthemodium"))
                                                 .unlockedBy("has_vibranium", CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_vibranium"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_vibranium")),
                                 ctx, "new_upgrades", "upgrade_vibranium", provider
                         );
 
-                        LegacyFurnaceBlocks.whenAllthemodium(x ->
-                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), makeID("upgrade_unobtainium"))
+                        ConditionRecipeUtil.whenAllthemodium(x ->
+                                        PatternUpgradeRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_unobtainium"))
                                                 .pattern("B#B")
                                                 .pattern("#X#")
                                                 .pattern("B#B")
@@ -712,7 +705,7 @@ public class ModItems {
                                                 .define('B', bindForge("storage_blocks/unobtainium"))
                                                 .define('X', bindForge("ingots/vibranium"))
                                                 .unlockedBy("has_unobtainium", CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                                                .save(x, newUpgrade(makeID("upgrade_unobtainium"))),
+                                                .save(x, IDUtil.newUpgrade("upgrade_unobtainium")),
                                 ctx, "new_upgrades", "upgrade_unobtainium", provider
                         );
                     })
@@ -721,12 +714,7 @@ public class ModItems {
                     *///?}
                     .register();
 
-//~}
-    private static ResourceLocation newUpgrade(ResourceLocation path) {
-        return makeID("new_upgrades/" + path.getPath());
-    }
-
-
+    //~}
     protected static <T extends Item> ItemBuilder<T, Registrate> registerItem(
             String name,
             String langName,
@@ -751,16 +739,6 @@ public class ModItems {
                 .item(name, factory);
     }
 
-    //? if >1.21.11 {
-    /*public static String makeID(String name) {
-        return name;
-    }
-    *///?} else {
-    
-    public static ResourceLocation makeID(String path) {
-        return IronFurnaces.id(path);
-    }
-    //?}
 
     public static void register() {
 

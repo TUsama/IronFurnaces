@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.registration;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
@@ -19,7 +20,10 @@ public class ModItemTags {
         TagKey<Item> itemTagKey = bindC(
                 "player_workstations/furnaces"
         );
-        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, x -> x.addTag(itemTagKey).add(Items.FURNACE));
+        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, x -> x
+                //~ if > 1.21.11 'addTag' -> 'tag'
+                .addTag(itemTagKey)
+                .add(Items.FURNACE));
         return itemTagKey;
     });
 
@@ -107,6 +111,7 @@ public class ModItemTags {
         TagKey<Item> itemTagKey = TagKey.create(Registries.ITEM, IronFurnaces.id("netherite_upgrade_crafting"));
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
             registrateItemTagsProvider
+                    //~ if > 1.21.11 'addTag' -> 'tag'
                     .addTag(itemTagKey)
                     .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP)
                     .addOptionalTags(bindC("ingots/netherite"), bindC("ores/netherite_scrap"));
@@ -117,7 +122,9 @@ public class ModItemTags {
     public static final TagKey<Item> C_OBSIDIAN_NORMAL = Util.make(() -> {
         TagKey<Item> itemTagKey = bindC("obsidians/normal");
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
+
             registrateItemTagsProvider
+                    //~ if > 1.21.11 'addTag' -> 'tag'
                     .addTag(itemTagKey)
                     .add(Items.OBSIDIAN);
         });

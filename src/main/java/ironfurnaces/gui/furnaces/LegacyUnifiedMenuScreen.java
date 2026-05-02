@@ -1,3 +1,4 @@
+//~ replace_rl
 package ironfurnaces.gui.furnaces;
 
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;

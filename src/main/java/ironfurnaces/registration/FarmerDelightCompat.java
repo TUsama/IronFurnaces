@@ -3,6 +3,7 @@ package ironfurnaces.registration;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import ironfurnaces.items.augments.compat.ItemAugmentFarmerDelightCooking;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -14,7 +15,7 @@ public class FarmerDelightCompat {
     public static final ItemEntry<ItemAugmentFarmerDelightCooking> FD_AUGMENT =
             ModItems.registerItem("augment_farmer_delight_cooking_pot", "Augment: Cooking Pot", ItemAugmentFarmerDelightCooking::new)
                     .recipe((ctx, provider) -> {
-                        LegacyFurnaceBlocks.whenHasMod(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        ConditionRecipeUtil.whenHasMod(x -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                                 .pattern("###")
                                 .pattern("#X#")
                                 .pattern("###")

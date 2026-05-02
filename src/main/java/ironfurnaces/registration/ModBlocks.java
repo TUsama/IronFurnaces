@@ -10,21 +10,18 @@ import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
-import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
-import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
 import ironfurnaces.registration.util.CriterionUtil;
+import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -35,7 +32,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -45,13 +41,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 //? forge {
@@ -64,6 +58,7 @@ import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraftforge.client.model.generators.ModelFile;
 //?} else {
 /*import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.core.component.DataComponents;
@@ -74,23 +69,18 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.conditions.ModLoadedCondition;
-import net.minecraftforge.common.conditions.NotCondition;
-import net.minecraftforge.common.conditions.TagEmptyCondition;
-import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
 import net.minecraftforge.common.crafting.DataComponentIngredient;
 import net.minecraft.data.recipes.RecipeOutput;
 //? >1.21.11 {
 /^import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
-^///?}
+^///?} else {
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraftforge.client.model.generators.ModelFile;
+//?}
 *///?}
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -117,7 +107,7 @@ public class ModBlocks {
                         .define('F', Items.COMPARATOR)
                         .define('X', bindForge("storage_blocks/redstone"))
                         .unlockedBy("has_comparator", CriterionUtil.has(Items.COMPARATOR, provider))
-                        .save(provider, makeID(ctx.getName()));
+                        .save(provider, IDUtil.makeNewFurnaceID(ctx.getName()));
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
@@ -137,11 +127,11 @@ public class ModBlocks {
                                                 LootItem.lootTableItem(furnace)
                                                         .apply(
                                                                 //? if 1.20.1 {
-                                                                
+
                                                                 CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                         .copy(FurnaceSettingsV2.NBT_KEY, "BlockEntityTag." + FurnaceSettingsV2.NBT_KEY)
                                                                         .copy(FurnacePattern.NBT_KEY, "BlockEntityTag." + FurnacePattern.NBT_KEY)
-                                                                        
+
                                                                 //? } else {
                                                                 /*//~ if > 1.21.11 'copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)' -> 'copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)'
                                                                 CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
@@ -161,7 +151,9 @@ public class ModBlocks {
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .item(FurnacePatternHolderItem::new)
+
             .recipe((ctx, provider) -> {
+                //~ if 26.1.2 'shaped(RecipeCategory.MISC' -> 'shaped(provider.getItems(), RecipeCategory.MISC' {
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.IRON_PATTERN_ID)
                         .pattern("###")
                         .pattern("#X#")
@@ -169,7 +161,7 @@ public class ModBlocks {
                         .define('#', bindForge("ingots/iron"))
                         .define('X', bindC("player_workstations/furnaces"))
                         .unlockedBy("has_iron", CriterionUtil.has(Items.IRON_INGOT, provider))
-                        .save(provider, makeID(Constants.IRON_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.IRON_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.IRON_PATTERN_ID)
                         .pattern("YYY")
@@ -179,7 +171,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/copper"))
                         .define('Y', bindForge("ingots/iron"))
                         .unlockedBy("has_iron_ingot", CriterionUtil.has(Items.IRON_INGOT, provider))
-                        .save(provider, makeID(Constants.IRON_PATTERN_ID.getPath() + "2"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.IRON_PATTERN_ID.getPath() + "2"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.IRON_PATTERN_ID)
                         .pattern("YYY")
@@ -189,7 +181,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.COPPER_PATTERN_ID))
                         .define('Y', bindForge("ingots/iron"))
                         .unlockedBy("has_iron_ingot", CriterionUtil.has(Items.IRON_INGOT, provider))
-                        .save(provider, makeID(Constants.IRON_PATTERN_ID.getPath() + "2_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.IRON_PATTERN_ID.getPath() + "2_nbt"));
 
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.GOLD_PATTERN_ID)
@@ -200,7 +192,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/iron"))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_ingot", CriterionUtil.has(Items.GOLD_INGOT, provider))
-                        .save(provider, makeID(Constants.GOLD_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.GOLD_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.GOLD_PATTERN_ID)
                         .pattern("###")
@@ -210,7 +202,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.IRON_PATTERN_ID))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_ingot", CriterionUtil.has(Items.GOLD_INGOT, provider))
-                        .save(provider, makeID(Constants.GOLD_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.GOLD_PATTERN_ID.getPath() + "_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.GOLD_PATTERN_ID)
                         .pattern("###")
@@ -220,7 +212,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/silver"))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_block", CriterionUtil.has(Items.GOLD_BLOCK, provider))
-                        .save(provider, makeID(Constants.GOLD_PATTERN_ID.getPath() + "2"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.GOLD_PATTERN_ID.getPath() + "2"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.GOLD_PATTERN_ID)
                         .pattern("###")
@@ -230,7 +222,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.SILVER_PATTERN_ID))
                         .define('Y', bindForge("storage_blocks/gold"))
                         .unlockedBy("has_gold_block", CriterionUtil.has(Items.GOLD_BLOCK, provider))
-                        .save(provider, makeID(Constants.GOLD_PATTERN_ID.getPath() + "2_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.GOLD_PATTERN_ID.getPath() + "2_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.DIAMOND_PATTERN_ID)
                         .pattern("###")
@@ -240,7 +232,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/gold"))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_diamond", CriterionUtil.has(Items.DIAMOND, provider))
-                        .save(provider, makeID(Constants.DIAMOND_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.DIAMOND_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.DIAMOND_PATTERN_ID)
                         .pattern("###")
@@ -250,7 +242,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.GOLD_PATTERN_ID))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_diamond", CriterionUtil.has(Items.DIAMOND, provider))
-                        .save(provider, makeID(Constants.DIAMOND_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.DIAMOND_PATTERN_ID.getPath() + "_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.EMERALD_PATTERN_ID)
                         .pattern("###")
@@ -259,7 +251,7 @@ public class ModBlocks {
                         .define('#', bindForge("gems/emerald"))
                         .define('X', bindForge("furnaces/diamond"))
                         .unlockedBy("has_emerald", CriterionUtil.has(Items.EMERALD, provider))
-                        .save(provider, makeID(Constants.EMERALD_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.EMERALD_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.EMERALD_PATTERN_ID)
                         .pattern("###")
@@ -268,7 +260,7 @@ public class ModBlocks {
                         .define('#', bindForge("gems/emerald"))
                         .define('X', bindPatternHolder(ctx.get(), Constants.DIAMOND_PATTERN_ID))
                         .unlockedBy("has_emerald", CriterionUtil.has(Items.EMERALD, provider))
-                        .save(provider, makeID(Constants.EMERALD_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.EMERALD_PATTERN_ID.getPath() + "_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.COPPER_PATTERN_ID)
                         .pattern("###")
@@ -277,7 +269,7 @@ public class ModBlocks {
                         .define('#', bindForge("ingots/copper"))
                         .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                         .unlockedBy("has_copper_ingot", CriterionUtil.has(Items.COPPER_INGOT, provider))
-                        .save(provider, makeID(Constants.COPPER_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.COPPER_PATTERN_ID.getPath()));
 
                 whenHasTags(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.SILVER_PATTERN_ID)
                         .pattern("#G#")
@@ -287,7 +279,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/iron"))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_silver_ingot", CriterionUtil.has(ModItemTags.SILVER, provider))
-                        .save(x, makeID(Constants.SILVER_PATTERN_ID.getPath())), ctx, provider, Constants.SILVER_PATTERN_ID.getPath(), ModItemTags.SILVER);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.SILVER_PATTERN_ID.getPath())), ctx, provider, Constants.SILVER_PATTERN_ID.getPath(), ModItemTags.SILVER);
 
                 whenHasTags(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.SILVER_PATTERN_ID)
                         .pattern("#G#")
@@ -297,7 +289,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.IRON_PATTERN_ID))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_silver_ingot", CriterionUtil.has(ModItemTags.SILVER, provider))
-                        .save(x, makeID(Constants.SILVER_PATTERN_ID.getPath() + "_nbt")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "_nbt", ModItemTags.SILVER);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.SILVER_PATTERN_ID.getPath() + "_nbt")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "_nbt", ModItemTags.SILVER);
 
                 whenHasTags(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.SILVER_PATTERN_ID)
                         .pattern("###")
@@ -306,7 +298,7 @@ public class ModBlocks {
                         .define('#', ModItemTags.SILVER)
                         .define('X', bindForge("furnaces/copper"))
                         .unlockedBy("has_silver_ingot", CriterionUtil.has(ModItemTags.SILVER, provider))
-                        .save(x, makeID(Constants.SILVER_PATTERN_ID.getPath() + "2")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "2", ModItemTags.SILVER);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.SILVER_PATTERN_ID.getPath() + "2")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "2", ModItemTags.SILVER);
 
                 whenHasTags(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.SILVER_PATTERN_ID)
                         .pattern("###")
@@ -315,7 +307,7 @@ public class ModBlocks {
                         .define('#', ModItemTags.SILVER)
                         .define('X', bindPatternHolder(ctx.get(), Constants.COPPER_PATTERN_ID))
                         .unlockedBy("has_silver_ingot", CriterionUtil.has(ModItemTags.SILVER, provider))
-                        .save(x, makeID(Constants.SILVER_PATTERN_ID.getPath() + "2_nbt")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "2_nbt", ModItemTags.SILVER);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.SILVER_PATTERN_ID.getPath() + "2_nbt")), ctx, provider, Constants.SILVER_PATTERN_ID.getPath() + "2_nbt", ModItemTags.SILVER);
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.OBSIDIAN_PATTERN_ID)
                         .pattern("#Y#")
@@ -325,7 +317,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/emerald"))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
-                        .save(provider, makeID(Constants.OBSIDIAN_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.OBSIDIAN_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.OBSIDIAN_PATTERN_ID)
                         .pattern("#Y#")
@@ -335,7 +327,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.EMERALD_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
-                        .save(provider, makeID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.OBSIDIAN_PATTERN_ID)
                         .pattern("#Y#")
@@ -345,7 +337,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/crystal"))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
-                        .save(provider, makeID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "2"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "2"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.OBSIDIAN_PATTERN_ID)
                         .pattern("#Y#")
@@ -355,7 +347,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.CRYSTAL_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
-                        .save(provider, makeID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "2_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.OBSIDIAN_PATTERN_ID.getPath() + "2_nbt"));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.CRYSTAL_PATTERN_ID)
                         .pattern("###")
@@ -365,7 +357,7 @@ public class ModBlocks {
                         .define('X', bindForge("furnaces/diamond"))
                         .define('E', Items.ENDER_EYE)
                         .unlockedBy("has_diamond_furnace", CriterionUtil.has(Items.DIAMOND, provider))
-                        .save(provider, makeID(Constants.CRYSTAL_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.CRYSTAL_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.CRYSTAL_PATTERN_ID)
                         .pattern("###")
@@ -375,7 +367,7 @@ public class ModBlocks {
                         .define('X', bindPatternHolder(ctx.get(), Constants.DIAMOND_PATTERN_ID))
                         .define('E', Items.ENDER_EYE)
                         .unlockedBy("has_diamond_furnace", CriterionUtil.has(Items.DIAMOND, provider))
-                        .save(provider, makeID(Constants.CRYSTAL_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.CRYSTAL_PATTERN_ID.getPath() + "_nbt"));
                 //? <1.21.11 {
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.NETHERITE_PATTERN_ID)
                         .pattern("N#N")
@@ -386,7 +378,7 @@ public class ModBlocks {
                         .define('S', bindVanilla("soul_fire_base_blocks"))
                         .define('N', Items.NETHERITE_INGOT)
                         .unlockedBy("has_obsidian_furnace", CriterionUtil.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE, provider))
-                        .save(provider, makeID(Constants.NETHERITE_PATTERN_ID.getPath()));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.NETHERITE_PATTERN_ID.getPath()));
 
                 FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.NETHERITE_PATTERN_ID)
                         .pattern("N#N")
@@ -397,9 +389,10 @@ public class ModBlocks {
                         .define('S', bindVanilla("soul_fire_base_blocks"))
                         .define('N', Items.NETHERITE_INGOT)
                         .unlockedBy("has_obsidian_furnace", CriterionUtil.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE, provider))
-                        .save(provider, makeID(Constants.NETHERITE_PATTERN_ID.getPath() + "_nbt"));
+                        .save(provider, IDUtil.makeNewFurnaceID(Constants.NETHERITE_PATTERN_ID.getPath() + "_nbt"));
                 //?}
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -408,9 +401,10 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/allthemodium"))
                         .unlockedBy("has_allthemodium_ingot",
                                 CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                        .save(x, makeID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath())), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath(), provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath())), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath(), provider);
 
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -419,9 +413,10 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/allthemodium"))
                         .unlockedBy("has_allthemodium_ingot",
                                 CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                        .save(x, makeID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt", provider);
 
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -430,9 +425,10 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/vibranium"))
                         .unlockedBy("has_vibranium_ingot",
                                 CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                        .save(x, makeID(Constants.VIBRANIUM_PATTERN_ID.getPath())), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath(), provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath())), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath(), provider);
 
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -441,9 +437,10 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/vibranium"))
                         .unlockedBy("has_vibranium_ingot",
                                 CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                        .save(x, makeID(Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt", provider);
 
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -452,9 +449,10 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/unobtainium"))
                         .unlockedBy("has_unobtainium_ingot",
                                 CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                        .save(x, makeID(Constants.UNOBTAINIUM_PATTERN_ID.getPath())), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath(), provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath())), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath(), provider);
 
-                whenAllthemodium(x -> FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
                         .pattern("B#B")
                         .pattern("#X#")
                         .pattern("B#B")
@@ -463,7 +461,8 @@ public class ModBlocks {
                         .define('B', bindForge("storage_blocks/unobtainium"))
                         .unlockedBy("has_unobtainium_ingot",
                                 CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                        .save(x, makeID(Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                        .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                //~}
 
             })
             //? if > 1.21.11 {
@@ -506,6 +505,7 @@ public class ModBlocks {
                         }
 
                         AABB aabb = shape.bounds();
+                        //~ if > 1.21.11 'level.random' -> 'level.getRandom()'
                         RandomSource random = level.random;
 
                         double x = pos.getX() + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2D) + 0.1D + aabb.minX;
@@ -534,16 +534,7 @@ public class ModBlocks {
             .register();
 
 
-    //? if >1.21.11 {
-    /*public static String makeID(String furnaceName) {
-        return furnaceName;
-    }
-    *///?} else {
-    
-    public static ResourceLocation makeID(String furnaceName) {
-        return IronFurnaces.id("new_furnaces/" + furnaceName);
-    }
-    //?}
+
 
 
 
@@ -566,7 +557,11 @@ public class ModBlocks {
         return pattern.referenceBlock()
                 //~ if >1.20.1 'ForgeRegistries.BLOCKS::getValue' -> 'BuiltInRegistries.BLOCK::get'
                 .map(ForgeRegistries.BLOCKS::getValue)
-                .filter(block -> block != null && block != Blocks.AIR);
+                //~ if > 1.21.11 'block != null && block != Blocks.AIR' -> 'block.isPresent()'
+                .filter(block -> block != null && block != Blocks.AIR)
+                //? if > 1.21.11
+                //.map(x -> x.get().value())
+                ;
     }
 
     public static BlockState getReferenceStateOrNull(BlockGetter level, BlockPos pos) {
@@ -580,30 +575,14 @@ public class ModBlocks {
             Consumer<Consumer<FinishedRecipe>> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
-            RegistrateRecipeProvider provider
+            RegistrumRecipeProvider provider
     ) {
-        //? 1.20.1 {
-        consumerConsumer.accept(x -> ConditionalRecipe.builder()
-                .addCondition(new ModLoadedCondition("allthemodium"))
-                .addRecipe(x)
-                .build(provider, IronFurnaces.id("new_furnaces/" + id)));
-        //? } else {
-        /*consumerConsumer.accept(new ConditionalRecipeOutput(provider, Stream.of(new ModLoadedCondition("allthemodium")).toArray(ICondition[]::new)));
-        *///?}
+        ConditionRecipeUtil.whenHasMod(consumerConsumer, ctx, "new_furnaces", id, "allthemodium", provider);
     }
 
     @SafeVarargs
-    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrateRecipeProvider provider, String id, TagKey<Item>... tags) {
-        //? 1.20.1 {
-        ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
-        for (TagKey<Item> itemTagKey : tags) {
-            builder.addCondition(new NotCondition(new TagEmptyCondition(itemTagKey.location())));
-        }
-
-        consumerConsumer.accept(x -> builder.addRecipe(x).build(provider, IronFurnaces.id("new_furnaces" + "/" + id)));
-        //? } else {
-        /*consumerConsumer.accept(new ConditionalRecipeOutput(provider, Arrays.stream(tags).map(x -> new NotCondition(new TagEmptyCondition(x.location()))).toArray(ICondition[]::new)));
-        *///?}
+    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
+        ConditionRecipeUtil.whenHasTags(consumerConsumer, ctx, provider, "new_furnaces", id, tags);
     }
     //~}
 

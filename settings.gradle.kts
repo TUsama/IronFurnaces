@@ -40,7 +40,7 @@ stonecutter {
         // Configure your targets here!
         mc("1.20.1", loaders = listOf("forge"))
         mc("1.21.1", loaders = listOf("neoforge"))
-        //mc("26.1.2", loaders = listOf("neoforge"))
+        mc("26.1.2", loaders = listOf("neoforge"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
