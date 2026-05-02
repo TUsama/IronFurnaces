@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.google.gson.Gson;

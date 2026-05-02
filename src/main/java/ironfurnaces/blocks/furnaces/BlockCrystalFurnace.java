@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -55,7 +56,7 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
         return (BlockState) this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getHorizontalDirection().getOpposite()).setValue(WATERLOGGED, Boolean.valueOf(fluidState.getType() == Fluids.WATER));
     }
 
-    
+
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         double d0 = (double) pos.getX() + 0.5D;
         double d1 = (double) pos.getY();
@@ -114,3 +115,5 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
         return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.CRYSTAL_FURNACE), p_153215_, p_153216_, Config.crystalFurnaceSpeed, Config.crystalFurnaceTier, Config.crystalFurnaceGeneration,BlockCrystalFurnace.ID);
     }
 }
+
+//?}

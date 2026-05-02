@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.items.upgrades;
 
 import ironfurnaces.registration.LegacyFurnaceBlocks;
@@ -9,3 +10,5 @@ public class ItemUpgradeObsidian2 extends ItemUpgrade {
         super(properties, LegacyFurnaceBlocks.CRYSTAL_FURNACE.get(), LegacyFurnaceBlocks.OBSIDIAN_FURNACE.get());
     }
 }
+
+//?}

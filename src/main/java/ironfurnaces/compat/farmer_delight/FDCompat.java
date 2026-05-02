@@ -1,3 +1,4 @@
+//? fd {
 package ironfurnaces.compat.farmer_delight;
 
 import ironfurnaces.gui.furnaces.renderer.PatternScreenRenderHandlerManager;
@@ -21,3 +22,5 @@ public class FDCompat {
         PatternScreenRenderHandlerManager.INSTANCE.register(FDCompatModeHandler.ID, FDRenderHandler::new);
     }
 }
+
+//?}

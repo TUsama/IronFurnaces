@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.registration.util;
 
 import ironfurnaces.loaders.IronFurnaces;

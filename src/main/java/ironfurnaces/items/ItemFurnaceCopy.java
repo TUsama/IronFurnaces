@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.items;
 
 import ironfurnaces.registration.ModDataComponents;
@@ -31,7 +32,7 @@ public class ItemFurnaceCopy extends Item {
         super(properties);
     }
 
-    
+
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         //? 1.20.1 {
@@ -72,7 +73,7 @@ public class ItemFurnaceCopy extends Item {
             tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", stack.get(ModDataComponents.PERSISTENT_DIRECTION)));
         }
         *///?}
-        
+
         tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.1").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.2").withStyle(ChatFormatting.GRAY));
     }
@@ -146,3 +147,5 @@ public class ItemFurnaceCopy extends Item {
         return super.useOn(ctx);
     }
 }
+
+//?}

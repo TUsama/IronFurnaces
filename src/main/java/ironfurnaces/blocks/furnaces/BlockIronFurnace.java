@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -36,3 +37,5 @@ public class BlockIronFurnace extends BlockIronFurnaceBase {
         return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.IRON_FURNACE), p_153277_, p_153278_, Config.ironFurnaceSpeed, Config.ironFurnaceTier, Config.ironFurnaceGeneration,BlockIronFurnace.ID);
     }
 }
+
+//?}

@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -529,3 +530,5 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     public abstract String getId();
 
 }
+
+//?}

@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -40,3 +41,5 @@ public class BlockCopperFurnace extends BlockIronFurnaceBase {
     }
 
 }
+
+//?}

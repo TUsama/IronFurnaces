@@ -1,3 +1,4 @@
+//? fd {
 package ironfurnaces.registration;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -33,3 +34,5 @@ public class FarmerDelightCompat {
 
     }
 }
+
+//?}

@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -37,3 +38,5 @@ public class BlockObsidianFurnace extends BlockIronFurnaceBase {
         return createFurnaceTicker(level, type, ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.OBSIDIAN_FURNACE));
     }
 }
+
+//?}

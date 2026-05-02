@@ -195,8 +195,8 @@ stonecutter {
         "fabric" to loader.equals("fabric"),
         "neoforge" to loader.equals("neoforge"),
         "forge" to loader.equals("forge"),
-        "vanilla" to loader.equals("vanilla")
-
+        "vanilla" to loader.equals("vanilla"),
+        "fd" to (loader.equals("forge") || minecraft == "1.21.1")
     ))
     replacements.string(current.version > "1.20.1" && loader.equals("neoforge")) {
         replace("ForgeConfigSpec", "ModConfigSpec")
@@ -286,6 +286,10 @@ stonecutter {
         replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.registrum.util.nullness")
         replace("providers.RegistrateRecipeProvider", "providers.generators.RegistrumRecipeProvider")
         replace("critereon.", "criterion.")
+        replace("readJsonWithCodec", "readLenientJsonWithCodec")
+        replace("ResourceLocation", "Identifier")
+        replace("ResourceLocationUtils", "ResourceLocationUtils")
+        replace("net.minecraft.Util", "net.minecraft.util.Util")
     }
     replacements.string(current.parsed.eq("1.21.1")) {
         replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
@@ -293,23 +297,10 @@ stonecutter {
     }
 
 
-
-
     replacements.string(current.version > "1.20.1", "replace_Registrate") {
         replace("Registrate", "Registrum")
     }
 
-    replacements.string(eval(current.version, ">1.21.1")) {
-        replace("net.minecraft.Util", "net.minecraft.util.Util")
-    }
-
-    replacements.regex(current.parsed.eq("26.1.2"), "replace_rl") {
-        replace("\\bResourceLocation\\b" to "Identifier", "Identifier" to "ResourceLocation")
-    }
-
-    replacements.regex(current.parsed.eq("26.1.2")) {
-        replace("\\bResourceLocation\\b" to "Identifier", "Identifier" to "ResourceLocation")
-    }
 
 }
 

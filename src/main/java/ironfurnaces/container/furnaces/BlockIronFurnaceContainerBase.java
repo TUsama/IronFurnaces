@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.container.furnaces;
 
 import ironfurnaces.container.slots.*;
@@ -25,7 +26,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 //? 1.20.1 {
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-//? } else {
+ //? } else {
 
 //?}
 
@@ -40,7 +41,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
     public BlockIronFurnaceContainerBase(MenuType<?> containerType, int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
         super(containerType, windowId);
-        
+
         this.playerEntity = player;
         this.playerInventory = new InvWrapper(playerInventory);
         this.world = playerInventory.player.level();
@@ -431,15 +432,15 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
     public boolean getIsFurnace() {
         return this.te.isFurnace();
     }
-    
+
     public boolean getIsGenerator() {
         return this.te.isGenerator();
     }
-    
+
     public boolean getAutoOutput() {
         return this.te.getAutoOutput() == 1;
     }
-    
+
     public Component getTooltip(int index) {
         switch (te.furnaceSettings.get(index))
         {
@@ -989,3 +990,5 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
     }
 
 }
+
+//?}

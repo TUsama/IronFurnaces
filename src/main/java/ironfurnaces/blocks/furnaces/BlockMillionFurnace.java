@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
@@ -95,3 +96,5 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
         builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.LIT, ModBlockState.TYPE, ModBlockState.JOVIAL, RAINBOW_GENERATING);
     }
 }
+
+//?}

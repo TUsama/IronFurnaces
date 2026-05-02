@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.registration;
 
 import com.tterrag.registrate.providers.DataGenContext;
@@ -74,6 +74,7 @@ import net.minecraft.data.recipes.RecipeOutput;
 //? >1.21.11 {
 /^import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
+import net.minecraft.world.level.storage.loot.LootContext;
 ^///?} else {
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraftforge.client.model.generators.ModelFile;

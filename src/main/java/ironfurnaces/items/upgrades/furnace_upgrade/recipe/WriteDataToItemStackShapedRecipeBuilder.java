@@ -1,4 +1,4 @@
-//~ replace_rl
+
 //? <1.21.11 {
 package ironfurnaces.items.upgrades.furnace_upgrade.recipe;
 

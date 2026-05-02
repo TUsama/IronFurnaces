@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.loaders;
 
 import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.BusBuilder;

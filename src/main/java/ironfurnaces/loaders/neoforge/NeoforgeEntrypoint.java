@@ -70,15 +70,12 @@ public class NeoforgeEntrypoint {
                     ModBlocks.HEATER.get());
         });
 
-        NeoForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(x -> {
-            if (x.getEntity() instanceof ServerPlayer player){
-                BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
-            }
-        });
 
         NeoForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
             if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level) {
+                //? <1.21.11{
                 BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
+                //?}
                 LegacyPlayerFurnacesListChecker.validateFurnacesList(player, level);
             }
         });
@@ -104,6 +101,7 @@ public class NeoforgeEntrypoint {
 
     }
 
+    //? <1.21.11{
     private static void registerLegacyFurnaceCap(RegisterCapabilitiesEvent x) {
         registerLegacyFurnaceCap(x, LegacyFurnaceBlocks.IRON_FURNACE);
         registerLegacyFurnaceCap(x, LegacyFurnaceBlocks.GOLD_FURNACE);
@@ -133,5 +131,6 @@ public class NeoforgeEntrypoint {
                 (o, direction) -> o.energyStorage
         );
     }
+//?}
 }
 *///?}

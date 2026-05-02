@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 
 @UtilityClass
 public class BlockWorkSpeedSyncer {
-    
+
     public void syncWhenPlayerJoin(ServerPlayer player) {
         HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
         stringIntegerHashMap.put(BlockCopperFurnace.ID, Config.copperFurnaceSpeed.get());
@@ -43,3 +44,5 @@ public class BlockWorkSpeedSyncer {
 
 
 }
+
+//?}

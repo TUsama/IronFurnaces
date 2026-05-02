@@ -1,5 +1,5 @@
 //~ replace_Registrate
-//~ replace_rl
+
 package ironfurnaces.registration;
 
 import com.tterrag.registrate.Registrate;

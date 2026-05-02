@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.registration;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;

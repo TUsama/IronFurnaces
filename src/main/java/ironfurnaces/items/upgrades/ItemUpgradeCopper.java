@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.items.upgrades;
 
 import ironfurnaces.registration.LegacyFurnaceBlocks;
@@ -10,3 +11,5 @@ public class ItemUpgradeCopper extends ItemUpgrade {
         super(properties, Blocks.FURNACE, LegacyFurnaceBlocks.COPPER_FURNACE.get());
     }
 }
+
+//?}

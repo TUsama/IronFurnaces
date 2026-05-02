@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.container.furnaces;
 
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
@@ -17,3 +18,5 @@ public class LegacyUnifiedMenu extends BlockIronFurnaceContainerBase{
 
     }
 }
+
+//?}

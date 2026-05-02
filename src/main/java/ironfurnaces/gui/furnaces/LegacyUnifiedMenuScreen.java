@@ -1,4 +1,4 @@
-//~ replace_rl
+//? <1.21.11{
 package ironfurnaces.gui.furnaces;
 
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
@@ -12,3 +12,4 @@ public class LegacyUnifiedMenuScreen extends BlockIronFurnaceScreenBase<LegacyUn
         super(legacyUnifiedMenu, inv, name, selectedGui);
     }
 }
+//?}

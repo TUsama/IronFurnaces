@@ -1,4 +1,4 @@
-//~ replace_rl
+
 package ironfurnaces.items.upgrades.furnace_upgrade.recipe;
 
 import com.google.gson.JsonArray;

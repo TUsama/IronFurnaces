@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.items;
 
 import com.google.common.collect.Lists;
@@ -33,25 +34,25 @@ public class ItemMillionFurnace extends BlockItem {
     private Random rand = new Random();
     private int timer = 0;
 
-    
+
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-            tooltip.add(Component.literal("Cooktime: " + Config.millionFurnaceSpeed.get()).withStyle(ChatFormatting.GRAY));
-            timer++;
-            if (timer % 20 == 0) {
-                timer = 0;
-                String name = Component.translatable("block.ironfurnaces.million_furnace").getString();
-                ArrayList<Component> names = Lists.newArrayList();
-                for (int i = 0; i < name.length(); i++) {
-                    names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ChatFormatting.getById(getIDRandom(rand.nextInt(6)))));
-                }
-                MutableComponent component = Component.literal("");
-                for (int i = 0; i < names.size(); i++) {
-                    component.append(names.get(i));
-                }
-                stack.setHoverName(component);
-
+        tooltip.add(Component.literal("Cooktime: " + Config.millionFurnaceSpeed.get()).withStyle(ChatFormatting.GRAY));
+        timer++;
+        if (timer % 20 == 0) {
+            timer = 0;
+            String name = Component.translatable("block.ironfurnaces.million_furnace").getString();
+            ArrayList<Component> names = Lists.newArrayList();
+            for (int i = 0; i < name.length(); i++) {
+                names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ChatFormatting.getById(getIDRandom(rand.nextInt(6)))));
             }
+            MutableComponent component = Component.literal("");
+            for (int i = 0; i < names.size(); i++) {
+                component.append(names.get(i));
+            }
+            stack.setHoverName(component);
+
+        }
 
         Format decimal = new DecimalFormat();
         String part1 = Component.translatable("tooltip.ironfurnaces.rainbow_gen1").getString();
@@ -97,3 +98,5 @@ public class ItemMillionFurnace extends BlockItem {
     }
 
 }
+
+//?}
