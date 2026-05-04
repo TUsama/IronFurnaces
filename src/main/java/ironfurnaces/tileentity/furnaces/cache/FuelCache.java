@@ -13,13 +13,13 @@ import lombok.experimental.Accessors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+import net.minecraft.core.HolderLookup;
+//?}
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -112,23 +112,23 @@ public class FuelCache extends ResizableCache implements IEnergyStorage {
 
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
 
-        tag.put("Items", super.serializeNBT());
-        Tag tag1 = energy.serializeNBT();
+        tag.put("Items", super.serializeNBT(registries));
+        Tag tag1 = energy.serializeNBT(registries);
         tag.put("Energy", tag1);
 
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
         if (nbt.contains("Items", Tag.TAG_COMPOUND)) {
-            super.deserializeNBT(nbt.getCompound("Items"));
+            super.deserializeNBT(registries, nbt.getCompound("Items"));
         }
         if (nbt.contains("Energy")) {
-            energy.deserializeNBT(nbt.get("Energy"));
+            energy.deserializeNBT(registries, nbt.get("Energy"));
         }
 
         recomputeFillStats();

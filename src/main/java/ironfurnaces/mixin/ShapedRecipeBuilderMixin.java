@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.advancements.Criterion;
-*///?}
+//?}
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +32,9 @@ public interface ShapedRecipeBuilderMixin {
     @Accessor("result")
     Item getResult();
     //? > 1.20.1 {
-    /*@Accessor("resultStack")
+    @Accessor("resultStack")
     ItemStack getResultStack();
-    *///?}
+    //?}
 
     @Accessor("count")
     int getCount();
@@ -46,12 +46,12 @@ public interface ShapedRecipeBuilderMixin {
     Map<Character, Ingredient> getKey();
 
     //? 1.20.1 {
-    @Accessor("advancement")
+    /*@Accessor("advancement")
     Advancement.Builder getAdvancement();
-    //? } else {
-    /*@Accessor("criteria")
+    *///? } else {
+    @Accessor("criteria")
     Map<String, Criterion<?>> getCriteria();
-    *///?}
+    //?}
 
 
     @Accessor("group")
@@ -62,12 +62,12 @@ public interface ShapedRecipeBuilderMixin {
     boolean isShowNotification();
     //? 1.20.1 {
         
-    @Invoker("ensureValid")
-    void callEnsureValid(ResourceLocation id);
-    //? } else {
     /*@Invoker("ensureValid")
+    void callEnsureValid(ResourceLocation id);
+    *///? } else {
+    @Invoker("ensureValid")
     ShapedRecipePattern callEnsureValid(ResourceLocation id);
-    *///?}
+    //?}
 
 
 }

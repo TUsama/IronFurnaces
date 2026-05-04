@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.client.gui.components.WidgetSprites;
-*///?}
+import net.minecraft.client.gui.components.WidgetSprites;
+//?}
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class RedstoneModeButton extends BaseImageButton {
 
     //? 1.20.1 {
     
-    @Override
+    /*@Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.setTooltip(getTooltip());
 
@@ -70,9 +70,9 @@ public class RedstoneModeButton extends BaseImageButton {
         }
         guiGraphics.blit(resourcelocation, this.getX(), this.getY(), 0, 0, this.width, this.height, getTextureWidth(), getTextureHeight());
     }
-    //? } else {
+    *///? } else {
 
-    /*@Override
+    @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (settingsV2.get().redStoneMode().equals(FurnaceSettingsV2.RedStoneMode.COMPARATOR_SUBTRACTION)){
             substractionGroup.activeAll();
@@ -86,6 +86,6 @@ public class RedstoneModeButton extends BaseImageButton {
         guiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);
     }
 
-    *///?}
+    //?}
 
 }

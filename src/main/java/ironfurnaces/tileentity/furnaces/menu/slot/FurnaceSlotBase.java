@@ -2,8 +2,8 @@ package ironfurnaces.tileentity.furnaces.menu.slot;
 
 import ironfurnaces.tileentity.furnaces.cache.ICacheFillStats;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class FurnaceSlotBase extends SlotItemHandler {

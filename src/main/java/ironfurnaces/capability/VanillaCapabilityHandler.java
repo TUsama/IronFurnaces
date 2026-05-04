@@ -1,13 +1,18 @@
 package ironfurnaces.capability;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.items.IItemHandler;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
-
+//? forge {
+/*import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+*///?} else {
+import net.neoforged.neoforge.capabilities.Capabilities;
+//?}
 import net.minecraft.core.BlockPos;
 
 
@@ -29,23 +34,23 @@ public final class VanillaCapabilityHandler {
         }
 
         //? if <=1.20.1 {
-        return blockEntity.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER, side)
+        /*return blockEntity.getCapability(net.neoforged.neoforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER, side)
                 .resolve()
                 .orElse(null);
-        //?} else {
-        /*Level level = blockEntity.getLevel();
+        *///?} else {
+        Level level = blockEntity.getLevel();
         if (level == null) {
             return null;
         }
 
         return level.getCapability(
-                net.minecraftforge.capabilities.Capabilities.ItemHandler.BLOCK,
+                net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK,
                 blockEntity.getBlockPos(),
                 blockEntity.getBlockState(),
                 blockEntity,
                 side
         );
-        *///?}
+        //?}
     }
 
     public static @Nullable IItemHandler getBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side) {
@@ -54,20 +59,20 @@ public final class VanillaCapabilityHandler {
         }
 
         //? if <=1.20.1 {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        /*BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity == null || blockEntity.isRemoved()) {
             return null;
         }
-        return blockEntity.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER, side)
+        return blockEntity.getCapability(net.neoforged.neoforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER, side)
                 .resolve()
                 .orElse(null);
-        //?} else {
-        /*return level.getCapability(
-                net.minecraftforge.capabilities.Capabilities.ItemHandler.BLOCK,
+        *///?} else {
+        return level.getCapability(
+                net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK,
                 pos,
                 side
         );
-        *///?}
+        //?}
     }
 
     public static void withBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side, Consumer<IItemHandler> consumer) {
@@ -106,23 +111,36 @@ public final class VanillaCapabilityHandler {
         }
 
         //? if <=1.20.1 {
-        return blockEntity.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY, side)
+        /*return blockEntity.getCapability(net.neoforged.neoforge.common.capabilities.ForgeCapabilities.ENERGY, side)
                 .resolve()
                 .orElse(null);
-        //?} else {
-        /*Level level = blockEntity.getLevel();
+        *///?} else {
+        Level level = blockEntity.getLevel();
         if (level == null) {
             return null;
         }
 
         return level.getCapability(
-                net.minecraftforge.capabilities.Capabilities.EnergyStorage.BLOCK,
+                net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK,
                 blockEntity.getBlockPos(),
                 blockEntity.getBlockState(),
                 blockEntity,
                 side
         );
-        *///?}
+        //?}
+    }
+
+    public static @Nullable IEnergyStorage getItemEnergyStorage(ItemStack itemStack) {
+
+        //? if <=1.20.1 {
+        /*return itemStack.getCapability(ForgeCapabilities.ENERGY).resolve()
+                .orElse(null);
+        *///?} else {
+
+        return itemStack.getCapability(
+                Capabilities.EnergyStorage.ITEM
+        );
+        //?}
     }
 
     public static @Nullable IEnergyStorage getBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side) {
@@ -131,24 +149,31 @@ public final class VanillaCapabilityHandler {
         }
 
         //? if <=1.20.1 {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        /*BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity == null || blockEntity.isRemoved()) {
             return null;
         }
-        return blockEntity.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY, side)
+        return blockEntity.getCapability(net.neoforged.neoforge.common.capabilities.ForgeCapabilities.ENERGY, side)
                 .resolve()
                 .orElse(null);
-        //?} else {
-        /*return level.getCapability(
-                net.minecraftforge.capabilities.Capabilities.EnergyStorage.BLOCK,
+        *///?} else {
+        return level.getCapability(
+                net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK,
                 pos,
                 side
         );
-        *///?}
+        //?}
     }
 
     public static void withBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side, Consumer<IEnergyStorage> consumer) {
         IEnergyStorage storage = getBlockEnergyStorage(blockEntity, side);
+        if (storage != null) {
+            consumer.accept(storage);
+        }
+    }
+
+    public static void withItemEnergyStorage(ItemStack itemStack, Consumer<IEnergyStorage> consumer) {
+        IEnergyStorage storage = getItemEnergyStorage(itemStack);
         if (storage != null) {
             consumer.accept(storage);
         }

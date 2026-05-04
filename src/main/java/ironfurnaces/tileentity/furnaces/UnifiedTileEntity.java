@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.tileentity.furnaces;
 
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
@@ -10,16 +11,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class UnifiedTileEntity extends BlockIronFurnaceTileBase{
-    private ForgeConfigSpec.IntValue furnaceSpeed;
+    private ModConfigSpec.IntValue furnaceSpeed;
     @Getter
     private String identifier;
-    private ForgeConfigSpec.IntValue tier;
-    private ForgeConfigSpec.IntValue generationPerTick;
+    private ModConfigSpec.IntValue tier;
+    private ModConfigSpec.IntValue generationPerTick;
 
-    public UnifiedTileEntity(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state, ForgeConfigSpec.IntValue furnaceSpeed, ForgeConfigSpec.IntValue tier, ForgeConfigSpec.IntValue generationPerTick, String identifier) {
+    public UnifiedTileEntity(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state, ModConfigSpec.IntValue furnaceSpeed, ModConfigSpec.IntValue tier, ModConfigSpec.IntValue generationPerTick, String identifier) {
         super(tileentitytypeIn, pos, state);
         this.furnaceSpeed = furnaceSpeed;
         this.identifier = identifier;
@@ -29,7 +30,7 @@ public class UnifiedTileEntity extends BlockIronFurnaceTileBase{
 
 
     @Override
-    public ForgeConfigSpec.IntValue getCookTimeConfig() {
+    public ModConfigSpec.IntValue getCookTimeConfig() {
         return furnaceSpeed;
     }
 
@@ -60,3 +61,5 @@ public class UnifiedTileEntity extends BlockIronFurnaceTileBase{
         return tier.get();
     }
 }
+
+//?}

@@ -21,11 +21,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import vectorwing.farmersdelight.common.utility.TextUtils;
 //? 1.20.1 {
-import net.minecraftforge.registries.ForgeRegistries;
-//?} else {
+/*import net.neoforged.neoforge.registries.ForgeRegistries;
+*///?} else {
 //?}
 
 import java.awt.*;
@@ -109,7 +109,7 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
                 ResourceLocation resourceLocation = handler.showAvailableItem(i, Minecraft.getInstance().level.getGameTime());
                 if (resourceLocation != null) {
                     //~ if >1.20.1 'ForgeRegistries.ITEMS.getValue' -> 'BuiltInRegistries.ITEM.get'
-                    Item value = ForgeRegistries.ITEMS.getValue(resourceLocation);
+                    Item value = BuiltInRegistries.ITEM.get(resourceLocation);
                     if (value != null) {
                         int x = guiLeft + 30 + (i % 3) * 18;
                         int y = guiTop + 17 + (i / 3) * 18;
@@ -140,7 +140,7 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
 
                 ItemStack mealStack = slotUnderMouse.getItem();
                 //~ if >1.20.1 '.color' -> '.color()'
-                tooltip.add(((MutableComponent) mealStack.getItem().getDescription()).withStyle(mealStack.getRarity().color));
+                tooltip.add(((MutableComponent) mealStack.getItem().getDescription()).withStyle(mealStack.getRarity().color()));
 
                 ItemStack containerStack = slotUnderMouse.getItem().getCraftingRemainingItem();
                 if (!containerStack.isEmpty()) {

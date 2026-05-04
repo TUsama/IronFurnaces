@@ -2,7 +2,7 @@
 package ironfurnaces.registration;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
-import com.tterrag.registrate.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
@@ -145,10 +145,10 @@ public class ModItemTags {
 
     protected static TagKey<Item> bindForge(String id) {
         //? 1.20.1 {
-        return of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
-        //? } else {
-        /*return bindC(id);
-        *///?}
+        /*return of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
+        *///? } else {
+        return bindC(id);
+        //?}
     }
 
     protected static TagKey<Item> bind(String id) {

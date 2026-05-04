@@ -16,8 +16,8 @@ import net.minecraft.world.level.block.Block;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.component.DataComponents;
-*///?}
+import net.minecraft.core.component.DataComponents;
+//?}
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -36,7 +36,7 @@ public class ItemMillionFurnace extends BlockItem {
 
 
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.literal("Cooktime: " + Config.millionFurnaceSpeed.get()).withStyle(ChatFormatting.GRAY));
         timer++;
         if (timer % 20 == 0) {
@@ -50,7 +50,7 @@ public class ItemMillionFurnace extends BlockItem {
             for (int i = 0; i < names.size(); i++) {
                 component.append(names.get(i));
             }
-            stack.setHoverName(component);
+            stack.set(DataComponents.CUSTOM_NAME, component);
 
         }
 

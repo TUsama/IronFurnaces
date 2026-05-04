@@ -86,8 +86,8 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
                 if (containerMenu instanceof FurnacePatternMenu menu){
                     if ((dataSlotIndex == menu.getDataSlotIndex(lockedRecipeChangeDataSlot) || dataSlotIndex == menu.getDataSlotIndex(lastRecipeChangeDataSlot)) && menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
                         //~ if >1.20.1 '.getId()' -> '.id()' {
-                        ResourceLocation locked = handler.getLockedRecipe() != null ? handler.getLockedRecipe().getId() : null;
-                        ResourceLocation last = handler.getLastRecipe() != null ? handler.getLastRecipe().getId() : null;
+                        ResourceLocation locked = handler.getLockedRecipe() != null ? handler.getLockedRecipe().id() : null;
+                        ResourceLocation last = handler.getLastRecipe() != null ? handler.getLastRecipe().id() : null;
                         //~}
                         if (menu.blockEntity.hasLevel() && !menu.blockEntity.getLevel().isClientSide && menu.player.containerMenu instanceof FurnacePatternMenu) {
                             menu.blockEntity.syncToViewer(new S2CSyncFDDataPacket(locked, last));

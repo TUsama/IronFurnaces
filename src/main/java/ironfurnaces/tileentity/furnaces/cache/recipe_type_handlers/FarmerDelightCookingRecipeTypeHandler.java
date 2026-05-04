@@ -22,16 +22,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import org.apache.commons.lang3.ArrayUtils;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
 import vectorwing.farmersdelight.integration.jei.FDRecipeTypes;
 //? 1.20.1 {
-import net.minecraftforge.registries.ForgeRegistries;
-//?} else {
+/*import net.neoforged.neoforge.registries.ForgeRegistries;
+*///?} else {
 //?}
 
 import java.util.*;
@@ -40,11 +40,11 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     @Setter
     @Getter
             //~ if >1.20.1 'CookingPotRecipe' -> 'RecipeHolder<CookingPotRecipe>'
-    private CookingPotRecipe lastRecipe;
+    private RecipeHolder<CookingPotRecipe> lastRecipe;
     @Getter
     @Setter
             //~ if >1.20.1 'CookingPotRecipe' -> 'RecipeHolder<CookingPotRecipe>'
-    private CookingPotRecipe lockedRecipe;
+    private RecipeHolder<CookingPotRecipe> lockedRecipe;
     private ResourceLocation tempResourceLocation;
 
     public boolean isLocking;
@@ -61,7 +61,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     }
 
     @Override
-    public Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
+    public Optional<? extends RecipeHolder> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
         return this.quickCheck.getRecipeFor(new RecipeWrapper(blockEntity.getInput()), blockEntity.getLevel());
     }
 
@@ -87,7 +87,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         ProcessingInstanceManager instanceManager = blockEntity.getInstanceManager();
         blockEntity.getRecipe(ItemStack.EMPTY)
                 //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
-                .filter(x -> x instanceof CookingPotRecipe)
+                .filter(x -> x.value() instanceof CookingPotRecipe)
                 .ifPresent(x -> {
                     if (!instanceManager.getWorkingIndexes().contains(0)) instanceManager.addInstance(new Cooking(usedStats.smeltTick(), 1));
                 });
@@ -104,18 +104,18 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         CompoundTag compoundTag = new CompoundTag();
         if (lockedRecipe != null) {
             //~ if >1.20.1 'lockedRecipe.getId()' -> 'lockedRecipe.id()'
-            compoundTag.putString("CookingPotRecipeId", lockedRecipe.getId().toString());
+            compoundTag.putString("CookingPotRecipeId", lockedRecipe.id().toString());
         }
 
         return compoundTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
         if (nbt.contains("CookingPotRecipeId")) {
             this.tempResourceLocation = IronFurnaces.parse(nbt.getString("CookingPotRecipeId"));
         }
@@ -141,9 +141,9 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
             if (tempResourceLocation != null) {
                 level.getRecipeManager().byKey(tempResourceLocation)
                         //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
-                        .filter(x -> x instanceof CookingPotRecipe)
+                        .filter(x -> x.value() instanceof CookingPotRecipe)
                         //~ if >1.20.1 'lockedRecipe = (CookingPotRecipe) x' -> 'lockedRecipe = (RecipeHolder<CookingPotRecipe>) x'
-                        .ifPresent(x -> lockedRecipe = (CookingPotRecipe) x);
+                        .ifPresent(x -> lockedRecipe = (RecipeHolder<CookingPotRecipe>) x);
                 tempResourceLocation = null;
             } else {
                 isLocking = false;
@@ -153,7 +153,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         }
         isLocking = true;
         //~ if >1.20.1 'lockedRecipe.getIngredients()' -> 'lockedRecipe.value().getIngredients()'
-        NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
+        NonNullList<Ingredient> ingredients = lockedRecipe.value().getIngredients();
         if (i > ingredients.size() - 1) {
             return false;
         } else {
@@ -165,7 +165,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     public ResourceLocation showAvailableItem(int i, long gameTime) {
         if (lockedRecipe == null) return null;
         //~ if >1.20.1 'lockedRecipe.getIngredients()' -> 'lockedRecipe.value().getIngredients()'
-        NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
+        NonNullList<Ingredient> ingredients = lockedRecipe.value().getIngredients();
         if (i < 0 || i >= ingredients.size()) return null;
 
         ItemStack[] items = ingredients.get(i).getItems();
@@ -174,20 +174,20 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         int period = 20; // 每秒切换一次
         int index = (int) ((gameTime / period) % items.length);
         //~ if >1.20.1 'ForgeRegistries.ITEMS' -> 'BuiltInRegistries.ITEM'
-        return ForgeRegistries.ITEMS.getKey(items[index].getItem());
+        return BuiltInRegistries.ITEM.getKey(items[index].getItem());
     }
 
     public List<Component> buildTooltips(Level level){
         ArrayList<Component> components = new ArrayList<>();
         if (this.lockedRecipe != null){
             //~ if >1.20.1 'lockedRecipe' -> 'lockedRecipe.value()'
-            ItemStack resultItem = lockedRecipe.getResultItem(level.registryAccess());
+            ItemStack resultItem = lockedRecipe.value().getResultItem(level.registryAccess());
             components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.current_locked_recipe", Component.literal(resultItem.getCount() + "x ").append(resultItem.getDisplayName())));
         } else {
             components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.no_current_locked_recipe"));
             if (lastRecipe != null){
                 //~ if >1.20.1 'lastRecipe' -> 'lastRecipe.value()'
-                ItemStack resultItem = lastRecipe.getResultItem(level.registryAccess());
+                ItemStack resultItem = lastRecipe.value().getResultItem(level.registryAccess());
                 components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.last_recipe", Component.literal(resultItem.getCount() + "x ").append(resultItem.getDisplayName())));
                 components.add(Component.translatable("screen.ironfurnaces.compat.farmer_delight.click_to_lock"));
             } else {
@@ -213,7 +213,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
             return leftovers;
         }
         //~ if >1.20.1 'lockedRecipe' -> 'lockedRecipe.value()'
-        NonNullList<Ingredient> ingredients = lockedRecipe.getIngredients();
+        NonNullList<Ingredient> ingredients = lockedRecipe.value().getIngredients();
         int totalSlots = modifiable.getSlots();
         int arrangeSlots = Math.min(totalSlots, ingredients.size());
 
@@ -456,7 +456,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (!(obj instanceof ItemStackKey other)) return false;
-            return ItemHandlerHelper.canItemStacksStack(this.stack, other.stack);
+            return ItemStack.isSameItemSameComponents(this.stack, other.stack);
         }
 
         @Override

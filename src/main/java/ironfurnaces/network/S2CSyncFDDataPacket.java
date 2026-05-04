@@ -12,9 +12,9 @@ import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 
 //?} else {
 
-/*import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
-*///?}
+//?}
 import java.util.Optional;
 
 public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
@@ -36,9 +36,9 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
                 if (lockedRecipe != null) {
                     var recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lockedRecipe);
                     //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
-                    if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
+                    if (recipe.isPresent() && recipe.get().value() instanceof CookingPotRecipe cookingPotRecipe){
                         //~ if >1.20.1 'cookingPotRecipe' -> '((RecipeHolder<CookingPotRecipe>) recipe.get())'
-                        handler.setLockedRecipe(cookingPotRecipe);
+                        handler.setLockedRecipe(((RecipeHolder<CookingPotRecipe>) recipe.get()));
                     }
                     handler.isLocking = true;
                 } else {
@@ -48,9 +48,9 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
                 if (lastRecipe != null) {
                     var recipe = Minecraft.getInstance().level.getRecipeManager().byKey(lastRecipe);
                     //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
-                    if (recipe.isPresent() && recipe.get() instanceof CookingPotRecipe cookingPotRecipe){
+                    if (recipe.isPresent() && recipe.get().value() instanceof CookingPotRecipe cookingPotRecipe){
                         //~ if >1.20.1 'cookingPotRecipe' -> '((RecipeHolder<CookingPotRecipe>) recipe.get())'
-                        handler.setLastRecipe(cookingPotRecipe);
+                        handler.setLastRecipe(((RecipeHolder<CookingPotRecipe>) recipe.get()));
 
                     }
                 } else {

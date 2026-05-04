@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.client.gui.components.WidgetSprites;
-*///?}
+import net.minecraft.client.gui.components.WidgetSprites;
+//?}
 
 import java.util.function.BooleanSupplier;
 

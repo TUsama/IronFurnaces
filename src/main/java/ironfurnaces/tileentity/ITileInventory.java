@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.tileentity;
 
 import net.minecraft.core.Direction;
@@ -20,3 +21,5 @@ public interface ITileInventory {
 
 
 }
+
+//?}

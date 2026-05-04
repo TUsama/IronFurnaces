@@ -10,7 +10,7 @@ public interface IFurnaceStats<T extends IFurnaceStats<?>> {
                     IFurnaceStats::getType,
                     //~ if 1.20.1 '.CODEC' -> '.CODEC.codec()'{
                     type -> switch (type) {
-                        case EFFECTIVE -> EffectiveFurnaceStats.CODEC.codec();
+                        case EFFECTIVE -> EffectiveFurnaceStats.CODEC;
                     }
                     //~ }
 

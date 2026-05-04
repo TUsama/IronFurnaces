@@ -22,8 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 //? 1.20.1
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.items.ItemHandlerHelper;
+//import net.neoforged.neoforge.common.ForgeHooks;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
 

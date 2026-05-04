@@ -20,12 +20,12 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 //? > 1.20.1 {
-/*import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
-*///?}
+//?}
 //~ if >1.20.1 'Container' -> 'SingleRecipeInput'
-public class GeneratorRecipe implements Recipe<Container> {
+public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
     private ResourceLocation recipeId;
     @Getter
@@ -54,7 +54,7 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     //~ if >1.20.1 'Container' -> 'SingleRecipeInput' {
 
-    public static int getTotalCount(Container inventory, Ingredient input) {
+    public static int getTotalCount(SingleRecipeInput inventory, Ingredient input) {
         ItemStack stack = inventory.getItem(0);
         if (!stack.isEmpty() && input.test(stack)) {
             return stack.getCount();
@@ -62,21 +62,21 @@ public class GeneratorRecipe implements Recipe<Container> {
         return 0;
     }
     @Override
-    public boolean matches(Container inv, Level level) {
+    public boolean matches(SingleRecipeInput inv, Level level) {
         int required = ingredient.getItems().length;
         int found = getTotalCount(inv, ingredient);
         return found >= required;
     }
     //~ if >1.20.1 'RegistryAccess' -> 'HolderLookup.Provider' {
     @Override
-    public ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
+    public ItemStack assemble(SingleRecipeInput p_44001_, HolderLookup.Provider p_267165_) {
         return ItemStack.EMPTY;
     }
 
 
     @Override
 
-    public ItemStack getResultItem(RegistryAccess provider) {
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
     //~}
@@ -94,11 +94,11 @@ public class GeneratorRecipe implements Recipe<Container> {
     }
 
     //? 1.20.1 {
-    @Override
+    /*@Override
     public ResourceLocation getId() {
         return recipeId;
     }
-    //?}
+    *///?}
 
     @Override
     public RecipeSerializer<?> getSerializer() {
@@ -112,7 +112,7 @@ public class GeneratorRecipe implements Recipe<Container> {
 
     public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
         //? 1.20.1 {
-        @Override
+        /*@Override
         public GeneratorRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             int energy = GsonHelper.getAsInt(json, "energy", 10000);
             JsonElement ingredient = json.get("ingredient");
@@ -136,8 +136,8 @@ public class GeneratorRecipe implements Recipe<Container> {
             buffer.writeInt(recipe.energy);
             recipe.ingredient.toNetwork(buffer);
         }
-        //?} else {
-        /*public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+        *///?} else {
+        public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
                         ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(GeneratorRecipe::getEnergy),
                         Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(GeneratorRecipe::getIngredient)
@@ -158,6 +158,6 @@ public class GeneratorRecipe implements Recipe<Container> {
             return STREAM_CODEC;
         }
 
-        *///?}
+        //?}
     }
 }

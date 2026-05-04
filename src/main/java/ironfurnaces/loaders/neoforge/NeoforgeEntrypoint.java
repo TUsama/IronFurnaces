@@ -1,17 +1,19 @@
 //? if neoforge {
-/*package ironfurnaces.loaders.neoforge;
+package ironfurnaces.loaders.neoforge;
 
 import com.mojang.logging.LogUtils;
-import com.tterrag.registrate.util.entry.BlockEntry;
+import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockWorkSpeedSyncer;
 import ironfurnaces.capability.LegacyPlayerFurnacesListChecker;
 import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.PlayerDataHandler;
+import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.loaders.ClientInit;
 import ironfurnaces.loaders.CommonInit;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.*;
+import ironfurnaces.registration.data_component.PersistentEnergy;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternDefinitionReloadListener;
 import ironfurnaces.tileentity.furnaces.pattern.render.FurnaceTextureScanner;
@@ -26,15 +28,16 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.minecraftforge.capabilities.Capabilities;
-import net.minecraftforge.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.NeoForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.energy.ComponentEnergyStorage;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 import org.slf4j.Logger;
 
 @Mod(IronFurnaces.MOD_ID)
@@ -45,30 +48,47 @@ public class NeoforgeEntrypoint {
 
         ModContainer activeContainer = ModLoadingContext.get().getActiveContainer();
         activeContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-
+        //~ if >1.20.1 'Capabilities.ItemHandler' -> 'Capabilities.Item' {
+        //~ if >1.20.1 'Capabilities.EnergyStorage' -> 'Capabilities.Energy' {
         modBus.<RegisterCapabilitiesEvent>addListener(x -> {
             x.registerBlockEntity(
-                    Capabilities.ItemHandler.BLOCK,
+                    Capabilities.Item.BLOCK,
                     ModBlockEntities.PATTERN_HOLDER.get(),
                     (o, direction) -> o.getSidedHandlers().get(direction));
 
             x.registerBlockEntity(
-                    Capabilities.EnergyStorage.BLOCK,
+                    Capabilities.Energy.BLOCK,
                     ModBlockEntities.PATTERN_HOLDER.get(),
                     (o, direction) -> o.getFuel());
 
-            registerLegacyFurnaceCap(x);
 
-            x.registerBlock(Capabilities.ItemHandler.BLOCK,
+            x.registerBlock(Capabilities.Item.BLOCK,
                     (level, pos, state, be, side) -> (side == null ? new InvWrapper((Container) be) : new SidedInvWrapper((WorldlyContainer)be, side)),
                     // blocks to register for
                     ModBlocks.HEATER.get());
 
-            x.registerBlock(Capabilities.EnergyStorage.BLOCK,
+            x.registerBlock(Capabilities.Energy.BLOCK,
                     (level, pos, state, be, side) -> ((BlockWirelessEnergyHeaterTile) be).getWrapper(),
                     // blocks to register for
                     ModBlocks.HEATER.get());
+
+            x.registerItem(Capabilities.Energy.ITEM,
+                    (a, b) -> new PersistentEnergy(
+                            a,
+                            ModDataComponents.PERSISTENT_ENERGY.get(),
+                            GameplayConfig.config.heater_item_capacity.get(),
+                            1_000,
+                            0
+                    ),
+                    ModItems.ITEM_HEATER.get());
+
+            //? <1.21.11 {
+            registerLegacyFurnaceCap(x);
+//?}
         });
+        //~}
+        //~}
+
 
 
         NeoForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
@@ -133,4 +153,4 @@ public class NeoforgeEntrypoint {
     }
 //?}
 }
-*///?}
+//?}

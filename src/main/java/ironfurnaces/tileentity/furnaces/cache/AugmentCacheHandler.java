@@ -3,12 +3,12 @@ package ironfurnaces.tileentity.furnaces.cache;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 //? 1.20.1 {
-import net.minecraftforge.items.ItemHandlerHelper;
-//? } else {
+/*import net.neoforged.neoforge.items.ItemHandlerHelper;
+*///? } else {
 
 //?}
 
@@ -44,7 +44,7 @@ public class AugmentCacheHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        if (ItemHandlerHelper.canItemStacksStack(stack, this.getStackInSlot(slot))) {
+        if (ItemStack.isSameItemSameComponents(stack, this.getStackInSlot(slot))) {
             return false;
         }
 

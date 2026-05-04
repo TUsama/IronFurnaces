@@ -63,13 +63,13 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 
 //? 1.20.1 {
-import net.minecraftforge.registries.ForgeRegistries;
-//? } else {
-/*import net.minecraft.core.component.DataComponents;
-*///?}
+/*import net.neoforged.neoforge.registries.ForgeRegistries;
+*///? } else {
+import net.minecraft.core.component.DataComponents;
+//?}
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
@@ -90,12 +90,12 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 .setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE));
     }
     //? >1.20.1 {
-    /*private final static MapCodec<FurnacePatternHolderBlock> CODEC = simpleCodec(FurnacePatternHolderBlock::new);
+    private final static MapCodec<FurnacePatternHolderBlock> CODEC = simpleCodec(FurnacePatternHolderBlock::new);
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
-    *///?}
+    //?}
 
 
     @Override
@@ -112,7 +112,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         BlockState reference = getReferenceStateOrNull(level, pos);
         if (reference != null) {
             //~ if >1.20.1 'reference.getBlock().getDestroyProgress(reference, player, level, pos)' -> 'reference.getDestroyProgress(player, level, pos)'
-            return reference.getBlock().getDestroyProgress(reference, player, level, pos);
+            return reference.getDestroyProgress(player, level, pos);
         }
         return super.getDestroyProgress(state, player, level, pos);
     }
@@ -213,7 +213,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Override
             //~ if >1.20.1 'BlockGetter' -> 'LevelReader'
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         ItemStack stack = new ItemStack(this);
 
         BlockEntity be = level.getBlockEntity(pos);
@@ -226,7 +226,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
 
             if (furnace.hasCustomName()) {
-                stack.setHoverName(furnace.getCustomName());
+                stack.set(DataComponents.CUSTOM_NAME, furnace.getCustomName());
             }
         }
 
@@ -240,9 +240,9 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Override
             //~ if >1.20.1 'BlockGetter level' -> 'Item.TooltipContext context'
-    public void appendHoverText(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         //~ if >1.20.1 'level' -> 'context'
-        super.appendHoverText(stack, level, tooltip, flag);
+        super.appendHoverText(stack, context, tooltip, flag);
 
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
         if (furnacePatternFromTag != null) {
@@ -277,10 +277,10 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
         //I think this should be done by minecraft itselt, see applyImplicitComponents().
         //? 1.20.1 {
-        if (stack.hasCustomHoverName() && !stack.getDisplayName().getString().contains("[")) {
+        /*if (stack.has(DataComponents.CUSTOM_NAME) && !stack.getDisplayName().getString().contains("[")) {
             te.setCustomName(stack.getDisplayName());
         }
-        //?}
+        *///?}
         if (!level.isClientSide && entity instanceof Player player) {
             te.ensureOwner(player);
             PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
@@ -288,7 +288,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
     }
     //? 1.20.1 {
-    @Override
+    /*@Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
@@ -336,9 +336,9 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
 
     }
-    //?} else {
+    *///?} else {
 
-    /*@Override
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
@@ -391,7 +391,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
-    *///?}
+    //?}
 
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         super.animateTick(state, world, pos, rand);
@@ -471,7 +471,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                             for (int i = 0; i < 10; i++) {
                                 world.addParticle(ParticleTypes.CRIT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
                                 //~ if >1.20.1 'ParticleTypes.AMBIENT_ENTITY_EFFECT' -> 'ParticleTypes.EFFECT'
-                                world.addParticle(ParticleTypes.AMBIENT_ENTITY_EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                                world.addParticle(ParticleTypes.EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
                             }
                         }
                     }
@@ -568,7 +568,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         return ModBlockEntities.PATTERN_HOLDER.create(pos, state);
     }
     //? forge {
-    @Override
+    /*@Override
     public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
         consumer.accept(new IClientBlockExtensions() {
             @Override
@@ -615,5 +615,5 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             }
         });
     }
-    //?}
+    *///?}
 }

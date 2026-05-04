@@ -1,8 +1,8 @@
 //~ replace_Registrate
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.Registrate;
-import com.tterrag.registrate.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.Registrum;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternDatagen;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleDatagen;
 
@@ -10,7 +10,7 @@ import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleDatage
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModNewFurnace {
-    public static final Registrate DELEGATE_DATAGEN = REGISTRATE.addDataGenerator(ProviderType.GENERIC_SERVER, x -> {
+    public static final Registrum DELEGATE_DATAGEN = REGISTRATE.addDataGenerator(ProviderType.GENERIC_SERVER, x -> {
         x.add(data -> new FurnacePatternDatagen(data.output()));
         x.add(data -> new PatternUpgradeRuleDatagen(data.output()));
     });

@@ -3,6 +3,7 @@ package ironfurnaces.tileentity.heater;
 
 import ironfurnaces.adaptor.energy.EnergyWrapper;
 import ironfurnaces.adaptor.energy.IEnergyWrapperHolder;
+import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.tileentity.TileEntityInventory;
@@ -14,20 +15,21 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 //? forge {
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+/*import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 
 import javax.annotation.Nullable;
-//?} else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+*///?} else {
+import net.minecraft.core.HolderLookup;
+//?}
 
-
+//~ if > 1.21.11 'TileEntityInventory' -> 'BlockEntity'
 public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implements IEnergyWrapperHolder {
 
     private final EnergyWrapper energy;
@@ -38,7 +40,7 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     public BlockWirelessEnergyHeaterTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
         super(tileEntityTypeIn, pos, state, 1);
-        this.energy = new EnergyWrapper(1000000, 1000000, 0).withCallback(fEnergyStorage -> setChanged());
+        this.energy = new EnergyWrapper(GameplayConfig.config.heater_capacity.get(), GameplayConfig.config.heater_capacity.get(), 0).withCallback(fEnergyStorage -> setChanged());
     }
 
 
@@ -55,8 +57,8 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         //? <1.21.11 {
         this.getWrapper().receiveEnergy(tag.getInt("Energy"), false);
         //?} else {
@@ -66,8 +68,8 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.putInt("Energy", getWrapper().getEnergyStored());
     }
 
@@ -98,10 +100,10 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
 
     //? forge {
 
-    LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
+    /*LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
 
     @Override
-    public <T> LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable Direction facing) {
+    public <T> LazyOptional<T> getCapability(net.neoforged.neoforge.common.capabilities.Capability<T> capability, @Nullable Direction facing) {
         //world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), 2);
         if (!this.isRemoved() && facing != null && capability == ForgeCapabilities.ITEM_HANDLER) {
             if (facing == Direction.UP)
@@ -116,14 +118,14 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
         }
         return super.getCapability(capability, facing);
     }
-//?}
+*///?}
 
 
 
     @Override
     public void setRemoved() {
         //? 1.20.1
-        energy.invalidate();
+        //energy.invalidate();
         super.setRemoved();
 
     }

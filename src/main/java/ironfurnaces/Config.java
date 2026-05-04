@@ -16,26 +16,26 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 //? forge {
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.loading.FMLPaths;
-//?}
+/*import net.neoforged.neoforge.api.distmarker.Dist;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.fml.DistExecutor;
+import net.neoforged.neoforge.fml.common.Mod;
+import net.neoforged.neoforge.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.fml.loading.FMLPaths;
+*///?}
 
 //? if neoforge {
-/*import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.loading.FMLPaths;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
-*///?}
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+//?}
 
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
@@ -43,15 +43,15 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.UUID;
 //? forge
-@Mod.EventBusSubscriber
+//@Mod.EventBusSubscriber
 //? neoforge
-//@EventBusSubscriber(modid = IronFurnaces.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = IronFurnaces.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class Config {
 
 
     //? 1.20.1 {
     
-    private static boolean run = true;
+    /*private static boolean run = true;
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_FURNACE = "furnaces";
@@ -60,87 +60,87 @@ public class Config {
     public static final String CATEGORY_UPDATES = "updates";
     public static final String CATEGORY_MISC = "misc";
 
-    public static ForgeConfigSpec COMMON_CONFIG;
-    public static ForgeConfigSpec CLIENT_CONFIG;
+    public static ModConfigSpec COMMON_CONFIG;
+    public static ModConfigSpec CLIENT_CONFIG;
 
-    public static ForgeConfigSpec.IntValue ironFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue goldFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue diamondFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue crystalFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue copperFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue silverFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue millionFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue millionFurnacePowerToGenerate;
-
-
-    public static ForgeConfigSpec.IntValue ironFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue goldFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue diamondFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue crystalFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue copperFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue silverFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue millionFurnaceGeneration;
+    public static ModConfigSpec.IntValue ironFurnaceSpeed;
+    public static ModConfigSpec.IntValue goldFurnaceSpeed;
+    public static ModConfigSpec.IntValue diamondFurnaceSpeed;
+    public static ModConfigSpec.IntValue emeraldFurnaceSpeed;
+    public static ModConfigSpec.IntValue obsidianFurnaceSpeed;
+    public static ModConfigSpec.IntValue crystalFurnaceSpeed;
+    public static ModConfigSpec.IntValue netheriteFurnaceSpeed;
+    public static ModConfigSpec.IntValue copperFurnaceSpeed;
+    public static ModConfigSpec.IntValue silverFurnaceSpeed;
+    public static ModConfigSpec.IntValue millionFurnaceSpeed;
+    public static ModConfigSpec.IntValue millionFurnacePowerToGenerate;
 
 
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier0;
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier1;
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier2;
+    public static ModConfigSpec.IntValue ironFurnaceGeneration;
+    public static ModConfigSpec.IntValue goldFurnaceGeneration;
+    public static ModConfigSpec.IntValue diamondFurnaceGeneration;
+    public static ModConfigSpec.IntValue emeraldFurnaceGeneration;
+    public static ModConfigSpec.IntValue obsidianFurnaceGeneration;
+    public static ModConfigSpec.IntValue crystalFurnaceGeneration;
+    public static ModConfigSpec.IntValue netheriteFurnaceGeneration;
+    public static ModConfigSpec.IntValue copperFurnaceGeneration;
+    public static ModConfigSpec.IntValue silverFurnaceGeneration;
+    public static ModConfigSpec.IntValue millionFurnaceGeneration;
 
-    public static ForgeConfigSpec.IntValue ironFurnaceTier;
-    public static ForgeConfigSpec.IntValue goldFurnaceTier;
-    public static ForgeConfigSpec.IntValue diamondFurnaceTier;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceTier;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceTier;
-    public static ForgeConfigSpec.IntValue crystalFurnaceTier;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceTier;
-    public static ForgeConfigSpec.IntValue copperFurnaceTier;
-    public static ForgeConfigSpec.IntValue silverFurnaceTier;
-    public static ForgeConfigSpec.IntValue millionFurnaceTier;
 
-    public static ForgeConfigSpec.IntValue recipeMaxXPLevel;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier0;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier1;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier2;
 
-    public static ForgeConfigSpec.BooleanValue enableJeiPlugin;
-    public static ForgeConfigSpec.BooleanValue enableJeiCatalysts;
-    public static ForgeConfigSpec.BooleanValue enableJeiClickArea;
+    public static ModConfigSpec.IntValue ironFurnaceTier;
+    public static ModConfigSpec.IntValue goldFurnaceTier;
+    public static ModConfigSpec.IntValue diamondFurnaceTier;
+    public static ModConfigSpec.IntValue emeraldFurnaceTier;
+    public static ModConfigSpec.IntValue obsidianFurnaceTier;
+    public static ModConfigSpec.IntValue crystalFurnaceTier;
+    public static ModConfigSpec.IntValue netheriteFurnaceTier;
+    public static ModConfigSpec.IntValue copperFurnaceTier;
+    public static ModConfigSpec.IntValue silverFurnaceTier;
+    public static ModConfigSpec.IntValue millionFurnaceTier;
 
-    public static ForgeConfigSpec.BooleanValue checkUpdates;
+    public static ModConfigSpec.IntValue recipeMaxXPLevel;
 
-    public static ForgeConfigSpec.BooleanValue enableRainbowContent;
+    public static ModConfigSpec.BooleanValue enableJeiPlugin;
+    public static ModConfigSpec.BooleanValue enableJeiCatalysts;
+    public static ModConfigSpec.BooleanValue enableJeiClickArea;
 
-    public static ForgeConfigSpec.BooleanValue showErrors;
+    public static ModConfigSpec.BooleanValue checkUpdates;
 
-    public static ForgeConfigSpec.BooleanValue disableWebContent;
-    public static ForgeConfigSpec.BooleanValue disableLightupdates;
+    public static ModConfigSpec.BooleanValue enableRainbowContent;
+
+    public static ModConfigSpec.BooleanValue showErrors;
+
+    public static ModConfigSpec.BooleanValue disableWebContent;
+    public static ModConfigSpec.BooleanValue disableLightupdates;
 
     //CACHE
-    public static ForgeConfigSpec.IntValue cache_capacity;
+    public static ModConfigSpec.IntValue cache_capacity;
 
     //ALLTHEMODS
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceSmeltMult;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceSmeltMult;
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue vibraniumFurnaceSpeed;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceSpeed;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceSpeed;
+    public static ModConfigSpec.IntValue vibraniumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceSmeltMult;
 
-    public static ForgeConfigSpec.IntValue allthemodiumGeneration;
-    public static ForgeConfigSpec.IntValue vibraniumGeneration;
-    public static ForgeConfigSpec.IntValue unobtainiumGeneration;
+    public static ModConfigSpec.IntValue allthemodiumGeneration;
+    public static ModConfigSpec.IntValue vibraniumGeneration;
+    public static ModConfigSpec.IntValue unobtainiumGeneration;
 
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceTier;
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceTier;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceTier;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceTier;
+    public static ModConfigSpec.IntValue vibraniumFurnaceTier;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceTier;
 
 
     static {
-        ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
-        ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
+        ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
         CLIENT_BUILDER.comment("Settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.pop();
@@ -194,7 +194,7 @@ public class Config {
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 
-    private static void setupGenerationConfig(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    private static void setupGenerationConfig(ModConfigSpec.Builder COMMON_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
         ironFurnaceGeneration = CLIENT_BUILDER
                 .comment(" How much RF to generate per tick\n Default: 40")
                 .defineInRange("iron_furnace.generation", 40, 1, 100000);
@@ -228,7 +228,7 @@ public class Config {
 
     }
 
-    private static void setupFurnacesConfig(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    private static void setupFurnacesConfig(ModConfigSpec.Builder COMMON_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
 
 
         furnaceEnergyCapacityTier0 = CLIENT_BUILDER
@@ -339,7 +339,7 @@ public class Config {
 
     }
 
-    private static void setupModdedFurnacesConfig(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    private static void setupModdedFurnacesConfig(ModConfigSpec.Builder COMMON_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
 
         allthemodiumFurnaceSpeed = CLIENT_BUILDER
                 .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 5")
@@ -383,7 +383,7 @@ public class Config {
 
     }
 
-    private static void setupJEIConfig(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    private static void setupJEIConfig(ModConfigSpec.Builder COMMON_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
 
         enableJeiPlugin = CLIENT_BUILDER
                 .comment(" Enable or disable the JeiPlugin of Iron Furnaces.").define("jei.enable_jei", true);
@@ -396,7 +396,7 @@ public class Config {
 
     }
 
-    private static void setupUpdatesConfig(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    private static void setupUpdatesConfig(ModConfigSpec.Builder COMMON_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
 
         checkUpdates = CLIENT_BUILDER
                 .comment(" true = check for updates, false = don't check for updates.\n Default: true.")
@@ -404,7 +404,7 @@ public class Config {
 
     }
 
-    public static void loadConfig(ForgeConfigSpec spec, Path path) {
+    public static void loadConfig(ModConfigSpec spec, Path path) {
         IronFurnaces.LOGGER.debug("Loading config file {}", path);
 
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
@@ -425,7 +425,7 @@ public class Config {
         run = true;
 
     }
-/*
+/^
     @SubscribeEvent
     public static void player(final PlayerTickEvent event) {
 
@@ -488,10 +488,10 @@ public class Config {
 
         return null;
     }
-*/
-    //?} else {
+^/
+    *///?} else {
 
-    /*private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
 
     public static final String CATEGORY_GENERAL = "general";
@@ -500,70 +500,70 @@ public class Config {
     public static final String CATEGORY_MISC = "misc";
 
 
-    public static ForgeConfigSpec.IntValue ironFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue goldFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue diamondFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue crystalFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue copperFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue silverFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue millionFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue millionFurnacePowerToGenerate;
+    public static ModConfigSpec.IntValue ironFurnaceSpeed;
+    public static ModConfigSpec.IntValue goldFurnaceSpeed;
+    public static ModConfigSpec.IntValue diamondFurnaceSpeed;
+    public static ModConfigSpec.IntValue emeraldFurnaceSpeed;
+    public static ModConfigSpec.IntValue obsidianFurnaceSpeed;
+    public static ModConfigSpec.IntValue crystalFurnaceSpeed;
+    public static ModConfigSpec.IntValue netheriteFurnaceSpeed;
+    public static ModConfigSpec.IntValue copperFurnaceSpeed;
+    public static ModConfigSpec.IntValue silverFurnaceSpeed;
+    public static ModConfigSpec.IntValue millionFurnaceSpeed;
+    public static ModConfigSpec.IntValue millionFurnacePowerToGenerate;
 
 
-    public static ForgeConfigSpec.IntValue ironFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue goldFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue diamondFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue crystalFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue copperFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue silverFurnaceGeneration;
-    public static ForgeConfigSpec.IntValue millionFurnaceGeneration;
+    public static ModConfigSpec.IntValue ironFurnaceGeneration;
+    public static ModConfigSpec.IntValue goldFurnaceGeneration;
+    public static ModConfigSpec.IntValue diamondFurnaceGeneration;
+    public static ModConfigSpec.IntValue emeraldFurnaceGeneration;
+    public static ModConfigSpec.IntValue obsidianFurnaceGeneration;
+    public static ModConfigSpec.IntValue crystalFurnaceGeneration;
+    public static ModConfigSpec.IntValue netheriteFurnaceGeneration;
+    public static ModConfigSpec.IntValue copperFurnaceGeneration;
+    public static ModConfigSpec.IntValue silverFurnaceGeneration;
+    public static ModConfigSpec.IntValue millionFurnaceGeneration;
 
 
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier0;
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier1;
-    public static ForgeConfigSpec.IntValue furnaceEnergyCapacityTier2;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier0;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier1;
+    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier2;
 
-    public static ForgeConfigSpec.IntValue ironFurnaceTier;
-    public static ForgeConfigSpec.IntValue goldFurnaceTier;
-    public static ForgeConfigSpec.IntValue diamondFurnaceTier;
-    public static ForgeConfigSpec.IntValue emeraldFurnaceTier;
-    public static ForgeConfigSpec.IntValue obsidianFurnaceTier;
-    public static ForgeConfigSpec.IntValue crystalFurnaceTier;
-    public static ForgeConfigSpec.IntValue netheriteFurnaceTier;
-    public static ForgeConfigSpec.IntValue copperFurnaceTier;
-    public static ForgeConfigSpec.IntValue silverFurnaceTier;
-    public static ForgeConfigSpec.IntValue millionFurnaceTier;
+    public static ModConfigSpec.IntValue ironFurnaceTier;
+    public static ModConfigSpec.IntValue goldFurnaceTier;
+    public static ModConfigSpec.IntValue diamondFurnaceTier;
+    public static ModConfigSpec.IntValue emeraldFurnaceTier;
+    public static ModConfigSpec.IntValue obsidianFurnaceTier;
+    public static ModConfigSpec.IntValue crystalFurnaceTier;
+    public static ModConfigSpec.IntValue netheriteFurnaceTier;
+    public static ModConfigSpec.IntValue copperFurnaceTier;
+    public static ModConfigSpec.IntValue silverFurnaceTier;
+    public static ModConfigSpec.IntValue millionFurnaceTier;
 
-    public static ForgeConfigSpec.IntValue recipeMaxXPLevel;
+    public static ModConfigSpec.IntValue recipeMaxXPLevel;
 
 
-    public static ForgeConfigSpec.BooleanValue showErrors;
-    public static ForgeConfigSpec.BooleanValue disableLightupdates;
+    public static ModConfigSpec.BooleanValue showErrors;
+    public static ModConfigSpec.BooleanValue disableLightupdates;
 
 
     //ALLTHEMODS
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceSpeed;
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceSmeltMult;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceSmeltMult;
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue vibraniumFurnaceSpeed;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceSpeed;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceSpeed;
+    public static ModConfigSpec.IntValue vibraniumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceSmeltMult;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceSmeltMult;
 
-    public static ForgeConfigSpec.IntValue allthemodiumGeneration;
-    public static ForgeConfigSpec.IntValue vibraniumGeneration;
-    public static ForgeConfigSpec.IntValue unobtainiumGeneration;
+    public static ModConfigSpec.IntValue allthemodiumGeneration;
+    public static ModConfigSpec.IntValue vibraniumGeneration;
+    public static ModConfigSpec.IntValue unobtainiumGeneration;
 
-    public static ForgeConfigSpec.IntValue allthemodiumFurnaceTier;
-    public static ForgeConfigSpec.IntValue vibraniumFurnaceTier;
-    public static ForgeConfigSpec.IntValue unobtainiumFurnaceTier;
+    public static ModConfigSpec.IntValue allthemodiumFurnaceTier;
+    public static ModConfigSpec.IntValue vibraniumFurnaceTier;
+    public static ModConfigSpec.IntValue unobtainiumFurnaceTier;
 
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
     static {
 
@@ -792,5 +792,5 @@ public class Config {
 
     }
 
-    *///?}
+    //?}
 }

@@ -1,6 +1,6 @@
 package ironfurnaces.tileentity.furnaces.menu.partition;
 
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.joml.Vector2i;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 

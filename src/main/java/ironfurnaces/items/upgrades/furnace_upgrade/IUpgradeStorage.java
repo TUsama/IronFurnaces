@@ -14,9 +14,9 @@ import net.minecraft.world.item.ItemStack;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.core.component.DataComponents;
-*///?}
+//?}
 
 import javax.annotation.Nullable;
 
@@ -26,7 +26,7 @@ public interface IUpgradeStorage {
     @Nullable
     static PatternUpgradeRule get(ItemStack stack) {
         //? 1.20.1 {
-        CompoundTag tag = stack.getTag();
+        /*CompoundTag tag = stack.getTag();
         if (tag == null || !tag.contains(PatternUpgradeRule.KEY, Tag.TAG_STRING)) {
             return null;
         }
@@ -36,9 +36,9 @@ public interface IUpgradeStorage {
             IronFurnaces.LOGGER.warn("Invalid PatternUpgradeRule id string: {}", s);
             return null;
         }
-        //? } else {
-        /*ResourceLocation id = stack.get(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT);
-        *///?}
+        *///? } else {
+        ResourceLocation id = stack.get(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT);
+        //?}
 
         if (!PatternUpgradeRuleManager.isValidRuleId(id)) {
             //IronFurnaces.LOGGER.warn("Found unregistered rule: {}", id);
@@ -55,19 +55,19 @@ public interface IUpgradeStorage {
     static void writeRule(ItemStack stack, ResourceLocation rule) {
         if (rule == null || rule.equals(PatternUpgradeRule.backup.id())) {
             //? 1.20.1 {
-            CompoundTag tag = stack.getTag();
+            /*CompoundTag tag = stack.getTag();
             if (tag != null) {
                 tag.remove(PatternUpgradeRule.KEY);
             }
-            //?}
+            *///?}
             return;
         }
         //? 1.20.1 {
-        CompoundTag tag = stack.getOrCreateTag();
+        /*CompoundTag tag = stack.getOrCreateTag();
         tag.putString(PatternUpgradeRule.KEY, rule.toString());
-        //? } else {
-        /*stack.set(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT, rule);
-        *///?}
+        *///? } else {
+        stack.set(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT, rule);
+        //?}
     }
 
 }

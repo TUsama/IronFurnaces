@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 

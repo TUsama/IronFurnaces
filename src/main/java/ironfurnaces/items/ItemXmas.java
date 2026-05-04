@@ -22,7 +22,7 @@ public class ItemXmas extends ItemJovial implements IJovialSetter{
 
     
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".xmas_right_click").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".xmas1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".xmas2").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));

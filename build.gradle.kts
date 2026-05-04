@@ -288,12 +288,18 @@ stonecutter {
         replace("critereon.", "criterion.")
         replace("readJsonWithCodec", "readLenientJsonWithCodec")
         replace("ResourceLocation", "Identifier")
+        replace("getIdentifier()", "getIdentifier()")
         replace("ResourceLocationUtils", "ResourceLocationUtils")
         replace("net.minecraft.Util", "net.minecraft.util.Util")
     }
     replacements.string(current.parsed.eq("1.21.1")) {
         replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
         replace("providers.RegistrateRecipeProvider", "providers.RegistrumRecipeProvider")
+    }
+    //post replace
+    //need to delay this
+    replacements.string(!current.parsed.eq("1.20.1")) {
+        replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
     }
 
 

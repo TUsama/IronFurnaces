@@ -2,13 +2,10 @@
 
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.Registrate;
-import com.tterrag.registrate.builders.ItemBuilder;
-import com.tterrag.registrate.util.entry.ItemEntry;
-import com.tterrag.registrate.util.nullness.NonNullFunction;
-
-
-
+import dev.anvilcraft.lib.v2.registrum.Registrum;
+import dev.anvilcraft.lib.v2.registrum.builders.ItemBuilder;
+import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.*;
@@ -23,12 +20,19 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.client.model.generators.ModelFile;
 //? 1.20.1 {
-import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-//? } else {
+/*import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
+import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
+*///? } else {
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
+import net.neoforged.neoforge.common.crafting.ConditionalRecipeOutput;
+//? <1.21.11{
+import net.neoforged.neoforge.client.model.generators.ModelFile;
 //?}
+//?}
+
+import java.util.List;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -36,6 +40,7 @@ import static ironfurnaces.registration.ModItemTags.*;
 public class ModItems {
 
 
+    //? <1.21.11{
     public static final ItemEntry<ItemUpgradeIron> IRON_UPGRADE =
             registerItem("upgrade_iron", "Upgrade: Stone -> Iron", ItemUpgradeIron::new)
                     .recipe((ctx, provider) -> {
@@ -273,6 +278,7 @@ public class ModItems {
 
                     })
                     .register();
+//?}
 
 
     public static final ItemEntry<ItemHeater> ITEM_HEATER =
@@ -410,6 +416,7 @@ public class ModItems {
                     })
                     .register();
 
+    //? <1.21.11{
     public static final ItemEntry<ItemFurnaceCopy> ITEM_COPY =
             registerItem("item_copy", p -> new ItemFurnaceCopy(p.stacksTo(1)))
                     .recipe((ctx, provider) -> {
@@ -423,6 +430,7 @@ public class ModItems {
                                 .save(provider, IDUtil.makeID(ctx.getName()));
                     })
                     .register();
+//?}
 
     public static final ItemEntry<ItemFurnaceCopyV2> ITEM_COPY_V2 =
             registerItem("item_copy", p -> new ItemFurnaceCopyV2(p.stacksTo(1)))
@@ -478,7 +486,7 @@ public class ModItems {
                         //?}
 
                         //? forge {
-                        ConditionalRecipe.builder()
+                        /*ConditionalRecipe.builder()
                                 .addCondition(new TagEmptyCondition(ModItemTags.SILVER.location()))
                                 .addRecipe(x -> {
                                     ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
@@ -492,8 +500,8 @@ public class ModItems {
                                             .unlockedBy("has_iron_furnace", CriterionUtil.has(LegacyFurnaceBlocks.IRON_FURNACE.get(), provider))
                                             .save(x, makeID(ctx.getName() + "_no_silver"));
                                 }).build(provider, makeID(ctx.getName() + "_no_silver"));
-                        //? } else {
-                        /*//? <1.21.11 {
+                        *///? } else {
+                        //? <1.21.11 {
                         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
                                 .requires(LegacyFurnaceBlocks.IRON_FURNACE.get())
                                 .requires(LegacyFurnaceBlocks.GOLD_FURNACE.get())
@@ -506,7 +514,7 @@ public class ModItems {
                                 .save(new ConditionalRecipeOutput(provider, List.of(new TagEmptyCondition(ModItemTags.SILVER.location())).toArray(ICondition[]::new)), IDUtil.makeID(ctx.getName() + "_no_silver"));
                         //?}
 
-                        *///?}
+                        //?}
 
                     })
                     .register();
@@ -710,12 +718,12 @@ public class ModItems {
                         );
                     })
                     //? !forge {
-                    /*.clientExtension(() -> UpgradeToolClientExtensions::new)
-                    *///?}
+                    .clientExtension(() -> UpgradeToolClientExtensions::new)
+                    //?}
                     .register();
 
     //~}
-    protected static <T extends Item> ItemBuilder<T, Registrate> registerItem(
+    protected static <T extends Item> ItemBuilder<T, Registrum> registerItem(
             String name,
             String langName,
             NonNullFunction<Item.Properties, T> factory
@@ -724,14 +732,14 @@ public class ModItems {
                 .lang(langName);
     }
 
-    protected static <T extends Item> ItemBuilder<T, Registrate> registerItem(
+    protected static <T extends Item> ItemBuilder<T, Registrum> registerItem(
             String name,
             NonNullFunction<Item.Properties, T> factory
     ) {
         return core(name, factory);
     }
 
-    protected static <T extends Item> ItemBuilder<T, Registrate> core(
+    protected static <T extends Item> ItemBuilder<T, Registrum> core(
             String name,
             NonNullFunction<Item.Properties, T> factory
     ) {

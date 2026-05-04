@@ -1,11 +1,15 @@
 package ironfurnaces.registration;
 
 
+import ironfurnaces.util.StringHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModLangs {
+    public static final Component PERSISTENT_ENERGY = REGISTRATE.addRawLang("ironfurnaces.data_component." + "persistent_energy", "Energy: %1$s/%2$s");
+
     public static final Component CURRENT_LOCKED_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "current_locked_recipe", "Current locked to recipe: %s");
     public static final Component NO_CURRENT_LOCKED_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "no_current_locked_recipe", "No recipe locked");
     public static final Component LAST_RECIPE = REGISTRATE.addRawLang("screen.ironfurnaces.compat.farmer_delight." + "last_recipe", "The last recipe crafted is: %s");

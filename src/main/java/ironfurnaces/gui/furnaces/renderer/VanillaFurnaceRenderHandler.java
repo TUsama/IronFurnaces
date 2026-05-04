@@ -8,7 +8,7 @@ import net.minecraft.util.Mth;
 public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHandler{
 
     //? >1.20.1
-    //private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
+    private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
 
     public VanillaFurnaceRenderHandler(FurnacePatternScreen screen) {
         super(screen);
@@ -21,13 +21,13 @@ public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHand
         guiGraphics.blit(VANILLA, i, j, 0, 0, screen.getXSize(), screen.getYSize());
         if (screen.getMenu().isLit()) {
             //? 1.20.1 {
-            int k = screen.getMenu().getLitProgress();
+            /*int k = screen.getMenu().getLitProgress();
             guiGraphics.blit(VANILLA, i + 56, j + 36 + 12 - k, 176, 12 - k, 14, k + 1);
-            //? } else {
-            /*int k = 14;
+            *///? } else {
+            int k = 14;
             int l = Mth.ceil(screen.getMenu().getLitProgress()) + 1;
             guiGraphics.blitSprite(VANILLA_LIT_PROGRESS, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
-            *///?}
+            //?}
 
         }
 

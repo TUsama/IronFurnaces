@@ -31,14 +31,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.component.DataComponents;
-*///?}
+import net.minecraft.core.component.DataComponents;
+//?}
 import java.util.function.Consumer;
 
 public class FurnacePatternHolderItem extends BlockItem {
@@ -113,18 +113,18 @@ public class FurnacePatternHolderItem extends BlockItem {
             if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
         }
         //? 1.20.1 {
-        CompoundTag beTag = BlockItem.getBlockEntityData(stack);
+        /*CompoundTag beTag = BlockItem.getBlockEntityData(stack);
         if (beTag != null) {
             changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
 
         }
-        //?} else {
-        /*if (stack.has(DataComponents.CUSTOM_DATA)){
+        *///?} else {
+        if (stack.has(DataComponents.CUSTOM_DATA)){
             CompoundTag beTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
             changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
         }
 
-        *///?}
+        //?}
         return changed;
     }
 
@@ -171,7 +171,7 @@ public class FurnacePatternHolderItem extends BlockItem {
         String raw;
         //? 1.20.1 {
         
-        CompoundTag root = stack.getTag();
+        /*CompoundTag root = stack.getTag();
         if (root == null || !root.contains("BlockStateTag", CompoundTag.TAG_COMPOUND)) {
             return;
         }
@@ -184,11 +184,11 @@ public class FurnacePatternHolderItem extends BlockItem {
         }
         raw = stateTag.getString(key);
         
-        //? } else {
+        *///? } else {
 
-        /*if (!stack.has(DataComponents.BLOCK_STATE)) return;
+        if (!stack.has(DataComponents.BLOCK_STATE)) return;
         raw = stack.get(DataComponents.BLOCK_STATE).properties().get(key);
-        *///?}
+        //?}
 
         var jovial = ModBlockState.JOVIAL_STATE.getPossibleValues().stream()
                 .filter(x -> x.getSerializedName().equals(raw))
@@ -229,7 +229,7 @@ public class FurnacePatternHolderItem extends BlockItem {
         return result;
     }
     //? forge {
-    @Override
+    /*@Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
             @Override
@@ -238,6 +238,6 @@ public class FurnacePatternHolderItem extends BlockItem {
             }
         });
     }
-    //?}
+    *///?}
 
 }

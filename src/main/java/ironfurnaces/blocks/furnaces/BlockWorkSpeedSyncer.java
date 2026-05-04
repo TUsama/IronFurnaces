@@ -32,7 +32,7 @@ public class BlockWorkSpeedSyncer {
         stringIntegerHashMap.put(BlockVibraniumFurnace.ID, Config.vibraniumFurnaceSpeed.get());
         stringIntegerHashMap.put(BlockUnobtainiumFurnace.ID, Config.unobtainiumFurnaceSpeed.get());
         //~ if >1.20.1 'connection.connection' -> 'connection.getConnection()'
-        if (player.connection.connection.isConnecting()) {
+        if (player.connection.getConnection().isConnecting()) {
             NetworkUtils.sendToClient(new S2CSyncFurnaceSpeedPacket(stringIntegerHashMap), player);
         } else {
             FurnaceWorkSpeedDataStorage.getInstance().updateFromMap(stringIntegerHashMap);

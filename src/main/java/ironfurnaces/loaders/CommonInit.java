@@ -7,7 +7,7 @@ import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.registration.*;
 import lombok.experimental.UtilityClass;
-import net.minecraftforge.data.loading.DatagenModLoader;
+import net.neoforged.neoforge.data.loading.DatagenModLoader;
 
 @UtilityClass
 public class CommonInit {
@@ -40,7 +40,7 @@ public class CommonInit {
         }
 
         //? >1.20.1
-        //ModDataComponents.register();
+        ModDataComponents.register();
 
         RainbowConfig.init();
         GameplayConfig.init();

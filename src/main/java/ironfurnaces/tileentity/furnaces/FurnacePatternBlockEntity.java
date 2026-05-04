@@ -55,20 +55,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 //? 1.20.1 {
-import net.minecraft.world.inventory.RecipeHolder;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-//? } else {
-/*import net.minecraft.core.HolderLookup;
+/*import net.minecraft.world.inventory.RecipeHolder;
+import net.neoforged.neoforge.common.capabilities.Capability;
+import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+*///? } else {
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.core.NonNullList;
-*///?}
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.wrapper.EmptyHandler;
+//?}
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.wrapper.EmptyItemHandler;
 
 
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +81,7 @@ import java.util.function.Function;
 
 @Getter
 //~ if >1.20.1 'RecipeHolder' -> 'RecipeCraftingHolder'
-public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implements RecipeHolder, StackedContentsCompatible, WorldlyContainer, INeedUpdate {
+public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implements RecipeCraftingHolder, StackedContentsCompatible, WorldlyContainer, INeedUpdate {
     private final InputCache input;
     private final OutputCache output;
     private final FuelCache fuel;
@@ -89,7 +89,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private final AugmentCache augments;
     private final ViewOnlyCache viewOnly;
     //~ if >1.20.1 'Container' -> 'SingleRecipeInput'
-    private final Function<RecipeType<?>, RecipeManager.CachedCheck<Container, ?>> quickCheck;
+    private final Function<RecipeType<?>, RecipeManager.CachedCheck<SingleRecipeInput, ?>> quickCheck;
     private final IFCombinedCache allInv;
     private final IFCombinedCache allInvForAutomation;
     private final IFCombinedCache inputAndOutput;
@@ -105,11 +105,11 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     private IFurnaceLitHandler litHandler;
     private FurnaceSettingsV2 settingsV2;
     //~ if >1.20.1 'LazyOptional<IItemHandlerModifiable>' -> 'IItemHandlerModifiable'
-    private EnumMap<Direction, LazyOptional<IItemHandlerModifiable>> sidedHandlers;
+    private EnumMap<Direction, IItemHandlerModifiable> sidedHandlers;
     private Set<UUID> viewers = new HashSet<>();
     private int lastProcessedDirection = 0;
     //? if 1.20.1
-    private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
+    //private LazyOptional<IEnergyStorage> energyCap = LazyOptional.of(() -> getFuel());
     private boolean shouldAutoFill = false;
     private UUID ownerUuid;
     private boolean redstoneLastTimeCheck = false;
@@ -340,17 +340,17 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, registries);
 
         // 1) inventories
-        tag.put("Input", input.serializeNBT());
-        tag.put("Output", output.serializeNBT());
-        tag.put("ViewOnly", viewOnly.serializeNBT());
-        tag.put("Fuel", fuel.serializeNBT());
-        tag.put("Remaining", remaining.serializeNBT());
-        tag.put("Augments", augments.serializeNBT());
+        tag.put("Input", input.serializeNBT(registries));
+        tag.put("Output", output.serializeNBT(registries));
+        tag.put("ViewOnly", viewOnly.serializeNBT(registries));
+        tag.put("Fuel", fuel.serializeNBT(registries));
+        tag.put("Remaining", remaining.serializeNBT(registries));
+        tag.put("Augments", augments.serializeNBT(registries));
 
         if (ownerUuid != null) {
             tag.putUUID("OwnerUUID", ownerUuid);
@@ -400,29 +400,29 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         if (tag.contains(FurnacePattern.NBT_KEY)) {
             savedPatternTag = tag.get(FurnacePattern.NBT_KEY);
         }
         // 1) inventories
         if (tag.contains("Input", Tag.TAG_COMPOUND)) {
-            input.deserializeNBT(tag.getCompound("Input"));
+            input.deserializeNBT(registries, tag.getCompound("Input"));
         }
         if (tag.contains("Output", Tag.TAG_COMPOUND)) {
-            output.deserializeNBT(tag.getCompound("Output"));
+            output.deserializeNBT(registries, tag.getCompound("Output"));
         }
         if (tag.contains("ViewOnly", Tag.TAG_COMPOUND)) {
-            viewOnly.deserializeNBT(tag.getCompound("ViewOnly"));
+            viewOnly.deserializeNBT(registries, tag.getCompound("ViewOnly"));
         }
         if (tag.contains("Fuel", Tag.TAG_COMPOUND)) {
-            fuel.deserializeNBT(tag.getCompound("Fuel"));
+            fuel.deserializeNBT(registries, tag.getCompound("Fuel"));
         }
         if (tag.contains("Remaining", Tag.TAG_COMPOUND)) {
-            remaining.deserializeNBT(tag.getCompound("Remaining"));
+            remaining.deserializeNBT(registries, tag.getCompound("Remaining"));
         }
         if (tag.contains("Augments", Tag.TAG_COMPOUND)) {
-            augments.deserializeNBT(tag.getCompound("Augments"));
+            augments.deserializeNBT(registries, tag.getCompound("Augments"));
         }
 
         if (tag.hasUUID("OwnerUUID")) {
@@ -545,7 +545,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
             boolean merged = false;
             for (MergedStackEntry entry : mergedEntries) {
-                if (ItemHandlerHelper.canItemStacksStack(entry.sample(), stack)) {
+                if (ItemStack.isSameItemSameComponents(entry.sample(), stack)) {
                     entry.grow(stack.getCount());
                     merged = true;
                     break;
@@ -621,12 +621,12 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     @Override
-    public Recipe<?> getRecipeUsed() {
+    public RecipeHolder<?> getRecipeUsed() {
         return null;
     }
 
     @Override
-    public void setRecipeUsed(@Nullable Recipe<?> recipe) {
+    public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
         recipeAwardHandler.record(recipe, GameplayConfig.config.stored_xp_level.get());
     }
 
@@ -659,7 +659,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         this.litHandler = this.mode.getLitHandler().get();
     }
 
-    public Optional<? extends Recipe> getRecipe(@NotNull ItemStack stack) {
+    public Optional<? extends RecipeHolder> getRecipe(@NotNull ItemStack stack) {
         return this.getAugments().getCurrentRecipeType().getRecipe(this, List.of(stack));
     }
 
@@ -703,9 +703,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                             IItemHandler outputHandler = switch (mode) {
                                 case OUTPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
                                 case ALL -> FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
-                                default -> EmptyHandler.INSTANCE;
+                                default -> EmptyItemHandler.INSTANCE;
                             };
-                            if (outputHandler != EmptyHandler.INSTANCE) {
+                            if (outputHandler != EmptyItemHandler.INSTANCE) {
                                 transfer(outputHandler, x);
                             }
                         }
@@ -716,9 +716,9 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                             IItemHandler inputHandler = switch (mode) {
                                 case INPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
                                 case ALL -> FurnaceSettingsV2.IOMode.INPUT.handlerSelector.apply(this);
-                                default -> EmptyHandler.INSTANCE;
+                                default -> EmptyItemHandler.INSTANCE;
                             };
-                            if (inputHandler != EmptyHandler.INSTANCE) {
+                            if (inputHandler != EmptyItemHandler.INSTANCE) {
                                 transfer(x, inputHandler);
                             }
                         }
@@ -830,7 +830,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
             IItemHandler handler = mode.handlerSelector.apply(this);
             //? if 1.20.1
-            if (handler == EmptyHandler.INSTANCE) continue;
+            //if (handler == EmptyItemHandler.INSTANCE) continue;
             if (handler == null) continue;
             if (uniq.put(handler, Boolean.TRUE) != null) continue; // 已统计过
 
@@ -977,14 +977,14 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
             //~ if >1.20.1 '()' -> '(HolderLookup.Provider registries)'
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         //? 1.20.1 {
-        CompoundTag tag = super.getUpdateTag();
+        /*CompoundTag tag = super.getUpdateTag();
         saveAdditional(tag);
-        //? } else {
-        /*CompoundTag tag = super.getUpdateTag(registries);
+        *///? } else {
+        CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
-        *///?}
+        //?}
         return tag;
     }
 
@@ -1005,15 +1005,15 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     private void recalcSideIOCap() {
         //? 1.20.1 {
-        sidedHandlers.values().forEach(LazyOptional::invalidate);
+        /*sidedHandlers.values().forEach(LazyOptional::invalidate);
         sidedHandlers.clear();
         for (Direction dir : Direction.values()) {
             FurnaceSettingsV2.IOMode mode = settingsV2.IOSetting().get(dir);
             IItemHandlerModifiable handler = mode.handlerSelector.apply(this);
             sidedHandlers.put(dir, LazyOptional.of(() -> handler));
         }
-        //?} else {
-        /*addLevelConsumer(level1 -> {
+        *///?} else {
+        addLevelConsumer(level1 -> {
             level1.invalidateCapabilities(this.getBlockPos());
             sidedHandlers.clear();
             for (Direction dir : Direction.values()) {
@@ -1022,10 +1022,10 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 sidedHandlers.put(dir, handler);
             }
         });
-        *///?}
+        //?}
     }
     //? 1.20.1 {
-    @Override
+    /*@Override
     public void invalidateCaps() {
         super.invalidateCaps();
         sidedHandlers.values().forEach(LazyOptional::invalidate);
@@ -1054,7 +1054,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         }
         return super.getCapability(cap, side);
     }
-    //?}
+    *///?}
     @Override
     public int getContainerSize() {
         return this.allInv.getSlots();
@@ -1100,7 +1100,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     }
 
     //? >1.20.1 {
-    /*@Override
+    @Override
     protected NonNullList<ItemStack> getItems() {
         NonNullList<ItemStack> itemStacks = NonNullList.withSize(this.allInv.getSlots(), ItemStack.EMPTY);
         for (int i = 0; i < this.allInv.getSlots(); i++) {
@@ -1117,7 +1117,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             this.allInv.setStackInSlot(i, nonNullList.get(i));
         }
     }
-*///?}
+//?}
     private static class MergedStackEntry {
         private final ItemStack sample;
         private int totalCount;

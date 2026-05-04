@@ -1,5 +1,6 @@
 package ironfurnaces.items;
 
+
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModDataComponents;
@@ -13,6 +14,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+//? forge{
+/*import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
+import ironfurnaces.capability.ItemEnergyCapabilityProvider;
+*///?}
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -27,28 +32,28 @@ public class ItemHeater extends Item {
     @Nullable
     public static BlockPos getBoundBlockPos(ItemStack stack){
         //? 1.20.1 {
-        if (stack.hasTag()){
+        /*if (stack.hasTag()){
             return new BlockPos(stack.getTag().getInt("X"), stack.getTag().getInt("Y"), stack.getTag().getInt("Z"));
         }
         return null;
-        //?} else {
-        /*return stack.get(ModDataComponents.BOUND_BLOCK_POS.get());
-        *///?}
+        *///?} else {
+        return stack.get(ModDataComponents.BOUND_BLOCK_POS.get());
+        //?}
     }
 
     public static void writeBoundBlockPos(ItemStack stack, BlockPos pos){
         //? 1.20.1 {
-        CompoundTag tag = stack.getOrCreateTag();
+        /*CompoundTag tag = stack.getOrCreateTag();
         tag.putInt("X", pos.getX());
         tag.putInt("Y", pos.getY());
         tag.putInt("Z", pos.getZ());
-        //?} else {
-        /*stack.set(ModDataComponents.BOUND_BLOCK_POS.get(), pos);
-         *///?}
+        *///?} else {
+        stack.set(ModDataComponents.BOUND_BLOCK_POS.get(), pos);
+         //?}
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
 
 
         if (BlockIronFurnaceScreenBase.isShiftKeyDown())
@@ -70,4 +75,21 @@ public class ItemHeater extends Item {
             tooltip.add(StringHelper.getShiftInfoText());
         }
     }
+
+    //? forge {
+    /*@Override
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+        ItemEnergyCapabilityProvider provider = new ItemEnergyCapabilityProvider(
+                100_000,
+                1_000,
+                0
+        );
+
+        if (nbt != null) {
+            provider.deserializeNBT(nbt);
+        }
+
+        return provider;
+    }
+*///?}
 }

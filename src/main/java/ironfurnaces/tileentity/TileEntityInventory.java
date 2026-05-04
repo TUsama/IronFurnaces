@@ -1,3 +1,4 @@
+//? <1.21.11{
 //~ replace_block_entity
 //~ replace_all_recipe
 package ironfurnaces.tileentity;
@@ -22,12 +23,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.HolderLookup;
-        *///?}
+import net.minecraft.core.HolderLookup;
+        //?}
 import javax.annotation.Nullable;
 
 public abstract class TileEntityInventory extends BlockEntity implements ITileInventory, WorldlyContainer, MenuProvider, Nameable {
@@ -48,25 +49,25 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
         setChanged();
         return ClientboundBlockEntityDataPacket.create(this);
     }
-/*
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        CompoundTag tag = pkt.getTag();
-        load(tag);
-        setChanged();
-        level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), level.getBlockState(worldPosition).getBlock().defaultBlockState(), level.getBlockState(worldPosition), 2, 3);
+    /*
+        @Override
+        public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+            CompoundTag tag = pkt.getTag();
+            load(tag);
+            setChanged();
+            level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), level.getBlockState(worldPosition).getBlock().defaultBlockState(), level.getBlockState(worldPosition), 2, 3);
 
-    }
-*/
+        }
+    */
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         //? 1.20.1 {
-        CompoundTag tag = super.getUpdateTag();
+        /*CompoundTag tag = super.getUpdateTag();
         saveAdditional(tag);
-        //? } else {
-        /*CompoundTag tag = super.getUpdateTag(registries);
+        *///? } else {
+        CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
-        *///?}
+        //?}
         return tag;
     }
 
@@ -133,7 +134,7 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
     @Override
     public void setItem(int index, ItemStack stack) {
         ItemStack itemstack = this.inventory.get(index);
-        boolean flag = !stack.isEmpty() && ItemHandlerHelper.canItemStacksStack(itemstack, stack);
+        boolean flag = !stack.isEmpty() && ItemStack.isSameItemSameComponents(itemstack, stack);
         this.inventory.set(index, stack);
         if (stack.getCount() > this.getMaxStackSize()) {
             stack.setCount(this.getMaxStackSize());
@@ -144,27 +145,27 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
 
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, this.inventory);
+        ContainerHelper.loadAllItems(tag, this.inventory, registries);
 
         if (tag.contains("CustomName", 8)) {
             //~ if >1.20.1 'tag.getString("CustomName")' -> 'tag.getString("CustomName"), registries'
-            this.name = Component.Serializer.fromJson(tag.getString("CustomName"));
+            this.name = Component.Serializer.fromJson(tag.getString("CustomName"), registries);
         }
     }
 
 
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         if (this.name != null) {
             //~ if >1.20.1 'this.name' -> 'this.name, registries'
-            tag.putString("CustomName", Component.Serializer.toJson(this.name));
+            tag.putString("CustomName", Component.Serializer.toJson(this.name, registries));
         }
-        ContainerHelper.saveAllItems(tag, this.inventory);
+        ContainerHelper.saveAllItems(tag, this.inventory, registries);
     }
 
     @Override
@@ -204,3 +205,5 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
 
     }
 }
+
+//?}

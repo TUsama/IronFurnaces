@@ -36,7 +36,7 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
     @Override
     public boolean testBurnable(ItemStack stack, FurnacePatternBlockEntity blockEntity) {
         FoodProperties foodProperties = stack.getItem().getFoodProperties(stack, null);
-        return foodProperties != null && foodProperties.getNutrition() > 0;
+        return foodProperties != null && foodProperties.nutrition() > 0;
     }
 
 
@@ -54,8 +54,8 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
                 if (stackInSlot.isEmpty()) continue;
                 Item item = stackInSlot.getItem();
                 FoodProperties foodProperties = item.getFoodProperties(stackInSlot, null);
-                if (foodProperties != null && foodProperties.getNutrition() > 0) {
-                    instanceManager.addInstance(new Generate.SmokingGenerate(i, foodProperties.getNutrition() * FurnaceConfig.config.nutrition_to_energy_factor, usedStats.energyGenerationPerTick()));
+                if (foodProperties != null && foodProperties.nutrition() > 0) {
+                    instanceManager.addInstance(new Generate.SmokingGenerate(i, foodProperties.nutrition() * FurnaceConfig.config.nutrition_to_energy_factor, usedStats.energyGenerationPerTick()));
                 }
 
             }
@@ -68,7 +68,7 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
                 blockEntity.getRecipe(stackInSlot)
                         .ifPresent(x -> {
                             //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
-                            if (x instanceof AbstractCookingRecipe recipe) {
+                            if (x.value() instanceof AbstractCookingRecipe recipe) {
                                 instanceManager.addInstance(new Burn.Smoking(finalI, usedStats.smeltTick(), usedStats.batchHandle()));
                             }
 

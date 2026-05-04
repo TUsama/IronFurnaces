@@ -19,7 +19,7 @@ public class ModModelTemplate {
             ModelTemplates.create(TextureSlot.PARTICLE);
 
     protected static void createPatternHolderBaseModel(Item patternHolder, ItemModelGenerators prov) {
-        PATTERN_HOLDER_BASE_TEMPLATE.create(
+        ModelTemplates.PARTICLE_ONLY.create(
                 patternHolder,
                 TextureMapping.particleFromItem(patternHolder),
                 prov.modelOutput

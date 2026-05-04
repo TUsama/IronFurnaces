@@ -3,7 +3,7 @@ package ironfurnaces.tileentity.furnaces.cache;
 import lombok.With;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

@@ -4,10 +4,10 @@ import lombok.experimental.UtilityClass;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 //? 1.20.1 {
-import net.minecraftforge.items.ItemHandlerHelper;
-//? } else {
+/*import net.neoforged.neoforge.items.ItemHandlerHelper;
+*///? } else {
 
 //?}
 import java.util.*;
@@ -259,7 +259,7 @@ public final class HandlerRebalanceUtil {
     }
 
     private static boolean canMergeStrict(ItemStack a, ItemStack b) {
-        return ItemHandlerHelper.canItemStacksStack(a, b);
+        return ItemStack.isSameItemSameComponents(a, b);
     }
 
     private static final class StackGroup {
@@ -284,7 +284,7 @@ public final class HandlerRebalanceUtil {
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (!(obj instanceof StackKey other)) return false;
-            return ItemHandlerHelper.canItemStacksStack(other.item, this.item);
+            return ItemStack.isSameItemSameComponents(other.item, this.item);
         }
 
         @Override

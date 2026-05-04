@@ -10,7 +10,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 //? 1.20.1 {
 //?} else {
 //?}
@@ -26,9 +26,9 @@ public interface IRecipeTypeHandler extends INBTSerializable<CompoundTag> {
 
     void provideInstance(FurnacePatternBlockEntity blockEntity);
     List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode);
-    default Optional<? extends Recipe> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks){
+    default Optional<? extends RecipeHolder> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks){
         //~ if >1.20.1 'SimpleContainer(stacks.toArray(new ItemStack[0]))' -> 'SingleRecipeInput(stacks.get(0))'
-        return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SimpleContainer(stacks.toArray(new ItemStack[0])), blockEntity.getLevel());
+        return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SingleRecipeInput(stacks.get(0)), blockEntity.getLevel());
     }
     default boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks){
         return getRecipe(blockEntity, stacks).isPresent();
@@ -37,12 +37,12 @@ public interface IRecipeTypeHandler extends INBTSerializable<CompoundTag> {
 
 
     @Override
-    default CompoundTag serializeNBT(){
+    default CompoundTag serializeNBT(HolderLookup.Provider registries){
         return new CompoundTag();
     }
 
     @Override
-    default void deserializeNBT(CompoundTag nbt){
+    default void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt){
 
     }
 

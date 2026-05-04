@@ -11,10 +11,10 @@ import net.minecraft.world.level.Level;
 
 
 //? 1.20.1 {
-import static net.minecraftforge.event.ForgeEventFactory.firePlayerSmeltedEvent;
-//? } else {
-/*import static net.minecraftforge.event.EventHooks.firePlayerSmeltedEvent;
-*///?}
+/*import static net.neoforged.neoforge.event.ForgeEventFactory.firePlayerSmeltedEvent;
+*///? } else {
+import static net.neoforged.neoforge.event.EventHooks.firePlayerSmeltedEvent;
+//?}
 
 
 @UtilityClass
@@ -26,13 +26,13 @@ public class CompatUtil {
 
     public void handleVanillaWhenWithoutPlayer(ItemStack smelted, Level level){
         //? >1.20.1
-        //smelted.onCraftedBySystem(level);
+        smelted.onCraftedBySystem(level);
     }
 
     public void firePmmoSmeltedEvent(ItemStack input, ItemStack output, Level level, BlockPos pos){
         if (ModUtils.isModLoaded("pmmo")){
             //~ if >1.20.1 'input, level, pos' -> 'input, output, level, pos'
-            FurnaceHandler.handle(new FurnaceBurnEvent(input, level, pos));
+            FurnaceHandler.handle(new FurnaceBurnEvent(input, output, level, pos));
         }
 
     }

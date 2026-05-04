@@ -76,7 +76,7 @@ public abstract class Burn extends ProcessingInstance {
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         tile.getRecipe(stackInSlot).ifPresent(x -> {
             //~ if >1.20.1 'x.getResultItem' -> 'x.value().getResultItem'
-            ItemStack resultItem = x.getResultItem(level.registryAccess()).copy();
+            ItemStack resultItem = x.value().getResultItem(level.registryAccess()).copy();
             //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
             resultItem.setCount(resultItem.getCount() * batch);
             tile.getOutput().insertItem(fromIndex, resultItem, false);

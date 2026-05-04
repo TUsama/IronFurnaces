@@ -3,7 +3,7 @@ package ironfurnaces.tileentity.furnaces.menu.slot;
 import ironfurnaces.tileentity.furnaces.menu.Partition;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class PartitionAccessSlot extends FurnaceSlotBase {

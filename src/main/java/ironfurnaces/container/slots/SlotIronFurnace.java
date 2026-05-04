@@ -8,10 +8,10 @@ import net.minecraft.world.item.ItemStack;
 
 
 //? 1.20.1 {
-import static net.minecraftforge.event.ForgeEventFactory.firePlayerSmeltedEvent;
-//? } else {
-/*import static net.minecraftforge.event.EventHooks.firePlayerSmeltedEvent;
-*///?}
+/*import static net.neoforged.neoforge.event.ForgeEventFactory.firePlayerSmeltedEvent;
+*///? } else {
+import static net.neoforged.neoforge.event.EventHooks.firePlayerSmeltedEvent;
+//?}
 
 
 public class SlotIronFurnace extends Slot {

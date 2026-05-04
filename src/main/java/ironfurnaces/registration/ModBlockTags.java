@@ -105,10 +105,10 @@ public class ModBlockTags {
 
     protected static TagKey<Block> bindForge(String id) {
         //? 1.20.1 {
-        return of(Registries.BLOCK, ResourceLocationUtils.make("forge", id));
-        //? } else {
-        /*return bindC(id);
-        *///?}
+        /*return of(Registries.BLOCK, ResourceLocationUtils.make("forge", id));
+        *///? } else {
+        return bindC(id);
+        //?}
 
     }
 

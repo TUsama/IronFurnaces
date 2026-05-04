@@ -6,10 +6,10 @@ import com.clefal.nirvana_lib.relocated.net.neoforged.bus.api.IEventBus;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 //? 1.20.1 {
 
-import com.tterrag.registrate.Registrate;
-//?} else {
-/*import com.tterrag.registrate.Registrate;
-*///?}
+/*import dev.anvilcraft.lib.v2.registrum.Registrum;
+*///?} else {
+import dev.anvilcraft.lib.v2.registrum.Registrum;
+//?}
 
 
 import lombok.experimental.UtilityClass;
@@ -24,7 +24,7 @@ public class IronFurnaces {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "ironfurnaces";
     //~ if >1.20.1 'Registrate' -> 'Registrum'
-    public static final Registrate REGISTRATE = Registrate.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
+    public static final Registrum REGISTRATE = Registrum.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
     public static final IEventBus bus = BusBuilder.builder().setExceptionHandler((iEventBus, event, eventListeners, i, throwable) -> {
         try {
             throw throwable;
@@ -43,15 +43,15 @@ public class IronFurnaces {
 
     public ResourceLocation sprite(String id){
         //~ if >1.20.1 '"textures/gui/sprites/" + id + ".png"' -> 'id'
-        return ResourceLocationUtils.make(MOD_ID, "textures/gui/sprites/" + id + ".png");
+        return ResourceLocationUtils.make(MOD_ID, id);
     }
 
     public ResourceLocation parse(String path){
         //? 1.20.1 {
-        return new ResourceLocation(path);
-        //? } else {
-        /*return ResourceLocation.tryParse(path);
-        *///?}
+        /*return new ResourceLocation(path);
+        *///? } else {
+        return ResourceLocation.tryParse(path);
+        //?}
 
     }
 

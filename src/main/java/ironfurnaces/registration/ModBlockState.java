@@ -9,9 +9,10 @@ public class ModBlockState {
     public static final EnumProperty<JovialState> JOVIAL_STATE = EnumProperty.create("jovial", JovialState.class);
 
 
-
-
+    //? <1.21.11{
     // Legacy
     public static final IntegerProperty TYPE = IntegerProperty.create("type", 0, 2);
     public static final IntegerProperty JOVIAL = IntegerProperty.create("jovial", 0, 2);
+    //?}
+
 }

@@ -14,20 +14,20 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+import net.minecraft.core.HolderLookup;
+//?}
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 //? forge {
-import net.minecraftforge.common.util.LazyOptional;
-//? } else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+/*import net.neoforged.neoforge.common.util.LazyOptional;
+*///? } else {
+import net.minecraft.core.HolderLookup;
+//?}
 
 import java.util.*;
 
@@ -221,12 +221,12 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
 
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         return saveToTag();
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compoundTag) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag) {
         loadFromTag(compoundTag);
     }
 

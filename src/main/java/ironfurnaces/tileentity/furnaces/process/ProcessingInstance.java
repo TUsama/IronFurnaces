@@ -10,7 +10,7 @@ import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import ironfurnaces.tileentity.furnaces.process.compat.MealTransfer;
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class ProcessingInstance {
@@ -29,7 +29,7 @@ public abstract class ProcessingInstance {
             ProcessingInstance::getType,
             string -> codecMap.get(string).getOrElseThrow(() -> new IllegalArgumentException("can't find a Codec with type: " + string))
                     //? 1.20.1
-                    .codec()
+                    //.codec()
     );
 
     private boolean handledStart = false;

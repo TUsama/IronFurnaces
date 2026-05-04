@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.util.gui;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
@@ -69,7 +70,7 @@ public class FurnaceGuiButton {
             {
                 NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
                 //~ if >1.20.1 'SoundEvents.UI_BUTTON_CLICK.get()' -> 'SoundEvents.UI_BUTTON_CLICK.value()'
-                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.6F, 0.3F));
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 0.6F, 0.3F));
             }
         }
     }
@@ -84,7 +85,7 @@ public class FurnaceGuiButton {
                 {
                     NetworkUtils.sendToServer(new C2SSettingsButtonPacket(pos, index, set));
                     //~ if >1.20.1 'SoundEvents.UI_BUTTON_CLICK.get()' -> 'SoundEvents.UI_BUTTON_CLICK.value()'
-                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 0.3F, 0.3F));
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 0.3F, 0.3F));
                 }
             }
         }
@@ -93,14 +94,14 @@ public class FurnaceGuiButton {
     public void render(ResourceLocation location, GuiGraphics matrix, int mouseX, int mouseY, boolean enabled)
     {
 
-            if (!hovering(mouseX, mouseY) && hasUV())
-                matrix.blit(location, left + x, top + y, u, v, width, height);
+        if (!hovering(mouseX, mouseY) && hasUV())
+            matrix.blit(location, left + x, top + y, u, v, width, height);
 
-            if (hovering(mouseX, mouseY) && hasUVHover())
-                matrix.blit(location, left + x, top + y, u_hover, v_hover, width, height);
+        if (hovering(mouseX, mouseY) && hasUVHover())
+            matrix.blit(location, left + x, top + y, u_hover, v_hover, width, height);
 
-            if (enabled && hasUVEnabled())
-                matrix.blit(location, left + x, top + y, u_enabled, v_enabled, width, height);
+        if (enabled && hasUVEnabled())
+            matrix.blit(location, left + x, top + y, u_enabled, v_enabled, width, height);
 
 
 
@@ -163,3 +164,5 @@ public class FurnaceGuiButton {
 
 
 }
+
+//?}

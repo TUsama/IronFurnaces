@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;

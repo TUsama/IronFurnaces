@@ -34,9 +34,9 @@ public class ItemFurnaceCopy extends Item {
 
 
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         //? 1.20.1 {
-        if (stack.hasTag()) {
+        /*if (stack.hasTag()) {
             if (stack.getTag().getIntArray("settings").length >= 10)
             {
 
@@ -53,8 +53,8 @@ public class ItemFurnaceCopy extends Item {
                 tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", DirectionUtil.fromId(stack.getTag().getInt("direction"))).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
             }
         }
-        //? } else {
-        /*if (stack.has(ModDataComponents.PERSISTENT_LEGACY_SETTING)){
+        *///? } else {
+        if (stack.has(ModDataComponents.PERSISTENT_LEGACY_SETTING)){
             var a = stack.get(ModDataComponents.PERSISTENT_LEGACY_SETTING);
             tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.down", a[0]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
             tooltip.add(Component.translatable("ironfurnaces.furnace_setting.direction.up", a[1]).setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
@@ -72,7 +72,7 @@ public class ItemFurnaceCopy extends Item {
         if (stack.has(ModDataComponents.PERSISTENT_DIRECTION)){
             tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", stack.get(ModDataComponents.PERSISTENT_DIRECTION)));
         }
-        *///?}
+        //?}
 
         tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.1").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("ironfurnaces.item.item_copy.usage.2").withStyle(ChatFormatting.GRAY));
@@ -99,7 +99,7 @@ public class ItemFurnaceCopy extends Item {
 
             ItemStack stack = ctx.getItemInHand();
             //? 1.20.1 {
-            if (stack.hasTag())
+            /*if (stack.hasTag())
             {
                 CompoundTag tag = stack.getTag();
                 if (tag.getIntArray("settings") != null && tag.getIntArray("settings").length > 0)
@@ -119,8 +119,8 @@ public class ItemFurnaceCopy extends Item {
                     }
                 }
             }
-            //? } else {
-            /*if (stack.has(ModDataComponents.PERSISTENT_LEGACY_SETTING)){
+            *///? } else {
+            if (stack.has(ModDataComponents.PERSISTENT_LEGACY_SETTING)){
                 var a = stack.get(ModDataComponents.PERSISTENT_LEGACY_SETTING);
                 for (int i = 0; i < a.length; i++)
                 {
@@ -138,7 +138,7 @@ public class ItemFurnaceCopy extends Item {
                     }
                 }
             }
-            *///?}
+            //?}
 
             world.markAndNotifyBlock(pos, world.getChunkAt(pos), world.getBlockState(pos).getBlock().defaultBlockState(), world.getBlockState(pos), 3, 3);
             ctx.getPlayer().sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_applied"));

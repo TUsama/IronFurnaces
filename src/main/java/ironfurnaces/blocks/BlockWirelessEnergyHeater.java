@@ -23,17 +23,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 //? forge {
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.network.NetworkHooks;
-//?} else {
-/*import net.minecraft.core.component.DataComponents;
+/*import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.network.NetworkHooks;
+*///?} else {
+import net.minecraft.core.component.DataComponents;
 import ironfurnaces.registration.ModDataComponents;
-*///?}
+//?}
 import javax.annotation.Nullable;
 
 public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
     public static final String HEATER = "heater";
+
 
     public BlockWirelessEnergyHeater(Properties properties) {
         super(properties);
@@ -52,7 +54,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
     private static void setNameIfCustomNameExist(BlockWirelessEnergyHeaterTile te, ItemStack stack) {
         if (te.hasCustomName()) {
-            stack.setHoverName(te.getDisplayName());
+            stack.set(DataComponents.CUSTOM_NAME, te.getDisplayName());
         }
     }
 
@@ -76,8 +78,9 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
             setNameIfCustomNameExist(te, stack);
             EnergyWrapper wrapper = te.getWrapper();
             if (wrapper.getEnergyStored() > 0) {
-                //~ if >1.20.1 'stack.getOrCreateTag().putInt("Energy", wrapper.getEnergyStored());' -> 'stack.set(ModDataComponents.PERSISTENT_ENERGY, wrapper.getEnergyStored());'
-                stack.getOrCreateTag().putInt("Energy", wrapper.getEnergyStored());
+                VanillaCapabilityHandler.withItemEnergyStorage(stack, x -> {
+                    x.receiveEnergy(wrapper.getEnergyStored(), false);
+                });
             }
             if (!player.isCreative())
                 Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
@@ -90,18 +93,16 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
         if (entity != null) {
             BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
             setNameIfCustomNameExist(te, stack);
-            //~ if >1.20.1 'stack.hasTag()' -> 'stack.has(ModDataComponents.PERSISTENT_ENERGY)'
-            if (stack.hasTag()) {
+            VanillaCapabilityHandler.withItemEnergyStorage(stack, energy ->{
                 VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    //~ if >1.20.1 'stack.getTag().getInt("Energy")' -> 'stack.get(ModDataComponents.PERSISTENT_ENERGY)'
-                    h.receiveEnergy(stack.getTag().getInt("Energy"), false);
+                    h.receiveEnergy(energy.getEnergyStored(), false);
                 });
-            }
+            });
         }
     }
 
     //? forge {
-    @Override
+    /*@Override
     public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult p_225533_6_) {
         if (!world.isClientSide) {
             this.interactWith(world, pos, player);
@@ -109,15 +110,19 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
         return InteractionResult.SUCCESS;
     }
 
-    //? } else {
-    /*@Override
+
+
+
+
+    *///? } else {
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide) {
             this.interactWith(level, pos, player);
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
-    *///?}
+    //?}
 
 
     private void interactWith(Level world, BlockPos pos, Player player) {

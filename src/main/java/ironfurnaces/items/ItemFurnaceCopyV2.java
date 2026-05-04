@@ -43,19 +43,19 @@ public class ItemFurnaceCopyV2 extends Item {
 
     
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         StreamSetting setting = null;
         //? 1.20.1 {
-        if (stack.hasTag() && stack.getTag().contains(WHOLE_KEY)) {
+        /*if (stack.hasTag() && stack.getTag().contains(WHOLE_KEY)) {
             setting = StreamSetting.CODEC.parse(NbtOps.INSTANCE, stack.getTag().get(WHOLE_KEY))
                     .result()
                     .orElse(null);
         }
-        //? } else {
-        /*if (stack.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
+        *///? } else {
+        if (stack.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
             setting = stack.get(ModDataComponents.PERSISTENT_STREAM_SETTING);
         }
-        *///?}
+        //?}
         if (setting != null) {
             tooltip.addAll(setting.settingsV2.toTooltips());
             tooltip.add(Component.translatable("ironfurnaces.furnace_setting.faced_direction", setting.direction.toString()).withStyle(ChatFormatting.GRAY));
@@ -81,22 +81,22 @@ public class ItemFurnaceCopyV2 extends Item {
             if (player.isCrouching()) {
                 StreamSetting streamSetting = new StreamSetting(v2.getSettingsV2(), blockState.getValue(BlockStateProperties.HORIZONTAL_FACING));
                 //? 1.20.1 {
-                StreamSetting.CODEC.encodeStart(NbtOps.INSTANCE, streamSetting)
+                /*StreamSetting.CODEC.encodeStart(NbtOps.INSTANCE, streamSetting)
                         .resultOrPartial(string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_write")))
                         .ifPresent(x -> {
                             copyItem.getOrCreateTag().put(WHOLE_KEY, x);
                             player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_copied"));
 
                         });
-                //? } else {
-                /*copyItem.set(ModDataComponents.PERSISTENT_STREAM_SETTING.get(), streamSetting);
+                *///? } else {
+                copyItem.set(ModDataComponents.PERSISTENT_STREAM_SETTING.get(), streamSetting);
                 player.sendSystemMessage(Component.translatable("ironfurnaces.item.item_copy.tip.setting_copied"));
-                *///?}
+                //?}
 
             } else {
                 StreamSetting setting = null;
                 //? 1.20.1 {
-                CompoundTag tag = copyItem.getTag();
+                /*CompoundTag tag = copyItem.getTag();
                 if (tag != null && tag.contains(WHOLE_KEY)) {
                     Optional<StreamSetting> streamSetting = StreamSetting.CODEC.parse(NbtOps.INSTANCE, tag.get(WHOLE_KEY))
                             .resultOrPartial((string -> player.sendSystemMessage(Component.translatable("item.ironfurnaces.item_copy.error_on_parse"))));
@@ -106,12 +106,12 @@ public class ItemFurnaceCopyV2 extends Item {
                         copyItem.getTag().remove(WHOLE_KEY);
                     }
                 }
-                //? } else {
-                    /*if (copyItem.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
+                *///? } else {
+                    if (copyItem.has(ModDataComponents.PERSISTENT_STREAM_SETTING)) {
                         setting = copyItem.get(ModDataComponents.PERSISTENT_STREAM_SETTING);
 
                     }
-                *///?}
+                //?}
 
                 if (setting != null){
                     v2.setWholeSettingV2(setting.settingsV2());

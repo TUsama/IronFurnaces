@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -113,7 +113,7 @@ public class ItemUpgradeTool extends Item {
             currentPatternBe.updatePattern(to);
             OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
 
-            if (!level.isClientSide && player != null) {
+            if (!level.isClientSide() && player != null) {
                 PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
             }
         } else {
@@ -131,7 +131,7 @@ public class ItemUpgradeTool extends Item {
                 furnacePatternBlockEntity.updatePattern(to);
                 furnacePatternBlockEntity.transferStacksInUnavailableSlotsToPlayer(player);
                 OwnerRainbowContextHelper.markDirty(player instanceof ServerPlayer sp ? sp : null);
-                if (!level.isClientSide && player != null) {
+                if (!level.isClientSide() && player != null) {
                     PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
                 }
             } else {
@@ -149,7 +149,7 @@ public class ItemUpgradeTool extends Item {
 
 
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.literal(""));
         PatternUpgradeRule rule = IUpgradeStorage.get(stack);
         if (rule != null) {
@@ -168,7 +168,7 @@ public class ItemUpgradeTool extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if (context.getLevel().isClientSide) {
+        if (context.getLevel().isClientSide()) {
             return super.useOn(context);
         }
 
@@ -214,11 +214,11 @@ public class ItemUpgradeTool extends Item {
     }
 
     //? forge {
-    @Override
+    /*@Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new UpgradeToolClientExtensions());
     }
-    //?}
+    *///?}
 
 
 }

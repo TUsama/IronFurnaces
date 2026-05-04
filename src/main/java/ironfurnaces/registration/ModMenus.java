@@ -1,6 +1,6 @@
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.util.entry.MenuEntry;
+import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import ironfurnaces.blocks.BlockWirelessEnergyHeater;
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;

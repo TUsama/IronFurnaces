@@ -34,6 +34,7 @@ public class StringHelper {
         return text;
     }
 
+
     public static List<Component> getShiftInfoGui()
     {
         List<Component> list = Lists.newArrayList();

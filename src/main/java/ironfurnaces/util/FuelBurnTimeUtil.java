@@ -22,10 +22,10 @@ public final class FuelBurnTimeUtil {
         }
 
         //? if <=1.20.1 {
-        return net.minecraftforge.common.ForgeHooks.getBurnTime(stack, recipeType);
-         //?} else {
-        /*return stack.getBurnTime(recipeType);
-        *///?}
+        /*return net.neoforged.neoforge.common.ForgeHooks.getBurnTime(stack, recipeType);
+         *///?} else {
+        return stack.getBurnTime(recipeType);
+        //?}
     }
 
     public static boolean isFuel(ItemStack stack, @Nullable RecipeType<?> recipeType) {

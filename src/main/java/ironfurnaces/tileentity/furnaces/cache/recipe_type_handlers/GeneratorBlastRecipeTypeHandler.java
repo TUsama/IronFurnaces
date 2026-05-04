@@ -46,7 +46,7 @@ public class GeneratorBlastRecipeTypeHandler implements IRecipeTypeHandler {
                 int generation = usedStats.energyGenerationPerTick();
                 var recipe = blockEntity.getRecipe(stackInSlot);
                 //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
-                if (recipe.isPresent() && recipe.get() instanceof GeneratorRecipe generatorRecipe) {
+                if (recipe.isPresent() && recipe.get().value() instanceof GeneratorRecipe generatorRecipe) {
                     instanceManager.addInstance(new Generate.BlastGenerate(i, generatorRecipe.getEnergy(), generation));
                 }
 

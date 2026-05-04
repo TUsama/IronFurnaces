@@ -1,6 +1,6 @@
 package ironfurnaces.registrate;
 
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
 import ironfurnaces.loaders.IronFurnaces;
 import mezz.jei.api.recipe.RecipeType;
 import org.jetbrains.annotations.NotNull;

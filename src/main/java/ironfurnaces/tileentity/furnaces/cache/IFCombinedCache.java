@@ -6,9 +6,9 @@ import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
-import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.neoforged.neoforge.items.wrapper.EmptyItemHandler;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -62,7 +62,7 @@ public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICa
         if (index < 0 || index >= itemHandler.length)
         {
 
-            return (IItemHandlerModifiable) EmptyHandler.INSTANCE;
+            return (IItemHandlerModifiable) EmptyItemHandler.INSTANCE;
         }
         return itemHandler[index];
     }

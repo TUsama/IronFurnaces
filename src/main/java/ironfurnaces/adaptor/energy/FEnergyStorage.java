@@ -3,7 +3,7 @@ package ironfurnaces.adaptor.energy;
 import lombok.Setter;
 import lombok.With;
 import lombok.experimental.Accessors;
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
 
 import java.util.function.Consumer;
 

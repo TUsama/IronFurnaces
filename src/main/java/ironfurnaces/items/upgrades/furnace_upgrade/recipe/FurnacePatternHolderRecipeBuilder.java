@@ -26,14 +26,14 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 
 import net.minecraft.world.level.ItemLike;
 //? 1.20.1 {
-import net.minecraft.data.recipes.FinishedRecipe;
+/*import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.advancements.RequirementsStrategy;
 import ironfurnaces.mixin.ShapedRecipeBuilderResultAccessor;
-//? } else {
-/*import net.minecraft.data.recipes.RecipeOutput;
+*///? } else {
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
-*///?}
+//?}
 
 
 import java.util.List;

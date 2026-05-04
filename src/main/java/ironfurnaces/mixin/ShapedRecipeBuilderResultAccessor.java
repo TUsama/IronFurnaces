@@ -1,5 +1,5 @@
 //? 1.20.1 {
-package ironfurnaces.mixin;
+/*package ironfurnaces.mixin;
 
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.advancements.Advancement;
@@ -44,4 +44,4 @@ public interface ShapedRecipeBuilderResultAccessor {
     @Accessor("showNotification")
     boolean isShowNotification();
 }
-//? }
+*///? }

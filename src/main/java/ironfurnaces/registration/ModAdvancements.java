@@ -1,8 +1,8 @@
 //~ replace_Registrate
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.Registrate;
-import com.tterrag.registrate.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.Registrum;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.duck.AdvancementBuilderDuck;
 import net.minecraft.ChatFormatting;
@@ -11,15 +11,15 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 //? 1.20.1 {
-import net.minecraft.advancements.FrameType;
-//? } else {
-/*import net.minecraft.advancements.AdvancementType;
-*///?}
+/*import net.minecraft.advancements.FrameType;
+*///? } else {
+import net.minecraft.advancements.AdvancementType;
+//?}
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModAdvancements {
-    public static Registrate RAINBOW_COAL = REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, x -> {
+    public static Registrum RAINBOW_COAL = REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, x -> {
         ((AdvancementBuilderDuck) Advancement.Builder.advancement()
                 .display(
                         ModItems.RAINBOW_COAL.get(),
@@ -27,7 +27,7 @@ public class ModAdvancements {
                         x.desc(IronFurnaces.MOD_ID, "rainbow_coal", "Obtain the Rainbow Coal"),
                         IronFurnaces.parse("textures/gui/advancements/backgrounds/stone.png"),
                         //~ if >1.20.1 'FrameType.TASK' -> 'AdvancementType.TASK'
-                        FrameType.TASK,
+                        AdvancementType.TASK,
                         false,
                         false,
                         false

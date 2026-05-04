@@ -1,24 +1,26 @@
 
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.ProviderType;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.util.entry.BlockEntry;
+import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import ironfurnaces.blocks.BlockWirelessEnergyHeater;
 import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
-import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
+import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
@@ -32,6 +34,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -49,37 +52,43 @@ import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 //? forge {
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.PartialNBTIngredient;
-import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
-import net.minecraftforge.common.crafting.conditions.NotCondition;
-import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
-import net.minecraftforge.registries.ForgeRegistries;
+/*import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
+import net.neoforged.neoforge.common.crafting.PartialNBTIngredient;
+import net.neoforged.neoforge.common.crafting.conditions.ModLoadedCondition;
+import net.neoforged.neoforge.common.crafting.conditions.NotCondition;
+import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
+import net.neoforged.neoforge.registries.ForgeRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
-import net.minecraftforge.client.model.generators.ModelFile;
-//?} else {
-/*import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
+*///?} else {
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.common.crafting.DataComponentIngredient;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.minecraft.data.recipes.RecipeOutput;
 //? >1.21.11 {
-/^import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+/*import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
 import net.minecraft.world.level.storage.loot.LootContext;
-^///?} else {
+import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+*///?} else {
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraftforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
 //?}
-*///?}
+//?}
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -119,6 +128,11 @@ public class ModBlocks {
             .properties(p -> p.noOcclusion().requiresCorrectToolForDrops())
             .lang("Pattern Furnace")
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_FURNACE)
+            //? >1.21.11{
+            /*.blockstate(() -> (ctx, provider) -> {
+                provider.createNonTemplateModelBlock(Blocks.AIR);
+            })
+            *///?}
             .loot((ctx, furnace) -> {
                 LootTable.Builder builder = LootTable.lootTable()
                         .withPool(
@@ -129,15 +143,15 @@ public class ModBlocks {
                                                         .apply(
                                                                 //? if 1.20.1 {
 
-                                                                CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                                /*CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
                                                                         .copy(FurnaceSettingsV2.NBT_KEY, "BlockEntityTag." + FurnaceSettingsV2.NBT_KEY)
                                                                         .copy(FurnacePattern.NBT_KEY, "BlockEntityTag." + FurnacePattern.NBT_KEY)
 
-                                                                //? } else {
-                                                                /*//~ if > 1.21.11 'copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)' -> 'copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)'
+                                                                *///? } else {
+                                                                //~ if > 1.21.11 'copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)' -> 'copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)'
                                                                 CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                                                         .include(DataComponents.CUSTOM_DATA)
-                                                                *///?}
+                                                                //?}
                                                         )
                                                         .apply(
                                                                 CopyBlockState.copyState(furnace)
@@ -474,17 +488,17 @@ public class ModBlocks {
             .model((ctx, prov) -> prov.getBuilder(ctx.getName()).parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity")))
             //?}
             .tag(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
-            //? !forge {
-            /*.clientExtension(() -> () -> new IClientItemExtensions() {
+            //? 1.21.1 {
+            .clientExtension(() -> () -> new IClientItemExtensions() {
                 @Override
                 public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                     return PatternHolderItemRenderer.INSTANCE;
                 }
             })
-            *///?}
+            //?}
             .build()
             //? !forge {
-            /*.clientExtension(() -> () -> {
+            .clientExtension(() -> () -> {
                 return new IClientBlockExtensions() {
                     @Override
                     public boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) {
@@ -531,7 +545,7 @@ public class ModBlocks {
                     }
                 };
             })
-            *///?}
+            //?}
             .register();
 
 
@@ -557,7 +571,7 @@ public class ModBlocks {
 
         return pattern.referenceBlock()
                 //~ if >1.20.1 'ForgeRegistries.BLOCKS::getValue' -> 'BuiltInRegistries.BLOCK::get'
-                .map(ForgeRegistries.BLOCKS::getValue)
+                .map(BuiltInRegistries.BLOCK::get)
                 //~ if > 1.21.11 'block != null && block != Blocks.AIR' -> 'block.isPresent()'
                 .filter(block -> block != null && block != Blocks.AIR)
                 //? if > 1.21.11
@@ -573,7 +587,7 @@ public class ModBlocks {
 
     //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
     private static void whenAllthemodium(
-            Consumer<Consumer<FinishedRecipe>> consumerConsumer,
+            Consumer<RecipeOutput> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
             RegistrumRecipeProvider provider
@@ -582,14 +596,14 @@ public class ModBlocks {
     }
 
     @SafeVarargs
-    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
+    private static void whenHasTags(Consumer<RecipeOutput> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
         ConditionRecipeUtil.whenHasTags(consumerConsumer, ctx, provider, "new_furnaces", id, tags);
     }
     //~}
 
     private static Ingredient bindPatternHolder(Item item, ResourceLocation patternId) {
         //? 1.20.1 {
-        return PartialNBTIngredient.of(
+        /*return PartialNBTIngredient.of(
                 item,
                 Util.make(() -> {
                     ItemStack furnacePatternHolderItem = item.getDefaultInstance();
@@ -597,17 +611,19 @@ public class ModBlocks {
                     return furnacePatternHolderItem.getShareTag();
                 })
         );
-        //?} else {
-        /*return DataComponentIngredient.of(false, ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), patternId, item);
-        *///?}
+        *///?} else {
+        return DataComponentIngredient.of(false, ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), patternId, item);
+        //?}
     }
     //~ if >1.20.1 'ForgeRegistries.Keys.BLOCK_ENTITY_TYPES' -> 'BuiltInRegistries.BLOCK_ENTITY_TYPE' {
+    //? <1.21.11{
     public static BlockEntityType<? extends BlockIronFurnaceTileBase> asBlockEntityType(BlockEntry<?> entry) {
-        return (BlockEntityType<? extends BlockIronFurnaceTileBase>) entry.getSibling(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES).get();
+        return (BlockEntityType<? extends BlockIronFurnaceTileBase>) entry.getSibling(BuiltInRegistries.BLOCK_ENTITY_TYPE).get();
     }
+    //?}
 
     public static <T extends BlockEntity> BlockEntityType<T> asGenericBlockEntityType(BlockEntry<?> entry) {
-        return (BlockEntityType<T>) entry.getSibling(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES).get();
+        return (BlockEntityType<T>) entry.getSibling(BuiltInRegistries.BLOCK_ENTITY_TYPE).get();
     }
     //~}
 

@@ -1,6 +1,6 @@
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
 

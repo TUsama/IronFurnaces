@@ -27,17 +27,17 @@ import net.minecraft.world.item.crafting.*;
 
 import net.minecraft.world.level.ItemLike;
 //? 1.20.1 {
-import net.minecraft.data.recipes.FinishedRecipe;
+/*import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.advancements.RequirementsStrategy;
 import ironfurnaces.mixin.ShapedRecipeBuilderResultAccessor;
-//? } else {
-/*import net.minecraft.data.recipes.RecipeOutput;
+*///? } else {
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.advancements.AdvancementRequirements;
 //? <1.21.11 {
 
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 //?}
-*///?}
+//?}
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

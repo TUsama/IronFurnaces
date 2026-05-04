@@ -10,8 +10,8 @@ import net.minecraft.advancements.Advancement;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.advancements.AdvancementHolder;
-*///?}
+import net.minecraft.advancements.AdvancementHolder;
+//?}
 
 import java.util.function.Consumer;
 
@@ -21,11 +21,11 @@ public abstract class AdvancementBuilderMixin implements AdvancementBuilderDuck 
 
     //~ if >1.20.1 'Advancement' -> 'AdvancementHolder' {
     @Shadow
-    public abstract Advancement build(ResourceLocation id);
+    public abstract AdvancementHolder build(ResourceLocation id);
 
     @Override
-    public Advancement ironFurnaces$save(Consumer<Advancement> consumer, String id) {
-        Advancement advancement = this.build(IronFurnaces.id(id));
+    public AdvancementHolder ironFurnaces$save(Consumer<AdvancementHolder> consumer, String id) {
+        AdvancementHolder advancement = this.build(IronFurnaces.id(id));
         consumer.accept(advancement);
         return advancement;
     }

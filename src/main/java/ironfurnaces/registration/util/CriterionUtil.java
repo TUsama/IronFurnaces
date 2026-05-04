@@ -1,10 +1,7 @@
 package ironfurnaces.registration.util;
 
-
-
-
 import net.minecraft.advancements.Criterion;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 
 //? <1.21.11 {
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
@@ -16,9 +13,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 //~ if >1.20.1 'InventoryChangeTrigger.TriggerInstance' -> 'Criterion<InventoryChangeTrigger.TriggerInstance>' {
+//~ if >1.20.1 'RegistrateRecipeProvider' -> 'RegistrumRecipeProvider' {
 public class CriterionUtil {
 
-    public static InventoryChangeTrigger.TriggerInstance has(ItemLike item, RegistrumRecipeProvider provider) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike item, RegistrumRecipeProvider provider) {
         //? <1.21.11 {
         return RegistrumRecipeProvider.has(item);
         //?} else {
@@ -27,7 +25,7 @@ public class CriterionUtil {
 
     }
 
-    public static InventoryChangeTrigger.TriggerInstance has(TagKey<Item> tag, RegistrumRecipeProvider provider) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag, RegistrumRecipeProvider provider) {
         //? <1.21.11 {
         return RegistrumRecipeProvider.has(tag);
         //?} else {
@@ -35,4 +33,5 @@ public class CriterionUtil {
         *///?}
     }
 }
+//~}
 //~}

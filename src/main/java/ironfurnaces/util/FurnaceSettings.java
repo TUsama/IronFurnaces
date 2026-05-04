@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.util;
 
 import ironfurnaces.Config;
@@ -139,3 +140,4 @@ public class FurnaceSettings {
 
     }
 }
+//?}

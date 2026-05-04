@@ -17,8 +17,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 //? >1.20.1 {
-/*import net.minecraft.world.item.crafting.RecipeHolder;
-*///?}
+import net.minecraft.world.item.crafting.RecipeHolder;
+//?}
 
 import java.util.List;
 
@@ -76,15 +76,15 @@ public final class RecipeAwardHandler {
     }
 
 
-    public void record(@Nullable Recipe<?> recipe, int maxXpLevelConfig) {
+    public void record(@Nullable RecipeHolder<?> recipe, int maxXpLevelConfig) {
         //? >1.20.1
-        //if (recipe == null) return;
+        if (recipe == null) return;
         //~ if >1.20.1 'recipe instanceof' -> 'recipe.value() instanceof'
-        if (!(recipe instanceof AbstractCookingRecipe cookingRecipe)) {
+        if (!(recipe.value() instanceof AbstractCookingRecipe cookingRecipe)) {
             return;
         }
         //~ if >1.20.1 'cookingRecipe.getId()' -> 'recipe.id()'
-        ResourceLocation id = cookingRecipe.getId();
+        ResourceLocation id = recipe.id();
 
         float xpPerRecipe = cookingRecipe.getExperience();
         int xpCap = computeTotalXpToReachLevel(maxXpLevelConfig) + 1;
@@ -98,19 +98,19 @@ public final class RecipeAwardHandler {
 
     public void unlockRecipes(ServerPlayer player) {
 
-        List<Recipe<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
+        List<RecipeHolder<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
         player.awardRecipes(list);
         recipesUsed.clear();
     }
 
-    public List<Recipe<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
-        List<Recipe<?>> list = Lists.newArrayList();
+    public List<RecipeHolder<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
+        List<RecipeHolder<?>> list = Lists.newArrayList();
 
         for (Object2IntMap.Entry<ResourceLocation> entry : recipesUsed.object2IntEntrySet()) {
             level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
                 list.add(h);
                 //~ if >1.20.1 '((AbstractCookingRecipe) h)' -> '((AbstractCookingRecipe) h.value())'
-                splitAndSpawnExperience(level, worldPosition, entry.getIntValue(), ((AbstractCookingRecipe) h).getExperience());
+                splitAndSpawnExperience(level, worldPosition, entry.getIntValue(), ((AbstractCookingRecipe) h.value()).getExperience());
             });
         }
 

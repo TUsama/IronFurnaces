@@ -27,18 +27,18 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 
 import net.minecraft.world.level.ItemLike;
 //? 1.20.1 {
-import net.minecraft.data.recipes.FinishedRecipe;
+/*import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.advancements.RequirementsStrategy;
 import ironfurnaces.mixin.ShapedRecipeBuilderResultAccessor;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-//? } else {
-/*import net.minecraft.data.recipes.RecipeOutput;
+*///? } else {
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 //? >1.21.11 {
-/^import net.minecraft.world.item.ItemStackTemplate;
-^///?}
+/*import net.minecraft.world.item.ItemStackTemplate;
 *///?}
+//?}
 
 
 import java.util.List;
@@ -53,15 +53,15 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
 
 
         //? 1.20.1 {
-        super(category, result, count);
-         //?} else {
-        /*super(category, Util.make(() -> {
+        /*super(category, result, count);
+         *///?} else {
+        super(category, Util.make(() -> {
             ItemStack copy = result.asItem().getDefaultInstance();
             writer.accept(copy);
             copy.setCount(count);
             return copy;
         }));
-        *///?}
+        //?}
 
 
         this.writer = writer;
@@ -69,9 +69,9 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
 
 
     //? 1.20.1 {
-    @Override
+    /*@Override
             //~ if >1.20.1 'Consumer<FinishedRecipe>' -> 'RecipeOutput'
-    public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
+    public void save(RecipeOutput finishedRecipeConsumer, ResourceLocation recipeId) {
         ShapedRecipeBuilderMixin accessor = (ShapedRecipeBuilderMixin) this;
                 accessor.callEnsureValid(recipeId);
         accessor.getAdvancement().parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
@@ -97,11 +97,11 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
 
 
     }
-//?}
+*///?}
 
 
     //? 1.20.1 {
-    public static class PatternResult extends Result {
+    /*public static class PatternResult extends Result {
         private ItemStack stack;
         public PatternResult(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
             super(id, result.getItem(), count, group, category, pattern, key, advancement, advancementId, showNotification);
@@ -148,6 +148,6 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
         }
 
     }
-    //? }
+    *///? }
 }
 //?}

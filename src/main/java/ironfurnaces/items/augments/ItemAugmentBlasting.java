@@ -33,8 +33,8 @@ public class ItemAugmentBlasting extends ItemAugmentRed {
 
     
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_blasting").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GOLD))));
     }
 }

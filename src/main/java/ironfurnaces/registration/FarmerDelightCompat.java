@@ -1,7 +1,7 @@
 //? fd {
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import ironfurnaces.items.augments.compat.ItemAugmentFarmerDelightCooking;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;

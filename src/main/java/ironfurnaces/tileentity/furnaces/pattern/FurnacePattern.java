@@ -22,8 +22,8 @@ public sealed abstract class FurnacePattern permits NormalFurnacePattern, Rainbo
                     FurnacePattern::kind,
                     //~ if 1.20.1 '.CODEC' -> '.CODEC.codec()'{
                     kind -> switch (kind) {
-                        case NORMAL -> NormalFurnacePattern.CODEC.codec();
-                        case RAINBOW -> RainbowFurnacePattern.CODEC.codec();
+                        case NORMAL -> NormalFurnacePattern.CODEC;
+                        case RAINBOW -> RainbowFurnacePattern.CODEC;
                     }
                     //~ }
 

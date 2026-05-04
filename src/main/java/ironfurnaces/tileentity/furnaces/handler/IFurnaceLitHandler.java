@@ -19,7 +19,7 @@ public interface IFurnaceLitHandler{
                 };
                 return codec
                         //? 1.20.1
-                        .codec()
+                        //.codec()
                         ;
             }
     );

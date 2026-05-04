@@ -329,7 +329,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
         this.positionContext.zero();
         this.menu.updateMode();
         //~ if >1.20.1 'guiGraphics' -> 'guiGraphics, mouseX, mouseY, partialTick'
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (renderHandler.needRenderCustomTooltip(guiGraphics, mouseX, mouseY)) {
             renderHandler.renderCustomTooltip(guiGraphics, mouseX, mouseY);

@@ -16,10 +16,10 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 //? 1.20.1 {
-import net.minecraftforge.items.ItemHandlerHelper;
-//? } else {
-/*import net.minecraft.world.item.crafting.RecipeHolder;
-*///?}
+/*import net.neoforged.neoforge.items.ItemHandlerHelper;
+*///? } else {
+import net.minecraft.world.item.crafting.RecipeHolder;
+//?}
 
 
 import javax.annotation.Nullable;
@@ -142,7 +142,7 @@ public class ProcessingInstanceManager implements INeedUpdate {
 
         var lookedUp = tile.getRecipe(current)
                 //? if >1.20.1
-                //.map(RecipeHolder::value)
+                .map(RecipeHolder::value)
                 .orElse(null);
 
         entry.update(current, lookedUp);
@@ -215,7 +215,7 @@ public class ProcessingInstanceManager implements INeedUpdate {
 
         public boolean matches(ItemStack current) {
             if (fingerprint.isEmpty() || current.isEmpty()) return false;
-            return ItemHandlerHelper.canItemStacksStack(fingerprint, current);
+            return ItemStack.isSameItemSameComponents(fingerprint, current);
         }
 
         public void update(ItemStack current, @Nullable Recipe recipe) {

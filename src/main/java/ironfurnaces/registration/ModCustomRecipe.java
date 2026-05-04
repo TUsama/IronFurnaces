@@ -1,7 +1,7 @@
 package ironfurnaces.registration;
 
 import com.google.gson.JsonObject;
-import com.tterrag.registrate.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
@@ -18,19 +18,19 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ICondition;
 //? 1.20.1 {
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.NotCondition;
-import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
-//?} else {
-/*import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraftforge.common.conditions.NotCondition;
-import net.minecraftforge.common.conditions.TagEmptyCondition;
-import net.minecraftforge.common.crafting.ConditionalRecipeOutput;
+/*import net.minecraft.data.recipes.FinishedRecipe;
+import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
+import net.neoforged.neoforge.common.crafting.conditions.NotCondition;
+import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
+*///?} else {
+import net.minecraft.data.recipes.RecipeOutput;
+import net.neoforged.neoforge.common.conditions.NotCondition;
+import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
+import net.neoforged.neoforge.common.crafting.ConditionalRecipeOutput;
 import net.minecraft.advancements.AdvancementHolder;
-*///?}
+//?}
 
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public class ModCustomRecipe {
                 acceptWhenTagNotEmpty(provider, "redstone", 10000, bindC("dusts/redstone"));
 
                 //? 1.20.1 {
-                acceptWhenTagNotEmpty(provider, "amethyst_forge", 40000, bindForge("gems/amethyst"));
+                /*acceptWhenTagNotEmpty(provider, "amethyst_forge", 40000, bindForge("gems/amethyst"));
                 acceptWhenTagNotEmpty(provider, "copper_forge", 10000, bindForge("ingots/copper"));
                 acceptWhenTagNotEmpty(provider, "diamond_forge", 500000, bindForge("gems/diamond"));
                 acceptWhenTagNotEmpty(provider, "emerald_forge", 125000, bindForge("gems/emerald"));
@@ -75,7 +75,7 @@ public class ModCustomRecipe {
                 acceptWhenTagNotEmpty(provider, "netherite_forge", 750000, bindForge("ingots/netherite"));
                 acceptWhenTagNotEmpty(provider, "quartz_forge", 40000, bindForge("gems/quartz"));
                 acceptWhenTagNotEmpty(provider, "redstone_forge", 10000, bindForge("dusts/redstone"));
-                //?}
+                *///?}
             })
             .register();
 
@@ -83,19 +83,19 @@ public class ModCustomRecipe {
     }
 
     //~ if >1.20.1 'Consumer<FinishedRecipe>' -> 'RecipeOutput'
-    private static void acceptWhenTagNotEmpty(Consumer<FinishedRecipe> provider, String id, int value, TagKey<Item> tag) {
+    private static void acceptWhenTagNotEmpty(RecipeOutput provider, String id, int value, TagKey<Item> tag) {
         //? 1.20.1 {
-        ConditionalRecipe.builder()
+        /*ConditionalRecipe.builder()
                 .addCondition(new NotCondition(new TagEmptyCondition(tag.location())))
                 .addRecipe(new Result(id, value, tag))
                 .build(provider, IronFurnaces.id(GENERATOR_ID + "/" + id));
-        //? } else {
-        /*provider.accept(IronFurnaces.id(GENERATOR_ID + "/" + id), new GeneratorRecipe(value, Ingredient.of(tag)), null, new NotCondition(new TagEmptyCondition(tag.location())));
-        *///?}
+        *///? } else {
+        provider.accept(IronFurnaces.id(GENERATOR_ID + "/" + id), new GeneratorRecipe(value, Ingredient.of(tag)), null, new NotCondition(new TagEmptyCondition(tag.location())));
+        //?}
     }
 
     //? forge {
-    private static class Result implements FinishedRecipe {
+    /*private static class Result implements FinishedRecipe {
         private final String id;
         private final int energy;
         private final Ingredient ingredient;
@@ -139,5 +139,5 @@ public class ModCustomRecipe {
             return null;
         }
     }
-    //?}
+    *///?}
 }

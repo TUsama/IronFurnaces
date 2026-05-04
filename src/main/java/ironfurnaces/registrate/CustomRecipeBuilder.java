@@ -1,16 +1,16 @@
 package ironfurnaces.registrate;
 
 import com.clefal.nirvana_lib.utils.ModUtils;
-import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.builders.AbstractBuilder;
-import com.tterrag.registrate.builders.BuilderCallback;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.ProviderType;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.util.entry.RegistryEntry;
-import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import com.tterrag.registrate.util.nullness.NonnullType;
+import dev.anvilcraft.lib.v2.registrum.AbstractRegistrum;
+import dev.anvilcraft.lib.v2.registrum.builders.AbstractBuilder;
+import dev.anvilcraft.lib.v2.registrum.builders.BuilderCallback;
+import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
+import dev.anvilcraft.lib.v2.util.nullness.NonnullType;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -18,11 +18,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
 //? 1.20.1 {
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-//? } else {
-/*import net.minecraftforge.registries.DeferredHolder;
-*///?}
+/*import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.RegistryObject;
+*///? } else {
+import net.neoforged.neoforge.registries.DeferredHolder;
+//?}
 
 
 public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder<RecipeType<?>, RecipeType<?>, P, CustomRecipeBuilder<T, P>> {
@@ -30,9 +30,9 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
     private RecipeSerializerBuilder recipeSerializerBuilder;
     private Class<T> jeiRecipeTypeClass;
 
-    public CustomRecipeBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, NonNullSupplier<RecipeSerializer<T>> serializerFactory) {
+    public CustomRecipeBuilder(AbstractRegistrum<?> owner, P parent, String name, BuilderCallback callback, NonNullSupplier<RecipeSerializer<T>> serializerFactory) {
         //~ if >1.20.1 'ForgeRegistries.Keys.RECIPE_TYPES' -> 'BuiltInRegistries.RECIPE_TYPE.key()'
-        super(owner, parent, name, callback, ForgeRegistries.Keys.RECIPE_TYPES);
+        super(owner, parent, name, callback, BuiltInRegistries.RECIPE_TYPE.key());
         this.recipeSerializerBuilder = new RecipeSerializerBuilder(owner, parent, name, callback, serializerFactory);
     }
 
@@ -61,7 +61,7 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
 
     @Override
             //~ if >1.20.1 'RegistryEntry<RecipeType<?>> createEntryWrapper(RegistryObject<RecipeType<?>> delegate)' -> 'RegistryEntry<RecipeType<?>, RecipeType<?>> createEntryWrapper(DeferredHolder<RecipeType<?>, RecipeType<?>> delegate)'
-    protected RegistryEntry<RecipeType<?>> createEntryWrapper(RegistryObject<RecipeType<?>> delegate) {
+    protected RegistryEntry<RecipeType<?>, RecipeType<?>> createEntryWrapper(DeferredHolder<RecipeType<?>, RecipeType<?>> delegate) {
         return new CustomRecipeEntry<>(getOwner(), delegate, recipeSerializerBuilder.register(), JEIRecipeTypeEntry.create(IronFurnaces.MOD_ID, getName(), jeiRecipeTypeClass));
     }
 
@@ -76,15 +76,15 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
 
         private NonNullSupplier<RecipeSerializer<T>> serializerFactory;
 
-        public RecipeSerializerBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, NonNullSupplier<RecipeSerializer<T>> serializerFactory) {
+        public RecipeSerializerBuilder(AbstractRegistrum<?> owner, P parent, String name, BuilderCallback callback, NonNullSupplier<RecipeSerializer<T>> serializerFactory) {
             //~ if >1.20.1 'ForgeRegistries.Keys.RECIPE_SERIALIZERS' -> 'BuiltInRegistries.RECIPE_SERIALIZER.key()'
-            super(owner, parent, name, callback, ForgeRegistries.Keys.RECIPE_SERIALIZERS);
+            super(owner, parent, name, callback, BuiltInRegistries.RECIPE_SERIALIZER.key());
             this.serializerFactory = serializerFactory;
         }
 
         @Override
                 //~ if >1.20.1 'RegistryEntry<RecipeSerializer<?>> createEntryWrapper(RegistryObject<RecipeSerializer<?>> delegate)' -> 'RegistryEntry<RecipeSerializer<?>, RecipeSerializer<?>> createEntryWrapper(DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> delegate)'
-        protected RegistryEntry<RecipeSerializer<?>> createEntryWrapper(RegistryObject<RecipeSerializer<?>> delegate) {
+        protected RegistryEntry<RecipeSerializer<?>, RecipeSerializer<?>> createEntryWrapper(DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> delegate) {
             return new RecipeSerializerEntry(getOwner(), delegate);
         }
 

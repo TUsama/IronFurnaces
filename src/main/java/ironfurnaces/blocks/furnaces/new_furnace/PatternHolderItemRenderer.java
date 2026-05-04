@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,32 +14,21 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-//? <1.21.11 {
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
-import org.jspecify.annotations.Nullable;
-
-import java.util.function.Consumer;
-//?} else {
-/*import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.special.SpecialModelRenderer;
-*///?}
 
 
-//~ if > 1.21.11 'extends' -> 'implements'
+
+
 public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
 
     public static final PatternHolderItemRenderer INSTANCE =
             new PatternHolderItemRenderer();
 
     public PatternHolderItemRenderer() {
-        //? <1.21.11 {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(),
                 Minecraft.getInstance().getEntityModels());
-        //?}
     }
-    //? <1.21.11 {
+
     @Override
     public void renderByItem(
             @NotNull ItemStack stack,
@@ -72,37 +62,7 @@ public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
 
         poseStack.popPose();
     }
-    //?} else {
-    /*@Override
-    public void submit(@Nullable FurnacePattern pattern, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, int i1, boolean b, int i2) {
 
-    }
-
-    public void getExtents(Consumer<Vector3fc> output) {
-        output.accept(new Vector3f(-0.25F, -0.25F, -0.25F));
-        output.accept(new Vector3f(1.25F, 1.25F, 1.25F));
-    }
-
-    @Override
-    public @Nullable FurnacePattern extractArgument(ItemStack itemStack) {
-        return null;
-    }
-
-
-    public record Unbaked() implements SpecialModelRenderer.Unbaked {
-        public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
-
-        @Override
-        public MapCodec<Unbaked> type() {
-            return MAP_CODEC;
-        }
-
-        @Override
-        public SpecialModelRenderer<?> bake(BakingContext context) {
-            return new PatternHolderItemRenderer();
-        }
-    }
-    *///?}
 
 
 
@@ -163,3 +123,4 @@ public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
     }
 }
+//?}

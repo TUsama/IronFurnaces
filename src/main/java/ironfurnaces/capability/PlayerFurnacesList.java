@@ -11,12 +11,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+import net.minecraft.core.HolderLookup;
+//?}
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -88,14 +88,14 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, INBTSerializable
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         CompoundTag compoundTag = new CompoundTag();
         CODEC.encodeStart(NbtOps.INSTANCE, this).result().ifPresent(x -> compoundTag.put("Data", x));
         return compoundTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compoundTag) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag) {
         if (compoundTag.contains("Data")){
             CODEC.decode(NbtOps.INSTANCE, compoundTag).result().ifPresent(x -> this.posLinkedHashSet.addAll(x.getFirst().posLinkedHashSet));
         }

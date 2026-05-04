@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.client.gui.components.WidgetSprites;
-*///?}
+import net.minecraft.client.gui.components.WidgetSprites;
+//?}
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -64,10 +64,10 @@ public class IOButton extends BaseImageButton {
         //? 1.20.1 {
         
 
-        guiGraphics.blit(resourcelocation, this.getX(), this.getY(), 0, 0, this.width, this.height, getTextureWidth(), getTextureHeight());
-        //? } else {
-        /*guiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);
-        *///?}
+        /*guiGraphics.blit(resourcelocation, this.getX(), this.getY(), 0, 0, this.width, this.height, getTextureWidth(), getTextureHeight());
+        *///? } else {
+        guiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);
+        //?}
 
 
     }

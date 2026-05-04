@@ -46,7 +46,7 @@ public final class PatternUpgradeRuleReloadListener extends SimpleJsonResourceRe
                         .parse(JsonOps.INSTANCE, json)
                         .getOrThrow(
                                 //? 1.20.1
-                                false,
+                                //false,
                                 msg -> {
                             throw new IllegalStateException(msg);
                         }).toRuntime(e.getKey());

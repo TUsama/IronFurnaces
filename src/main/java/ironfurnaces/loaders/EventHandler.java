@@ -13,25 +13,25 @@ import net.minecraft.world.level.Level;
 
 //? if forge {
 
-import ironfurnaces.capability.PlayerFurnacesListProvider;
+/*import ironfurnaces.capability.PlayerFurnacesListProvider;
 import ironfurnaces.capability.rainbow.PlayerRainbowContextCapability;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-//?} else {
-/*import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.AttachCapabilitiesEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.fml.common.Mod;
+*///?} else {
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.minecraftforge.event.level.ExplosionKnockbackEvent;
-*///?}
+import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
+//?}
 import java.util.List;
 //$ if forge '@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)' else '@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)'
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
 public class EventHandler {
 
     //? forge {
     
-    @SubscribeEvent
+    /*@SubscribeEvent
     public static void playerEvent(AttachCapabilitiesEvent<Entity> event)
     {
         if (event.getObject() instanceof Player)
@@ -40,10 +40,10 @@ public class EventHandler {
             event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "rainbow_context"), new PlayerRainbowContextCapability());
         }
     }
-    //?}
+    *///?}
     @SubscribeEvent
             //~ if >1.20.1 'ExplosionEvent' -> 'ExplosionKnockbackEvent'
-    public static void explosionEvent(ExplosionEvent event)
+    public static void explosionEvent(ExplosionKnockbackEvent event)
     {
         List<BlockPos> list = event.getExplosion().getToBlow();
         for (BlockPos pos : list)

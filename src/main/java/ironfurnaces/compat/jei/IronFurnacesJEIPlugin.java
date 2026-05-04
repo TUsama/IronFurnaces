@@ -22,7 +22,6 @@ import ironfurnaces.util.FuelBurnTimeUtil;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,13 +30,13 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 //? 1.20.1 {
-import net.minecraftforge.registries.ForgeRegistries;
-//? } else {
-/*import net.minecraft.world.item.crafting.RecipeHolder;
-*///?}
+/*import net.neoforged.neoforge.registries.ForgeRegistries;
+*///? } else {
+import net.minecraft.world.item.crafting.RecipeHolder;
+//?}
 import java.util.List;
 @JeiPlugin
 //~ if >1.20.1 'ForgeRegistries.ITEMS.getValues()' -> 'BuiltInRegistries.ITEM'{
@@ -105,7 +104,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 		{
 
 			List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
-			for (Item item : ForgeRegistries.ITEMS.getValues())
+			for (Item item : BuiltInRegistries.ITEM)
 			{
 				if (FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING) > 0)
 				{
@@ -118,7 +117,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			List<GeneratorRecipe> recipes1 = Lists.newArrayList();
 			List<GeneratorRecipe> list = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(ModCustomRecipe.GENERATOR_RECIPE.get()).stream()
                     //? > 1.20.1
-                    //.map(RecipeHolder::value)
+                    .map(RecipeHolder::value)
                     .toList();
 			for (GeneratorRecipe item : list)
 			{
@@ -127,12 +126,12 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registration.addRecipes(ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get(), recipes1);
 
 			List<SimpleGeneratorRecipe> recipes2 = Lists.newArrayList();
-			for (Item item : ForgeRegistries.ITEMS.getValues())
+			for (Item item : BuiltInRegistries.ITEM)
 			{
                 FoodProperties foodProperties = item.getFoodProperties(item.getDefaultInstance(), Minecraft.getInstance().player);
                 if (foodProperties != null)
 				{
-					if (foodProperties.getNutrition() > 0)
+					if (foodProperties.nutrition() > 0)
 					{
 						ItemStack stack = new ItemStack(item);
 						recipes2.add(new SimpleGeneratorRecipe(BlockIronFurnaceTileBase.getSmokingBurn(stack) * 40, stack));
@@ -160,7 +159,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
             //~ if >1.20.1 'if (Config.enableRainbowContent.get()) {' -> '{'
-			if (Config.enableRainbowContent.get()) {
+			{
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.SMELTING);
 			}
 
@@ -174,7 +173,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.COPPER_FURNACE.get()), RecipeTypes.FUELING);
 			registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.SILVER_FURNACE.get()), RecipeTypes.FUELING);
             //~ if >1.20.1 'if (Config.enableRainbowContent.get()) {' -> '{'
-			if (Config.enableRainbowContent.get()) {
+			{
 				registry.addRecipeCatalyst(new ItemStack(LegacyFurnaceBlocks.MILLION_FURNACE.get()), RecipeTypes.FUELING);
 			}
 

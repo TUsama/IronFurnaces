@@ -1,14 +1,18 @@
+//? <1.21.11{
 package ironfurnaces.tileentity.furnaces.pattern.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
 import net.minecraft.client.renderer.MultiBufferSource;
+//? >1.21.11{
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+*///?}
 import net.minecraft.core.Direction;
 
-public final class PatternHolderVisualRenderer {
-
-    private PatternHolderVisualRenderer() {}
+public final class PatternHolderVisualRenderer
+{
 
     public static void render(
             String patternPath,
@@ -38,3 +42,5 @@ public final class PatternHolderVisualRenderer {
         );
     }
 }
+
+//?}

@@ -2,9 +2,9 @@ package ironfurnaces.adaptor.energy;
 
 import lombok.Getter;
 //? 1.20.1
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
+//import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import java.util.function.Consumer;
 
@@ -14,25 +14,25 @@ public class EnergyWrapper
 
     @Getter
             //~ if >1.20.1 'LazyOptional<FEnergyStorage>' -> 'FEnergyStorage'
-    private LazyOptional<FEnergyStorage> storage;
+    private FEnergyStorage storage;
     //~ if >1.20.1 'LazyOptional.of(() -> new FEnergyStorage' -> '(new FEnergyStorage' {
     public EnergyWrapper(int capacity) {
-        this.storage = LazyOptional.of(() -> new FEnergyStorage(capacity));
+        this.storage = (new FEnergyStorage(capacity));
     }
 
     public EnergyWrapper(int capacity, int maxReceive, int maxExtract) {
-        this.storage = LazyOptional.of(() -> new FEnergyStorage(capacity, maxReceive, maxExtract));
+        this.storage = (new FEnergyStorage(capacity, maxReceive, maxExtract));
     }
 
     public EnergyWrapper(int capacity, int maxReceive, int maxExtract, int energy) {
-        this.storage = LazyOptional.of(() -> new FEnergyStorage(capacity, maxReceive, maxExtract, energy));
+        this.storage = (new FEnergyStorage(capacity, maxReceive, maxExtract, energy));
     }
 
 //~}
 
 
     //? forge {
-    public void invalidate(){
+    /*public void invalidate(){
         storage.invalidate();
     }
 
@@ -85,9 +85,9 @@ public class EnergyWrapper
     public void setMaxExtract(int maxExtract) {
         storage.lazyMap(x -> x.setMaxExtract(maxExtract));
     }
-    //?} else {
+    *///?} else {
 
-    /*@Override
+    @Override
     public int receiveEnergy(int i, boolean b) {
         return storage.receiveEnergy(i, b);
     }
@@ -133,5 +133,5 @@ public class EnergyWrapper
         storage.setMaxExtract(maxExtract);
     }
 
-    *///?}
+    //?}
 }

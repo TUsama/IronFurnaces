@@ -26,8 +26,8 @@ public class ItemAugmentGenerator extends ItemAugmentBlue {
 
     
     @Override
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_generator_pro").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GREEN))));
         tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_generator_con").setStyle(Style.EMPTY.applyFormat(ChatFormatting.DARK_RED)));
     }

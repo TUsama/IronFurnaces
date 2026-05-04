@@ -88,21 +88,21 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
             float nx, float ny, float nz
     ) {
         //? 1.20.1 {
-        vc.vertex(pose.pose(), x, y, z)
+        /*vc.vertex(pose.pose(), x, y, z)
                 .color(255, 255, 255, 255)
                 .uv(u, v)
                 .overlayCoords(packedOverlay)
                 .uv2(packedLight)
                 .normal(normal, nx, ny, nz)
                 .endVertex();
-        //? } else {
-        /*vc.addVertex(pose, x, y, z)
+        *///? } else {
+        vc.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, 255)
                 .setUv(u, v)
                 .setOverlay(packedOverlay)
                 .setLight(packedLight)
                 .setNormal(pose, nx, ny, nz);
-        *///?}
+        //?}
 
     }
 

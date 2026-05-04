@@ -8,7 +8,7 @@ import ironfurnaces.registration.ModItemGroups;
 import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import ironfurnaces.tileentity.furnaces.pattern.mode.compat.FDCompatModeHandler;
 import lombok.experimental.UtilityClass;
-import net.minecraftforge.data.loading.DatagenModLoader;
+import net.neoforged.neoforge.data.loading.DatagenModLoader;
 
 @UtilityClass
 public class FDCompat {

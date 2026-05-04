@@ -48,7 +48,7 @@ public class BlastRecipeTypeHandler implements IRecipeTypeHandler {
                 blockEntity.getRecipe(stackInSlot)
                         .ifPresent(x -> {
                             //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
-                            if (x instanceof AbstractCookingRecipe recipe) {
+                            if (x.value() instanceof AbstractCookingRecipe recipe) {
                                 instanceManager.addInstance(new Burn.Blasting(finalI, usedStats.smeltTick(), usedStats.batchHandle()));
                             }
 

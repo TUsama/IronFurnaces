@@ -1,3 +1,4 @@
+//? <1.21.11{
 package ironfurnaces.util;
 
 import java.util.LinkedHashMap;
@@ -23,3 +24,5 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> {
         return new LRUCache<K, V>(size);
     }
 }
+
+//?}

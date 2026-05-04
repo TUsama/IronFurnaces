@@ -1,3 +1,4 @@
+//? <1.21.11{
 //~ replace_tile
 //~ replace_block_entity
 package ironfurnaces.tileentity.furnaces;
@@ -59,20 +60,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.items.IItemHandler;
 //? forge {
-import net.minecraft.world.inventory.RecipeHolder;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
+/*import net.minecraft.world.inventory.RecipeHolder;
+import net.neoforged.neoforge.common.capabilities.Capability;
+import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
+import net.neoforged.neoforge.registries.ForgeRegistries;
 import net.minecraft.world.SimpleContainer;
-//?} else {
-/*import net.minecraft.world.inventory.RecipeCraftingHolder;
-*///?}
+*///?} else {
+import net.minecraft.world.inventory.RecipeCraftingHolder;
+//?}
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -87,10 +88,10 @@ import static ironfurnaces.init.ModSetup.HAS_RECIPE_BLASTING;
 
 public abstract class BlockIronFurnaceTileBase extends TileEntityInventory implements
         //? >1.20.1 {
-        /*RecipeCraftingHolder,
-*///? } else {
-RecipeHolder,
-//? }
+        RecipeCraftingHolder,
+//? } else {
+        /*RecipeHolder,
+         *///? }
         StackedContentsCompatible {
 
     public static final int INPUT = 0;
@@ -128,33 +129,33 @@ RecipeHolder,
     public RecipeType<? extends AbstractCookingRecipe> recipeType;
     public FurnaceSettings furnaceSettings;
     //~ if >1.20.1 '(Config.cache_capacity.get())' -> '(10)' {
-    public LRUCache<Item, Optional<AbstractCookingRecipe>> cache = LRUCache.newInstance(Config.cache_capacity.get());
-    public LRUCache<Item, Optional<AbstractCookingRecipe>> blasting_cache = LRUCache.newInstance(Config.cache_capacity.get());
-    public LRUCache<Item, Optional<AbstractCookingRecipe>> smoking_cache = LRUCache.newInstance(Config.cache_capacity.get());
-    public LRUCache<Item, Optional<GeneratorRecipe>> generator_cache = LRUCache.newInstance(Config.cache_capacity.get());
-    public List<LRUCache<Item, Optional<AbstractCookingRecipe>>> factory_cache = Lists.newArrayList(
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()));
+    public LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>> cache = LRUCache.newInstance(10);
+    public LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>> blasting_cache = LRUCache.newInstance(10);
+    public LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>> smoking_cache = LRUCache.newInstance(10);
+    public LRUCache<Item, Optional<GeneratorRecipe>> generator_cache = LRUCache.newInstance(10);
+    public List<LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>>> factory_cache = Lists.newArrayList(
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10));
 
-    public List<LRUCache<Item, Optional<AbstractCookingRecipe>>> factory_blasting_cache = Lists.newArrayList(
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()));
+    public List<LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>>> factory_blasting_cache = Lists.newArrayList(
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10));
 
-    public List<LRUCache<Item, Optional<AbstractCookingRecipe>>> factory_smoking_cache = Lists.newArrayList(
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()),
-            LRUCache.newInstance(Config.cache_capacity.get()));
+    public List<LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>>> factory_smoking_cache = Lists.newArrayList(
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10),
+            LRUCache.newInstance(10));
 
     //~}
     public EnergyWrapper energyStorage = new EnergyWrapper(Config.furnaceEnergyCapacityTier2.get()).withCallback(fEnergyStorage -> {
@@ -205,12 +206,12 @@ RecipeHolder,
 
         Item item = stack.getItem();
         if (recipeType == RecipeType.SMOKING) {
-            return HAS_RECIPE_SMOKING.computeIfAbsent(ForgeRegistries.ITEMS.getDelegateOrThrow(item), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).isPresent());
+            return HAS_RECIPE_SMOKING.computeIfAbsent(BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey()), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).isPresent());
         } else if (recipeType == RecipeType.BLASTING) {
-            return HAS_RECIPE_BLASTING.computeIfAbsent(ForgeRegistries.ITEMS.getDelegateOrThrow(item), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).isPresent());
+            return HAS_RECIPE_BLASTING.computeIfAbsent(BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey()), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).isPresent());
 
         }
-        return HAS_RECIPE.computeIfAbsent(ForgeRegistries.ITEMS.getDelegateOrThrow(item), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).isPresent());
+        return HAS_RECIPE.computeIfAbsent(BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey()), (value) -> this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).isPresent());
 
 
     }
@@ -220,32 +221,32 @@ RecipeHolder,
         return getRecipeGeneratorBlasting(stack).isPresent();
     }
 
-    protected Optional<AbstractCookingRecipe> getRecipe(ItemStack stack) {
-        Optional<AbstractCookingRecipe> recipe = getCache().computeIfAbsent(stack.getItem(), (item) -> (stack.getItem() instanceof AirItem)
+    protected Optional<RecipeHolder<AbstractCookingRecipe>> getRecipe(ItemStack stack) {
+        Optional<RecipeHolder<AbstractCookingRecipe>> recipe = getCache().computeIfAbsent(stack.getItem(), (item) -> (stack.getItem() instanceof AirItem)
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).orElse(null)));
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).orElse(null)));
         return recipe;
     }
 
-    protected Optional<AbstractCookingRecipe> getRecipeFactory(int slot, ItemStack stack) {
-        Optional<AbstractCookingRecipe> recipe = getFactoryCache().get(slot - FACTORY_INPUT[0]).computeIfAbsent(stack.getItem(), (item) -> (stack.getItem() instanceof AirItem)
+    protected Optional<RecipeHolder<AbstractCookingRecipe>> getRecipeFactory(int slot, ItemStack stack) {
+        Optional<RecipeHolder<AbstractCookingRecipe>> recipe = getFactoryCache().get(slot - FACTORY_INPUT[0]).computeIfAbsent(stack.getItem(), (item) -> (stack.getItem() instanceof AirItem)
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).orElse(null)));
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).orElse(null)));
         return recipe;
     }
 
-    protected Optional<AbstractCookingRecipe> getRecipeNonCached(ItemStack stack) {
+    protected Optional<RecipeHolder<AbstractCookingRecipe>> getRecipeNonCached(ItemStack stack) {
         return stack.getItem() instanceof AirItem
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SimpleContainer(stack), this.level).orElse(null));
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), this.level).orElse(null));
     }
     //~ if >1.20.1 'recipe.getResultItem' -> 'recipe.value().getResultItem'
     protected Optional<GeneratorRecipe> getRecipeGeneratorBlasting(ItemStack item) {
         return (item.getItem() instanceof AirItem)
                 ? Optional.empty()
-                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(ModCustomRecipe.GENERATOR_RECIPE.get(), new SimpleContainer(item), this.level)
+                : Optional.ofNullable(this.level.getRecipeManager().getRecipeFor(ModCustomRecipe.GENERATOR_RECIPE.get(), new SingleRecipeInput(item), this.level)
                 //? >1.20.1
-                //.map(RecipeHolder::value)
+                .map(RecipeHolder::value)
                 .orElse(null));
     }
 
@@ -268,7 +269,7 @@ RecipeHolder,
         }
     }
 
-    protected LRUCache<Item, Optional<AbstractCookingRecipe>> getCache() {
+    protected LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>> getCache() {
         checkRecipeType();
         if (recipeType == RecipeType.BLASTING) {
             return blasting_cache;
@@ -279,7 +280,7 @@ RecipeHolder,
         return cache;
     }
 
-    protected List<LRUCache<Item, Optional<AbstractCookingRecipe>>> getFactoryCache() {
+    protected List<LRUCache<Item, Optional<RecipeHolder<AbstractCookingRecipe>>>> getFactoryCache() {
         checkRecipeType();
         if (recipeType == RecipeType.BLASTING) {
             return factory_blasting_cache;
@@ -309,10 +310,10 @@ RecipeHolder,
 
     protected int getSpeed() {
         int regular = getCookTimeConfig().get();
-        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(INPUT));
+        Optional<RecipeHolder<AbstractCookingRecipe>> recipe = getRecipeNonCached(this.getItem(INPUT));
         if (recipe.isPresent()) {
             //~ if >1.20.1 '.get()' -> '.get().value()'
-            AbstractCookingRecipe abstractCookingRecipe = recipe.get();
+            AbstractCookingRecipe abstractCookingRecipe = recipe.get().value();
             int recipe_cooktime = abstractCookingRecipe.getCookingTime();
             double div = 200.0 / recipe_cooktime;
             double i = regular / div;
@@ -342,10 +343,10 @@ RecipeHolder,
 
     protected int getFactorySpeed(int slot) {
         int regular = getCookTimeConfig().get();
-        Optional<AbstractCookingRecipe> recipe = getRecipeNonCached(this.getItem(slot));
+        Optional<RecipeHolder<AbstractCookingRecipe>> recipe = getRecipeNonCached(this.getItem(slot));
         if (recipe.isPresent()) {
             //~ if >1.20.1 'recipe.get()' -> 'recipe.get().value()'
-            AbstractCookingRecipe abstractCookingRecipe = recipe.get();
+            AbstractCookingRecipe abstractCookingRecipe = recipe.get().value();
             int recipe_cooktime = abstractCookingRecipe.getCookingTime();
             double div = 200.0 / recipe_cooktime;
             double i = regular / div;
@@ -355,7 +356,7 @@ RecipeHolder,
         }
     }
 
-    public abstract ForgeConfigSpec.IntValue getCookTimeConfig();
+    public abstract ModConfigSpec.IntValue getCookTimeConfig();
 
     public UnifiedTileEntity self() {
         return ((UnifiedTileEntity) this);
@@ -412,14 +413,14 @@ RecipeHolder,
             return 0;
         } else {
             Item item = stack.getItem();
-            return SMOKING_BURNS.getOrDefault(ForgeRegistries.ITEMS.getDelegateOrThrow(item), addSmokingBurn(stack));
+            return SMOKING_BURNS.getOrDefault(BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey()), addSmokingBurn(stack));
         }
     }
 
     public static int addSmokingBurn(ItemStack stack) {
         int burnTime = getSmokingBurnTime(stack);
         Item item = stack.getItem();
-        SMOKING_BURNS.put(ForgeRegistries.ITEMS.getDelegateOrThrow(item), burnTime);
+        SMOKING_BURNS.put(BuiltInRegistries.ITEM.getHolderOrThrow(item.builtInRegistryHolder().getKey()), burnTime);
         return 0;
     }
 
@@ -427,12 +428,12 @@ RecipeHolder,
         if (!stack.isEmpty()) {
             FoodProperties foodProperties = stack.getItem().getFoodProperties(
                     //? >= 1.21.1
-                    //stack, null
+                    stack, null
             );
             if (foodProperties != null) {
                 int i = foodProperties
-                        //$ if 1.20.1 '.getNutrition();' else '.nutrition();'
-                        .getNutrition();
+                        //$ if 1.20.1 '.nutrition();' else '.nutrition();'
+                        .nutrition();
                 if (i > 0) {
                     return i * 800;
                 }
@@ -792,12 +793,12 @@ RecipeHolder,
                         furnaceTile.factoryTotalCookTime[i] = furnaceTile.getFactoryCookTime(slot);
                     }
                     if (!furnaceTile.getItem(slot).isEmpty()) {
-                        Optional<AbstractCookingRecipe> irecipe = furnaceTile.getRecipeFactory(slot, furnaceTile.getItem(slot));
+                        Optional<RecipeHolder<AbstractCookingRecipe>> irecipe = furnaceTile.getRecipeFactory(slot, furnaceTile.getItem(slot));
 
                         boolean valid = furnaceTile.canFactorySmelt(irecipe.orElse(null), slot);
                         if (valid) {
                             //~ if >1.20.1 '.get()' -> '.get().value()'
-                            int energyRecipe = irecipe.get().getCookingTime() * 20;
+                            int energyRecipe = irecipe.get().value().getCookingTime() * 20;
                             int energy = furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed ?
                                     energyRecipe * 2 : furnaceTile.getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel ?
                                     energyRecipe / 2 : energyRecipe;
@@ -972,7 +973,7 @@ RecipeHolder,
 
                 ItemStack itemstack = furnaceTile.getItem(FUEL);
                 if (furnaceTile.isBurning() || !itemstack.isEmpty() && !furnaceTile.getItem(INPUT).isEmpty()) {
-                    Optional<AbstractCookingRecipe> irecipe = Optional.empty();
+                    Optional<RecipeHolder<AbstractCookingRecipe>> irecipe = Optional.empty();
                     if (!furnaceTile.getItem(INPUT).isEmpty()) {
                         irecipe = furnaceTile.getRecipe(furnaceTile.getItem(INPUT));
                     }
@@ -1182,7 +1183,7 @@ RecipeHolder,
                                             continue;
                                         }
                                         ItemStack stack = other.extractItem(i, other.getStackInSlot(i).getMaxStackSize(), true);
-                                        if (hasRecipe(stack) && getItem(INPUT).isEmpty() || ItemHandlerHelper.canItemStacksStack(getItem(INPUT), stack)) {
+                                        if (hasRecipe(stack) && getItem(INPUT).isEmpty() || ItemStack.isSameItemSameComponents(getItem(INPUT), stack)) {
                                             insertItemInternal(INPUT, other.extractItem(i, other.getStackInSlot(i).getMaxStackSize() - this.getItem(INPUT).getCount(), false), false);
                                         }
                                     }
@@ -1199,7 +1200,7 @@ RecipeHolder,
                                             continue;
                                         }
                                         ItemStack stack = other.extractItem(i, other.getStackInSlot(i).getMaxStackSize(), true);
-                                        if (isItemFuel(stack, recipeType) && getItem(FUEL).isEmpty() || ItemHandlerHelper.canItemStacksStack(getItem(FUEL), stack)) {
+                                        if (isItemFuel(stack, recipeType) && getItem(FUEL).isEmpty() || ItemStack.isSameItemSameComponents(getItem(FUEL), stack)) {
                                             insertItemInternal(FUEL, other.extractItem(i, other.getStackInSlot(i).getMaxStackSize() - this.getItem(FUEL).getCount(), false), false);
                                         }
                                     }
@@ -1215,7 +1216,7 @@ RecipeHolder,
                                     }
                                     for (int i = 0; i < other.getSlots(); i++) {
                                         ItemStack stack = extractItemInternal(FUEL, other.getSlotLimit(i) - other.getStackInSlot(i).getCount(), true);
-                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemHandlerHelper.canItemStacksStack(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
+                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemStack.isSameItemSameComponents(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
                                             boolean check = other.insertItem(i, extractItemInternal(FUEL, stack.getCount(), true), true).isEmpty();
                                             if (check)
                                                 other.insertItem(i, extractItemInternal(FUEL, stack.getCount(), false), false);
@@ -1229,7 +1230,7 @@ RecipeHolder,
                                     }
                                     for (int i = 0; i < other.getSlots(); i++) {
                                         ItemStack stack = extractItemInternal(OUTPUT, other.getSlotLimit(i) - other.getStackInSlot(i).getCount(), true);
-                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemHandlerHelper.canItemStacksStack(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
+                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemStack.isSameItemSameComponents(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
                                             boolean check = other.insertItem(i, extractItemInternal(OUTPUT, stack.getCount(), true), true).isEmpty();
                                             if (check)
                                                 other.insertItem(i, extractItemInternal(OUTPUT, stack.getCount(), false), false);
@@ -1275,7 +1276,7 @@ RecipeHolder,
                                     if (stack.getItem() instanceof ItemHeater) {
                                         continue;
                                     }
-                                    if (isItemFuel(stack, recipeType) && getItem(GENERATOR_FUEL).isEmpty() || ItemHandlerHelper.canItemStacksStack(getItem(GENERATOR_FUEL), stack)) {
+                                    if (isItemFuel(stack, recipeType) && getItem(GENERATOR_FUEL).isEmpty() || ItemStack.isSameItemSameComponents(getItem(GENERATOR_FUEL), stack)) {
                                         insertItemInternal(GENERATOR_FUEL, other.extractItem(i, other.getStackInSlot(i).getMaxStackSize() - this.getItem(GENERATOR_FUEL).getCount(), false), false);
                                     }
                                 }
@@ -1289,7 +1290,7 @@ RecipeHolder,
                                 if (!isItemFuel(getItem(GENERATOR_FUEL), recipeType)) {
                                     for (int i = 0; i < other.getSlots(); i++) {
                                         ItemStack stack = extractItemInternal(GENERATOR_FUEL, this.getItem(GENERATOR_FUEL).getMaxStackSize() - other.getStackInSlot(i).getCount(), true);
-                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemHandlerHelper.canItemStacksStack(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
+                                        if (other.isItemValid(i, stack) && (other.getStackInSlot(i).isEmpty() || (ItemStack.isSameItemSameComponents(other.getStackInSlot(i), stack) && other.getStackInSlot(i).getCount() + stack.getCount() <= other.getSlotLimit(i)))) {
                                             boolean check = other.insertItem(i, extractItemInternal(GENERATOR_FUEL, stack.getCount(), true), true).isEmpty();
                                             if (check)
                                                 other.insertItem(i, extractItemInternal(GENERATOR_FUEL, stack.getCount(), false), false);
@@ -1378,7 +1379,7 @@ RecipeHolder,
 
         return (!a.hasTag() || a.getTag().equals(b.getTag()));
         */
-        return ItemHandlerHelper.canItemStacksStack(a, b);
+        return ItemStack.isSameItemSameComponents(a, b);
     }
 
     @Nonnull
@@ -1394,7 +1395,7 @@ RecipeHolder,
         int limit = stack.getMaxStackSize();
 
         if (!existing.isEmpty()) {
-            if (!ItemHandlerHelper.canItemStacksStack(stack, existing))
+            if (!ItemStack.isSameItemSameComponents(stack, existing))
                 return stack;
 
             limit -= existing.getCount();
@@ -1569,28 +1570,28 @@ RecipeHolder,
     }
 
     public boolean isRainbowFurnace() {
-        return this.self().getResourceLocation().equals(BlockMillionFurnace.ID);
+        return this.self().getIdentifier().equals(BlockMillionFurnace.ID);
     }
 
-    protected void smelt(@Nullable Recipe<?> recipe) {
+    protected void smelt(@Nullable RecipeHolder<?> recipe) {
         smeltItem(recipe, this.self().getMaxSmeltItemNumberOnSingleOp());
     }
 
-    protected void factorySmelt(@Nullable Recipe<?> recipe, int slot) {
+    protected void factorySmelt(@Nullable RecipeHolder<?> recipe, int slot) {
         smeltFactoryItem(recipe, slot, this.self().getMaxSmeltItemNumberOnSingleOp());
     }
 
-    protected boolean canSmelt(@Nullable Recipe<?> recipe) {
+    protected boolean canSmelt(@Nullable RecipeHolder<?> recipe) {
         return canSmeltInternal(recipe, 0, OUTPUT, true);
     }
 
 
-    protected boolean canFactorySmelt(@Nullable Recipe<?> recipe, int slot) {
+    protected boolean canFactorySmelt(@Nullable RecipeHolder<?> recipe, int slot) {
         return canSmeltInternal(recipe, slot, OUTPUT, false);
     }
 
     protected boolean canSmeltInternal(
-            @Nullable Recipe<?> recipe,
+            @Nullable RecipeHolder<?> recipe,
             int inputSlot,
             int outputSlot,
             boolean limitTo64
@@ -1600,7 +1601,7 @@ RecipeHolder,
             return false;
         }
         //~ if >1.20.1 'recipe.getResultItem' -> 'recipe.value().getResultItem'
-        ItemStack recipeOutput = recipe.getResultItem(RegistryAccess.EMPTY);
+        ItemStack recipeOutput = recipe.value().getResultItem(RegistryAccess.EMPTY);
         if (recipeOutput.isEmpty()) {
             return false;
         }
@@ -1611,7 +1612,7 @@ RecipeHolder,
             return true;
         }
 
-        if (!ItemHandlerHelper.canItemStacksStack(output, recipeOutput)) {
+        if (!ItemStack.isSameItemSameComponents(output, recipeOutput)) {
             return false;
         }
 
@@ -1623,12 +1624,12 @@ RecipeHolder,
     }
 
 
-    protected void smeltItem(@Nullable Recipe<?> recipe, int maxOperations) {
+    protected void smeltItem(@Nullable RecipeHolder<?> recipe, int maxOperations) {
         smeltInternal(recipe, INPUT, OUTPUT, maxOperations,
                 (r, slot) -> this.canSmelt(r));
     }
 
-    protected void smeltFactoryItem(@Nullable Recipe<?> recipe,
+    protected void smeltFactoryItem(@Nullable RecipeHolder<?> recipe,
                                     int slot,
                                     int maxOperations) {
         smeltInternal(recipe, slot, slot + 6, maxOperations,
@@ -1636,11 +1637,11 @@ RecipeHolder,
     }
 
     private void smeltInternal(
-            @Nullable Recipe<?> recipe,
+            @Nullable RecipeHolder<?> recipe,
             int inputSlot,
             int outputSlot,
             int maxOperations,
-            BiPredicate<Recipe<?>, Integer> canSmeltCheck
+            BiPredicate<RecipeHolder<?>, Integer> canSmeltCheck
     ) {
         if (recipe == null || !canSmeltCheck.test(recipe, inputSlot)) {
             return;
@@ -1648,7 +1649,7 @@ RecipeHolder,
 
         ItemStack input = this.getItem(inputSlot);
         //~ if >1.20.1 'recipe.getResultItem' -> 'recipe.value().getResultItem'
-        ItemStack result = recipe.getResultItem(RegistryAccess.EMPTY);
+        ItemStack result = recipe.value().getResultItem(RegistryAccess.EMPTY);
         ItemStack output = this.getItem(outputSlot);
 
         int maxByOutput =
@@ -1684,17 +1685,17 @@ RecipeHolder,
 
         if (ModUtils.isModLoaded("pmmo")) {
             //~ if >1.20.1 'input' -> 'input, result.copyWithCount(totalOutput)'
-            FurnaceHandler.handle(new FurnaceBurnEvent(input, level, worldPosition));
+            FurnaceHandler.handle(new FurnaceBurnEvent(input, result.copyWithCount(totalOutput), level, worldPosition));
         }
 
         input.shrink(operations);
     }
 
-    
+
 
 
     @Override
-    public void load(CompoundTag tag) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 
         if (tag.get("Owner") != null) {
             owner = tag.getUUID("Owner");
@@ -1739,12 +1740,12 @@ RecipeHolder,
         energyStorage.receiveEnergy(tag.getInt("Energy"), false);
         lastGameTickEnergyUpdated = 0;
 
-        super.load(tag);
+        super.loadAdditional(tag, registries);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         if (owner != null) {
             tag.putUUID("Owner", owner);
         }
@@ -1803,7 +1804,7 @@ RecipeHolder,
     }
     //? forge {
 
-    LazyOptional<? extends IItemHandler>[] invHandlers =
+    /*LazyOptional<? extends IItemHandler>[] invHandlers =
             SidedInvWrapper.create(this, Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
 
     @Nonnull
@@ -1829,7 +1830,7 @@ RecipeHolder,
         }
         return super.getCapability(capability, facing);
     }
-    //? } else {
+    *///? } else {
 
     //?}
 
@@ -1978,9 +1979,9 @@ RecipeHolder,
     }
 
     //? forge {
-    
-    @Override
-    public void setRecipeUsed(@Nullable Recipe<?> recipe) {
+
+    /*@Override
+    public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
 
         if (recipe != null) {
             ResourceLocation resourcelocation = recipe.getId();
@@ -1995,17 +1996,17 @@ RecipeHolder,
     }
     @Nullable
     @Override
-    public Recipe<?> getRecipeUsed() {
+    public RecipeHolder<?> getRecipeUsed() {
         return null;
     }
-    
-    //? } else {
-    /*@Override
-    public void setRecipeUsed(@Nullable Recipe<?> recipe) {
+
+    *///? } else {
+    @Override
+    public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
         if (recipe != null) {
             ResourceLocation resourcelocation = recipe.id();
             //~ if >1.20.1 'recipe instanceof' -> 'recipe.value() instanceof'
-            if (recipe instanceof AbstractCookingRecipe cookingRecipe) {
+            if (recipe.value() instanceof AbstractCookingRecipe cookingRecipe) {
                 float xpRecipe = cookingRecipe.getExperience();
                 if (((recipes.getInt(resourcelocation) + 1) * xpRecipe) <= getXpNeededForLevel(Config.recipeMaxXPLevel.get()) + 1) {
                     recipes.addTo(resourcelocation, 1);
@@ -2016,37 +2017,37 @@ RecipeHolder,
 
     @Nullable
     @Override
-    public Recipe<?> getRecipeUsed() {
+    public RecipeHolder<?> getRecipeUsed() {
         return null;
     }
-*///?}
+//?}
 
     //~ if !forge 'Recipe<?>' -> 'RecipeHolder<?>' {
     public final Object2IntOpenHashMap<ResourceLocation> recipes = new Object2IntOpenHashMap<>();
 
     public void unlockRecipes(ServerPlayer player) {
-        List<Recipe<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
+        List<RecipeHolder<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
         player.awardRecipes(list);
         recipes.clear();
     }
 
-    public List<Recipe<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
-        List<Recipe<?>> list = Lists.newArrayList();
+    public List<RecipeHolder<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
+        List<RecipeHolder<?>> list = Lists.newArrayList();
 
         for (Object2IntMap.Entry<ResourceLocation> entry : recipes.object2IntEntrySet()) {
             level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
                 list.add(h);
                 splitAndSpawnExperience(level, worldPosition, entry.getIntValue(),
                         //~ if !forge '((AbstractCookingRecipe) h)' -> '((AbstractCookingRecipe) h.value())'
-                        ((AbstractCookingRecipe) h)
-                        .getExperience());
+                        ((AbstractCookingRecipe) h.value())
+                                .getExperience());
             });
         }
 
 
         return list;
     }
-//~}
+    //~}
     private static void splitAndSpawnExperience(ServerLevel level, Vec3 worldPosition, int craftedAmount, float experience) {
         int i = Mth.floor((float) craftedAmount * experience);
         float f = Mth.frac((float) craftedAmount * experience);
@@ -2105,7 +2106,7 @@ RecipeHolder,
     @Override
     public void setRemoved() {
         //? 1.20.1
-        energyStorage.invalidate();
+        //energyStorage.invalidate();
         super.setRemoved();
 
     }
@@ -2114,3 +2115,5 @@ RecipeHolder,
         return 0;
     }
 }
+
+//?}

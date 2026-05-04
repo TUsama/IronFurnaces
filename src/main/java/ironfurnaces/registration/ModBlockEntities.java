@@ -1,6 +1,6 @@
 package ironfurnaces.registration;
 
-import com.tterrag.registrate.util.entry.BlockEntityEntry;
+import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntityEntry;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 
 

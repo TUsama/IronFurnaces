@@ -2,7 +2,7 @@ package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.stream.IntStream;
 

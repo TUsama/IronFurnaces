@@ -19,15 +19,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 //? 1.20.1 {
 
 //? } else {
-/*import net.minecraft.core.HolderLookup;
-*///?}
+import net.minecraft.core.HolderLookup;
+//?}
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -119,36 +119,36 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         CompoundTag root = new CompoundTag();
         ListTag list = new ListTag();
 
         for (IItemHandler handler : this.itemHandler) {
             if (handler instanceof ItemStackHandler stackHandler) {
-                list.add(stackHandler.serializeNBT());
+                list.add(stackHandler.serializeNBT(registries));
             }
         }
 
         root.put("Handlers", list);
-        root.put("RecipeTypeHandlerExtraData", this.getCurrentRecipeType().serializeNBT());
+        root.put("RecipeTypeHandlerExtraData", this.getCurrentRecipeType().serializeNBT(registries));
         return root;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
         if (nbt.contains("Handlers", Tag.TAG_LIST)){
             ListTag list = nbt.getList("Handlers", Tag.TAG_COMPOUND);
 
             for (int i = 0; i < list.size() && i < this.itemHandler.length; i++) {
                 if (this.itemHandler[i] instanceof ItemStackHandler handler) {
                     //~ if >1.20.1 'list.getCompound(i)' -> 'registries, list.getCompound(i)'
-                    handler.deserializeNBT(list.getCompound(i));
+                    handler.deserializeNBT(registries, list.getCompound(i));
                 }
             }
         }
 
         if (nbt.contains("RecipeTypeHandlerExtraData", Tag.TAG_COMPOUND)){
-            this.currentRecipeType.deserializeNBT(nbt);
+            this.currentRecipeType.deserializeNBT(registries, nbt);
         }
 
     }

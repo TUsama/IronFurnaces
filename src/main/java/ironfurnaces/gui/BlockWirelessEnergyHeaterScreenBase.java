@@ -24,7 +24,7 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
     @Override
     public void render(GuiGraphics matrix, int mouseX, int mouseY, float partialTicks) {
         //~ if >1.20.1 'matrix' -> 'matrix, mouseX, mouseY, partialTicks'
-        this.renderBackground(matrix);
+        this.renderBackground(matrix, mouseX, mouseY, partialTicks);
         super.render(matrix, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrix, mouseX, mouseY);
     }

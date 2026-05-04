@@ -59,11 +59,11 @@ public class ItemRainbowCoal extends Item {
         return 5120;
     }
     //? 1.20.1{
-    @Override
+    /*@Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         return false;
     }
-    //?}
+    *///?}
     @Override
     public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
         return false;
