@@ -5,11 +5,11 @@ import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.function.Function;
 
 public abstract class AbstractPatternScreenRenderHandler {
     protected FurnacePatternScreen screen;
-    protected static final ResourceLocation VANILLA = ResourceLocationUtils.make("minecraft", "textures/gui/container/furnace.png");
-    protected static final Function<AbstractFurnaceModeHandler, ResourceLocation> DEFAULT_TEX = Util.memoize((mode) -> {
+    protected static final Identifier VANILLA = ResourceLocationUtils.make("minecraft", "textures/gui/container/furnace.png");
+    protected static final Function<AbstractFurnaceModeHandler, Identifier> DEFAULT_TEX = Util.memoize((mode) -> {
         if (mode.isFurnace()) return VANILLA;
         return IronFurnaces.gui(mode.getId().toLowerCase(Locale.ROOT) + "/default");
     });
@@ -28,13 +28,13 @@ public abstract class AbstractPatternScreenRenderHandler {
         this.screen = screen;
     }
 
-    private ResourceLocation getCurrentTexture() {
+    private Identifier getCurrentTexture() {
         FurnacePattern pattern = screen.getMenu().blockEntity.getPattern();
         return IronFurnaces.gui(screen.getMenu().getMode().getId().toLowerCase(Locale.ROOT) + "/" + pattern.id().getPath());
     }
 
-    protected ResourceLocation pickTexture() {
-        ResourceLocation currentTexture = getCurrentTexture();
+    protected Identifier pickTexture() {
+        Identifier currentTexture = getCurrentTexture();
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         return resourceManager.getResource(currentTexture).isPresent() ? currentTexture : DEFAULT_TEX.apply(screen.getMenu().getMode());
     }

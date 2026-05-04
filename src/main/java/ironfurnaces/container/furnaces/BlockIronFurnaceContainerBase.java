@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.container.furnaces;
+/*package ironfurnaces.container.furnaces;
 
 import ironfurnaces.container.slots.*;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
@@ -25,8 +25,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 //? 1.20.1 {
-/*import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
- *///? } else {
+/^import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+ ^///? } else {
 
 //?}
 
@@ -790,7 +790,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
         slot.onTake(player, stack);
         return copy;
     }
-/*
+/^
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
@@ -961,7 +961,7 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
         return itemstack;
     }
-*/
+^/
 
     private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {
@@ -991,4 +991,4 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
 }
 
-//?}
+*///?}

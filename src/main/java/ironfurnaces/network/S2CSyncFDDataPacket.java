@@ -5,7 +5,7 @@ import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelightCookingRecipeTypeHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Recipe;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 //? 1.20.1 {
@@ -18,13 +18,13 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.Optional;
 
 public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
-    private ResourceLocation lockedRecipe;
-    private ResourceLocation lastRecipe;
+    private Identifier lockedRecipe;
+    private Identifier lastRecipe;
 
     public S2CSyncFDDataPacket() {
     }
 
-    public S2CSyncFDDataPacket(ResourceLocation lockedRecipe, ResourceLocation lastRecipe) {
+    public S2CSyncFDDataPacket(Identifier lockedRecipe, Identifier lastRecipe) {
         this.lockedRecipe = lockedRecipe;
         this.lastRecipe = lastRecipe;
     }
@@ -65,13 +65,13 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
     @Override
     public void write(FriendlyByteBuf friendlyByteBuf) {
         if (lockedRecipe != null){
-            friendlyByteBuf.writeResourceLocation(lockedRecipe);
+            friendlyByteBuf.writeIdentifier(lockedRecipe);
         } else {
             friendlyByteBuf.writeUtf("null");
         }
 
         if (lastRecipe != null){
-            friendlyByteBuf.writeResourceLocation(lastRecipe);
+            friendlyByteBuf.writeIdentifier(lastRecipe);
         } else {
             friendlyByteBuf.writeUtf("null");
         }
@@ -84,14 +84,14 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
         if (s.equals("null")){
             this.lockedRecipe = null;
         } else {
-            this.lockedRecipe = ResourceLocation.tryParse(s);
+            this.lockedRecipe = Identifier.tryParse(s);
         }
 
         String s2 = friendlyByteBuf.readUtf();
         if (s2.equals("null")){
             this.lastRecipe = null;
         } else {
-            this.lastRecipe = ResourceLocation.tryParse(s2);
+            this.lastRecipe = Identifier.tryParse(s2);
         }
 
     }

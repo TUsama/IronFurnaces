@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -17,7 +17,7 @@ public abstract class CodecJsonProvider<T> implements DataProvider {
     private final PackOutput packOutput;
     private final PackOutput.PathProvider pathProvider;
     private final Codec<T> codec;
-    protected final Map<ResourceLocation, T> entries = new LinkedHashMap<>();
+    protected final Map<Identifier, T> entries = new LinkedHashMap<>();
 
     protected CodecJsonProvider(PackOutput packOutput, String directory, Codec<T> codec) {
         this.packOutput = packOutput;
@@ -34,7 +34,7 @@ public abstract class CodecJsonProvider<T> implements DataProvider {
         buildEntries();
 
         CompletableFuture<?>[] futures = entries.entrySet().stream().map(e -> {
-            ResourceLocation id = e.getKey();
+            Identifier id = e.getKey();
             T value = e.getValue();
 
             JsonElement json = codec.encodeStart(JsonOps.INSTANCE, value)

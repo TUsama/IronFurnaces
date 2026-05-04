@@ -1,5 +1,5 @@
 //? fd {
-package ironfurnaces.compat.farmer_delight;
+/*package ironfurnaces.compat.farmer_delight;
 
 import ironfurnaces.gui.furnaces.renderer.PatternScreenRenderHandlerManager;
 import ironfurnaces.gui.furnaces.renderer.compat.FDRenderHandler;
@@ -23,4 +23,4 @@ public class FDCompat {
     }
 }
 
-//?}
+*///?}

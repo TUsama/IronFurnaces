@@ -18,7 +18,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
 public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<GeneratorRecipe> {
 
-    public static final ResourceLocation UID = IronFurnaces.id("category_generator_blasting");
+    public static final Identifier UID = IronFurnaces.id("category_generator_blasting");
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
     protected final IDrawableStatic staticEnergy;
@@ -98,7 +98,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
     }
 
     @Override
-    public @Nullable ResourceLocation getRegistryName(GeneratorRecipe recipe) {
+    public @Nullable Identifier getRegistryName(GeneratorRecipe recipe) {
         return IRecipeCategory.super.getRegistryName(recipe);
     }
 }

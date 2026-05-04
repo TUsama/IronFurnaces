@@ -11,7 +11,7 @@ import ironfurnaces.tileentity.furnaces.pattern.*;
 import lombok.Getter;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -33,8 +33,8 @@ import java.util.*;
 
 public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
 
-    private final Map<ResourceLocation, EffectiveFurnaceStats> resolvedStats = new LinkedHashMap<>();
-    private final Map<ResourceLocation, Set<ResourceLocation>> contributors = new LinkedHashMap<>();
+    private final Map<Identifier, EffectiveFurnaceStats> resolvedStats = new LinkedHashMap<>();
+    private final Map<Identifier, Set<Identifier>> contributors = new LinkedHashMap<>();
     @Getter
     private long revision = 0L;
     @Getter
@@ -63,11 +63,11 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
         return EffectiveFurnaceStats.fromBase(((NormalFurnacePattern) pattern));
     }
 
-    public Set<ResourceLocation> getContributors(ResourceLocation rainbowPatternId) {
+    public Set<Identifier> getContributors(Identifier rainbowPatternId) {
         return contributors.getOrDefault(rainbowPatternId, Set.of());
     }
 
-    public Map<ResourceLocation, EffectiveFurnaceStats> snapshotResolvedStats() {
+    public Map<Identifier, EffectiveFurnaceStats> snapshotResolvedStats() {
         return Map.copyOf(resolvedStats);
     }
 
@@ -79,11 +79,11 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
     }
 
     public void refreshNow(ServerPlayer player) {
-        Tuple2<LinkedHashSet<ResourceLocation>, List<FurnacePatternBlockEntity>> linkedHashSetListTuple2 = collectActiveNormalKinds(player);
-        Set<ResourceLocation> activeNormalKinds = linkedHashSetListTuple2._1;
+        Tuple2<LinkedHashSet<Identifier>, List<FurnacePatternBlockEntity>> linkedHashSetListTuple2 = collectActiveNormalKinds(player);
+        Set<Identifier> activeNormalKinds = linkedHashSetListTuple2._1;
         //System.out.println("refresh now!");
-        Map<ResourceLocation, EffectiveFurnaceStats> newResolvedStats = new LinkedHashMap<>();
-        Map<ResourceLocation, Set<ResourceLocation>> newContributors = new LinkedHashMap<>();
+        Map<Identifier, EffectiveFurnaceStats> newResolvedStats = new LinkedHashMap<>();
+        Map<Identifier, Set<Identifier>> newContributors = new LinkedHashMap<>();
 
         for (FurnacePattern pattern : FurnacePatternManager.allPossiblePattern()) {
             if (!(pattern instanceof RainbowFurnacePattern rainbowPattern)) {
@@ -91,9 +91,9 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
             }
 
             RainbowBonus totalBonus = RainbowBonus.ZERO;
-            LinkedHashSet<ResourceLocation> currentContributors = new LinkedHashSet<>();
+            LinkedHashSet<Identifier> currentContributors = new LinkedHashSet<>();
             if (RainbowConfig.config.enable_per_kind_bonus){
-                for (ResourceLocation activeKind : activeNormalKinds) {
+                for (Identifier activeKind : activeNormalKinds) {
                     RainbowBonus bonus = rainbowPattern.config().bonusFor(activeKind);
                     if (isZeroBonus(bonus)) {
                         continue;
@@ -140,9 +140,9 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
     }
 
 
-    private Tuple2<LinkedHashSet<ResourceLocation>, List<FurnacePatternBlockEntity>> collectActiveNormalKinds(ServerPlayer player) {
+    private Tuple2<LinkedHashSet<Identifier>, List<FurnacePatternBlockEntity>> collectActiveNormalKinds(ServerPlayer player) {
         return PlayerDataHandler.readFurnacesList(player, list -> {
-            LinkedHashSet<ResourceLocation> result = new LinkedHashSet<>();
+            LinkedHashSet<Identifier> result = new LinkedHashSet<>();
             List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) {

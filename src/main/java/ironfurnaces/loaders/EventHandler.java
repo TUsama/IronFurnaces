@@ -4,7 +4,7 @@ package ironfurnaces.loaders;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -36,8 +36,8 @@ public class EventHandler {
     {
         if (event.getObject() instanceof Player)
         {
-            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
-            event.addCapability(new ResourceLocation(IronFurnaces.MOD_ID, "rainbow_context"), new PlayerRainbowContextCapability());
+            event.addCapability(new Identifier(IronFurnaces.MOD_ID, "furnaces_list"), new PlayerFurnacesListProvider());
+            event.addCapability(new Identifier(IronFurnaces.MOD_ID, "rainbow_context"), new PlayerRainbowContextCapability());
         }
     }
     *///?}

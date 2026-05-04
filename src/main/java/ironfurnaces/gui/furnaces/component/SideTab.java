@@ -5,7 +5,7 @@ import ironfurnaces.tileentity.furnaces.menu.MenuConstant;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.BooleanSupplier;
 
@@ -20,7 +20,7 @@ public class SideTab extends BaseImageButton implements IUpdateContext {
 
     }
 
-    public SideTab(int x, int y, int width, int height, ResourceLocation off, ResourceLocation on, ResourceLocation inactive, OnPress onPress, PositionContext positionContext, SideTabPanel panel, BooleanSupplier openStateCallback) {
+    public SideTab(int x, int y, int width, int height, Identifier off, Identifier on, Identifier inactive, OnPress onPress, PositionContext positionContext, SideTabPanel panel, BooleanSupplier openStateCallback) {
         super(x, y, width, height, off, on, inactive, onPress);
         this.positionContext = positionContext;
         this.panel = panel;

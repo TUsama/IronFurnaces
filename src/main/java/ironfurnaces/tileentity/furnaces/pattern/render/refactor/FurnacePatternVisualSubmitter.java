@@ -1,5 +1,5 @@
 //? >1.21.11{
-/*package ironfurnaces.tileentity.furnaces.pattern.render.refactor;
+package ironfurnaces.tileentity.furnaces.pattern.render.refactor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -43,4 +43,4 @@ public final class FurnacePatternVisualSubmitter {
 }
 
 
-*///?}
+//?}

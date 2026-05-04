@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.codec.ByteBufCodecs;
 //? 1.20.1 {
 
@@ -30,14 +30,14 @@ public class ModDataComponents {
                     .persistent(BlockPos.CODEC)
                     .build());
 
-    public static final RegistryEntry<DataComponentType<?>, DataComponentType<ResourceLocation>> FURNACE_PATTERN_COMPONENT = REGISTRATE.simple("pattern_component",Registries.DATA_COMPONENT_TYPE, () ->
-            DataComponentType.<ResourceLocation>builder()
-                    .persistent(ResourceLocation.CODEC)
+    public static final RegistryEntry<DataComponentType<?>, DataComponentType<Identifier>> FURNACE_PATTERN_COMPONENT = REGISTRATE.simple("pattern_component",Registries.DATA_COMPONENT_TYPE, () ->
+            DataComponentType.<Identifier>builder()
+                    .persistent(Identifier.CODEC)
                     .build());
 
-    public static final RegistryEntry<DataComponentType<?>, DataComponentType<ResourceLocation>> FURNACE_UPGRADE_RULE_COMPONENT = REGISTRATE.simple("upgrade_component",Registries.DATA_COMPONENT_TYPE, () ->
-            DataComponentType.<ResourceLocation>builder()
-                    .persistent(ResourceLocation.CODEC)
+    public static final RegistryEntry<DataComponentType<?>, DataComponentType<Identifier>> FURNACE_UPGRADE_RULE_COMPONENT = REGISTRATE.simple("upgrade_component",Registries.DATA_COMPONENT_TYPE, () ->
+            DataComponentType.<Identifier>builder()
+                    .persistent(Identifier.CODEC)
                     .build());
 
     public static final RegistryEntry<DataComponentType<?>, DataComponentType<Integer>> PERSISTENT_ENERGY = REGISTRATE.simple("persistent_energy",Registries.DATA_COMPONENT_TYPE, () ->
@@ -47,7 +47,7 @@ public class ModDataComponents {
                     .build());
 
     //? <1.21.11{
-    public static final RegistryEntry<DataComponentType<?>, DataComponentType<Integer[]>> PERSISTENT_LEGACY_SETTING = REGISTRATE.simple("persistent_legacy_setting",Registries.DATA_COMPONENT_TYPE, () ->
+    /*public static final RegistryEntry<DataComponentType<?>, DataComponentType<Integer[]>> PERSISTENT_LEGACY_SETTING = REGISTRATE.simple("persistent_legacy_setting",Registries.DATA_COMPONENT_TYPE, () ->
             DataComponentType.<Integer[]>builder()
                     .persistent(Codec.INT.listOf().<Integer[]>xmap(x -> x.toArray(Integer[]::new), x -> Arrays.stream(x).toList()))
                     .build());
@@ -62,7 +62,7 @@ public class ModDataComponents {
             DataComponentType.<FurnaceSettingsV2>builder()
                     .persistent(FurnaceSettingsV2.CODEC)
                     .build());
-    //?}
+    *///?}
     public static final RegistryEntry<DataComponentType<?>, DataComponentType<ItemFurnaceCopyV2.StreamSetting>> PERSISTENT_STREAM_SETTING = REGISTRATE.simple("persistent_stream_setting",Registries.DATA_COMPONENT_TYPE, () ->
             DataComponentType.<ItemFurnaceCopyV2.StreamSetting>builder()
                     .persistent(ItemFurnaceCopyV2.StreamSetting.CODEC)

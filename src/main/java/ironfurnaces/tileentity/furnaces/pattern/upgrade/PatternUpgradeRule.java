@@ -8,26 +8,26 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public record PatternUpgradeRule(
-        ResourceLocation id,
-        ResourceLocation from,
-        ResourceLocation to
+        Identifier id,
+        Identifier from,
+        Identifier to
 ) {
     public static final String KEY = "ir_upgrade";
 
     public static final Codec<PatternUpgradeRule> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(PatternUpgradeRule::id),
-            ResourceLocation.CODEC.fieldOf("from").forGetter(PatternUpgradeRule::from),
-            ResourceLocation.CODEC.fieldOf("to").forGetter(PatternUpgradeRule::to)
+            Identifier.CODEC.fieldOf("id").forGetter(PatternUpgradeRule::id),
+            Identifier.CODEC.fieldOf("from").forGetter(PatternUpgradeRule::from),
+            Identifier.CODEC.fieldOf("to").forGetter(PatternUpgradeRule::to)
     ).apply(inst, PatternUpgradeRule::new));
 
-    private static final ResourceLocation PLACEHOLDER = IronFurnaces.id("placeholder");
+    private static final Identifier PLACEHOLDER = IronFurnaces.id("placeholder");
 
     public static final PatternUpgradeRule backup =
             new PatternUpgradeRule(IronFurnaces.id("backup_upgrade"), PLACEHOLDER, IronFurnaces.id("iron_furnace"));
@@ -40,7 +40,7 @@ public record PatternUpgradeRule(
         return matches(this.to, state, blockEntity);
     }
 
-    private static boolean matches(ResourceLocation target, BlockState state, @Nullable BlockEntity blockEntity) {
+    private static boolean matches(Identifier target, BlockState state, @Nullable BlockEntity blockEntity) {
         if (target == null) return false;
 
         // 先判 pattern
@@ -59,11 +59,11 @@ public record PatternUpgradeRule(
         return false;
     }
 
-    public static boolean isPatternId(ResourceLocation id) {
+    public static boolean isPatternId(Identifier id) {
         return id != null && FurnacePatternManager.get(id) != null;
     }
 
-    public static boolean isBlockId(ResourceLocation id) {
+    public static boolean isBlockId(Identifier id) {
         return id != null && BuiltInRegistries.BLOCK.containsKey(id);
     }
 

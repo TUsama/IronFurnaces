@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 //? 1.20.1 {
 
@@ -23,7 +23,7 @@ public class BaseBoolStatuImageButton extends BaseImageButton {
         this.bool = bool;
     }
 
-    public BaseBoolStatuImageButton(int x, int y, int width, int height, ResourceLocation off, ResourceLocation on, ResourceLocation inactive, OnPress onPress, BooleanSupplier bool) {
+    public BaseBoolStatuImageButton(int x, int y, int width, int height, Identifier off, Identifier on, Identifier inactive, OnPress onPress, BooleanSupplier bool) {
         super(x, y, width, height, off, on, inactive, onPress);
         this.bool = bool;
     }

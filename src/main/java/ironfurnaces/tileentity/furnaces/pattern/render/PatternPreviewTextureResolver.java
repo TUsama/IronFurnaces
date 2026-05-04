@@ -3,7 +3,7 @@ package ironfurnaces.tileentity.furnaces.pattern.render;
 import ironfurnaces.items.JovialState;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +18,7 @@ public final class PatternPreviewTextureResolver {
     /**
      * 所有存在的纹理
      */
-    private static volatile Set<ResourceLocation> EXISTING_TEXTURES = Set.of();
+    private static volatile Set<Identifier> EXISTING_TEXTURES = Set.of();
 
     private PatternPreviewTextureResolver() {
     }
@@ -26,7 +26,7 @@ public final class PatternPreviewTextureResolver {
     /**
      * reload 时调用
      */
-    public static void reload(Set<ResourceLocation> textures) {
+    public static void reload(Set<Identifier> textures) {
         EXISTING_TEXTURES = textures;
         TEXTURE_CACHE.clear();
 
@@ -58,20 +58,20 @@ public final class PatternPreviewTextureResolver {
 
         var base = makeRL(key.patternPath(), key.jovial(), key.lit(), key.type());
 
-        ResourceLocation front = rl("block/" + base[0] + "_front" + base[1]);
+        Identifier front = rl("block/" + base[0] + "_front" + base[1]);
 
-        ResourceLocation side = fallback(
+        Identifier side = fallback(
                 rl("block/" + base[0] + "_side" + base[1]),
                 rl("block/" + base[0] + "_side")
         );
 
-        ResourceLocation top = fallback(
+        Identifier top = fallback(
                 rl("block/" + base[0] + "_top" + base[1] ),
                 rl("block/" + base[0] + "_top"),
                 side
         );
 
-        ResourceLocation bottom = fallback(
+        Identifier bottom = fallback(
                 rl("block/" + base[0] + "_bottom" + base[1]),
                 rl("block/" + base[0] + "_bottom"),
                 side
@@ -104,11 +104,11 @@ public final class PatternPreviewTextureResolver {
     /**
      * fallback 逻辑
      */
-    private static ResourceLocation fallback(ResourceLocation primary, ResourceLocation secondary) {
+    private static Identifier fallback(Identifier primary, Identifier secondary) {
         return exists(primary) ? primary : secondary;
     }
 
-    private static ResourceLocation fallback(ResourceLocation primary, ResourceLocation secondary, ResourceLocation tertiary) {
+    private static Identifier fallback(Identifier primary, Identifier secondary, Identifier tertiary) {
 
         if (exists(primary)) return primary;
         if (exists(secondary)) return secondary;
@@ -119,11 +119,11 @@ public final class PatternPreviewTextureResolver {
     /**
      * 查询纹理是否存在
      */
-    private static boolean exists(ResourceLocation texture) {
+    private static boolean exists(Identifier texture) {
         return EXISTING_TEXTURES.contains(texture);
     }
 
-    private static ResourceLocation rl(String path) {
+    private static Identifier rl(String path) {
         return IronFurnaces.id(path);
     }
 

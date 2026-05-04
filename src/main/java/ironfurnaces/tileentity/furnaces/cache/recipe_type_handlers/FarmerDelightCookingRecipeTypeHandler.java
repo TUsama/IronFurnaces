@@ -12,13 +12,13 @@ import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import ironfurnaces.tileentity.furnaces.process.compat.MealTransfer;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -45,7 +45,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     @Setter
             //~ if >1.20.1 'CookingPotRecipe' -> 'RecipeHolder<CookingPotRecipe>'
     private RecipeHolder<CookingPotRecipe> lockedRecipe;
-    private ResourceLocation tempResourceLocation;
+    private Identifier tempIdentifier;
 
     public boolean isLocking;
     private RecipeManager.CachedCheck<RecipeWrapper, ?> quickCheck = RecipeManager.createCheck(ModRecipeTypes.COOKING.get());
@@ -117,14 +117,14 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     @Override
     public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
         if (nbt.contains("CookingPotRecipeId")) {
-            this.tempResourceLocation = IronFurnaces.parse(nbt.getString("CookingPotRecipeId"));
+            this.tempIdentifier = IronFurnaces.parse(nbt.getString("CookingPotRecipeId"));
         }
 
     }
 
     public void resetLock() {
         this.lockedRecipe = null;
-        this.tempResourceLocation = null;
+        this.tempIdentifier = null;
         this.isLocking = false;
     }
 
@@ -138,13 +138,13 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
 
     public boolean canInsertToThisSlot(int i, ItemStack stack, Level level) {
         if (lockedRecipe == null) {
-            if (tempResourceLocation != null) {
-                level.getRecipeManager().byKey(tempResourceLocation)
+            if (tempIdentifier != null) {
+                level.getRecipeManager().byKey(tempIdentifier)
                         //~ if >1.20.1 'x instanceof' -> 'x.value() instanceof'
                         .filter(x -> x.value() instanceof CookingPotRecipe)
                         //~ if >1.20.1 'lockedRecipe = (CookingPotRecipe) x' -> 'lockedRecipe = (RecipeHolder<CookingPotRecipe>) x'
                         .ifPresent(x -> lockedRecipe = (RecipeHolder<CookingPotRecipe>) x);
-                tempResourceLocation = null;
+                tempIdentifier = null;
             } else {
                 isLocking = false;
                 return true;
@@ -162,7 +162,7 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
 
     }
 
-    public ResourceLocation showAvailableItem(int i, long gameTime) {
+    public Identifier showAvailableItem(int i, long gameTime) {
         if (lockedRecipe == null) return null;
         //~ if >1.20.1 'lockedRecipe.getIngredients()' -> 'lockedRecipe.value().getIngredients()'
         NonNullList<Ingredient> ingredients = lockedRecipe.value().getIngredients();

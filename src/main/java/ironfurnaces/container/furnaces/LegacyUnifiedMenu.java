@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.container.furnaces;
+/*package ironfurnaces.container.furnaces;
 
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import net.minecraft.core.BlockPos;
@@ -19,4 +19,4 @@ public class LegacyUnifiedMenu extends BlockIronFurnaceContainerBase{
     }
 }
 
-//?}
+*///?}

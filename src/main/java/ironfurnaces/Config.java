@@ -9,7 +9,7 @@ import com.google.gson.JsonParser;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModItems;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -441,7 +441,7 @@ public class Config {
 
         if (!event.getEntity().level().isClientSide) {
             if (player.getServer().getAdvancements() != null) {
-                Advancement adv = event.player.getServer().getAdvancements().getAdvancement(new ResourceLocation(IronFurnaces.MOD_ID, "coal"));
+                Advancement adv = event.player.getServer().getAdvancements().getAdvancement(new Identifier(IronFurnaces.MOD_ID, "coal"));
                 if (adv != null) {
                     if (!((ServerPlayer) event.player).getAdvancements().getOrStartProgress(adv).isDone()) {
                         Player player = getPlayer(event.player.level());

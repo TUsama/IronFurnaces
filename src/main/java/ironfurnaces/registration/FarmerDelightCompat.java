@@ -1,5 +1,5 @@
 //? fd {
-package ironfurnaces.registration;
+/*package ironfurnaces.registration;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import ironfurnaces.items.augments.compat.ItemAugmentFarmerDelightCooking;
@@ -35,4 +35,4 @@ public class FarmerDelightCompat {
     }
 }
 
-//?}
+*///?}

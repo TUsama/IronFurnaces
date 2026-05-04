@@ -10,7 +10,7 @@ import net.minecraft.client.gui.components.Tooltip;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 //? 1.20.1 {
@@ -57,7 +57,7 @@ public class IOButton extends BaseImageButton {
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.setTooltip(getTooltip());
-        ResourceLocation resourcelocation = spritesMap.computeIfAbsent(currentState.get(), x -> {
+        Identifier resourcelocation = spritesMap.computeIfAbsent(currentState.get(), x -> {
             var baseId = "iomode_" + x.toString().toLowerCase(Locale.ROOT);
             return new WidgetSprites(IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_inactive"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"));
         }).get(this.isActive(), this.shouldHighlight());

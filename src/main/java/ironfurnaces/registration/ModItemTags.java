@@ -4,11 +4,11 @@ package ironfurnaces.registration;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -22,7 +22,7 @@ public class ModItemTags {
         );
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, x -> x
                 //~ if > 1.21.11 'addTag' -> 'tag'
-                .addTag(itemTagKey)
+                .tag(itemTagKey)
                 .add(Items.FURNACE));
         return itemTagKey;
     });
@@ -112,7 +112,7 @@ public class ModItemTags {
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
             registrateItemTagsProvider
                     //~ if > 1.21.11 'addTag' -> 'tag'
-                    .addTag(itemTagKey)
+                    .tag(itemTagKey)
                     .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP)
                     .addOptionalTags(bindC("ingots/netherite"), bindC("ores/netherite_scrap"));
         });
@@ -125,7 +125,7 @@ public class ModItemTags {
 
             registrateItemTagsProvider
                     //~ if > 1.21.11 'addTag' -> 'tag'
-                    .addTag(itemTagKey)
+                    .tag(itemTagKey)
                     .add(Items.OBSIDIAN);
         });
         return itemTagKey;
@@ -135,7 +135,7 @@ public class ModItemTags {
 
     public static final TagKey<Item> SILVER = bindForge("ingots/silver");
 
-    protected static <T> TagKey<T> of(ResourceKey<? extends Registry<T>> registry, ResourceLocation location){
+    protected static <T> TagKey<T> of(ResourceKey<? extends Registry<T>> registry, Identifier location){
         return TagKey.create(registry, location);
     }
 

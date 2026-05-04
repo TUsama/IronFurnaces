@@ -6,8 +6,8 @@ import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.util.StringHelper;
 import net.minecraft.ChatFormatting;
 //? >1.21.11{
-/*import net.minecraft.core.component.DataComponentGetter;
- *///?}
+import net.minecraft.core.component.DataComponentGetter;
+ //?}
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -26,7 +26,7 @@ public class PersistentEnergy extends ComponentEnergyStorage implements TooltipP
 
     @Override
             //~ if >1.21.11 'Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag' -> 'Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag, DataComponentGetter dataComponentGetter'
-    public void addToTooltip(Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+    public void addToTooltip(Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag, DataComponentGetter dataComponentGetter) {
         dataComponentGetter.get(this)
         consumer.accept(Component.translatable("ironfurnaces.data_component.persistent_energy", this.getEnergyStored(), this.getMaxEnergyStored()));
     }

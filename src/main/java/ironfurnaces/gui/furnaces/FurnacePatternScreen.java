@@ -23,7 +23,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ public class FurnacePatternScreen extends AbstractContainerScreen<FurnacePattern
 
 
 
-    public static final ResourceLocation WIDGET = IronFurnaces.gui("button_widget");
+    public static final Identifier WIDGET = IronFurnaces.gui("button_widget");
     @Getter
     private AbstractPatternScreenRenderHandler renderHandler;
 

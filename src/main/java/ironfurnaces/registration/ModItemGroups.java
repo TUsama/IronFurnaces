@@ -32,10 +32,10 @@ public class ModItemGroups {
                                 entries.accept(ModItems.FACTORY_AUGMENT.get());
                                 entries.accept(ModItems.GENERATOR_AUGMENT.get());
                                 //? <1.21.11{
-                                if (ModUtils.isModLoaded("farmersdelight")) {
+                                /*if (ModUtils.isModLoaded("farmersdelight")) {
                                     entries.accept(FarmerDelightCompat.FD_AUGMENT.get());
                                 }
-                                //?}
+                                *///?}
 
                                 entries.accept(ModItems.SPEED_AUGMENT.get());
                                 entries.accept(ModItems.FUEL_AUGMENT.get());
@@ -52,7 +52,7 @@ public class ModItemGroups {
             .register();
 
     //? <1.21.11{
-    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> LEGACY_CONTENT = REGISTRATE
+    /*public static final RegistryEntry<CreativeModeTab, CreativeModeTab> LEGACY_CONTENT = REGISTRATE
             .generic("legacy_contents", Registries.CREATIVE_MODE_TAB, () -> {
                 var builder = CreativeModeTab.builder()
                         .icon(LegacyFurnaceBlocks.IRON_FURNACE::asStack)
@@ -92,7 +92,7 @@ public class ModItemGroups {
                 return builder.build();
             })
             .register();
-//?}
+*///?}
 
     //~}
     public static void register() {

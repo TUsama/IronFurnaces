@@ -30,7 +30,7 @@ import net.minecraft.core.HolderLookup;
 //?}
 
 //~ if > 1.21.11 'TileEntityInventory' -> 'BlockEntity'
-public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implements IEnergyWrapperHolder {
+public class BlockWirelessEnergyHeaterTile extends BlockEntity implements IEnergyWrapperHolder {
 
     private final EnergyWrapper energy;
 
@@ -60,10 +60,10 @@ public class BlockWirelessEnergyHeaterTile extends TileEntityInventory implement
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         //? <1.21.11 {
-        this.getWrapper().receiveEnergy(tag.getInt("Energy"), false);
-        //?} else {
-        /*tag.getInt("Energy").ifPresent(x -> this.getWrapper().receiveEnergy(x, false));
-        *///?}
+        /*this.getWrapper().receiveEnergy(tag.getInt("Energy"), false);
+        *///?} else {
+        tag.getInt("Energy").ifPresent(x -> this.getWrapper().receiveEnergy(x, false));
+        //?}
 
     }
 

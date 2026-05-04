@@ -56,8 +56,8 @@ public class S2CSyncPatternAndStatsToMenuPackets implements S2CModPacket<S2CSync
 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
-        this.pattern = friendlyByteBuf.readJsonWithCodec(FurnacePattern.REF_CODEC);
-        this.stats = friendlyByteBuf.readJsonWithCodec(IFurnaceStats.CODEC);
+        this.pattern = friendlyByteBuf.readLenientJsonWithCodec(FurnacePattern.REF_CODEC);
+        this.stats = friendlyByteBuf.readLenientJsonWithCodec(IFurnaceStats.CODEC);
     }
 
     @Override

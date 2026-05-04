@@ -7,9 +7,9 @@ import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.duck.AdvancementBuilderDuck;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 //? 1.20.1 {
 /*import net.minecraft.advancements.FrameType;
 *///? } else {

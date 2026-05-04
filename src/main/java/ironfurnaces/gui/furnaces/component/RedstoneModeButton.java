@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 //? 1.20.1 {
 
@@ -58,7 +58,7 @@ public class RedstoneModeButton extends BaseImageButton {
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.setTooltip(getTooltip());
 
-        ResourceLocation resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
+        Identifier resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
             var baseId = "redstone_mode_" + x.toString().toLowerCase(Locale.ROOT);
             return new WidgetSprites(IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_inactive"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"));
         }).get(this.isActive(), this.shouldHighlight());
@@ -79,7 +79,7 @@ public class RedstoneModeButton extends BaseImageButton {
         } else {
             substractionGroup.deactivateAll();
         }
-        ResourceLocation resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
+        Identifier resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
             var baseId = "redstone_mode_" + x.toString().toLowerCase(Locale.ROOT);
             return new WidgetSprites(IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_inactive"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"));
         }).get(this.isActive(), this.shouldHighlight());

@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ import org.joml.Matrix3f;
 
 public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
 
-    private static final ResourceLocation ARROW = IronFurnaces.gui("arrow");
+    private static final Identifier ARROW = IronFurnaces.gui("arrow");
 
     public UpgradeToolItemRenderer() {
         super(
@@ -61,7 +61,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
     }
 
-    private static TextureAtlasSprite getBlockSprite(net.minecraft.resources.ResourceLocation texture) {
+    private static TextureAtlasSprite getBlockSprite(net.minecraft.resources.Identifier texture) {
         return Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(texture);
@@ -286,7 +286,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     private static void renderPatternOrBlock(
-            ResourceLocation id,
+            Identifier id,
             PoseStack poseStack,
             MultiBufferSource buffers,
             int packedLight,

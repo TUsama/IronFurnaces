@@ -5,10 +5,10 @@ import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.pattern.CodecJsonProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class PatternUpgradeRuleDatagen extends CodecJsonProvider<PatternUpgradeRuleDefinition> {
-    public static final ResourceLocation VANILLA_FURNACE = ResourceLocationUtils.make("minecraft", "furnace");
+    public static final Identifier VANILLA_FURNACE = ResourceLocationUtils.make("minecraft", "furnace");
 
     public PatternUpgradeRuleDatagen(PackOutput packOutput) {
         super(packOutput, PatternUpgradeRuleManager.DIRECTORY, PatternUpgradeRuleDefinition.CODEC);
@@ -37,9 +37,9 @@ public final class PatternUpgradeRuleDatagen extends CodecJsonProvider<PatternUp
             String fromTierPath,
             String toTierPath
     ) {
-        ResourceLocation ruleId = IronFurnaces.id(rulePath);
-        ResourceLocation from = IronFurnaces.id(fromTierPath);
-        ResourceLocation to = IronFurnaces.id(toTierPath);
+        Identifier ruleId = IronFurnaces.id(rulePath);
+        Identifier from = IronFurnaces.id(fromTierPath);
+        Identifier to = IronFurnaces.id(toTierPath);
 
         entries.put(ruleId, new PatternUpgradeRuleDefinition(from, to));
     }
@@ -48,8 +48,8 @@ public final class PatternUpgradeRuleDatagen extends CodecJsonProvider<PatternUp
             String rulePath,
             String toTierPath
     ) {
-        ResourceLocation ruleId = IronFurnaces.id(rulePath);
-        ResourceLocation to = IronFurnaces.id(toTierPath);
+        Identifier ruleId = IronFurnaces.id(rulePath);
+        Identifier to = IronFurnaces.id(toTierPath);
 
         entries.put(ruleId, new PatternUpgradeRuleDefinition(VANILLA_FURNACE, to));
     }

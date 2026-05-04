@@ -17,7 +17,7 @@ import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
-    private static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocationUtils.make("farmersdelight", "textures/gui/cooking_pot.png");
-    private static final ResourceLocation ENERGY_BAR = IronFurnaces.gui("energy_bar");
+    private static final Identifier BACKGROUND_TEXTURE = ResourceLocationUtils.make("farmersdelight", "textures/gui/cooking_pot.png");
+    private static final Identifier ENERGY_BAR = IronFurnaces.gui("energy_bar");
     private static final Rectangle HEAT_ICON = new Rectangle(47, 55, 17, 15);
     private static final Rectangle PROGRESS_ARROW = new Rectangle(89, 25, 0, 17);
     private final LockIconButton lockRecipeButton;
@@ -106,7 +106,7 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         if (screen.getMenu().blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler && handler.isLocking) {
 
             for (int i = 0; i < 6; i++) {
-                ResourceLocation resourceLocation = handler.showAvailableItem(i, Minecraft.getInstance().level.getGameTime());
+                Identifier resourceLocation = handler.showAvailableItem(i, Minecraft.getInstance().level.getGameTime());
                 if (resourceLocation != null) {
                     //~ if >1.20.1 'ForgeRegistries.ITEMS.getValue' -> 'BuiltInRegistries.ITEM.get'
                     Item value = BuiltInRegistries.ITEM.get(resourceLocation);

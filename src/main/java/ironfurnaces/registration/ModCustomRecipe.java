@@ -12,7 +12,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -120,7 +120,7 @@ public class ModCustomRecipe {
         }
 
         @Override
-        public ResourceLocation getId() {
+        public Identifier getId() {
             return IronFurnaces.id(GENERATOR_ID + "/" +  id);
         }
 
@@ -135,7 +135,7 @@ public class ModCustomRecipe {
         }
 
         @Override
-        public @Nullable ResourceLocation getAdvancementId() {
+        public @Nullable Identifier getAdvancementId() {
             return null;
         }
     }

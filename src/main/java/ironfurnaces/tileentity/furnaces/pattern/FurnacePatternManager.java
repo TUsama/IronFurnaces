@@ -1,14 +1,14 @@
 
 package ironfurnaces.tileentity.furnaces.pattern;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 public final class FurnacePatternManager {
 
-    private static final LinkedHashMap<ResourceLocation, FurnacePattern> PATTERNS = new LinkedHashMap<>();
+    private static final LinkedHashMap<Identifier, FurnacePattern> PATTERNS = new LinkedHashMap<>();
     public static final String DIRECTORY = "furnace_patterns";
 
     private FurnacePatternManager() {}
@@ -16,7 +16,7 @@ public final class FurnacePatternManager {
     /**
      * datapack 加载后的入口。这里注入 id。
      */
-    public static void setAllDefinitions(Map<ResourceLocation, FurnacePatternDefinition> definitions) {
+    public static void setAllDefinitions(Map<Identifier, FurnacePatternDefinition> definitions) {
         PATTERNS.clear();
         definitions.forEach((id, def) -> PATTERNS.put(id, def.toRuntime(id)));
     }
@@ -24,21 +24,21 @@ public final class FurnacePatternManager {
     /**
      * 保留旧入口，方便少量兼容调用。
      */
-    public static void setAll(Map<ResourceLocation, FurnacePattern> map) {
+    public static void setAll(Map<Identifier, FurnacePattern> map) {
         PATTERNS.clear();
         PATTERNS.putAll(map);
     }
 
     @Nullable
-    public static FurnacePattern get(ResourceLocation id) {
+    public static FurnacePattern get(Identifier id) {
         return PATTERNS.get(id);
     }
 
-    public static FurnacePattern getOrFallback(ResourceLocation id) {
+    public static FurnacePattern getOrFallback(Identifier id) {
         return id == null ? FurnacePattern.FALLBACK : PATTERNS.getOrDefault(id, FurnacePattern.FALLBACK);
     }
 
-    public static boolean contains(ResourceLocation id) {
+    public static boolean contains(Identifier id) {
         return PATTERNS.containsKey(id);
     }
 
@@ -46,7 +46,7 @@ public final class FurnacePatternManager {
         return Collections.unmodifiableCollection(PATTERNS.values());
     }
 
-    public static Map<ResourceLocation, FurnacePattern> snapshot() {
+    public static Map<Identifier, FurnacePattern> snapshot() {
         return Map.copyOf(PATTERNS);
     }
 

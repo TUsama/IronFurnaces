@@ -4,7 +4,7 @@ import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 //? 1.20.1 {
 
@@ -20,7 +20,7 @@ public class BaseImageButton extends ImageButton {
         this(x, y, width, height, IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"), onPress);
     }
 
-    public BaseImageButton(int x, int y, int width, int height, ResourceLocation off, ResourceLocation on, ResourceLocation inactive, OnPress onPress) {
+    public BaseImageButton(int x, int y, int width, int height, Identifier off, Identifier on, Identifier inactive, OnPress onPress) {
         //? 1.20.1 {
         /*super(x, y, width, height, 0, 0, 0, off, onPress);
         this.sprites = new WidgetSprites(off, inactive, on, inactive);
@@ -45,7 +45,7 @@ public class BaseImageButton extends ImageButton {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation resourcelocation = this.sprites.get(this.isActive(), this.shouldHighlight());
+        Identifier resourcelocation = this.sprites.get(this.isActive(), this.shouldHighlight());
         //? 1.20.1 {
         /*guiGraphics.blit(resourcelocation, getX(), getY(), 0, 0, getWidth(), getHeight(), getTextureWidth(), getTextureHeight());
         *///? } else {

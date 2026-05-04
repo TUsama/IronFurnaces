@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces;
+/*package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
@@ -94,4 +94,4 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
         return new UnifiedTileEntity(ModBlocks.asBlockEntityType(LegacyFurnaceBlocks.NETHERITE_FURNACE), p_153215_, p_153216_, Config.netheriteFurnaceSpeed, Config.netheriteFurnaceTier, Config.netheriteFurnaceGeneration, BlockNetheriteFurnace.ID);    }
 }
 
-//?}
+*///?}

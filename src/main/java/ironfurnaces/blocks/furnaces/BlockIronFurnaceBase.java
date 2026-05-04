@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces;
+/*package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.capability.ModCapabilities;
@@ -134,7 +134,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     }
 
     //? forge {
-    /*@Override
+    /^@Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_) {
         ItemStack stack = player.getItemInHand(handIn).copy();
         if (world.isClientSide) {
@@ -156,7 +156,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         return InteractionResult.SUCCESS;
 
     }
-    *///?} else {
+    ^///?} else {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
@@ -201,10 +201,10 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             settings[i] = ((BlockIronFurnaceTileBase) te).furnaceSettings.get(i);
         }
         //? 1.20.1 {
-        /*CompoundTag tag = stack.getOrCreateTag();
+        /^CompoundTag tag = stack.getOrCreateTag();
         tag.putIntArray("settings", settings);
         tag.putInt("direction", DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
-        *///? } else {
+        ^///? } else {
         stack.set(ModDataComponents.PERSISTENT_LEGACY_SETTING, Arrays.stream(settings).mapToObj(x -> ((Integer) x)).toArray(Integer[]::new));
         stack.set(ModDataComponents.PERSISTENT_DIRECTION, DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
         //?}
@@ -531,4 +531,4 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
 
 }
 
-//?}
+*///?}

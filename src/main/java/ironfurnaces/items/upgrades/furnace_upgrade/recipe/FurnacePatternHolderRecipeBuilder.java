@@ -7,17 +7,17 @@ import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.mixin.ShapedRecipeBuilderMixin;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.advancements.Advancement;
 
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -41,14 +41,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 //~ if 26.1.2 'FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder' -> 'FurnacePatternHolderRecipeBuilder'
-public class FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder {
+public class FurnacePatternHolderRecipeBuilder {
 
     //? 26.1.2 {
-    /*public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId) {
+    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, Identifier patternId) {
         return shaped(getter, category, result, patternId, 1);
     }
 
-    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId, int count) {
+    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, FurnacePatternHolderItem result, Identifier patternId, int count) {
 
         return new ShapedRecipeBuilder(getter, category, Util.make(() -> {
             ItemStack copy = result.asItem().getDefaultInstance();
@@ -59,24 +59,24 @@ public class FurnacePatternHolderRecipeBuilder extends WriteDataToItemStackShape
 
 
     }
-    *///?} else {
+    //?} else {
 
 
 
-    public FurnacePatternHolderRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
+    /*public FurnacePatternHolderRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
         super(category, result, count, writer);
     }
 
-    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId) {
+    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, Identifier patternId) {
         return shaped(category, result, patternId, 1);
     }
 
-    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, ResourceLocation patternId, int count) {
+    public static FurnacePatternHolderRecipeBuilder shaped(RecipeCategory category, FurnacePatternHolderItem result, Identifier patternId, int count) {
 
         return new FurnacePatternHolderRecipeBuilder(category, result, count, stack -> IPatternAccessor.writePatternToItemStack(stack, patternId));
 
 
     }
 
-    //?}
+    *///?}
 }

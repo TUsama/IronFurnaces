@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.util;
+/*package ironfurnaces.util;
 
 import ironfurnaces.Config;
 import ironfurnaces.loaders.IronFurnaces;
@@ -140,4 +140,4 @@ public class FurnaceSettings {
 
     }
 }
-//?}
+*///?}

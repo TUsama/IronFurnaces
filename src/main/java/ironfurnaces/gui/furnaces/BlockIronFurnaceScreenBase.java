@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.gui.furnaces;
+/*package ironfurnaces.gui.furnaces;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.google.common.collect.Lists;
@@ -19,7 +19,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
@@ -29,19 +29,19 @@ import java.util.Random;
 
 public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceContainerBase> extends AbstractContainerScreen<T> {
 
-    public ResourceLocation GUI = IronFurnaces.id("textures/gui/furnace.png");
-    public static final ResourceLocation GUI_NETHERITE = IronFurnaces.id("textures/gui/furnace_netherite.png");
-    public static final ResourceLocation GUI_ATM = IronFurnaces.id("textures/gui/furnace_allthemodium.png");
-    public static final ResourceLocation GUI_VIB = IronFurnaces.id("textures/gui/furnace_vibranium.png");
-    public static final ResourceLocation GUI_UNOB = IronFurnaces.id("textures/gui/furnace_unobtainium.png");
-    public static final ResourceLocation GUI_FACTORY = IronFurnaces.id("textures/gui/furnace_factory.png");
-    public static final ResourceLocation GUI_GENERATOR = IronFurnaces.id("textures/gui/furnace_generator.png");
-    public static final ResourceLocation GUI_GENERATOR_NETHERITE = IronFurnaces.id("textures/gui/furnace_generator_netherite.png");
-    public static final ResourceLocation GUI_GENERATOR_ALLTHEMODIUM = IronFurnaces.id("textures/gui/furnace_generator_allthemodium.png");
-    public static final ResourceLocation GUI_GENERATOR_VIBRANIUM = IronFurnaces.id("textures/gui/furnace_generator_vibranium.png");
-    public static final ResourceLocation GUI_GENERATOR_UNOBTAINIUM = IronFurnaces.id("textures/gui/furnace_generator_unobtainium.png");
-    public static final ResourceLocation GUI_AUGMENTS = IronFurnaces.id("textures/gui/augment.png");
-    public static final ResourceLocation WIDGETS = IronFurnaces.id("textures/gui/widgets.png");
+    public Identifier GUI = IronFurnaces.id("textures/gui/furnace.png");
+    public static final Identifier GUI_NETHERITE = IronFurnaces.id("textures/gui/furnace_netherite.png");
+    public static final Identifier GUI_ATM = IronFurnaces.id("textures/gui/furnace_allthemodium.png");
+    public static final Identifier GUI_VIB = IronFurnaces.id("textures/gui/furnace_vibranium.png");
+    public static final Identifier GUI_UNOB = IronFurnaces.id("textures/gui/furnace_unobtainium.png");
+    public static final Identifier GUI_FACTORY = IronFurnaces.id("textures/gui/furnace_factory.png");
+    public static final Identifier GUI_GENERATOR = IronFurnaces.id("textures/gui/furnace_generator.png");
+    public static final Identifier GUI_GENERATOR_NETHERITE = IronFurnaces.id("textures/gui/furnace_generator_netherite.png");
+    public static final Identifier GUI_GENERATOR_ALLTHEMODIUM = IronFurnaces.id("textures/gui/furnace_generator_allthemodium.png");
+    public static final Identifier GUI_GENERATOR_VIBRANIUM = IronFurnaces.id("textures/gui/furnace_generator_vibranium.png");
+    public static final Identifier GUI_GENERATOR_UNOBTAINIUM = IronFurnaces.id("textures/gui/furnace_generator_unobtainium.png");
+    public static final Identifier GUI_AUGMENTS = IronFurnaces.id("textures/gui/augment.png");
+    public static final Identifier WIDGETS = IronFurnaces.id("textures/gui/widgets.png");
     Inventory playerInv;
     Component name;
 
@@ -75,7 +75,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         this.name = name;
     }
 
-    public BlockIronFurnaceScreenBase(T t, Inventory inv, Component name, ResourceLocation selectedGui) {
+    public BlockIronFurnaceScreenBase(T t, Inventory inv, Component name, Identifier selectedGui) {
         this(t, inv, name);
         this.GUI = selectedGui;
     }
@@ -590,9 +590,9 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
                     return InputConstants.isKeyDown(windowHandle, keyCode);
-                } /**else if (key.getType() == InputMappings.Type.MOUSE) {
+                } /^*else if (key.getType() == InputMappings.Type.MOUSE) {
                  return GLFW.glfwGetMouseButton(windowHandle, keyCode) == GLFW.GLFW_PRESS;
-                 }**/
+                 }*^/
             } catch (Exception ignored) {
             }
         }
@@ -600,4 +600,4 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
     }
 }
 
-//?}
+*///?}

@@ -1,20 +1,20 @@
 package ironfurnaces.tileentity.furnaces.pattern.render;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record CubeTextures(
-        ResourceLocation front,
-        ResourceLocation back,
-        ResourceLocation left,
-        ResourceLocation right,
-        ResourceLocation top,
-        ResourceLocation bottom
+        Identifier front,
+        Identifier back,
+        Identifier left,
+        Identifier right,
+        Identifier top,
+        Identifier bottom
 ) {
     public static CubeTextures frontSideTopBottom(
-            ResourceLocation front,
-            ResourceLocation side,
-            ResourceLocation top,
-            ResourceLocation bottom
+            Identifier front,
+            Identifier side,
+            Identifier top,
+            Identifier bottom
     ) {
         return new CubeTextures(front, side, side, side, top, bottom);
     }

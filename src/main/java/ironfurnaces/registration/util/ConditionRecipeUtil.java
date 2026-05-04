@@ -1,7 +1,7 @@
 package ironfurnaces.registration.util;
 
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import ironfurnaces.loaders.IronFurnaces;
 import lombok.experimental.UtilityClass;
 //? forge{
@@ -46,7 +46,7 @@ public class ConditionRecipeUtil {
         }
         *///? } else {
         //~ if > 1.21.11 '(x.location())' -> '(x)'
-        consumer.accept(new ConditionalRecipeOutput(provider, Arrays.stream(tags).map(x -> new NotCondition(new TagEmptyCondition(x.location()))).toArray(ICondition[]::new)));
+        consumer.accept(new ConditionalRecipeOutput(provider, Arrays.stream(tags).map(x -> new NotCondition(new TagEmptyCondition(x))).toArray(ICondition[]::new)));
         //?}
 
     }

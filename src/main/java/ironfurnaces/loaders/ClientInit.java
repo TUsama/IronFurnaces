@@ -7,14 +7,14 @@ import ironfurnaces.tileentity.furnaces.pattern.render.PatternHolderBlockEntityR
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 //? fd{
-import ironfurnaces.compat.farmer_delight.FDCompat;
-//?}
+/*import ironfurnaces.compat.farmer_delight.FDCompat;
+*///?}
 
 //? >1.21.11{
-/*import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternBlockEntityRenderer;
+import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternBlockEntityRenderer;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
-*///?}
+//?}
 
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -30,7 +30,7 @@ public class ClientInit {
         });
 
         //? >1.21.11{
-        /*BlockEntityRenderers.register(
+        BlockEntityRenderers.register(
                 ModBlockEntities.PATTERN_HOLDER.get(),
                 FurnacePatternBlockEntityRenderer::new
         );
@@ -41,13 +41,13 @@ public class ClientInit {
                     FurnacePatternHolderSpecialRenderer.Unbaked.MAP_CODEC
             );
         });
-        *///?}
+        //?}
 
         //? fd {
-        if (ModUtils.isModLoaded("farmersdelight")){
+        /*if (ModUtils.isModLoaded("farmersdelight")){
             FDCompat.registerClient();
         }
-        //?}
+        *///?}
     }
 
 }

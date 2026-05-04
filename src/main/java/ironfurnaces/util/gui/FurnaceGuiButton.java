@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.util.gui;
+/*package ironfurnaces.util.gui;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.glfw.GLFW;
 
@@ -91,7 +91,7 @@ public class FurnaceGuiButton {
         }
     }
 
-    public void render(ResourceLocation location, GuiGraphics matrix, int mouseX, int mouseY, boolean enabled)
+    public void render(Identifier location, GuiGraphics matrix, int mouseX, int mouseY, boolean enabled)
     {
 
         if (!hovering(mouseX, mouseY) && hasUV())
@@ -153,9 +153,9 @@ public class FurnaceGuiButton {
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
                     return InputConstants.isKeyDown(windowHandle, keyCode);
-                } /**else if (key.getType() == InputMappings.Type.MOUSE) {
+                } /^*else if (key.getType() == InputMappings.Type.MOUSE) {
                  return GLFW.glfwGetMouseButton(windowHandle, keyCode) == GLFW.GLFW_PRESS;
-                 }**/
+                 }*^/
             } catch (Exception ignored) {
             }
         }
@@ -165,4 +165,4 @@ public class FurnaceGuiButton {
 
 }
 
-//?}
+*///?}

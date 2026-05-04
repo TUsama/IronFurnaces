@@ -9,7 +9,7 @@ import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.util.CompatUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;

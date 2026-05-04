@@ -11,7 +11,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
@@ -27,13 +27,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 //~ if >1.20.1 'Container' -> 'SingleRecipeInput'
 public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
-    private ResourceLocation recipeId;
+    private Identifier recipeId;
     @Getter
     private int energy;
     @Getter
     private Ingredient ingredient;
 
-    public GeneratorRecipe(ResourceLocation recipeId, int energy, Ingredient stack)
+    public GeneratorRecipe(Identifier recipeId, int energy, Ingredient stack)
     {
         this.recipeId = recipeId;
         this.energy = energy;
@@ -95,7 +95,7 @@ public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
     //? 1.20.1 {
     /*@Override
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return recipeId;
     }
     *///?}
@@ -113,7 +113,7 @@ public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
     public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
         //? 1.20.1 {
         /*@Override
-        public GeneratorRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+        public GeneratorRecipe fromJson(Identifier recipeId, JsonObject json) {
             int energy = GsonHelper.getAsInt(json, "energy", 10000);
             JsonElement ingredient = json.get("ingredient");
             if (ingredient != null){
@@ -126,7 +126,7 @@ public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
         @Nullable
         @Override
-        public GeneratorRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+        public GeneratorRecipe fromNetwork(Identifier recipeId, FriendlyByteBuf buffer) {
             GeneratorRecipe recipe = new GeneratorRecipe(recipeId, buffer.readInt(), Ingredient.fromNetwork(buffer));
             return recipe;
         }

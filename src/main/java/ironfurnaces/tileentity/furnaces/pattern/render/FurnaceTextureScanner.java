@@ -1,7 +1,7 @@
 package ironfurnaces.tileentity.furnaces.pattern.render;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -9,12 +9,12 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FurnaceTextureScanner extends SimplePreparableReloadListener<Set<ResourceLocation>> {
+public class FurnaceTextureScanner extends SimplePreparableReloadListener<Set<Identifier>> {
 
     public static final FurnaceTextureScanner INSTANCE = new FurnaceTextureScanner();
 
     @Override
-    protected Set<ResourceLocation> prepare(ResourceManager manager, ProfilerFiller profiler) {
+    protected Set<Identifier> prepare(ResourceManager manager, ProfilerFiller profiler) {
         return manager.listResources(
                         "textures/block",
                         path -> path.getPath().endsWith(".png")
@@ -29,7 +29,7 @@ public class FurnaceTextureScanner extends SimplePreparableReloadListener<Set<Re
     }
 
     @Override
-    protected void apply(Set<ResourceLocation> textures, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Set<Identifier> textures, ResourceManager manager, ProfilerFiller profiler) {
         PatternPreviewTextureResolver.reload(textures);
     }
 }

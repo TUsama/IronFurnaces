@@ -3,7 +3,7 @@ package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Optional;
@@ -16,7 +16,7 @@ public record FurnacePatternDefinition(
         int energyGenerationPerTick,
         int energyConsumerPerTick,
         int inputSlotAmount,
-        Optional<ResourceLocation> referenceBlock,
+        Optional<Identifier> referenceBlock,
         Optional<RainbowFurnaceConfig> rainbow
 ) {
     public static final Codec<FurnacePatternDefinition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -26,11 +26,11 @@ public record FurnacePatternDefinition(
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_generation_per_tick").forGetter(FurnacePatternDefinition::energyGenerationPerTick),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("energy_consumer_per_tick").forGetter(FurnacePatternDefinition::energyConsumerPerTick),
             ExtraCodecs.POSITIVE_INT.fieldOf("factory_input_slot_amount").forGetter(FurnacePatternDefinition::inputSlotAmount),
-            ResourceLocation.CODEC.optionalFieldOf("reference_block").forGetter(FurnacePatternDefinition::referenceBlock),
+            Identifier.CODEC.optionalFieldOf("reference_block").forGetter(FurnacePatternDefinition::referenceBlock),
             RainbowFurnaceConfig.CODEC.optionalFieldOf("rainbow").forGetter(FurnacePatternDefinition::rainbow)
     ).apply(inst, FurnacePatternDefinition::new));
 
-    public FurnacePattern toRuntime(ResourceLocation id) {
+    public FurnacePattern toRuntime(Identifier id) {
 
         if (rainbow.isPresent()){
             return new RainbowFurnacePattern(
@@ -65,7 +65,7 @@ public record FurnacePatternDefinition(
             int energyGenerationPerTick,
             int energyConsumerPerTick,
             int inputSlotAmount,
-            Optional<ResourceLocation> referenceBlock
+            Optional<Identifier> referenceBlock
     ) {
         return new FurnacePatternDefinition(
                 smeltTickPerItem,
@@ -85,7 +85,7 @@ public record FurnacePatternDefinition(
             int energyGenerationPerTick,
             int energyConsumerPerTick,
             int inputSlotAmount,
-            Optional<ResourceLocation> referenceBlock,
+            Optional<Identifier> referenceBlock,
             RainbowFurnaceConfig config
     ) {
         return new FurnacePatternDefinition(
@@ -107,7 +107,7 @@ public record FurnacePatternDefinition(
             int energyGenerationPerTick,
             int energyConsumerPerTick,
             int inputSlotAmount,
-            Optional<ResourceLocation> referenceBlock
+            Optional<Identifier> referenceBlock
     ) {
         return new FurnacePatternDefinition(
                 smeltTickPerItem,
@@ -128,7 +128,7 @@ public record FurnacePatternDefinition(
             int energyGenerationPerTick,
             int energyConsumerPerTick,
             int inputSlotAmount,
-            Optional<ResourceLocation> referenceBlock,
+            Optional<Identifier> referenceBlock,
             RainbowFurnaceConfig config
     ) {
         return new FurnacePatternDefinition(

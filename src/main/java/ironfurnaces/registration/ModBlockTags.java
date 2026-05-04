@@ -5,7 +5,7 @@ import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
@@ -95,7 +95,7 @@ public class ModBlockTags {
 
 
 
-    protected static <T> TagKey<T> of(ResourceKey<? extends Registry<T>> registry, ResourceLocation location){
+    protected static <T> TagKey<T> of(ResourceKey<? extends Registry<T>> registry, Identifier location){
         return TagKey.create(registry, location);
     }
 

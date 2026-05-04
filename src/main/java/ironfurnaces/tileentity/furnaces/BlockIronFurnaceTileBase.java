@@ -1,5 +1,5 @@
 //? <1.21.11{
-//~ replace_tile
+/*//~ replace_tile
 //~ replace_block_entity
 package ironfurnaces.tileentity.furnaces;
 
@@ -34,7 +34,7 @@ import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -63,7 +63,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.items.IItemHandler;
 //? forge {
-/*import net.minecraft.world.inventory.RecipeHolder;
+/^import net.minecraft.world.inventory.RecipeHolder;
 import net.neoforged.neoforge.common.capabilities.Capability;
 import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
 import net.neoforged.neoforge.common.util.LazyOptional;
@@ -71,7 +71,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 import net.neoforged.neoforge.registries.ForgeRegistries;
 import net.minecraft.world.SimpleContainer;
-*///?} else {
+^///?} else {
 import net.minecraft.world.inventory.RecipeCraftingHolder;
 //?}
 import org.jetbrains.annotations.NotNull;
@@ -90,8 +90,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         //? >1.20.1 {
         RecipeCraftingHolder,
 //? } else {
-        /*RecipeHolder,
-         *///? }
+        /^RecipeHolder,
+         ^///? }
         StackedContentsCompatible {
 
     public static final int INPUT = 0;
@@ -1373,12 +1373,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public static boolean canItemStacksStack(@NotNull ItemStack a, @NotNull ItemStack b) {
-        /*
+        /^
         if (a.isEmpty() || !ItemStack.isSameItem(a, b) || a.hasTag() != b.hasTag())
             return false;
 
         return (!a.hasTag() || a.getTag().equals(b.getTag()));
-        */
+        ^/
         return ItemStack.isSameItemSameComponents(a, b);
     }
 
@@ -1804,7 +1804,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
     //? forge {
 
-    /*LazyOptional<? extends IItemHandler>[] invHandlers =
+    /^LazyOptional<? extends IItemHandler>[] invHandlers =
             SidedInvWrapper.create(this, Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
 
     @Nonnull
@@ -1830,7 +1830,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         }
         return super.getCapability(capability, facing);
     }
-    *///? } else {
+    ^///? } else {
 
     //?}
 
@@ -1980,11 +1980,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     //? forge {
 
-    /*@Override
+    /^@Override
     public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
 
         if (recipe != null) {
-            ResourceLocation resourcelocation = recipe.getId();
+            Identifier resourcelocation = recipe.getId();
             if (recipe instanceof AbstractCookingRecipe cookingRecipe) {
                 float xpRecipe = cookingRecipe.getExperience();
                 if ( ((recipes.getInt(resourcelocation) + 1) * xpRecipe) <= getXpNeededForLevel(Config.recipeMaxXPLevel.get()) + 1)
@@ -2000,11 +2000,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         return null;
     }
 
-    *///? } else {
+    ^///? } else {
     @Override
     public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
         if (recipe != null) {
-            ResourceLocation resourcelocation = recipe.id();
+            Identifier resourcelocation = recipe.id();
             //~ if >1.20.1 'recipe instanceof' -> 'recipe.value() instanceof'
             if (recipe.value() instanceof AbstractCookingRecipe cookingRecipe) {
                 float xpRecipe = cookingRecipe.getExperience();
@@ -2023,7 +2023,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 //?}
 
     //~ if !forge 'Recipe<?>' -> 'RecipeHolder<?>' {
-    public final Object2IntOpenHashMap<ResourceLocation> recipes = new Object2IntOpenHashMap<>();
+    public final Object2IntOpenHashMap<Identifier> recipes = new Object2IntOpenHashMap<>();
 
     public void unlockRecipes(ServerPlayer player) {
         List<RecipeHolder<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
@@ -2034,7 +2034,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     public List<RecipeHolder<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
         List<RecipeHolder<?>> list = Lists.newArrayList();
 
-        for (Object2IntMap.Entry<ResourceLocation> entry : recipes.object2IntEntrySet()) {
+        for (Object2IntMap.Entry<Identifier> entry : recipes.object2IntEntrySet()) {
             level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
                 list.add(h);
                 splitAndSpawnExperience(level, worldPosition, entry.getIntValue(),
@@ -2116,4 +2116,4 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 }
 
-//?}
+*///?}

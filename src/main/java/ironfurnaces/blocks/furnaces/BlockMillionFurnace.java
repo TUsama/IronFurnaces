@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces;
+/*package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
 import ironfurnaces.registration.LegacyFurnaceBlocks;
@@ -97,4 +97,4 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
     }
 }
 
-//?}
+*///?}

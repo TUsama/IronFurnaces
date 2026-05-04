@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.tileentity.furnaces;
+/*package ironfurnaces.tileentity.furnaces;
 
 import ironfurnaces.container.furnaces.LegacyUnifiedMenu;
 import ironfurnaces.registration.ModMenus;
@@ -62,4 +62,4 @@ public class UnifiedTileEntity extends BlockIronFurnaceTileBase{
     }
 }
 
-//?}
+*///?}

@@ -1,5 +1,5 @@
 //? <1.21.11 {
-//~ replace_INBTSerializable
+/*//~ replace_INBTSerializable
 //~ replace_Registrate
 package ironfurnaces.registration;
 
@@ -9,10 +9,10 @@ import dev.anvilcraft.lib.v2.registrum.Registrum;
 import dev.anvilcraft.lib.v2.registrum.builders.BlockBuilder;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
-import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
-import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
+import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullFunction;
+import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullSupplier;
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.*;
 import ironfurnaces.blocks.furnaces.other.BlockAllthemodiumFurnace;
@@ -30,7 +30,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -47,14 +47,14 @@ import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 //? forge {
-/*import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+/^import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.common.crafting.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.common.crafting.conditions.NotCondition;
 import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
 import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.data.recipes.FinishedRecipe;
-*///? } else {
+^///? } else {
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.world.level.storage.loot.functions.CopyCustomDataFunction;
@@ -712,8 +712,8 @@ public class LegacyFurnaceBlocks {
 
     private static TagKey<Item> bindForge(String id) {
         //? 1.20.1 {
-        /*return ModBlockTags.of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
-        *///? } else {
+        /^return ModBlockTags.of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
+        ^///? } else {
         return bindC(id);
         //?}
 
@@ -723,8 +723,8 @@ public class LegacyFurnaceBlocks {
         return ModBlockTags.of(Registries.ITEM, IronFurnaces.id(id));
     }
     
-    private static ResourceLocation makeID(String furnaceName){
+    private static Identifier makeID(String furnaceName){
         return IronFurnaces.id("furnaces/" + furnaceName);
     }
 }
-//?}
+*///?}

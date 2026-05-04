@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -35,7 +35,7 @@ public final class RecipeAwardHandler {
     private static final String NBT_KEY_RECIPES_USED = "RecipesUsed";
 
     @Getter
-    private final Object2IntOpenHashMap<ResourceLocation> recipesUsed = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<Identifier> recipesUsed = new Object2IntOpenHashMap<>();
 
     public static int computeTotalXpToReachLevel(int level) {
         int xpNeeded = 0;
@@ -84,7 +84,7 @@ public final class RecipeAwardHandler {
             return;
         }
         //~ if >1.20.1 'cookingRecipe.getId()' -> 'recipe.id()'
-        ResourceLocation id = recipe.id();
+        Identifier id = recipe.id();
 
         float xpPerRecipe = cookingRecipe.getExperience();
         int xpCap = computeTotalXpToReachLevel(maxXpLevelConfig) + 1;
@@ -106,7 +106,7 @@ public final class RecipeAwardHandler {
     public List<RecipeHolder<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
         List<RecipeHolder<?>> list = Lists.newArrayList();
 
-        for (Object2IntMap.Entry<ResourceLocation> entry : recipesUsed.object2IntEntrySet()) {
+        for (Object2IntMap.Entry<Identifier> entry : recipesUsed.object2IntEntrySet()) {
             level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
                 list.add(h);
                 //~ if >1.20.1 '((AbstractCookingRecipe) h)' -> '((AbstractCookingRecipe) h.value())'
@@ -131,14 +131,14 @@ public final class RecipeAwardHandler {
 
         CompoundTag recipesTag = tag.getCompound(NBT_KEY_RECIPES_USED);
         for (String key : recipesTag.getAllKeys()) {
-            ResourceLocation id = IronFurnaces.parse(key);
+            Identifier id = IronFurnaces.parse(key);
             recipesUsed.put(id, recipesTag.getInt(key));
         }
     }
 
     public void saveToTag(CompoundTag tag) {
         CompoundTag recipesTag = new CompoundTag();
-        for (Object2IntMap.Entry<ResourceLocation> e : recipesUsed.object2IntEntrySet()) {
+        for (Object2IntMap.Entry<Identifier> e : recipesUsed.object2IntEntrySet()) {
             recipesTag.putInt(e.getKey().toString(), e.getIntValue());
         }
         tag.put(NBT_KEY_RECIPES_USED, recipesTag);

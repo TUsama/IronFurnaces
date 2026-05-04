@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces.new_furnace;
+/*package ironfurnaces.blocks.furnaces.new_furnace;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -123,4 +123,4 @@ public class PatternHolderItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
     }
 }
-//?}
+*///?}

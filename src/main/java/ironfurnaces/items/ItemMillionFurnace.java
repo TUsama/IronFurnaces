@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.items;
+/*package ironfurnaces.items;
 
 import com.google.common.collect.Lists;
 import ironfurnaces.Config;
@@ -99,4 +99,4 @@ public class ItemMillionFurnace extends BlockItem {
 
 }
 
-//?}
+*///?}

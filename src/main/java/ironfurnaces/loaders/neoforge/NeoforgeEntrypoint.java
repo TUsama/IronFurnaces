@@ -83,8 +83,8 @@ public class NeoforgeEntrypoint {
                     ModItems.ITEM_HEATER.get());
 
             //? <1.21.11 {
-            registerLegacyFurnaceCap(x);
-//?}
+            /*registerLegacyFurnaceCap(x);
+*///?}
         });
         //~}
         //~}
@@ -94,8 +94,8 @@ public class NeoforgeEntrypoint {
         NeoForge.EVENT_BUS.<EntityJoinLevelEvent>addListener(EventPriority.LOWEST, x -> {
             if (x.getEntity() instanceof ServerPlayer player && x.getLevel() instanceof ServerLevel level) {
                 //? <1.21.11{
-                BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
-                //?}
+                /*BlockWorkSpeedSyncer.syncWhenPlayerJoin(player);
+                *///?}
                 LegacyPlayerFurnacesListChecker.validateFurnacesList(player, level);
             }
         });
@@ -122,7 +122,7 @@ public class NeoforgeEntrypoint {
     }
 
     //? <1.21.11{
-    private static void registerLegacyFurnaceCap(RegisterCapabilitiesEvent x) {
+    /*private static void registerLegacyFurnaceCap(RegisterCapabilitiesEvent x) {
         registerLegacyFurnaceCap(x, LegacyFurnaceBlocks.IRON_FURNACE);
         registerLegacyFurnaceCap(x, LegacyFurnaceBlocks.GOLD_FURNACE);
         registerLegacyFurnaceCap(x, LegacyFurnaceBlocks.DIAMOND_FURNACE);
@@ -151,6 +151,6 @@ public class NeoforgeEntrypoint {
                 (o, direction) -> o.energyStorage
         );
     }
-//?}
+*///?}
 }
 //?}

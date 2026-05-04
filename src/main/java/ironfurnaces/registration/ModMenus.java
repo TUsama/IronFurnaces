@@ -14,8 +14,8 @@ import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 
 //? <1.21.11{
-import ironfurnaces.gui.furnaces.LegacyUnifiedMenuScreen;
-//?}
+/*import ironfurnaces.gui.furnaces.LegacyUnifiedMenuScreen;
+*///?}
 
 import net.minecraft.core.BlockPos;
 
@@ -23,11 +23,11 @@ import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModMenus {
     //? <1.21.11{
-    public static final MenuEntry<LegacyUnifiedMenu> UNIFIED_MENU = REGISTRATE
+    /*public static final MenuEntry<LegacyUnifiedMenu> UNIFIED_MENU = REGISTRATE
             .<LegacyUnifiedMenu, LegacyUnifiedMenuScreen>menu("unified_furnace_menu", (type, windowId, inv, buffer) -> new LegacyUnifiedMenu(type, windowId, inv.player.level(), buffer.readBlockPos(), inv, inv.player),
                     () -> (menu, inv, displayName) -> new LegacyUnifiedMenuScreen(menu, inv, displayName, IronFurnaces.gui(menu.id)))
             .register();
-//?}
+*///?}
 
 
     public static final MenuEntry<BlockWirelessEnergyHeaterContainer> HEATER_MENU = REGISTRATE
@@ -43,8 +43,8 @@ public class ModMenus {
             .<FurnacePatternMenu, FurnacePatternScreen>menu(FurnacePatternMenu.ID,
 
                     (type, windowId, inv, buffer) -> {
-                        FurnacePattern pattern = buffer.readJsonWithCodec(FurnacePattern.REF_CODEC);
-                        IFurnaceStats iFurnaceStats = buffer.readJsonWithCodec(IFurnaceStats.CODEC);
+                        FurnacePattern pattern = buffer.readLenientJsonWithCodec(FurnacePattern.REF_CODEC);
+                        IFurnaceStats iFurnaceStats = buffer.readLenientJsonWithCodec(IFurnaceStats.CODEC);
                         BlockPos blockPos = buffer.readBlockPos();
                         FurnacePatternBlockEntity blockEntity = ((FurnacePatternBlockEntity) inv.player.level().getBlockEntity(blockPos));
                         blockEntity.getAugments().refreshState();

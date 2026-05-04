@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces.other;
+/*package ironfurnaces.blocks.furnaces.other;
 
 import ironfurnaces.Config;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
@@ -45,4 +45,4 @@ public class BlockAllthemodiumFurnace extends BlockIronFurnaceBase {
     }
 }
 
-//?}
+*///?}

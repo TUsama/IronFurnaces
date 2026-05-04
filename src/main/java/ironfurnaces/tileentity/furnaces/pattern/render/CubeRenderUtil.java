@@ -8,14 +8,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 
 //? <1.21.11{
-import net.minecraft.client.renderer.RenderType;
-//?} else {
-/*import net.minecraft.data.AtlasIds;
-*///?}
+/*import net.minecraft.client.renderer.RenderType;
+*///?} else {
+import net.minecraft.data.AtlasIds;
+//?}
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -25,7 +25,7 @@ public final class CubeRenderUtil {
     private CubeRenderUtil() {}
 
     //? >1.21.11{
-    /*public static void renderCube(
+    public static void renderCube(
             CubeTextures textures,
             Direction facing,
             PoseStack.Pose poseStack,
@@ -71,10 +71,10 @@ public final class CubeRenderUtil {
         renderDownFace(buffers, local, bottom, packedLight, packedOverlay);
 
     }
-    *///?}
+    //?}
 
     //? <1.21.11{
-    public static void renderCube(
+    /*public static void renderCube(
             CubeTextures textures,
             Direction facing,
             PoseStack poseStack,
@@ -122,19 +122,19 @@ public final class CubeRenderUtil {
 
         poseStack.popPose();
     }
-//?}
+*///?}
 
-    private static TextureAtlasSprite sprite(ResourceLocation rl) {
+    private static TextureAtlasSprite sprite(Identifier rl) {
         //? <1.21.11{
-        return Minecraft.getInstance()
+        /*return Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(rl);
-        //?} else {
-        /*Minecraft.getInstance()
+        *///?} else {
+        Minecraft.getInstance()
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(rl);
-        *///?}
+        //?}
     }
 
     private static void putVertex(

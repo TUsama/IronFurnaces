@@ -19,7 +19,7 @@ import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.DataSlot;
@@ -49,7 +49,7 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
         this.ingredients = new GridPartition(6, new Vector2i(30, 17), () -> getMenu().getMode().getId().equals(FDCompatModeHandler.ID), getMenu().blockEntity.getInput(), 0, 3).setCreator((itemHandler, index, xPosition, yPosition, partition) -> new LockedSlot(itemHandler, index, xPosition, yPosition, partition, this::getMenu));
 
         this.foodContainer = new GridPartition(1, new Vector2i(92, 55), () -> getMenu().getMode().getId().equals(FDCompatModeHandler.ID), getMenu().blockEntity.getInput(), 6, 1).setCreator((itemHandler, index, xPosition, yPosition, partition) -> new PartitionAccessSlot(itemHandler, index, xPosition, yPosition, partition){
-            public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+            public Pair<Identifier, Identifier> getNoItemIcon() {
                 return Pair.of(InventoryMenu.BLOCK_ATLAS, CookingPotMenu.EMPTY_CONTAINER_SLOT_BOWL);
             }
 
@@ -86,8 +86,8 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
                 if (containerMenu instanceof FurnacePatternMenu menu){
                     if ((dataSlotIndex == menu.getDataSlotIndex(lockedRecipeChangeDataSlot) || dataSlotIndex == menu.getDataSlotIndex(lastRecipeChangeDataSlot)) && menu.blockEntity.getAugments().getCurrentRecipeType() instanceof FarmerDelightCookingRecipeTypeHandler handler){
                         //~ if >1.20.1 '.getId()' -> '.id()' {
-                        ResourceLocation locked = handler.getLockedRecipe() != null ? handler.getLockedRecipe().id() : null;
-                        ResourceLocation last = handler.getLastRecipe() != null ? handler.getLastRecipe().id() : null;
+                        Identifier locked = handler.getLockedRecipe() != null ? handler.getLockedRecipe().id() : null;
+                        Identifier last = handler.getLastRecipe() != null ? handler.getLastRecipe().id() : null;
                         //~}
                         if (menu.blockEntity.hasLevel() && !menu.blockEntity.getLevel().isClientSide && menu.player.containerMenu instanceof FurnacePatternMenu) {
                             menu.blockEntity.syncToViewer(new S2CSyncFDDataPacket(locked, last));

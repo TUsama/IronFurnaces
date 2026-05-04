@@ -1,5 +1,5 @@
 //? <1.21.11{
-//~ replace_block_entity
+/*//~ replace_block_entity
 //~ replace_all_recipe
 package ironfurnaces.tileentity;
 
@@ -49,7 +49,7 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
         setChanged();
         return ClientboundBlockEntityDataPacket.create(this);
     }
-    /*
+    /^
         @Override
         public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
             CompoundTag tag = pkt.getTag();
@@ -58,13 +58,13 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
             level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), level.getBlockState(worldPosition).getBlock().defaultBlockState(), level.getBlockState(worldPosition), 2, 3);
 
         }
-    */
+    ^/
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         //? 1.20.1 {
-        /*CompoundTag tag = super.getUpdateTag();
+        /^CompoundTag tag = super.getUpdateTag();
         saveAdditional(tag);
-        *///? } else {
+        ^///? } else {
         CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
         //?}
@@ -206,4 +206,4 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
     }
 }
 
-//?}
+*///?}

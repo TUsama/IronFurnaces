@@ -5,7 +5,7 @@ import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelight
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.menu.Partition;
 import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -25,7 +25,7 @@ public class LockedSlot extends DynamicAccessSlot {
 
     @Nullable
     @Override
-    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+    public Pair<Identifier, Identifier> getNoItemIcon() {
         return super.getNoItemIcon();
     }
 

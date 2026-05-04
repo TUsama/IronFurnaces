@@ -36,7 +36,7 @@ public class C2SUpdateFurnaceSettingPacket implements C2SModPacket<C2SUpdateFurn
 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
-        this.settings = friendlyByteBuf.readJsonWithCodec(FurnaceSettingsV2.CODEC);
+        this.settings = friendlyByteBuf.readLenientJsonWithCodec(FurnaceSettingsV2.CODEC);
         this.pos = friendlyByteBuf.readBlockPos();
     }
 

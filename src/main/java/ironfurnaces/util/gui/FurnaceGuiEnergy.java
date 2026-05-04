@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.util.gui;
+/*package ironfurnaces.util.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import ironfurnaces.util.StringHelper;
@@ -7,7 +7,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FurnaceGuiEnergy {
 
@@ -49,7 +49,7 @@ public class FurnaceGuiEnergy {
     }
 
 
-    public void render(ResourceLocation location, GuiGraphics matrix, int scaled)
+    public void render(Identifier location, GuiGraphics matrix, int scaled)
     {
         matrix.blit(location, left + x, top + y + 42 - scaled, u, v + height - scaled, width, scaled);
     }
@@ -70,4 +70,4 @@ public class FurnaceGuiEnergy {
 
 }
 
-//?}
+*///?}

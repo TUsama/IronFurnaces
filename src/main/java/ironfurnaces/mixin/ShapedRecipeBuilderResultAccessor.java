@@ -3,7 +3,7 @@
 
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -18,7 +18,7 @@ import java.util.Map;
 public interface ShapedRecipeBuilderResultAccessor {
 
     @Accessor("id")
-    ResourceLocation getId();
+    Identifier getId();
 
     @Accessor("result")
     Item getResult();
@@ -39,7 +39,7 @@ public interface ShapedRecipeBuilderResultAccessor {
     Advancement.Builder getAdvancement();
 
     @Accessor("advancementId")
-    ResourceLocation getAdvancementId();
+    Identifier getAdvancementId();
 
     @Accessor("showNotification")
     boolean isShowNotification();

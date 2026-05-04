@@ -3,18 +3,18 @@ package ironfurnaces.tileentity.furnaces.pattern.upgrade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record PatternUpgradeRuleDefinition(
-        ResourceLocation from,
-        ResourceLocation to
+        Identifier from,
+        Identifier to
 ) {
     public static final Codec<PatternUpgradeRuleDefinition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ResourceLocation.CODEC.fieldOf("from").forGetter(PatternUpgradeRuleDefinition::from),
-            ResourceLocation.CODEC.fieldOf("to").forGetter(PatternUpgradeRuleDefinition::to)
+            Identifier.CODEC.fieldOf("from").forGetter(PatternUpgradeRuleDefinition::from),
+            Identifier.CODEC.fieldOf("to").forGetter(PatternUpgradeRuleDefinition::to)
     ).apply(inst, PatternUpgradeRuleDefinition::new));
 
-    public PatternUpgradeRule toRuntime(ResourceLocation id) {
+    public PatternUpgradeRule toRuntime(Identifier id) {
         return new PatternUpgradeRule(id, from, to);
     }
 }

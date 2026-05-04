@@ -4,7 +4,7 @@ import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler{
 
     @Override
     public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        ResourceLocation texture = pickTexture();
+        Identifier texture = pickTexture();
         int i = screen.getGuiLeft();
         int j = screen.getGuiTop();
 

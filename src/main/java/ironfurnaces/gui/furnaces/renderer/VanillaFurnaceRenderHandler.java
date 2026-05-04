@@ -2,13 +2,13 @@ package ironfurnaces.gui.furnaces.renderer;
 
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHandler{
 
     //? >1.20.1
-    private final ResourceLocation VANILLA_LIT_PROGRESS = ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
+    private final Identifier VANILLA_LIT_PROGRESS = Identifier.withDefaultNamespace("container/furnace/lit_progress");
 
     public VanillaFurnaceRenderHandler(FurnacePatternScreen screen) {
         super(screen);

@@ -14,7 +14,7 @@ import dev.anvilcraft.lib.v2.registrum.Registrum;
 
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,24 +33,24 @@ public class IronFurnaces {
         }
     }).build();
 
-    public ResourceLocation id(String path){
+    public Identifier id(String path){
         return ResourceLocationUtils.make(MOD_ID, path);
     }
 
-    public ResourceLocation gui(String id){
+    public Identifier gui(String id){
         return ResourceLocationUtils.make(MOD_ID, "textures/gui/" + id + ".png");
     }
 
-    public ResourceLocation sprite(String id){
+    public Identifier sprite(String id){
         //~ if >1.20.1 '"textures/gui/sprites/" + id + ".png"' -> 'id'
         return ResourceLocationUtils.make(MOD_ID, id);
     }
 
-    public ResourceLocation parse(String path){
+    public Identifier parse(String path){
         //? 1.20.1 {
-        /*return new ResourceLocation(path);
+        /*return new Identifier(path);
         *///? } else {
-        return ResourceLocation.tryParse(path);
+        return Identifier.tryParse(path);
         //?}
 
     }

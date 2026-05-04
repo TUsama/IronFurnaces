@@ -1,9 +1,9 @@
 package ironfurnaces.blocks.furnaces;
 
 //? <1.21.11{
-import ironfurnaces.capability.VanillaCapabilityHandler;
+/*import ironfurnaces.capability.VanillaCapabilityHandler;
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
-//?}
+*///?}
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.util.StringHelper;

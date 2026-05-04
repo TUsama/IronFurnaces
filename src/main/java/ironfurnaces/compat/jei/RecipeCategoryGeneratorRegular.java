@@ -18,7 +18,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
 public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGeneratorRecipe> {
 
-    public static final ResourceLocation UID = IronFurnaces.id("category_generator_regular");
+    public static final Identifier UID = IronFurnaces.id("category_generator_regular");
     protected final IDrawableStatic staticFlame;
     protected final IDrawableAnimated animatedFlame;
     protected final IDrawableStatic staticEnergy;
@@ -97,7 +97,7 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
     }
 
     @Override
-    public @Nullable ResourceLocation getRegistryName(SimpleGeneratorRecipe recipe) {
+    public @Nullable Identifier getRegistryName(SimpleGeneratorRecipe recipe) {
         return IRecipeCategory.super.getRegistryName(recipe);
     }
 

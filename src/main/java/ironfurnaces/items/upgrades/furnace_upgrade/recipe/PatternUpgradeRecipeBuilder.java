@@ -18,9 +18,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -35,42 +35,42 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.advancements.AdvancementRequirements;
 //? <1.21.11 {
 
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-//?}
+/*import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+*///?}
 //?}
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 //~ if 26.1.2 'PatternUpgradeRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder' -> 'PatternUpgradeRecipeBuilder'
-public class PatternUpgradeRecipeBuilder extends WriteDataToItemStackShapedRecipeBuilder {
+public class PatternUpgradeRecipeBuilder {
     //? 26.1.2 {
-    /*public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, ItemUpgradeTool result, String upgradeId) {
+    public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, ItemUpgradeTool result, String upgradeId) {
         return shaped(getter, category, result, upgradeId, 1);
     }
 
     public static ShapedRecipeBuilder shaped(HolderGetter<Item> getter, RecipeCategory category, ItemUpgradeTool result, String upgradeId, int count) {
         return ShapedRecipeBuilder.shaped(getter, category, Util.make(() -> {
             ItemStack copy = result.asItem().getDefaultInstance();
-            IUpgradeStorage.writeRule(copy, ResourceLocation.parse(upgradeId));
+            IUpgradeStorage.writeRule(copy, Identifier.parse(upgradeId));
             copy.setCount(count);
             return copy.getItem();
         }), count);
     }
 
-    *///?} else {
-    public PatternUpgradeRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
+    //?} else {
+    /*public PatternUpgradeRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
         super(category, result, count, writer);
     }
 
-    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, ResourceLocation upgradeId) {
+    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, Identifier upgradeId) {
         return shaped(category, result, upgradeId, 1);
     }
 
-    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, ResourceLocation upgradeId, int count) {
+    public static PatternUpgradeRecipeBuilder shaped(RecipeCategory category, ItemUpgradeTool result, Identifier upgradeId, int count) {
         return new PatternUpgradeRecipeBuilder(category, result, count, stack -> IUpgradeStorage.writeRule(stack, upgradeId));
     }
 
 
-    //?}
+    *///?}
 }

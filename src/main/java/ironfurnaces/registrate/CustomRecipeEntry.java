@@ -2,7 +2,7 @@ package ironfurnaces.registrate;
 
 import dev.anvilcraft.lib.v2.registrum.AbstractRegistrum;
 import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
-import dev.anvilcraft.lib.v2.util.nullness.NonnullType;
+import dev.anvilcraft.lib.v2.registrum.util.nullness.NonnullType;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;

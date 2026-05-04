@@ -4,7 +4,7 @@ package ironfurnaces.tileentity.furnaces.pattern;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +23,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
             int energyCapacity,
             int energyGenerationPerTick,
             int inputSlot,
-            ResourceLocation referenceBlock
+            Identifier referenceBlock
     ) {
         final int CONSUME = 20;
         return FurnacePatternDefinition.normal(
@@ -42,7 +42,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
             int energyCapacity,
             int energyGenerationPerTick,
             int inputSlot,
-            ResourceLocation referenceBlock
+            Identifier referenceBlock
     ) {
         final int CONSUME = 20;
         return FurnacePatternDefinition.normal(
@@ -56,7 +56,7 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
         );
     }
 
-    public static final Map<ResourceLocation, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
+    public static final Map<Identifier, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
             Stream.of(
                     Map.entry(IronFurnaces.id("copper_furnace"),
                             definition(180, 80_000, 40, 1, ResourceLocationUtils.make("minecraft", "copper_block"))),

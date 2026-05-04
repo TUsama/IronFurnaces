@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.util.container;
+/*package ironfurnaces.util.container;
 
 import net.minecraft.world.inventory.DataSlot;
 
@@ -12,4 +12,4 @@ public abstract class FactoryDataSlot extends DataSlot {
     }
 }
 
-//?}
+*///?}

@@ -1,5 +1,5 @@
 //? <1.21.11{
-package ironfurnaces.blocks.furnaces;
+/*package ironfurnaces.blocks.furnaces;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import ironfurnaces.Config;
@@ -45,4 +45,4 @@ public class BlockWorkSpeedSyncer {
 
 }
 
-//?}
+*///?}

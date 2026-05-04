@@ -14,7 +14,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +69,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
     @Override
     public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
 
-        ResourceLocation texture = pickTexture();
+        Identifier texture = pickTexture();
         int i = screen.getGuiLeft();
         int j = screen.getGuiTop();
         guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize());

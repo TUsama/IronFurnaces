@@ -3,7 +3,7 @@ package ironfurnaces.mixin;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.duck.AdvancementBuilderDuck;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.advancements.Advancement;
@@ -21,7 +21,7 @@ public abstract class AdvancementBuilderMixin implements AdvancementBuilderDuck 
 
     //~ if >1.20.1 'Advancement' -> 'AdvancementHolder' {
     @Shadow
-    public abstract AdvancementHolder build(ResourceLocation id);
+    public abstract AdvancementHolder build(Identifier id);
 
     @Override
     public AdvancementHolder ironFurnaces$save(Consumer<AdvancementHolder> consumer, String id) {
