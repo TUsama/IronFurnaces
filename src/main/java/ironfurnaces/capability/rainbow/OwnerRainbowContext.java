@@ -144,6 +144,7 @@ public class OwnerRainbowContext implements ValueIOSerializable {
         return PlayerDataHandler.readFurnacesList(player, list -> {
             LinkedHashSet<Identifier> result = new LinkedHashSet<>();
             List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
+            //System.out.println("current size is " + list.get().size());
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) {
                     continue;
@@ -176,6 +177,7 @@ public class OwnerRainbowContext implements ValueIOSerializable {
                     continue;
                 }
                 result.add(otherPattern.id());
+                System.out.println("add to result");
             }
             return Tuple.of(result, rainbows);
         });

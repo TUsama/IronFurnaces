@@ -25,6 +25,8 @@ import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
 *///?}
 
 
+*///?}
+
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -33,7 +35,7 @@ import java.util.stream.Stream;
 public class ConditionRecipeUtil {
     //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
     @SafeVarargs
-    public static void whenHasTags(Consumer<RecipeOutput> consumer, DataGenContext<?, ?> ctx, RegistrumRecipeProvider provider, String path, String id, TagKey<Item>... tags) {
+    public static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, RegistrateRecipeProvider provider, String path, String id, TagKey<Item>... tags) {
         //? 1.20.1 {
         /*ConditionalRecipe.Builder builder = ConditionalRecipe.builder();
         for (TagKey<Item> itemTagKey : tags) {
@@ -51,7 +53,7 @@ public class ConditionRecipeUtil {
 
     }
 
-    public static void  whenHasMod(Consumer<RecipeOutput> consumer, DataGenContext<?, ?> ctx, String path, String id, String modId, RegistrumRecipeProvider provider) {
+    public static void  whenHasMod(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, String path, String id, String modId, RegistrateRecipeProvider provider) {
         //? 1.20.1 {
         /*consumer.accept(x -> ConditionalRecipe.builder()
                 .addCondition(new ModLoadedCondition(modId))
@@ -61,7 +63,7 @@ public class ConditionRecipeUtil {
          //?}
     }
 
-    public static void  whenAllthemodium(Consumer<RecipeOutput> consumer, DataGenContext<?, ?> ctx, String path, String id, RegistrumRecipeProvider provider) {
+    public static void  whenAllthemodium(Consumer<Consumer<FinishedRecipe>> consumer, DataGenContext<?, ?> ctx, String path, String id, RegistrateRecipeProvider provider) {
         whenHasMod(consumer, ctx, path, id, "allthemodium", provider);
     }
     //~}

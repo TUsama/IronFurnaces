@@ -536,7 +536,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (this.level == null || this.level.isClientSide()) return false;
         if (!this.shouldWorkByRedstone()) return false;
         boolean lit = this.litHandler.isLit(this);
-        //System.out.println("current lithandler is " + litHandler + ", the lit result is " + lit);
+        System.out.println("current lithandler is " + litHandler + ", the lit result is " + lit);
         if (!lit) {
             return false;
         }

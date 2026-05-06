@@ -1,9 +1,5 @@
 package ironfurnaces.blocks.furnaces;
 
-//? <1.21.11{
-/*import ironfurnaces.capability.VanillaCapabilityHandler;
-import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
-*///?}
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.util.StringHelper;
@@ -18,10 +14,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-//? forge {
-/*import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
-import ironfurnaces.capability.ItemEnergyCapabilityProvider;
-*///?}
+
 
 
 import javax.annotation.Nullable;

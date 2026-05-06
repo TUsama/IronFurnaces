@@ -8,6 +8,8 @@ import ironfurnaces.blocks.BlockWirelessEnergyHeater;
 import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
+import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
+import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
@@ -15,8 +17,10 @@ import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
-import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
+import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
@@ -32,6 +36,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -504,7 +509,7 @@ public class ModBlocks {
             Consumer<RecipeOutput> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
-            RegistrumRecipeProvider provider
+            RegistrateRecipeProvider provider
     ) {
         ConditionRecipeUtil.whenHasMod(consumerConsumer, ctx, "new_furnaces", id, "allthemodium", provider);
     }

@@ -36,6 +36,8 @@ import java.util.List;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
+import static ironfurnaces.registration.util.IDUtil.makeID;
+
 //~ if > 1.21.11 'RecipeCategory.MISC, ctx.get()' -> 'provider.getItems(), RecipeCategory.MISC, ctx.get()'{
 public class ModItems {
 
@@ -51,7 +53,7 @@ public class ModItems {
                                 .define('#', bindForge("ingots/iron"))
                                 .define('X', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_iron", CriterionUtil.has(bindForge("ingots/iron"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -66,7 +68,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/iron"))
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -81,7 +83,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/gold"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -95,7 +97,7 @@ public class ModItems {
                                 .define('#', bindForge("gems/emerald"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_emerald", CriterionUtil.has(bindForge("gems/emerald"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -109,7 +111,7 @@ public class ModItems {
                                 .define('X', bindForge("gems/emerald"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -123,7 +125,7 @@ public class ModItems {
                                 .define('#', bindForge("glass"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -138,7 +140,7 @@ public class ModItems {
                                 .define('S', bindVanilla("soul_fire_base_blocks"))
                                 .define('N', Items.NETHERITE_INGOT)
                                 .unlockedBy("has_netherite", CriterionUtil.has(Items.NETHERITE_INGOT, provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -152,7 +154,7 @@ public class ModItems {
                                 .define('#', bindForge("ingots/copper"))
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_copper", CriterionUtil.has(bindForge("ingots/copper"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -166,7 +168,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/copper"))
                                 .define('S', bindVanilla("stone_tool_materials"))
                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
 
                     })
                     .register();
@@ -181,7 +183,7 @@ public class ModItems {
                                 .define('X', bindForge("glass"))
                                 .define('Y', bindForge("rods/blaze"))
                                 .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -196,7 +198,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/copper"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, IDUtil.makeID("upgrades/" + ctx.getName()));
+                                .save(provider, makeID("upgrades/" + ctx.getName()));
                     })
                     .register();
 
@@ -211,7 +213,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/silver"))
                                 .define('Y', bindForge("storage_blocks/gold"))
                                 .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), bindForge("ingots/silver"));
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), bindForge("ingots/silver"));
                         ;
                     })
                     .register();
@@ -227,7 +229,7 @@ public class ModItems {
                                 .define('X', bindForge("ingots/iron"))
                                 .define('G', bindForge("glass"))
                                 .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
                         ;
                     })
                     .register();
@@ -243,7 +245,7 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/allthemodium"))
                                 .define('X', ModItemTags.NETHERITE_UPGRADE)
                                 .unlockedBy("has_allthemodium", CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
                     })
                     .register();
 
@@ -258,7 +260,7 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/vibranium"))
                                 .define('X', bindForge("ingots/allthemodium"))
                                 .unlockedBy("has_vibranium", CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
 
                     })
                     .register();
@@ -274,7 +276,7 @@ public class ModItems {
                                 .define('B', bindForge("storage_blocks/unobtainium"))
                                 .define('X', bindForge("ingots/vibranium"))
                                 .unlockedBy("has_unobtainium", CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                                .save(x, IDUtil.makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
+                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
 
                     })
                     .register();
@@ -291,7 +293,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.COMPARATOR)
                                 .unlockedBy("has_comparator", CriterionUtil.has(Items.COMPARATOR, provider))
-                                .save(provider, IDUtil.makeID(ctx.getName()));
+                                .save(provider, makeID(ctx.getName()));
                     })
                     .register();
 
@@ -307,7 +309,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.BLAST_FURNACE)
                                 .unlockedBy("has_blast_furnace", CriterionUtil.has(Items.BLAST_FURNACE, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
                     })
                     .register();
@@ -324,7 +326,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.SMOKER)
                                 .unlockedBy("has_smoker", CriterionUtil.has(Items.SMOKER, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
 
                     }).register();
@@ -341,7 +343,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.PISTON)
                                 .unlockedBy("has_piston", CriterionUtil.has(Items.PISTON, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -357,7 +359,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.REPEATER)
                                 .unlockedBy("has_repeater", CriterionUtil.has(Items.REPEATER, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
 
                     }).register();
@@ -374,7 +376,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.SUGAR)
                                 .unlockedBy("has_sugar", CriterionUtil.has(Items.SUGAR, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -390,7 +392,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.COAL)
                                 .unlockedBy("has_coal", CriterionUtil.has(Items.COAL, provider))
-                                .save(provider, IDUtil.makeID("augments/" + ctx.getName()));
+                                .save(provider, makeID("augments/" + ctx.getName()));
 
                     }).register();
 
@@ -400,7 +402,7 @@ public class ModItems {
                                 .requires(Items.CARVED_PUMPKIN)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, IDUtil.makeID(ctx.getName()));
+                                .save(provider, makeID(ctx.getName()));
                     })
                     .register();
 
@@ -412,7 +414,7 @@ public class ModItems {
                                 .requires(Items.PAPER)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, IDUtil.makeID(ctx.getName()));
+                                .save(provider, makeID(ctx.getName()));
                     })
                     .register();
 
@@ -427,7 +429,7 @@ public class ModItems {
                                 .define('#', Items.PAPER)
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, IDUtil.makeID(ctx.getName()));
+                                .save(provider, makeID(ctx.getName()));
                     })
                     .register();
 *///?}
@@ -442,7 +444,7 @@ public class ModItems {
                                 .define('#', Items.PAPER)
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, IDUtil.makeID(ctx.getName()));
+                                .save(provider, makeID(ctx.getName()));
                     })
                     .lang("Copy Tool")
                     .register();
@@ -592,9 +594,6 @@ public class ModItems {
 
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_crystal"))
                                 .pattern("###")
-                                .pattern("#X#")
-                                .pattern("###")
-                                .define('#', bindForge("glass"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
                                 .save(provider, IDUtil.newUpgrade("upgrade_crystal"));

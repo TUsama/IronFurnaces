@@ -41,7 +41,9 @@ public class ProcessingInstanceManager implements INeedUpdate {
     private Consumer<ProcessingInstanceManager> clearInstanceCallback;
     private IntSet filledIndex = new IntOpenHashSet();
     private final Int2ObjectMap<CachedRecipeEntry> recipeCache = new Int2ObjectOpenHashMap<>();
-    private boolean makeDirtyOnThisTimeClearAllInstances = false;
+    private final int delay = 20;
+    private int currentTime = 0;
+    private boolean needCheck = true;
 
     public ProcessingInstanceManager(List<ProcessingInstance> instances) {
         this.instances = instances;
@@ -59,15 +61,30 @@ public class ProcessingInstanceManager implements INeedUpdate {
 
     public void manage(FurnacePatternBlockEntity tile){
         ListIterator<ProcessingInstance> iterator = instances.listIterator();
-        //System.out.println("the instances size is " + instances.size() + ", the instances are " + instances);
+        if (!instances.isEmpty()) {
+            if (tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel) {
+                if (needCheck) OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+                currentTime = 0;
+                needCheck = false;
+            }
+        } else {
+            if (tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
+                if (currentTime <= delay) currentTime++;
+                System.out.println("currentTime is " + currentTime);
+                System.out.println("delay is " + delay);
+                if (currentTime == delay){
+                    OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+                    needCheck = true;
+                }
+            }
+        }
+
+
         while (iterator.hasNext()){
             //并不多余，这一段是用来处理普通熔炉模式下的，在没有新启动lit状态下再次开始烧制物品的情况。
             //其他模式下不会，只有普通模式会出现虽然lit但什么也没在烧的情况。
             //会出现多余检查，但极少，因为一般来说只有非常前期的情况下才会用普通模式，而此时的熔炉数量不会很多。
-            if (tile.getMode().isFurnace() && makeDirtyOnThisTimeClearAllInstances && !hasInstances() && tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
-                OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
-                makeDirtyOnThisTimeClearAllInstances = false;
-            }
+
             ProcessingInstance next = iterator.next();
             int fromIndex = next.fromIndex;
             if (this.blockingIndexes.contains(fromIndex)) {
@@ -93,10 +110,6 @@ public class ProcessingInstanceManager implements INeedUpdate {
             }
         }
 
-        if (!makeDirtyOnThisTimeClearAllInstances && !hasInstances() && tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
-            OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
-            makeDirtyOnThisTimeClearAllInstances = true;
-        }
     }
 
     public void refreshBlockingState(int index){
