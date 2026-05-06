@@ -107,6 +107,7 @@ public abstract class ResizableCache extends ItemStackHandler implements ICacheI
     private void resizeSlots(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity){
         int newSize = updateSlotAmount(mode, recipeTypeHandler, stats, blockEntity);
         NonNullList<ItemStack> oldStacks = this.stacks;
+        //System.out.println("oldStacks size is " + oldStacks.size() + ", newSize is " + newSize);
         if (oldStacks.size() != newSize){
             blockEntity.closeMenu();
             NonNullList<ItemStack> newList = NonNullList.withSize(newSize, ItemStack.EMPTY);

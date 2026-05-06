@@ -494,7 +494,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         if (this.level == null || this.level.isClientSide) return false;
         if (!this.shouldWorkByRedstone()) return false;
         boolean lit = this.litHandler.isLit(this);
-        //System.out.println("current lithandler is " + litHandler + ", the lit result is " + lit);
+        System.out.println("current lithandler is " + litHandler + ", the lit result is " + lit);
         if (!lit) {
             return false;
         }
@@ -936,8 +936,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                 for (UUID viewer : viewers) {
                     Player playerByUUID = serverLevel.getPlayerByUUID(viewer);
                     if (playerByUUID != null && playerByUUID.containerMenu instanceof FurnacePatternMenu patternMenu) {
-                        //todo 这里的关闭是否还需要？
-                        //playerByUUID.closeContainer();
+                        playerByUUID.closeContainer();
                     }
                 }
 

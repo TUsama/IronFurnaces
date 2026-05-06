@@ -38,12 +38,12 @@ public interface IFurnaceLitHandler{
         if (isLit(tile)) {
             if (!level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
                 level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, true), 3);
-                if (level instanceof ServerLevel serverLevel) OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+                //if (level instanceof ServerLevel serverLevel) OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
             }
         } else {
             if (level.getBlockState(blockPos).getValue(BlockStateProperties.LIT)) {
                 level.setBlock(blockPos, level.getBlockState(blockPos).setValue(BlockStateProperties.LIT, false), 3);
-                if (level instanceof ServerLevel serverLevel) OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
+                //if (level instanceof ServerLevel serverLevel) OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
             }
         }
     }

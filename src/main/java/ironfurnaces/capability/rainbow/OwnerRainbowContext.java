@@ -81,7 +81,7 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
     public void refreshNow(ServerPlayer player) {
         Tuple2<LinkedHashSet<ResourceLocation>, List<FurnacePatternBlockEntity>> linkedHashSetListTuple2 = collectActiveNormalKinds(player);
         Set<ResourceLocation> activeNormalKinds = linkedHashSetListTuple2._1;
-        //System.out.println("refresh now!");
+        System.out.println("activeNormalKinds is " + Arrays.toString(activeNormalKinds.toArray()));
         Map<ResourceLocation, EffectiveFurnaceStats> newResolvedStats = new LinkedHashMap<>();
         Map<ResourceLocation, Set<ResourceLocation>> newContributors = new LinkedHashMap<>();
 
@@ -144,6 +144,7 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
         return PlayerDataHandler.readFurnacesList(player, list -> {
             LinkedHashSet<ResourceLocation> result = new LinkedHashSet<>();
             List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
+            //System.out.println("current size is " + list.get().size());
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) {
                     continue;
@@ -176,6 +177,7 @@ public class OwnerRainbowContext implements INBTSerializable<CompoundTag> {
                     continue;
                 }
                 result.add(otherPattern.id());
+                System.out.println("add to result");
             }
             return Tuple.of(result, rainbows);
         });

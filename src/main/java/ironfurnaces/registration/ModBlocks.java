@@ -10,6 +10,7 @@ import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
+import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
@@ -17,8 +18,10 @@ import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
@@ -32,6 +35,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -46,6 +50,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 //? forge {
@@ -576,13 +581,13 @@ public class ModBlocks {
             Consumer<Consumer<FinishedRecipe>> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
-            RegistrumRecipeProvider provider
+            RegistrateRecipeProvider provider
     ) {
         ConditionRecipeUtil.whenHasMod(consumerConsumer, ctx, "new_furnaces", id, "allthemodium", provider);
     }
 
     @SafeVarargs
-    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
+    private static void whenHasTags(Consumer<Consumer<FinishedRecipe>> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrateRecipeProvider provider, String id, TagKey<Item>... tags) {
         ConditionRecipeUtil.whenHasTags(consumerConsumer, ctx, provider, "new_furnaces", id, tags);
     }
     //~}

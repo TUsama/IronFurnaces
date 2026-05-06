@@ -11,7 +11,9 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
+//? >1.21.11{
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
@@ -35,7 +37,7 @@ public class BlockItemHeater extends BlockItem {
         if (stack.hasTag()) {
             tooltip.add(Component.literal(StringHelper.displayEnergy(stack.getTag().getInt("Energy"), 1000000).get(0)).withStyle(ChatFormatting.GOLD));
         }
-        if () {
+        if (Screen.hasShiftDown()) {
             tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_block").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
             tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".heater_block1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
         } else {

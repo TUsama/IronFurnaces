@@ -18,18 +18,18 @@ import net.minecraft.world.level.ItemLike;
 //~ if >1.20.1 'InventoryChangeTrigger.TriggerInstance' -> 'Criterion<InventoryChangeTrigger.TriggerInstance>' {
 public class CriterionUtil {
 
-    public static InventoryChangeTrigger.TriggerInstance has(ItemLike item, RegistrumRecipeProvider provider) {
+    public static InventoryChangeTrigger.TriggerInstance has(ItemLike item, RegistrateRecipeProvider provider) {
         //? <1.21.11 {
-        return RegistrumRecipeProvider.has(item);
+        return RegistrateRecipeProvider.has(item);
         //?} else {
         /*return provider.has(item);
         *///?}
 
     }
 
-    public static InventoryChangeTrigger.TriggerInstance has(TagKey<Item> tag, RegistrumRecipeProvider provider) {
+    public static InventoryChangeTrigger.TriggerInstance has(TagKey<Item> tag, RegistrateRecipeProvider provider) {
         //? <1.21.11 {
-        return RegistrumRecipeProvider.has(tag);
+        return RegistrateRecipeProvider.has(tag);
         //?} else {
         /*return provider.has(tag);
         *///?}

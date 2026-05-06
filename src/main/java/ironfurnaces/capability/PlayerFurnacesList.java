@@ -96,8 +96,13 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, INBTSerializable
 
     @Override
     public void deserializeNBT(CompoundTag compoundTag) {
-        if (compoundTag.contains("Data")){
-            CODEC.decode(NbtOps.INSTANCE, compoundTag).result().ifPresent(x -> this.posLinkedHashSet.addAll(x.getFirst().posLinkedHashSet));
+        if (compoundTag.contains("Data")) {
+            CODEC.parse(NbtOps.INSTANCE, compoundTag.get("Data"))
+                    .result()
+                    .ifPresent(decoded -> {
+                        this.posLinkedHashSet.clear();
+                        this.posLinkedHashSet.addAll(decoded.posLinkedHashSet);
+                    });
         }
     }
 }

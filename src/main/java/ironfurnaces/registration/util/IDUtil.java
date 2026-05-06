@@ -36,8 +36,8 @@ public class IDUtil {
         return makeID("new_upgrades/" + path);
     }
     *///?} else {
-    public static ResourceLocation newUpgrade(ResourceLocation path) {
-        return makeID("new_upgrades/" + path.getPath());
+    public static ResourceLocation newUpgrade(String path) {
+        return makeID("new_upgrades/" + path);
     }
     //?}
 
