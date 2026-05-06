@@ -5,24 +5,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.With;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.BlockItem;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.EmptyItemHandler;
-
-//? 1.20.1 {
-
-//? } else {
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.CustomData;
-//?}
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.*;
 import java.util.function.Function;
@@ -41,8 +35,8 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
                     RedStoneMode.CODEC.fieldOf("redstone_mode").forGetter(x -> x.redStoneMode),
                     Codec.INT.fieldOf("subtraction_number").forGetter(x -> x.subtractionNumber),
                     Codec.BOOL.fieldOf("auto_fill").forGetter(x -> x.autoFill)
-    ).apply(instance, FurnaceSettingsV2::new)
-);
+            ).apply(instance, FurnaceSettingsV2::new)
+    );
     public static final FurnaceSettingsV2 DEFAULT = Util.make(() -> {
         EnumMap<Direction, IOMode> directionIOModeEnumMap = new EnumMap<>(Map.of(
                 Direction.UP, IOMode.INPUT,
@@ -57,7 +51,53 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
 
     public static final String NBT_KEY = "furnace_setting";
 
-    public FurnaceSettingsV2 withDirectionChanged(Direction direction, IOMode ioMode){
+    public static FurnaceSettingsV2 getSettingFromStack(ItemStack stack) {
+        //? 1.20.1 {
+        /*CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+            DEFAULT.writeToStack(stack);
+            return DEFAULT;
+        }
+        return FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+                .result()
+                .orElseGet(() -> {
+                    DEFAULT.writeToStack(stack);
+                    return DEFAULT;
+                });
+        *///? } else {
+        if (stack.has(DataComponents.CUSTOM_DATA)) {
+            var tag = stack.get(DataComponents.CUSTOM_DATA).copyTag().get(NBT_KEY);
+            if (tag != null) {
+                return CODEC.parse(NbtOps.INSTANCE, tag).result().orElse(DEFAULT);
+            }
+        }
+        DEFAULT.writeToStack(stack);
+        return DEFAULT;
+        //?}
+    }
+
+    public static void removeSetting(ItemStack stack) {
+        //? 1.20.1 {
+        /*CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+        beTag.remove(FurnaceSettingsV2.NBT_KEY);
+        *///? } else {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> x.remove(NBT_KEY));
+        //?}
+    }
+
+    public static boolean isLowSignal(int signal) {
+        return signal > 0 && signal <= 7;
+    }
+
+    public static boolean isHighSignal(int signal) {
+        return signal >= 8;
+    }
+
+    public static boolean hasSignal(int signal) {
+        return signal > 0;
+    }
+
+    public FurnaceSettingsV2 withDirectionChanged(Direction direction, IOMode ioMode) {
         EnumMap<Direction, IOMode> directionIOModeEnumMap = new EnumMap<>(this.IOSetting);
         directionIOModeEnumMap.remove(direction);
         directionIOModeEnumMap.put(direction, ioMode);
@@ -74,7 +114,7 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         return this.withDirectionChanged(worldSide, ioMode);
     }
 
-    public ItemStack writeToStack(ItemStack stack){
+    public ItemStack writeToStack(ItemStack stack) {
         //? 1.20.1 {
         /*CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
         FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, this)
@@ -87,41 +127,7 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         //?}
     }
 
-    public static FurnaceSettingsV2 getSettingFromStack(ItemStack stack){
-        //? 1.20.1 {
-        /*CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-            DEFAULT.writeToStack(stack);
-            return DEFAULT;
-        }
-        return FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                .result()
-                .orElseGet(() -> {
-                    DEFAULT.writeToStack(stack);
-                    return DEFAULT;
-                });
-        *///? } else {
-        if (stack.has(DataComponents.CUSTOM_DATA)){
-            var tag = stack.get(DataComponents.CUSTOM_DATA).copyTag().get(NBT_KEY);
-            if (tag != null){
-                return CODEC.parse(NbtOps.INSTANCE, tag).result().orElse(DEFAULT);
-            }
-        }
-        DEFAULT.writeToStack(stack);
-        return DEFAULT;
-        //?}
-    }
-
-    public static void removeSetting(ItemStack stack){
-        //? 1.20.1 {
-        /*CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        beTag.remove(FurnaceSettingsV2.NBT_KEY);
-        *///? } else {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> x.remove(NBT_KEY));
-        //?}
-    }
-
-    public List<Component> toTooltips(){
+    public List<Component> toTooltips() {
         List<Component> tooltips = new ArrayList<>();
         tooltips.add(Component.literal(""));
 
@@ -168,20 +174,8 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
 
     }
 
-    public static boolean isLowSignal(int signal) {
-        return signal > 0 && signal <= 7;
-    }
-
-    public static boolean isHighSignal(int signal) {
-        return signal >= 8;
-    }
-
-    public static boolean hasSignal(int signal) {
-        return signal > 0;
-    }
-
-    public enum IOMode implements StringRepresentable{
-        NONE("none", x -> ((IItemHandlerModifiable) EmptyItemHandler.INSTANCE), "ironfurnaces.furnace_setting.io_mode.none"),
+    public enum IOMode implements StringRepresentable {
+        NONE("none", x -> EmptyResourceHandler.instance(), "ironfurnaces.furnace_setting.io_mode.none"),
         INPUT("input", FurnacePatternBlockEntity::getInput, "ironfurnaces.furnace_setting.io_mode.input"),
         OUTPUT("output", FurnacePatternBlockEntity::getAllOutput, "ironfurnaces.furnace_setting.io_mode.output"),
         INPUT_AND_OUTPUT("input_and_output", FurnacePatternBlockEntity::getInputAndOutput, "ironfurnaces.furnace_setting.io_mode.input_and_output"),
@@ -189,11 +183,11 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         ALL("all", FurnacePatternBlockEntity::getAllInvForAutomation, "ironfurnaces.furnace_setting.io_mode.all");
         public static final EnumCodec<IOMode> CODEC = StringRepresentable.fromEnum(IOMode::values);
         public final String name;
-        public final Function<FurnacePatternBlockEntity, IItemHandlerModifiable> handlerSelector;
+        public final Function<FurnacePatternBlockEntity, ResourceHandler<ItemResource>> handlerSelector;
         public final String translationKey;
 
 
-        IOMode(String name, Function<FurnacePatternBlockEntity, IItemHandlerModifiable> handlerSelector, String translationKey) {
+        IOMode(String name, Function<FurnacePatternBlockEntity, ResourceHandler<ItemResource>> handlerSelector, String translationKey) {
             this.name = name;
             this.handlerSelector = handlerSelector;
             this.translationKey = translationKey;
@@ -213,12 +207,13 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         }
     }
 
-    public enum RedStoneMode implements StringRepresentable{
+    public enum RedStoneMode implements StringRepresentable {
         IGNORE("ignore", "ironfurnaces.furnace_setting.redstone_mode.ignore"),
         HIGH_SIGNAL("high_signal", "ironfurnaces.furnace_setting.redstone_mode.high_signal"),
         LOW_SIGNAL("low_signal", "ironfurnaces.furnace_setting.redstone_mode.low_signal"),
         COMPARATOR("comparator", "ironfurnaces.furnace_setting.redstone_mode.comparator"),
         COMPARATOR_SUBTRACTION("comparator_subtraction", "ironfurnaces.furnace_setting.redstone_mode.comparator_subtraction");
+        public static final EnumCodec<RedStoneMode> CODEC = StringRepresentable.fromEnum(RedStoneMode::values);
         public final String name;
         public final String translationKey;
 
@@ -226,8 +221,6 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
             this.name = name;
             this.translationKey = translationKey;
         }
-
-        public static final EnumCodec<RedStoneMode> CODEC = StringRepresentable.fromEnum(RedStoneMode::values);
 
         @Override
         public String getSerializedName() {

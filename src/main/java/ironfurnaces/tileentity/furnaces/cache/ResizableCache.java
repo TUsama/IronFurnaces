@@ -6,23 +6,30 @@ import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ResizableCache extends ItemStackHandler implements ICacheIndex,ICacheFillStats, INeedUpdate{
+
+@ExtensionMethod(ItemUtil.class)
+public abstract class ResizableCache extends ItemStacksResourceHandler implements ICacheIndex,ICacheFillStats, INeedUpdate{
     protected AbstractFurnaceModeHandler mode;
     @Nullable
     private int[] cacheSlotArray;
     private final FillStats fill_stats = new FillStats();
 
     public ResizableCache(AbstractFurnaceModeHandler mode) {
+        super(NonNullList.withSize(1, ItemStack.EMPTY));
         this.mode = mode;
     }
 
@@ -31,25 +38,31 @@ public abstract class ResizableCache extends ItemStackHandler implements ICacheI
         this.mode = mode;
     }
 
-
-    @Override
-    public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-        if (slot >= getSlots()) return;
-        super.setStackInSlot(slot, stack);
+    public int getSlots(){
+        return this.stacks.size();
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        if (slot >= getSlots()) return stack;
-        return super.insertItem(slot, stack, simulate);
+    public void set(int index, ItemResource resource, int amount) {
+        if (index >= getSlots()) return;
+        super.set(index, resource, amount);
     }
 
     @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (slot >= getSlots()) return ItemStack.EMPTY;
-        return super.extractItem(slot, amount, simulate);
+    public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        if (index >= getSlots()) return 0;
+        return super.insert(index, resource, amount, transaction);
     }
 
+    @Override
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        if (index >= getSlots()) return 0;
+        return super.extract(index, resource, amount, transaction);
+    }
+
+    public ItemStack getStackInSlot(int index){
+        return ItemUtil.getStack(this, index);
+    }
 
 
     public void handleStacksInUnavailableSlots(Level level, Consumer<Int2ObjectMap<ItemStack>> consumer) {
@@ -79,7 +92,7 @@ public abstract class ResizableCache extends ItemStackHandler implements ICacheI
             if (s.isEmpty()) continue;
 
             fill_stats.non_empty++;
-            int cap = Math.min(getSlotLimit(i), s.getMaxStackSize());
+            int cap = Math.min(getCapacityAsInt(i, getResource(i)), s.getMaxStackSize());
             if (cap > 0) {
                 fill_stats.fill_sum += (float) s.getCount() / (float) cap;
             }

@@ -401,7 +401,18 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.42")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
 
+    // Manifold 扩展语法运行时注解与支持库
+    modstitchImplementation("systems.manifold:manifold-ext-rt:2026.1.6")
 
+    // 把 Manifold 加到 javac 的 annotation processor path
+    annotationProcessor("systems.manifold:manifold-ext:2026.1.6")
+    testAnnotationProcessor("systems.manifold:manifold-ext:2026.1.6")
+
+
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xplugin:Manifold")
 }
 
 fletchingTable {

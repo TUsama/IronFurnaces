@@ -1,91 +1,91 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
 import lombok.experimental.UtilityClass;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-//? 1.20.1 {
-/*import net.neoforged.neoforge.items.ItemHandlerHelper;
-*///? } else {
-
-//?}
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 @UtilityClass
 public final class HandlerRebalanceUtil {
 
-
-    public static void rebalanceForProcessing(ItemStackHandler handler) {
-        int slotCount = handler.getSlots();
+    public static void rebalanceForProcessing(ItemStacksResourceHandler handler) {
+        int slotCount = handler.size();
         if (slotCount <= 1) return;
-        LinkedHashMap<StackKey, StackGroup> groups = new LinkedHashMap<>();
+
+        List<SlotContent> snapshot = snapshot(handler);
+
+        LinkedHashMap<ItemResource, StackGroup> groups = new LinkedHashMap<>();
         int totalItems = 0;
 
         for (int i = 0; i < slotCount; i++) {
-            ItemStack stack = handler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
+            ItemResource resource = handler.getResource(i);
+            int amount = handler.getAmountAsInt(i);
 
-            StackKey key = new StackKey(stack);
-            StackGroup group = groups.computeIfAbsent(key, k -> new StackGroup(stack.copy()));
-            group.totalCount += stack.getCount();
-            totalItems += stack.getCount();
+            if (resource.isEmpty() || amount <= 0) {
+                continue;
+            }
+
+            StackGroup group = groups.computeIfAbsent(resource, StackGroup::new);
+            group.totalCount += amount;
+            totalItems += amount;
         }
 
         if (groups.isEmpty()) {
             return;
         }
 
-        List<Integer> slotOrder = new ArrayList<>(slotCount);
-        for (int i = 0; i < slotCount; i++) {
-            slotOrder.add(i);
-        }
-        slotOrder.sort((a, b) -> Integer.compare(handler.getSlotLimit(b), handler.getSlotLimit(a)));
+        clear(handler);
 
-        for (int i = 0; i < slotCount; i++) {
-            handler.setStackInSlot(i, ItemStack.EMPTY);
-        }
+        boolean success;
 
         if (totalItems <= slotCount) {
-            fillOnePerSlot(handler, slotOrder, new ArrayList<>(groups.values()));
-            return;
+            success = fillOnePerSlot(handler, groups.values());
+        } else {
+            success = rebalanceGrouped(handler, new ArrayList<>(groups.values()));
         }
 
-        List<StackGroup> groupList = new ArrayList<>(groups.values());
+        // 兜底：如果因为槽位过滤、容量异常等原因没能完整写回，恢复原状态，避免吞物品。
+        if (!success) {
+            restore(handler, snapshot);
+        }
+    }
 
-        for (StackGroup g : groupList) {
-            g.assignedSlots = 1;
+    private static boolean rebalanceGrouped(ItemStacksResourceHandler handler, List<StackGroup> groupList) {
+        int slotCount = handler.size();
+
+        for (StackGroup group : groupList) {
+            group.assignedSlots = 1;
         }
 
         int usedSlots = groupList.size();
 
-        // 如果物品种类比槽位还多，只能前 slotCount 个槽非空，其余种类和已有种类混在逻辑上不可能
-        // 这里退化为“一格一个”，后续多余物品靠已有栈继续叠
+        // 正常情况下不会出现，因为每个非空 slot 最多只贡献一种 ItemResource，
+        // distinct resource 数量不可能大于 slotCount。
         if (usedSlots > slotCount) {
-            // 截断到前 slotCount 个组先占坑
-            groupList.sort(Comparator.comparingInt((StackGroup g) -> g.totalCount).reversed());
-            groupList = new ArrayList<>(groupList.subList(0, slotCount));
-            usedSlots = slotCount;
+            return false;
         }
 
         int remainingFreeSlots = slotCount - usedSlots;
 
-        // 继续分配额外槽位：
-        // 哪种物品“当前已分配槽位总容量 still 不够”，就优先再给一个槽
         while (remainingFreeSlots > 0) {
             StackGroup best = null;
             int bestOverflow = 0;
 
-            for (StackGroup g : groupList) {
-                int slotCap = estimatePerSlotCapacity(handler, g.prototype);
-                int overflow = g.totalCount - g.assignedSlots * slotCap;
+            for (StackGroup group : groupList) {
+                int slotCap = estimatePerSlotCapacity(handler, group.resource);
+                int overflow = group.totalCount - group.assignedSlots * slotCap;
+
                 if (overflow > bestOverflow) {
                     bestOverflow = overflow;
-                    best = g;
+                    best = group;
                 }
             }
 
-            // 所有组都已经“理论上装得下”了，剩余槽位不强制再分
             if (best == null) {
                 break;
             }
@@ -94,163 +94,299 @@ public final class HandlerRebalanceUtil {
             remainingFreeSlots--;
         }
 
-        // 6. 若还有空余槽位，为了“尽量每格不空”，继续分给数量最多的组
         while (remainingFreeSlots > 0) {
-            StackGroup best = Collections.max(groupList, Comparator.comparingInt(g -> g.totalCount));
+            StackGroup best = groupList.stream()
+                    .max(Comparator.comparingInt(group -> group.totalCount))
+                    .orElse(null);
+
+            if (best == null) {
+                break;
+            }
+
             best.assignedSlots++;
             remainingFreeSlots--;
         }
 
-        // 7. 按“需要更多堆”的组优先占用大槽位
         groupList.sort((a, b) -> {
-            int capA = estimatePerSlotCapacity(handler, a.prototype);
-            int capB = estimatePerSlotCapacity(handler, b.prototype);
+            int capA = estimatePerSlotCapacity(handler, a.resource);
+            int capB = estimatePerSlotCapacity(handler, b.resource);
 
             int needA = ceilDiv(a.totalCount, capA);
             int needB = ceilDiv(b.totalCount, capB);
 
             int cmp = Integer.compare(needB, needA);
             if (cmp != 0) return cmp;
+
             return Integer.compare(b.totalCount, a.totalCount);
         });
 
-        int slotPtr = 0;
-
-        for (StackGroup group : groupList) {
-            int assigned = Math.min(group.assignedSlots, slotCount - slotPtr);
-            if (assigned <= 0) break;
-
-            List<Integer> targetSlots = new ArrayList<>(assigned);
-            for (int k = 0; k < assigned; k++) {
-                targetSlots.add(slotOrder.get(slotPtr++));
-            }
-
-            spreadGroupIntoSlots(handler, group.prototype, group.totalCount, targetSlots);
-        }
+        return writeGroups(handler, groupList);
     }
 
     /**
      * 总物品数 <= 槽位数时：
-     * 直接做到“一个物品一个槽”，保证尽可能多的槽非空。
+     * 每个物品占一个槽，尽量让最多的槽非空。
      */
-    private static void fillOnePerSlot(ItemStackHandler handler, List<Integer> slotOrder, List<StackGroup> groups) {
-        int slotPtr = 0;
+    private static boolean fillOnePerSlot(ItemStacksResourceHandler handler, Collection<StackGroup> groups) {
+        List<Integer> availableSlots = allSlots(handler);
 
-        for (StackGroup g : groups) {
-            int remaining = g.totalCount;
+        for (StackGroup group : groups) {
+            int remaining = group.totalCount;
 
-            while (remaining > 0 && slotPtr < slotOrder.size()) {
-                int slot = slotOrder.get(slotPtr++);
-                ItemStack out = g.prototype.copy();
-                out.setCount(1);
-                handler.setStackInSlot(slot, out);
+            while (remaining > 0) {
+                Integer slot = takeBestSlot(handler, availableSlots, group.resource);
+                if (slot == null) {
+                    return false;
+                }
+
+                handler.set(slot, group.resource, 1);
                 remaining--;
             }
-
-            g.totalCount = remaining;
         }
 
-        // 理论上这里不会剩余，因为 totalItems <= slotCount
-        // 若还有剩余，就尝试回填到同类栈中
-        for (StackGroup g : groups) {
-            int remain = g.totalCount;
-            if (remain <= 0) continue;
+        return true;
+    }
 
-            for (int i = 0; i < handler.getSlots() && remain > 0; i++) {
-                ItemStack stack = handler.getStackInSlot(i);
-                if (stack.isEmpty()) continue;
-                if (!canMergeStrict(stack, g.prototype)) continue;
+    private static boolean writeGroups(ItemStacksResourceHandler handler, List<StackGroup> groupList) {
+        List<Integer> availableSlots = allSlots(handler);
 
-                int cap = Math.min(handler.getSlotLimit(i), stack.getMaxStackSize());
-                int room = cap - stack.getCount();
-                if (room <= 0) continue;
+        for (StackGroup group : groupList) {
+            int wantedSlots = Math.min(group.assignedSlots, availableSlots.size());
 
-                int add = Math.min(room, remain);
-                stack.grow(add);
-                remain -= add;
+            List<Integer> targetSlots = takeBestSlots(
+                    handler,
+                    availableSlots,
+                    group.resource,
+                    wantedSlots
+            );
+
+            // 如果预分配的槽容量不足，就继续拿可用槽补足。
+            while (capacitySum(handler, group.resource, targetSlots) < group.totalCount) {
+                Integer extra = takeBestSlot(handler, availableSlots, group.resource);
+                if (extra == null) {
+                    break;
+                }
+                targetSlots.add(extra);
+            }
+
+            int written = spreadGroupIntoSlots(
+                    handler,
+                    group.resource,
+                    group.totalCount,
+                    targetSlots
+            );
+
+            if (written != group.totalCount) {
+                return false;
             }
         }
+
+        return true;
     }
 
     /**
-     * 将一种物品分布到若干槽位中。
+     * 将一种 ItemResource 分布到若干槽位中。
+     *
      * 目标：
-     * - 每个被分配到的槽位至少 1 个
-     * - 尽量让这一组在这些槽位里分布得较平
+     * 1. 每个被分配到的槽位尽量至少 1 个。
+     * 2. 总量尽量均分。
+     * 3. 不超过每个槽对该 resource 的容量。
+     *
+     * 返回实际写入数量。
      */
-    private static void spreadGroupIntoSlots(ItemStackHandler handler, ItemStack prototype, int totalCount, List<Integer> targetSlots) {
+    private static int spreadGroupIntoSlots(
+            ItemStacksResourceHandler handler,
+            ItemResource resource,
+            int totalCount,
+            List<Integer> targetSlots
+    ) {
         int n = targetSlots.size();
-        if (n <= 0 || totalCount <= 0) return;
+        if (resource.isEmpty() || n <= 0 || totalCount <= 0) {
+            return 0;
+        }
 
-        // 先算这些目标槽的真实容量
         int[] capacities = new int[n];
         int totalCapacity = 0;
+
         for (int i = 0; i < n; i++) {
             int slot = targetSlots.get(i);
-            capacities[i] = Math.min(handler.getSlotLimit(slot), prototype.getMaxStackSize());
+            capacities[i] = getSlotCapacity(handler, slot, resource);
             totalCapacity += capacities[i];
         }
 
-        totalCount = Math.min(totalCount, totalCapacity);
-        if (totalCount <= 0) return;
-
-        // 如果总数比目标槽少，那只能前 totalCount 个槽放 1 个
-        if (totalCount < n) {
-            for (int i = 0; i < totalCount; i++) {
-                ItemStack out = prototype.copy();
-                out.setCount(1);
-                handler.setStackInSlot(targetSlots.get(i), out);
-            }
-            return;
+        int toPlace = Math.min(totalCount, totalCapacity);
+        if (toPlace <= 0) {
+            return 0;
         }
-
-        // 尽量均衡分配：base/base+1
-        int base = totalCount / n;
-        int rem = totalCount % n;
 
         int[] assigned = new int[n];
-        int left = totalCount;
 
-        for (int i = 0; i < n; i++) {
-            int want = base + (i < rem ? 1 : 0);
-            int put = Math.min(want, capacities[i]);
-            assigned[i] = put;
-            left -= put;
+        if (toPlace < n) {
+            int left = toPlace;
+
+            for (int i = 0; i < n && left > 0; i++) {
+                if (capacities[i] <= 0) continue;
+
+                assigned[i] = 1;
+                left--;
+            }
+        } else {
+            int base = toPlace / n;
+            int rem = toPlace % n;
+            int left = toPlace;
+
+            for (int i = 0; i < n; i++) {
+                int want = base + (i < rem ? 1 : 0);
+                int put = Math.min(want, capacities[i]);
+
+                assigned[i] = put;
+                left -= put;
+            }
+
+            for (int i = 0; i < n && left > 0; i++) {
+                int room = capacities[i] - assigned[i];
+                if (room <= 0) continue;
+
+                int add = Math.min(room, left);
+                assigned[i] += add;
+                left -= add;
+            }
         }
 
-        // 若有容量较小的槽导致没分完，再补到有空间的槽里
-        for (int i = 0; i < n && left > 0; i++) {
-            int room = capacities[i] - assigned[i];
-            if (room <= 0) continue;
-
-            int add = Math.min(room, left);
-            assigned[i] += add;
-            left -= add;
-        }
+        int written = 0;
 
         for (int i = 0; i < n; i++) {
             int count = assigned[i];
             if (count <= 0) continue;
 
-            ItemStack out = prototype.copy();
-            out.setCount(count);
-            handler.setStackInSlot(targetSlots.get(i), out);
+            handler.set(targetSlots.get(i), resource, count);
+            written += count;
+        }
+
+        return written;
+    }
+
+    private static int estimatePerSlotCapacity(ItemStacksResourceHandler handler, ItemResource resource) {
+        if (resource.isEmpty()) {
+            return 0;
+        }
+
+        int max = 0;
+
+        for (int i = 0; i < handler.size(); i++) {
+            max = Math.max(max, getSlotCapacity(handler, i, resource));
+        }
+
+        return max;
+    }
+
+    private static int getSlotCapacity(ItemStacksResourceHandler handler, int slot, ItemResource resource) {
+        if (resource.isEmpty()) {
+            return 0;
+        }
+
+        if (!handler.isValid(slot, resource)) {
+            return 0;
+        }
+
+        return Math.min(
+                handler.getCapacityAsInt(slot, resource),
+                resource.getMaxStackSize()
+        );
+    }
+
+    private static int capacitySum(
+            ItemStacksResourceHandler handler,
+            ItemResource resource,
+            List<Integer> slots
+    ) {
+        int sum = 0;
+
+        for (int slot : slots) {
+            sum += getSlotCapacity(handler, slot, resource);
+        }
+
+        return sum;
+    }
+
+    private static List<Integer> takeBestSlots(
+            ItemStacksResourceHandler handler,
+            List<Integer> availableSlots,
+            ItemResource resource,
+            int count
+    ) {
+        List<Integer> picked = new ArrayList<>(count);
+
+        for (int i = 0; i < count; i++) {
+            Integer slot = takeBestSlot(handler, availableSlots, resource);
+            if (slot == null) {
+                break;
+            }
+            picked.add(slot);
+        }
+
+        return picked;
+    }
+
+    private static Integer takeBestSlot(
+            ItemStacksResourceHandler handler,
+            List<Integer> availableSlots,
+            ItemResource resource
+    ) {
+        int bestIndexInList = -1;
+        int bestCapacity = 0;
+
+        for (int i = 0; i < availableSlots.size(); i++) {
+            int slot = availableSlots.get(i);
+            int capacity = getSlotCapacity(handler, slot, resource);
+
+            if (capacity > bestCapacity) {
+                bestCapacity = capacity;
+                bestIndexInList = i;
+            }
+        }
+
+        if (bestIndexInList < 0) {
+            return null;
+        }
+
+        return availableSlots.remove(bestIndexInList);
+    }
+
+    private static List<Integer> allSlots(ItemStacksResourceHandler handler) {
+        List<Integer> slots = new ArrayList<>(handler.size());
+
+        for (int i = 0; i < handler.size(); i++) {
+            slots.add(i);
+        }
+
+        return slots;
+    }
+
+    private static void clear(ItemStacksResourceHandler handler) {
+        for (int i = 0; i < handler.size(); i++) {
+            handler.set(i, ItemResource.EMPTY, 0);
         }
     }
 
-    /**
-     * 估算某种物品在该 handler 里单槽最多能放多少。
-     * 因为你说没有额外过滤/运行时限制，所以这里直接取：
-     * max(slotLimit) 与 itemMaxStackSize 的较小值。
-     */
-    private static int estimatePerSlotCapacity(ItemStackHandler handler, ItemStack prototype) {
-        int maxSlotLimit = 0;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            if (handler.isItemValid(i, prototype)) {
-                maxSlotLimit = Math.max(maxSlotLimit, handler.getSlotLimit(i));
-            }
+    private static List<SlotContent> snapshot(ItemStacksResourceHandler handler) {
+        List<SlotContent> snapshot = new ArrayList<>(handler.size());
+
+        for (int i = 0; i < handler.size(); i++) {
+            snapshot.add(new SlotContent(
+                    handler.getResource(i),
+                    handler.getAmountAsInt(i)
+            ));
         }
-        return Math.min(maxSlotLimit, prototype.getMaxStackSize());
+
+        return snapshot;
+    }
+
+    private static void restore(ItemStacksResourceHandler handler, List<SlotContent> snapshot) {
+        for (int i = 0; i < snapshot.size(); i++) {
+            SlotContent content = snapshot.get(i);
+            handler.set(i, content.resource, content.amount);
+        }
     }
 
     private static int ceilDiv(int a, int b) {
@@ -258,38 +394,16 @@ public final class HandlerRebalanceUtil {
         return (a + b - 1) / b;
     }
 
-    private static boolean canMergeStrict(ItemStack a, ItemStack b) {
-        return ItemStack.isSameItemSameComponents(a, b);
-    }
-
     private static final class StackGroup {
-        final ItemStack prototype;
+        final ItemResource resource;
         int totalCount;
-        int assignedSlots = 0;
+        int assignedSlots;
 
-        StackGroup(ItemStack prototype) {
-            this.prototype = prototype.copy();
-            this.prototype.setCount(1);
+        StackGroup(ItemResource resource) {
+            this.resource = resource;
         }
     }
 
-    private static final class StackKey {
-        final ItemStack item;
-
-        StackKey(ItemStack stack) {
-            this.item = stack.copyWithCount(1);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (!(obj instanceof StackKey other)) return false;
-            return ItemStack.isSameItemSameComponents(other.item, this.item);
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 * System.identityHashCode(item);
-        }
+    private record SlotContent(ItemResource resource, int amount) {
     }
 }

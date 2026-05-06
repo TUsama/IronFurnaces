@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 //? 1.20.1 {
 //? } else {
@@ -31,20 +32,19 @@ public class InputCache extends ResizableCache {
         super(stats.inputSlotAmount(), mode);
     }
 
-
     @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return grabRecipeCallback.apply(stack);
+    public boolean isValid(int index, ItemResource resource) {
+        return grabRecipeCallback.apply(getStackInSlot(index));
     }
 
-
     @Override
-    protected void onContentsChanged(int slot) {
+    protected void onContentsChanged(int index, ItemStack previousContents) {
         if (contentChangeCallback != null) {
-            contentChangeCallback.accept(slot);
+            contentChangeCallback.accept(index);
         }
         recomputeFillStats();
     }
+
 
     @Override
     protected int updateSlotAmount(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {

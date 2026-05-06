@@ -1,15 +1,12 @@
 package ironfurnaces.tileentity.furnaces.cache;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
-public class ViewOnlyCache extends ItemStackHandler {
+public class ViewOnlyCache extends ItemStacksResourceHandler {
 
     public ViewOnlyCache() {
         super(7);
     }
-
 
 
 }

@@ -1,5 +1,4 @@
-//~ replace_INBTSerializable
-//~ replace_all_recipe
+//? fd {
 package ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers;
 
 import ironfurnaces.loaders.IronFurnaces;
@@ -31,7 +30,7 @@ import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
 import vectorwing.farmersdelight.integration.jei.FDRecipeTypes;
 //? 1.20.1 {
 /*import net.neoforged.neoforge.registries.ForgeRegistries;
-*///?} else {
+ *///?} else {
 //?}
 
 import java.util.*;
@@ -471,3 +470,5 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
         return getRecipeType().toString();
     }
 }
+
+//?}

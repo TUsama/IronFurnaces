@@ -5,34 +5,26 @@ import ironfurnaces.tileentity.furnaces.cache.stat.FillStats;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import lombok.Getter;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import org.jetbrains.annotations.NotNull;
-import net.neoforged.neoforge.items.wrapper.EmptyItemHandler;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 // a copy from CombinedInvWrapper, but with recalc when furnace mode updated.
-public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICacheFillStats, INeedUpdate{
-    private int[] cacheIndex;
+public class IFCombinedCache extends CombinedResourceHandler<ItemResource> implements ICacheIndex, ICacheFillStats, INeedUpdate {
+    private final int[] cacheIndex;
     @Getter
-    protected final IItemHandlerModifiable[] itemHandler;
-    protected final int[] baseIndex;
-    protected int slotCount;
+    private final ResourceHandler<ItemResource>[] handlers;
+    private boolean needRecreate = false;
 
-    public IFCombinedCache(IItemHandlerModifiable... itemHandler) {
-        this.itemHandler = itemHandler;
-        this.baseIndex = new int[itemHandler.length];
-        int index = 0;
-        for (int i = 0; i < itemHandler.length; i++)
-        {
-            if (itemHandler[i] instanceof ViewOnlyCache) continue;
-            index += itemHandler[i].getSlots();
-            baseIndex[i] = index;
-        }
-        this.slotCount = index;
-        cacheIndex = IntStream.range(0, getSlots()).toArray();
+    @SafeVarargs
+    public IFCombinedCache(ResourceHandler<ItemResource>... handlers) {
+        super(handlers);
+        this.handlers = handlers;
+        cacheIndex = IntStream.range(0, size()).toArray();
     }
 
     @Override
@@ -41,97 +33,8 @@ public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICa
     }
 
 
-    // returns the handler index for the slot
-    protected int getIndexForSlot(int slot)
-    {
-        if (slot < 0)
-            return -1;
-
-        for (int i = 0; i < baseIndex.length; i++)
-        {
-            if (slot - baseIndex[i] < 0)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    protected IItemHandlerModifiable getHandlerFromIndex(int index)
-    {
-        if (index < 0 || index >= itemHandler.length)
-        {
-
-            return (IItemHandlerModifiable) EmptyItemHandler.INSTANCE;
-        }
-        return itemHandler[index];
-    }
-
-    protected int getSlotFromIndex(int slot, int index)
-    {
-        if (index <= 0 || index >= baseIndex.length)
-        {
-            return slot;
-        }
-        return slot - baseIndex[index - 1];
-    }
-
-    @Override
-    public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        slot = getSlotFromIndex(slot, index);
-        handler.setStackInSlot(slot, stack);
-    }
-
-    @Override
-    public int getSlots() {
-        return slotCount;
-    }
-
-    @Override
-    public @NotNull ItemStack getStackInSlot(int slot) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        slot = getSlotFromIndex(slot, index);
-        return handler.getStackInSlot(slot);
-    }
-
-    @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        slot = getSlotFromIndex(slot, index);
-        return handler.insertItem(slot, stack, simulate);
-    }
-
-    @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        slot = getSlotFromIndex(slot, index);
-        return handler.extractItem(slot, amount, simulate);
-    }
-
-    @Override
-    public int getSlotLimit(int slot) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        int localSlot = getSlotFromIndex(slot, index);
-        return handler.getSlotLimit(localSlot);
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        int index = getIndexForSlot(slot);
-        IItemHandlerModifiable handler = getHandlerFromIndex(index);
-        int localSlot = getSlotFromIndex(slot, index);
-        return handler.isItemValid(localSlot, stack);
-    }
-
-
     public FillStats getFillStats() {
-        return Arrays.stream(itemHandler).filter(x -> x instanceof ICacheFillStats)
+        return Arrays.stream(handlers).filter(x -> x instanceof ICacheFillStats)
                 .map(x -> ((ICacheFillStats) x).getFillStats())
                 .reduce(FillStats::add).orElse(FillStats.EMPTY);
     }
@@ -140,16 +43,17 @@ public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICa
         //don't need here
     }
 
+    public void tryRecreate(Consumer<IFCombinedCache> setter) {
+        if (needRecreate) setter.accept(new IFCombinedCache(handlers));
+    }
 
     @Override
     public void update(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         int index = 0;
-        for (int i = 0; i < itemHandler.length; i++)
-        {
-            index += itemHandler[i].getSlots();
-            baseIndex[i] = index;
+        for (int i = 0; i < handlers.length; i++) {
+            index += handlers[i].size();
+
         }
-        this.slotCount = index;
-        cacheIndex = IntStream.range(0, getSlots()).toArray();
+        if (this.size() != index) this.needRecreate = true;
     }
 }

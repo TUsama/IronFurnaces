@@ -3,20 +3,15 @@ package ironfurnaces.tileentity.furnaces.cache;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
-
-//? 1.20.1 {
-/*import net.neoforged.neoforge.items.ItemHandlerHelper;
-*///? } else {
-
-//?}
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import java.util.function.BiPredicate;
 import java.util.function.IntConsumer;
 
 @Accessors(chain = true, fluent = true)
-public class AugmentCacheHandler extends ItemStackHandler {
+public class AugmentCacheHandler extends ItemStacksResourceHandler {
     @Setter
     private BiPredicate<Integer, ItemStack> validator;
     @Setter
@@ -28,29 +23,22 @@ public class AugmentCacheHandler extends ItemStackHandler {
     }
 
     @Override
-    public int getSlotLimit(int slot) {
-        return 1;
+    protected void onContentsChanged(int index, ItemStack previousContents) {
+        if (onChange != null) onChange.accept(index);
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        return super.insertItem(slot, stack, simulate);
-    }
-
-    @Override
-    protected void onContentsChanged(int slot) {
-        if (onChange != null) onChange.accept(slot);
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        if (ItemStack.isSameItemSameComponents(stack, this.getStackInSlot(slot))) {
+    public boolean isValid(int index, ItemResource resource) {
+        var stack = ItemUtil.getStack(this, index);
+        if (resource.matches(stack)) {
             return false;
         }
 
-        if (validator != null && !validator.test(slot, stack)) {
+        if (validator != null && !validator.test(index, stack)) {
             return false;
         }
-        return super.isItemValid(slot, stack);
+
+        return super.isValid(index, resource);
     }
+
 }

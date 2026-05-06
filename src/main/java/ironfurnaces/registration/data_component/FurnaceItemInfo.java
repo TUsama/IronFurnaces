@@ -1,0 +1,112 @@
+package ironfurnaces.registration.data_component;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.NormalFurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.RainbowFurnacePattern;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
+import lombok.AccessLevel;
+import lombok.Getter;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
+
+import static net.minecraft.network.chat.Component.translatable;
+
+@Getter(AccessLevel.PRIVATE)
+public class FurnaceItemInfo implements TooltipProvider {
+    public static final Codec<FurnaceItemInfo> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    FurnacePattern.REF_CODEC.fieldOf("pattern").forGetter(FurnaceItemInfo::getPattern),
+                    FurnaceSettingsV2.CODEC.fieldOf("setting").forGetter(FurnaceItemInfo::getSettingsV2)
+            ).apply(instance, FurnaceItemInfo::new));
+
+    private FurnacePattern pattern;
+    private FurnaceSettingsV2 settingsV2;
+
+    public FurnaceItemInfo(@Nullable FurnacePattern pattern, @Nullable FurnaceSettingsV2 settingsV2) {
+        this.pattern = pattern;
+        if (this.pattern == null) this.pattern = FurnacePattern.FALLBACK;
+        this.settingsV2 = settingsV2;
+        if (this.settingsV2 == null) this.settingsV2 = FurnaceSettingsV2.DEFAULT;
+    }
+
+    public static void writeTo(ItemStack stack, FurnaceItemInfo info) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        stack.set(ModDataComponents.FURNACE_ITEM_INFO.get(), info);
+    }
+
+    public static void writeTo(
+            ItemStack stack,
+            FurnacePattern pattern,
+            FurnaceSettingsV2 settingsV2
+    ) {
+        writeTo(stack, new FurnaceItemInfo(pattern, settingsV2));
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag, DataComponentGetter dataComponentGetter) {
+        if (pattern != null) {
+            int s = 0;
+            if (pattern instanceof NormalFurnacePattern pattern1) {
+                s = pattern1.smeltTick();
+            } else if (pattern instanceof RainbowFurnacePattern pattern) {
+                s = pattern.baseSmeltTickPerItem();
+            }
+            if (s != 0) {
+                consumer.accept(translatable("ironfurnaces.block.furnace.work_speed", Component.literal(String.valueOf(s)).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
+            }
+
+        } else {
+            consumer.accept(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
+                    .withStyle(ChatFormatting.RED));
+        }
+        if (settingsV2 != null) {
+            settingsV2.toTooltips().forEach(consumer);
+        }
+
+        consumer.accept(translatable("item.ironfurnaces.furnace_pattern_holder.reset_setting_hint"));
+    }
+
+    public void writeTo(ItemStack stack) {
+        writeTo(stack, this);
+    }
+
+    public void writeToBlockEntity(FurnacePatternBlockEntity blockEntity) {
+        blockEntity.updatePattern(pattern);
+        pattern.referenceBlock().ifPresent(x -> {
+            var blockReference = BuiltInRegistries.BLOCK.getValue(x);
+            BlockState refState = blockReference.defaultBlockState();
+            SoundType soundType = refState.getSoundType(blockEntity.getLevel(), blockEntity.getBlockPos(), null);
+
+            blockEntity.getLevel().playSound(
+                    null,
+                    blockEntity.getBlockPos(),
+                    soundType.getPlaceSound(),
+                    SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0F) / 2.0F,
+                    soundType.getPitch() * 0.8F
+            );
+        });
+        blockEntity.setWholeSettingV2(settingsV2);
+
+        blockEntity.setChanged();
+    }
+}

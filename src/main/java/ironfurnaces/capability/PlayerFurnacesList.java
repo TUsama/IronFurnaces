@@ -7,23 +7,24 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-//? 1.20.1 {
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-//? } else {
-import net.minecraft.core.HolderLookup;
-//?}
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class PlayerFurnacesList implements IPlayerFurnacesList, INBTSerializable<CompoundTag> {
+public class PlayerFurnacesList implements IPlayerFurnacesList, ValueIOSerializable {
     public static final Codec<PlayerFurnacesList> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             GlobalPos.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("furnaces").forGetter(PlayerFurnacesList::getPosLinkedHashSet)
 
@@ -87,17 +88,19 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, INBTSerializable
         this.upgradeFromLegacy = other.upgradeFromLegacy;
     }
 
+    private static final String KEY_DATA = "Data";
+
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-        CompoundTag compoundTag = new CompoundTag();
-        CODEC.encodeStart(NbtOps.INSTANCE, this).result().ifPresent(x -> compoundTag.put("Data", x));
-        return compoundTag;
+    public void serialize(ValueOutput output) {
+        output.store(KEY_DATA, CODEC, this);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag compoundTag) {
-        if (compoundTag.contains("Data")){
-            CODEC.decode(NbtOps.INSTANCE, compoundTag).result().ifPresent(x -> this.posLinkedHashSet.addAll(x.getFirst().posLinkedHashSet));
-        }
+    public void deserialize(ValueInput input) {
+        input.read(KEY_DATA, CODEC)
+                .ifPresent(decoded -> {
+                    this.posLinkedHashSet.clear();
+                    this.posLinkedHashSet.addAll(decoded.posLinkedHashSet);
+                });
     }
 }

@@ -8,26 +8,19 @@ import ironfurnaces.items.IJovialSetter;
 import ironfurnaces.items.ItemFurnaceCopyV2;
 import ironfurnaces.items.ItemJovial;
 import ironfurnaces.items.JovialState;
-import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModMenus;
+import ironfurnaces.registration.data_component.FurnaceItemInfo;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
-import ironfurnaces.tileentity.furnaces.pattern.NormalFurnacePattern;
-import ironfurnaces.tileentity.furnaces.pattern.RainbowFurnacePattern;
-import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.particles.SpellParticleOption;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,7 +36,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
@@ -57,13 +49,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 
 //? 1.20.1 {
 /*import net.neoforged.neoforge.registries.ForgeRegistries;
@@ -71,10 +58,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 import net.minecraft.core.component.DataComponents;
 //?}
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static ironfurnaces.registration.ModBlocks.getReferenceStateOrNull;
 import static net.minecraft.network.chat.Component.translatable;
@@ -89,13 +73,13 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
                 .setValue(BlockStateProperties.LIT, false)
                 .setValue(ModBlockState.JOVIAL_STATE, JovialState.NONE));
     }
-    //? >1.20.1 {
+
     private final static MapCodec<FurnacePatternHolderBlock> CODEC = simpleCodec(FurnacePatternHolderBlock::new);
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
-    //?}
+
 
 
     @Override
@@ -111,30 +95,25 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         BlockState reference = getReferenceStateOrNull(level, pos);
         if (reference != null) {
-            //~ if >1.20.1 'reference.getBlock().getDestroyProgress(reference, player, level, pos)' -> 'reference.getDestroyProgress(player, level, pos)'
             return reference.getDestroyProgress(player, level, pos);
         }
         return super.getDestroyProgress(state, player, level, pos);
     }
-
+/*todo
     @Override
-    public int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
-        BlockState reference = getReferenceStateOrNull(level, pos);
-        if (reference != null) {
-            return reference.getLightBlock(level, pos);
-        }
-        return super.getLightBlock(state, level, pos);
+    protected int getLightDampening(BlockState state) {
+        return 0;
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state) {
         BlockState reference = getReferenceStateOrNull(level, pos);
         if (reference != null) {
             return reference.propagatesSkylightDown(level, pos);
         }
         return super.propagatesSkylightDown(state, level, pos);
     }
-
+*/
     @Override
     public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
         BlockState reference = getReferenceStateOrNull(level, pos);
@@ -173,7 +152,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             return false;
         }
 
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         double x = entity.getX() + (random.nextDouble() - 0.5D) * (double) entity.getBbWidth();
         double y = entity.getY() + 0.1D;
         double z = entity.getZ() + (random.nextDouble() - 0.5D) * (double) entity.getBbWidth();
@@ -190,13 +169,10 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Nullable
     protected static <T extends BlockEntity> BlockEntityTicker<T> createFurnaceTicker(Level level, BlockEntityType<T> serverType, BlockEntityType<? extends FurnacePatternBlockEntity> clientType) {
-        return level.isClientSide ? null : createTickerHelper(serverType, clientType, FurnacePatternBlockEntity::serverTick);
+        return level.isClientSide() ? null : createTickerHelper(serverType, clientType, FurnacePatternBlockEntity::serverTick);
     }
 
-    @Override
-    public boolean isOcclusionShapeFullBlock(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.isOcclusionShapeFullBlock(state, level, pos);
-    }
+
 
     @Override
     public @org.jetbrains.annotations.Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
@@ -211,19 +187,18 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         return state.getValue(BlockStateProperties.LIT) ? 14 : 0;
     }
 
+
+
     @Override
-            //~ if >1.20.1 'BlockGetter' -> 'LevelReader'
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
         ItemStack stack = new ItemStack(this);
 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof FurnacePatternBlockEntity furnace) {
             FurnacePattern pattern = furnace.getPattern();
             if (pattern != null && pattern != FurnacePattern.FALLBACK) {
-                IPatternAccessor.writePatternToItemStack(stack, pattern);
+                new FurnaceItemInfo(pattern, furnace.getSettingsV2()).writeTo(stack);
             }
-            furnace.getSettingsV2().writeToStack(stack);
-
 
             if (furnace.hasCustomName()) {
                 stack.set(DataComponents.CUSTOM_NAME, furnace.getCustomName());
@@ -238,34 +213,6 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         return (BlockState) this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
-    @Override
-            //~ if >1.20.1 'BlockGetter level' -> 'Item.TooltipContext context'
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        //~ if >1.20.1 'level' -> 'context'
-        super.appendHoverText(stack, context, tooltip, flag);
-
-        FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
-        if (furnacePatternFromTag != null) {
-            int s = 0;
-            if (furnacePatternFromTag instanceof NormalFurnacePattern pattern1){
-                s = pattern1.smeltTick();
-            } else if (furnacePatternFromTag instanceof RainbowFurnacePattern pattern){
-                s = pattern.baseSmeltTickPerItem();
-            }
-            if (s != 0){
-                tooltip.add(translatable("ironfurnaces.block.furnace.work_speed", Component.literal(String.valueOf(s)).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
-            }
-
-        } else {
-            tooltip.add(translatable("block.ironfurnaces.furnace_pattern_holder.without_pattern")
-                    .withStyle(ChatFormatting.RED));
-        }
-
-        tooltip.addAll(FurnaceSettingsV2.getSettingFromStack(stack).toTooltips());
-
-        tooltip.add(translatable("item.ironfurnaces.furnace_pattern_holder.reset_setting_hint"));
-
-    }
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
@@ -276,71 +223,16 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
             return;
         }
         //I think this should be done by minecraft itselt, see applyImplicitComponents().
-        //? 1.20.1 {
-        /*if (stack.has(DataComponents.CUSTOM_NAME) && !stack.getDisplayName().getString().contains("[")) {
-            te.setCustomName(stack.getDisplayName());
-        }
-        *///?}
-        if (!level.isClientSide && entity instanceof Player player) {
+        if (!level.isClientSide() && entity instanceof Player player) {
             te.ensureOwner(player);
             PlayerDataHandler.editFurnacesList(player, x -> x.add(level.dimension(), pos));
 
         }
     }
-    //? 1.20.1 {
-    /*@Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult p_225533_6_) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        }
-        ItemStack itemInHand = player.getItemInHand(handIn);
-        Item item = itemInHand.getItem();
-        if (player.isCrouching()) {
-            if (itemInHand.isEmpty()){
-                IJovialSetter.clearJovial(level, pos);
-                return InteractionResult.SUCCESS;
-            } else if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
-                return InteractionResult.PASS;
-            }
-        } else {
-            if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
-                return InteractionResult.PASS;
-            }
-        }
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof FurnacePatternBlockEntity furnacePatternBlockEntity && furnacePatternBlockEntity.getPattern() != FurnacePattern.FALLBACK) {
-            ModMenus.NEW_FURNACE_MENU.open(((ServerPlayer) player), Component.literal(""), new MenuProvider() {
-                @Override
-                public Component getDisplayName() {
-                    return Component.literal("");
-                }
-
-                @Override
-                public @org.jetbrains.annotations.Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-                    FurnacePatternBlockEntity blockEntity1 = (FurnacePatternBlockEntity) level.getBlockEntity(pos);
-                    if (player instanceof ServerPlayer serverPlayer) blockEntity1.addPlayer(serverPlayer);
-                    return new FurnacePatternMenu(ModMenus.NEW_FURNACE_MENU.get(), containerId, blockEntity1, playerInventory, pos, blockEntity1.getDataAccess());
-                }
-            }, buf -> {
-
-                buf.writeJsonWithCodec(FurnacePattern.REF_CODEC, furnacePatternBlockEntity.getPattern());
-                buf.writeJsonWithCodec(IFurnaceStats.CODEC, furnacePatternBlockEntity.getUsedStats());
-                buf.writeBlockPos(pos);
-            });
-            player.awardStat(Stats.INTERACT_WITH_FURNACE);
-            return InteractionResult.CONSUME;
-        } else {
-            player.sendSystemMessage(translatable("block.ironfurnaces.furnace_pattern_holder.refuse_open_empty_pattern"));
-            return InteractionResult.PASS;
-        }
-
-    }
-    *///?} else {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         if (player.isCrouching()){
@@ -378,20 +270,19 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
         Item item = stack.getItem();
 
         if (item instanceof ItemFurnaceCopyV2 || item instanceof ItemJovial) {
-            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
 
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
-    //?}
 
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         super.animateTick(state, world, pos, rand);
@@ -470,8 +361,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
                             for (int i = 0; i < 10; i++) {
                                 world.addParticle(ParticleTypes.CRIT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
-                                //~ if >1.20.1 'ParticleTypes.AMBIENT_ENTITY_EFFECT' -> 'ParticleTypes.EFFECT'
-                                world.addParticle(ParticleTypes.EFFECT, d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
+                                world.addParticle(SpellParticleOption.create(ParticleTypes.EFFECT, -1, 1.0F), d0 + d5, d1 + d6, d2 + d7, rand.nextGaussian() * 0.05D, 0.0D, rand.nextGaussian() * 0.05D);
                             }
                         }
                     }
@@ -481,42 +371,21 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         }
     }
 
+
     @Override
-    public void onRemove(BlockState oldState, Level world, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (oldState.getBlock() != newState.getBlock()) {
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof FurnacePatternBlockEntity furnace) {
-
-                if (!world.isClientSide) {
-                    UUID ownerUuid = furnace.getOwnerUuid();
-                    if (ownerUuid != null && world.getServer() != null) {
-                        Player owner = world.getServer().getPlayerList().getPlayer(ownerUuid);
-                        if (owner != null) {
-                            PlayerDataHandler.editFurnacesList(owner, x -> x.remove(world.dimension(), pos));
-                        }
-                    }
-                }
-
-                for (int i = 0; i < furnace.getViewOnly().getSlots(); i++) {
-                    furnace.getViewOnly().setStackInSlot(i, ItemStack.EMPTY);
-                }
-
-                Containers.dropContents(world, pos, furnace);
-                if (world instanceof ServerLevel serverLevel) {
-                    furnace.getRecipeAwardHandler().grantStoredRecipeExperience(serverLevel, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
-                    OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, furnace.getOwnerUuid());
-                }
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(oldState, world, pos, newState, movedByPiston);
-        }
+    protected void affectNeighborsAfterRemoval(
+            BlockState state,
+            ServerLevel level,
+            BlockPos pos,
+            boolean movedByPiston
+    ) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.INVISIBLE;
     }
 
     public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
@@ -551,7 +420,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (level.getBlockEntity(pos) instanceof FurnacePatternBlockEntity furnace) {
             return furnace.getComparatorLikeOutput();
         }
@@ -567,53 +436,5 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
     public @org.jetbrains.annotations.Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PATTERN_HOLDER.create(pos, state);
     }
-    //? forge {
-    /*@Override
-    public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
-        consumer.accept(new IClientBlockExtensions() {
-            @Override
-            public boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) {
-                if (!(target instanceof BlockHitResult blockHit)) {
-                    return false;
-                }
-                if (!(level instanceof ClientLevel clientLevel)) return false;
 
-                BlockPos pos = blockHit.getBlockPos();
-                BlockState reference = getReferenceStateOrNull(level, pos);
-                if (reference == null) {
-                    return false;
-                }
-
-                Direction face = blockHit.getDirection();
-                VoxelShape shape = reference.getShape(level, pos);
-                if (shape.isEmpty()) {
-                    shape = Shapes.block();
-                }
-
-                AABB aabb = shape.bounds();
-                RandomSource random = level.random;
-
-                double x = pos.getX() + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2D) + 0.1D + aabb.minX;
-                double y = pos.getY() + random.nextDouble() * (aabb.maxY - aabb.minY - 0.2D) + 0.1D + aabb.minY;
-                double z = pos.getZ() + random.nextDouble() * (aabb.maxZ - aabb.minZ - 0.2D) + 0.1D + aabb.minZ;
-
-                switch (face) {
-                    case DOWN -> y = pos.getY() + aabb.minY - 0.1D;
-                    case UP -> y = pos.getY() + aabb.maxY + 0.1D;
-                    case NORTH -> z = pos.getZ() + aabb.minZ - 0.1D;
-                    case SOUTH -> z = pos.getZ() + aabb.maxZ + 0.1D;
-                    case WEST -> x = pos.getX() + aabb.minX - 0.1D;
-                    case EAST -> x = pos.getX() + aabb.maxX + 0.1D;
-                }
-
-                manager.add(
-                        (new TerrainParticle(clientLevel, x, y, z, 0.0D, 0.0D, 0.0D, reference, pos))
-                                .setPower(0.2F)
-                                .scale(0.6F)
-                );
-                return true;
-            }
-        });
-    }
-    *///?}
 }

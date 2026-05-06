@@ -1,4 +1,3 @@
-
 package ironfurnaces.registration;
 
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
@@ -9,32 +8,30 @@ import ironfurnaces.blocks.BlockWirelessEnergyHeater;
 import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
-import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
-import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
-import net.minecraft.util.Util;
+import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -44,56 +41,29 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
-import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-
-//? forge {
-/*import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
-import net.neoforged.neoforge.common.crafting.PartialNBTIngredient;
-import net.neoforged.neoforge.common.crafting.conditions.ModLoadedCondition;
-import net.neoforged.neoforge.common.crafting.conditions.NotCondition;
-import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
-*///?} else {
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
-import net.minecraft.data.recipes.RecipeOutput;
-//? >1.21.11 {
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
-import net.minecraft.world.level.storage.loot.LootContext;
-import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-//?} else {
-/*import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
-*///?}
-//?}
+
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
-import static ironfurnaces.registration.ModItemTags.*;
+import static ironfurnaces.registration.ModItemTags.bindC;
+import static ironfurnaces.registration.ModItemTags.bindForge;
 
 public class ModBlocks {
     public static final BlockEntry<BlockWirelessEnergyHeater> HEATER = REGISTRATE
@@ -102,12 +72,10 @@ public class ModBlocks {
             .lang("Wireless Heat Transmitter")
             .item(BlockItemHeater::new)
             .build()
-            //~ if > 1.21.11 '<BlockWirelessEnergyHeaterTile>' -> '<BlockWirelessEnergyHeaterTile, WirelessEnergyHeaterRenderState>'
             .<BlockWirelessEnergyHeaterTile, WirelessEnergyHeaterRenderState>blockEntity(BlockWirelessEnergyHeaterTile::new)
             .build()
             .addMiscData(ProviderType.LANG, x -> x.add("container.ironfurnaces.wireless_energy_heater", "Wireless Heater"))
             .recipe((ctx, provider) -> {
-                //~ if > 1.21.11 'RecipeCategory.MISC, ctx.get()' -> 'provider.getItems(), RecipeCategory.MISC, ctx.get()'
                 ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
                         .pattern("#F#")
                         .pattern("#X#")
@@ -128,11 +96,9 @@ public class ModBlocks {
             .properties(p -> p.noOcclusion().requiresCorrectToolForDrops())
             .lang("Pattern Furnace")
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_FURNACE)
-            //? >1.21.11{
             .blockstate(() -> (ctx, provider) -> {
                 provider.createNonTemplateModelBlock(Blocks.AIR);
             })
-            //?}
             .loot((ctx, furnace) -> {
                 LootTable.Builder builder = LootTable.lootTable()
                         .withPool(
@@ -141,23 +107,14 @@ public class ModBlocks {
                                         .add(
                                                 LootItem.lootTableItem(furnace)
                                                         .apply(
-                                                                //? if 1.20.1 {
-
-                                                                /*CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                                                        .copy(FurnaceSettingsV2.NBT_KEY, "BlockEntityTag." + FurnaceSettingsV2.NBT_KEY)
-                                                                        .copy(FurnacePattern.NBT_KEY, "BlockEntityTag." + FurnacePattern.NBT_KEY)
-
-                                                                *///? } else {
-                                                                //~ if > 1.21.11 'copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)' -> 'copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)'
                                                                 CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                                                                         .include(DataComponents.CUSTOM_DATA)
-                                                                //?}
                                                         )
                                                         .apply(
                                                                 CopyBlockState.copyState(furnace)
                                                                         .copy(ModBlockState.JOVIAL_STATE)
                                                         )
-                                                        //~ if > 1.21.11 'CopyNameFunction.NameSource.BLOCK_ENTITY' -> 'LootContext.BlockEntityTarget.BLOCK_ENTITY'
+                                                        
                                                         .apply(CopyNameFunction.copyName(LootContext.BlockEntityTarget.BLOCK_ENTITY))
                                         )
                         );
@@ -166,9 +123,7 @@ public class ModBlocks {
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .item(FurnacePatternHolderItem::new)
-
             .recipe((ctx, provider) -> {
-                //~ if 26.1.2 'shaped(RecipeCategory.MISC' -> 'shaped(provider.getItems(), RecipeCategory.MISC' {
                 FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.IRON_PATTERN_ID)
                         .pattern("###")
                         .pattern("#X#")
@@ -383,121 +338,89 @@ public class ModBlocks {
                         .define('E', Items.ENDER_EYE)
                         .unlockedBy("has_diamond_furnace", CriterionUtil.has(Items.DIAMOND, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.CRYSTAL_PATTERN_ID.getPath() + "_nbt"));
-                //? <1.21.11 {
-                /*FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.NETHERITE_PATTERN_ID)
-                        .pattern("N#N")
-                        .pattern("#X#")
-                        .pattern("NSN")
-                        .define('#', Items.MAGMA_CREAM)
-                        .define('X', bindForge("furnaces/obsidian"))
-                        .define('S', bindVanilla("soul_fire_base_blocks"))
-                        .define('N', Items.NETHERITE_INGOT)
-                        .unlockedBy("has_obsidian_furnace", CriterionUtil.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE, provider))
-                        .save(provider, IDUtil.makeNewFurnaceID(Constants.NETHERITE_PATTERN_ID.getPath()));
-
-                FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.NETHERITE_PATTERN_ID)
-                        .pattern("N#N")
-                        .pattern("#X#")
-                        .pattern("NSN")
-                        .define('#', Items.MAGMA_CREAM)
-                        .define('X', bindPatternHolder(ctx.get(), Constants.OBSIDIAN_PATTERN_ID))
-                        .define('S', bindVanilla("soul_fire_base_blocks"))
-                        .define('N', Items.NETHERITE_INGOT)
-                        .unlockedBy("has_obsidian_furnace", CriterionUtil.has(LegacyFurnaceBlocks.OBSIDIAN_FURNACE, provider))
-                        .save(provider, IDUtil.makeNewFurnaceID(Constants.NETHERITE_PATTERN_ID.getPath() + "_nbt"));
-                *///?}
-                whenAllthemodium(x ->
-                        FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/allthemodium"))
-                        .define('X', bindForge("furnaces/netherite"))
-                        .define('B', bindForge("storage_blocks/allthemodium"))
-                        .unlockedBy("has_allthemodium_ingot",
-                                CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath())), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath(), provider);
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/allthemodium"))
-                        .define('X', bindPatternHolder(ctx.get(), Constants.NETHERITE_PATTERN_ID))
-                        .define('B', bindForge("storage_blocks/allthemodium"))
-                        .unlockedBy("has_allthemodium_ingot",
-                                CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/allthemodium"))
+                                .define('X', bindForge("furnaces/netherite"))
+                                .define('B', bindForge("storage_blocks/allthemodium"))
+                                .unlockedBy("has_allthemodium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath())), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath(), provider);
+
+                whenAllthemodium(x ->
+                        FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/allthemodium"))
+                                .define('X', bindPatternHolder(ctx.get(), Constants.NETHERITE_PATTERN_ID))
+                                .define('B', bindForge("storage_blocks/allthemodium"))
+                                .unlockedBy("has_allthemodium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.ALLTHEMODIUM_PATTERN_ID.getPath() + "_nbt", provider);
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/vibranium"))
-                        .define('X', bindForge("furnaces/allthemodium"))
-                        .define('B', bindForge("storage_blocks/vibranium"))
-                        .unlockedBy("has_vibranium_ingot",
-                                CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath())), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath(), provider);
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/vibranium"))
+                                .define('X', bindForge("furnaces/allthemodium"))
+                                .define('B', bindForge("storage_blocks/vibranium"))
+                                .unlockedBy("has_vibranium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/vibranium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath())), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath(), provider);
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.VIBRANIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/vibranium"))
-                        .define('X', bindPatternHolder(ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID))
-                        .define('B', bindForge("storage_blocks/vibranium"))
-                        .unlockedBy("has_vibranium_ingot",
-                                CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/vibranium"))
+                                .define('X', bindPatternHolder(ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID))
+                                .define('B', bindForge("storage_blocks/vibranium"))
+                                .unlockedBy("has_vibranium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/vibranium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.VIBRANIUM_PATTERN_ID.getPath() + "_nbt", provider);
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/unobtainium"))
-                        .define('X', bindForge("furnaces/vibranium"))
-                        .define('B', bindForge("storage_blocks/unobtainium"))
-                        .unlockedBy("has_unobtainium_ingot",
-                                CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath())), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath(), provider);
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/unobtainium"))
+                                .define('X', bindForge("furnaces/vibranium"))
+                                .define('B', bindForge("storage_blocks/unobtainium"))
+                                .unlockedBy("has_unobtainium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath())), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath(), provider);
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.UNOBTAINIUM_PATTERN_ID)
-                        .pattern("B#B")
-                        .pattern("#X#")
-                        .pattern("B#B")
-                        .define('#', bindForge("ingots/unobtainium"))
-                        .define('X', bindPatternHolder(ctx.get(), Constants.VIBRANIUM_PATTERN_ID))
-                        .define('B', bindForge("storage_blocks/unobtainium"))
-                        .unlockedBy("has_unobtainium_ingot",
-                                CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                        .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt", provider);
-                //~}
+                                .pattern("B#B")
+                                .pattern("#X#")
+                                .pattern("B#B")
+                                .define('#', bindForge("ingots/unobtainium"))
+                                .define('X', bindPatternHolder(ctx.get(), Constants.VIBRANIUM_PATTERN_ID))
+                                .define('B', bindForge("storage_blocks/unobtainium"))
+                                .unlockedBy("has_unobtainium_ingot",
+                                        CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
+                                .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt", provider);
+                
 
             })
-            //? if > 1.21.11 {
+
             .model(() -> (ctx, prov) -> {
                 ModModelTemplate.createPatternHolderBaseModel(ctx.get(), prov);
             })
-            //?} else {
-            /*.model((ctx, prov) -> prov.getBuilder(ctx.getName()).parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity")))
-            *///?}
+
             .tag(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
-            //? 1.21.1 {
-            /*.clientExtension(() -> () -> new IClientItemExtensions() {
-                @Override
-                public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                    return PatternHolderItemRenderer.INSTANCE;
-                }
-            })
-            *///?}
             .build()
-            //? !forge {
+
             .clientExtension(() -> () -> {
                 return new IClientBlockExtensions() {
                     @Override
@@ -520,7 +443,7 @@ public class ModBlocks {
                         }
 
                         AABB aabb = shape.bounds();
-                        //~ if > 1.21.11 'level.random' -> 'level.getRandom()'
+                        
                         RandomSource random = level.getRandom();
 
                         double x = pos.getX() + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2D) + 0.1D + aabb.minX;
@@ -545,12 +468,7 @@ public class ModBlocks {
                     }
                 };
             })
-            //?}
             .register();
-
-
-
-
 
 
     private static FurnacePatternBlockEntity getPatternHolder(BlockGetter level, BlockPos pos) {
@@ -570,13 +488,9 @@ public class ModBlocks {
         }
 
         return pattern.referenceBlock()
-                //~ if >1.20.1 'ForgeRegistries.BLOCKS::getValue' -> 'BuiltInRegistries.BLOCK::get'
                 .map(BuiltInRegistries.BLOCK::get)
-                //~ if > 1.21.11 'block != null && block != Blocks.AIR' -> 'block.isPresent()'
                 .filter(block -> block.isPresent())
-                //? if > 1.21.11
-                .map(x -> x.get().value())
-                ;
+                .map(x -> x.get().value());
     }
 
     public static BlockState getReferenceStateOrNull(BlockGetter level, BlockPos pos) {
@@ -585,7 +499,7 @@ public class ModBlocks {
                 .orElse(null);
     }
 
-    //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
+    
     private static void whenAllthemodium(
             Consumer<RecipeOutput> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
@@ -599,35 +513,17 @@ public class ModBlocks {
     private static void whenHasTags(Consumer<RecipeOutput> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
         ConditionRecipeUtil.whenHasTags(consumerConsumer, ctx, provider, "new_furnaces", id, tags);
     }
-    //~}
+    
 
     private static Ingredient bindPatternHolder(Item item, Identifier patternId) {
-        //? 1.20.1 {
-        /*return PartialNBTIngredient.of(
-                item,
-                Util.make(() -> {
-                    ItemStack furnacePatternHolderItem = item.getDefaultInstance();
-                    IPatternAccessor.writePatternToItemStack(furnacePatternHolderItem, patternId);
-                    return furnacePatternHolderItem.getShareTag();
-                })
-        );
-        *///?} else {
         return DataComponentIngredient.of(false, ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), patternId, item);
-        //?}
     }
-    //~ if >1.20.1 'ForgeRegistries.Keys.BLOCK_ENTITY_TYPES' -> 'BuiltInRegistries.BLOCK_ENTITY_TYPE' {
-    //? <1.21.11{
-    /*public static BlockEntityType<? extends BlockIronFurnaceTileBase> asBlockEntityType(BlockEntry<?> entry) {
-        return (BlockEntityType<? extends BlockIronFurnaceTileBase>) entry.getSibling(BuiltInRegistries.BLOCK_ENTITY_TYPE).get();
-    }
-    *///?}
+
 
     public static <T extends BlockEntity> BlockEntityType<T> asGenericBlockEntityType(BlockEntry<?> entry) {
         return (BlockEntityType<T>) entry.getSibling(BuiltInRegistries.BLOCK_ENTITY_TYPE).get();
     }
-    //~}
-
-
+    
 
 
     public static void register() {

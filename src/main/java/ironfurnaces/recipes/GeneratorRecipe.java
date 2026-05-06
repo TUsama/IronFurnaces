@@ -1,163 +1,116 @@
 package ironfurnaces.recipes;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.registration.ModCustomRecipe;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
-//? > 1.20.1 {
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.level.Level;
 
-//?}
-//~ if >1.20.1 'Container' -> 'SingleRecipeInput'
 public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
-    private Identifier recipeId;
     @Getter
-    private int energy;
-    @Getter
-    private Ingredient ingredient;
+    private final int energy;
 
-    public GeneratorRecipe(Identifier recipeId, int energy, Ingredient stack)
-    {
-        this.recipeId = recipeId;
-        this.energy = energy;
-        this.ingredient = stack;
-    }
+    @Getter
+    private final Ingredient ingredient;
+
+    private PlacementInfo placementInfo;
 
     public GeneratorRecipe(int energy, Ingredient ingredient) {
         this.energy = energy;
         this.ingredient = ingredient;
     }
 
-    @Override
-    public boolean isIncomplete() {
-        return ingredient.isEmpty();
-    }
-
-
-
-    //~ if >1.20.1 'Container' -> 'SingleRecipeInput' {
-
-    public static int getTotalCount(SingleRecipeInput inventory, Ingredient input) {
-        ItemStack stack = inventory.getItem(0);
-        if (!stack.isEmpty() && input.test(stack)) {
+    public static int getTotalCount(SingleRecipeInput input, Ingredient ingredient) {
+        ItemStack stack = input.getItem(0);
+        if (!stack.isEmpty() && ingredient.test(stack)) {
             return stack.getCount();
         }
         return 0;
     }
+
     @Override
-    public boolean matches(SingleRecipeInput inv, Level level) {
-        int required = ingredient.getItems().length;
-        int found = getTotalCount(inv, ingredient);
-        return found >= required;
+    public boolean matches(SingleRecipeInput input, Level level) {
+        return this.ingredient.test(input.getItem(0));
     }
-    //~ if >1.20.1 'RegistryAccess' -> 'HolderLookup.Provider' {
+
     @Override
-    public ItemStack assemble(SingleRecipeInput p_44001_, HolderLookup.Provider p_267165_) {
+    public ItemStack assemble(SingleRecipeInput input) {
         return ItemStack.EMPTY;
     }
-
-
-    @Override
-
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-    //~}
-    //~}
-
-    @Override
-    public boolean canCraftInDimensions(int p_43999_, int p_44000_) {
-        return true;
-    }
-
 
     @Override
     public boolean isSpecial() {
         return true;
     }
 
-    //? 1.20.1 {
-    /*@Override
-    public Identifier getId() {
-        return recipeId;
+    @Override
+    public boolean showNotification() {
+        return false;
     }
-    *///?}
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public String group() {
+        return "";
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.create(this.ingredient);
+        }
+        return this.placementInfo;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.FURNACE_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
         return ModCustomRecipe.GENERATOR_RECIPE.asSerializer();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
         return ModCustomRecipe.GENERATOR_RECIPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
-        //? 1.20.1 {
-        /*@Override
-        public GeneratorRecipe fromJson(Identifier recipeId, JsonObject json) {
-            int energy = GsonHelper.getAsInt(json, "energy", 10000);
-            JsonElement ingredient = json.get("ingredient");
-            if (ingredient != null){
-                Ingredient ingredient1 = Ingredient.fromJson(ingredient);
-                GeneratorRecipe recipe = new GeneratorRecipe(recipeId, energy, ingredient1);
-                return recipe;
-            }
-            throw new RuntimeException("invalid Generator recipe: " + recipeId);
-        }
+    public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ExtraCodecs.POSITIVE_INT
+                            .fieldOf("energy")
+                            .forGetter(GeneratorRecipe::getEnergy),
+                    Ingredient.CODEC
+                            .fieldOf("ingredient")
+                            .forGetter(GeneratorRecipe::getIngredient)
+            ).apply(instance, GeneratorRecipe::new)
+    );
 
-        @Nullable
-        @Override
-        public GeneratorRecipe fromNetwork(Identifier recipeId, FriendlyByteBuf buffer) {
-            GeneratorRecipe recipe = new GeneratorRecipe(recipeId, buffer.readInt(), Ingredient.fromNetwork(buffer));
-            return recipe;
-        }
+    public static final StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.VAR_INT,
+                    GeneratorRecipe::getEnergy,
+                    Ingredient.CONTENTS_STREAM_CODEC,
+                    GeneratorRecipe::getIngredient,
+                    GeneratorRecipe::new
+            );
 
-        @Override
-        public void toNetwork(FriendlyByteBuf buffer, GeneratorRecipe recipe) {
-            buffer.writeInt(recipe.energy);
-            recipe.ingredient.toNetwork(buffer);
-        }
-        *///?} else {
-        public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        ExtraCodecs.POSITIVE_INT.fieldOf("energy").forGetter(GeneratorRecipe::getEnergy),
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(GeneratorRecipe::getIngredient)
-                ).apply(instance, GeneratorRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> STREAM_CODEC = StreamCodec.of((x, y) -> {
-            x.writeInt(y.energy);
-            Ingredient.CONTENTS_STREAM_CODEC.encode(x, y.ingredient);
-        }, (x) -> new GeneratorRecipe(x.readInt(), Ingredient.CONTENTS_STREAM_CODEC.decode(x)));
-
-        @Override
-        public MapCodec<GeneratorRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
-        //?}
-    }
+    public static final RecipeSerializer<GeneratorRecipe> SERIALIZER =
+            new RecipeSerializer<>(CODEC, STREAM_CODEC);
 }

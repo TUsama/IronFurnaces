@@ -16,17 +16,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 
 //?}
 public class ModCapabilities {
-    //? forge {
-    /*public static final Capability<PlayerFurnacesList> FURNACES_LIST = CapabilityManager.get(new CapabilityToken<>(){});;
-    public static final Capability<OwnerRainbowContext> PLAYER_RAINBOW_CONTEXT = CapabilityManager.get(new CapabilityToken<>(){});
 
-    public static void register(RegisterCapabilitiesEvent event)
-    {
-        event.register(IPlayerFurnacesList.class);
-        event.register(OwnerRainbowContext.class);
-    }
-
-*///? } else {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
@@ -43,5 +33,4 @@ public class ModCapabilities {
                             .build());
 
 
-    //?}
 }

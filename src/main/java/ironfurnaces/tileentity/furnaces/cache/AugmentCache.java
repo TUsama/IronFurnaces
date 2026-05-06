@@ -1,10 +1,8 @@
-//~ replace_serialization
 package ironfurnaces.tileentity.furnaces.cache;
 
 import ironfurnaces.items.augments.ItemAugmentBlue;
 import ironfurnaces.items.augments.ItemAugmentGreen;
 import ironfurnaces.items.augments.ItemAugmentRed;
-import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.BlastRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.GeneratorBlastRecipeTypeHandler;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.SmeltRecipeTypeHandler;
@@ -15,30 +13,24 @@ import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
-//? 1.20.1 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
-//? } else {
-import net.minecraft.core.HolderLookup;
-//?}
-
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.IntUnaryOperator;
 
-public class AugmentCache extends CombinedInvWrapper implements INBTSerializable<CompoundTag> {
+public class AugmentCache extends CombinedResourceHandler<ItemResource> implements ValueIOSerializable {
+    BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback;
     @Getter
     @Setter
     private IRecipeTypeHandler currentRecipeType;
     private GreenAugmentModifier greenAugmentModifier;
-    BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback;
+
     public AugmentCache(BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback) {
         super(new AugmentCacheHandler(),
                 new AugmentCacheHandler(),
@@ -50,45 +42,31 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
                 .onChange(i -> {
                     refreshState();
                 })
-                .validator((i, stack )-> stack.getItem() instanceof ItemAugmentRed);
+                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentRed);
 
         ((AugmentCacheHandler) getHandlerFromIndex(1))
                 .onChange(i -> {
                     refreshState();
                 })
-                .validator((i, stack )-> stack.getItem() instanceof ItemAugmentGreen);
+                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentGreen);
 
         ((AugmentCacheHandler) getHandlerFromIndex(2))
                 .onChange(i -> {
                     refreshState();
                 })
-                .validator((i, stack)-> stack.getItem() instanceof ItemAugmentBlue);
+                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentBlue);
     }
 
-
-    public void updateAllStacks(List<ItemStack> stacks){
-        if (stacks.size() != 3) {
-            IronFurnaces.LOGGER.error("Found a Itemstack list with size {} want to sync to Augment cache!", stacks.size());
-            return;
-        }
-        for (int i = 0; i < this.getSlots(); i++) {
-            this.setStackInSlot(i, stacks.get(i));
-        }
-    }
-
-    public void displayMessages(){
-
-    }
 
     public void refreshState() {
-        ItemStack buff = this.itemHandler[1].getStackInSlot(0);
+        ItemStack buff = ItemUtil.getStack(getHandlerFromIndex(1), 0);
         if (buff.isEmpty()) {
             this.greenAugmentModifier = GreenAugmentModifier.NONE;
         } else if (buff.getItem() instanceof ItemAugmentGreen green) {
             this.greenAugmentModifier = green.getModifier();
         }
 
-        ItemStack modeItem = this.itemHandler[2].getStackInSlot(0);
+        ItemStack modeItem = ItemUtil.getStack(getHandlerFromIndex(2), 0);
         AbstractFurnaceModeHandler mode = null;
         if (modeItem.isEmpty()) {
             mode = VanillaFurnaceModeHandler.INSTANCE;
@@ -96,10 +74,10 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
             mode = blue.getModeHandler();
         }
 
-        var item = this.itemHandler[0].getStackInSlot(0);
+        var item = ItemUtil.getStack(getHandlerFromIndex(0), 0);
         if (!mode.isInternal()) {
             IRecipeTypeHandler attachRecipeTypeHandler = ((CompatModeHandler) mode).getAttachRecipeTypeHandler();
-            if (!attachRecipeTypeHandler.getRecipeType().equals(this.currentRecipeType.getRecipeType())){
+            if (!attachRecipeTypeHandler.getRecipeType().equals(this.currentRecipeType.getRecipeType())) {
                 this.currentRecipeType = attachRecipeTypeHandler;
             }
 
@@ -107,7 +85,7 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
             this.currentRecipeType = SmeltRecipeTypeHandler.INSTANCE;
         } else if (item.getItem() instanceof ItemAugmentRed red) {
             this.currentRecipeType = red.getRecipeTypeHandler();
-            if (this.currentRecipeType.equals(BlastRecipeTypeHandler.INSTANCE) && mode.isGenerator()){
+            if (this.currentRecipeType.equals(BlastRecipeTypeHandler.INSTANCE) && mode.isGenerator()) {
                 this.currentRecipeType = GeneratorBlastRecipeTypeHandler.INSTANCE;
             }
         }
@@ -119,38 +97,19 @@ public class AugmentCache extends CombinedInvWrapper implements INBTSerializable
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-        CompoundTag root = new CompoundTag();
-        ListTag list = new ListTag();
-
-        for (IItemHandler handler : this.itemHandler) {
-            if (handler instanceof ItemStackHandler stackHandler) {
-                list.add(stackHandler.serializeNBT(registries));
-            }
-        }
-
-        root.put("Handlers", list);
-        root.put("RecipeTypeHandlerExtraData", this.getCurrentRecipeType().serializeNBT(registries));
-        return root;
+    public void serialize(ValueOutput output) {
+        ((AugmentCacheHandler) getHandlerFromIndex(0)).serialize(output);
+        ((AugmentCacheHandler) getHandlerFromIndex(1)).serialize(output);
+        ((AugmentCacheHandler) getHandlerFromIndex(2)).serialize(output);
+        this.getCurrentRecipeType().serialize(output);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
-        if (nbt.contains("Handlers", Tag.TAG_LIST)){
-            ListTag list = nbt.getList("Handlers", Tag.TAG_COMPOUND);
-
-            for (int i = 0; i < list.size() && i < this.itemHandler.length; i++) {
-                if (this.itemHandler[i] instanceof ItemStackHandler handler) {
-                    //~ if >1.20.1 'list.getCompound(i)' -> 'registries, list.getCompound(i)'
-                    handler.deserializeNBT(registries, list.getCompound(i));
-                }
-            }
-        }
-
-        if (nbt.contains("RecipeTypeHandlerExtraData", Tag.TAG_COMPOUND)){
-            this.currentRecipeType.deserializeNBT(registries, nbt);
-        }
-
+    public void deserialize(ValueInput input) {
+        ((AugmentCacheHandler) getHandlerFromIndex(0)).deserialize(input);
+        ((AugmentCacheHandler) getHandlerFromIndex(1)).deserialize(input);
+        ((AugmentCacheHandler) getHandlerFromIndex(2)).deserialize(input);
+        this.getCurrentRecipeType().deserialize(input);
     }
 
 

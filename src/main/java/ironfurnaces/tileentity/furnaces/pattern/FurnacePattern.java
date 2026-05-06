@@ -9,12 +9,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.component.TooltipProvider;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public sealed abstract class FurnacePattern permits NormalFurnacePattern, RainbowFurnacePattern {
+public sealed abstract class FurnacePattern implements TooltipProvider permits NormalFurnacePattern, RainbowFurnacePattern {
 
     public static final Codec<FurnacePattern> CODEC =
             PatternKind.CODEC.dispatch(

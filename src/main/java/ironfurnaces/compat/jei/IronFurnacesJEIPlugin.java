@@ -31,15 +31,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.ModList;
-
-//? 1.20.1 {
-/*import net.neoforged.neoforge.registries.ForgeRegistries;
-*///? } else {
 import net.minecraft.world.item.crafting.RecipeHolder;
-//?}
+
 import java.util.List;
 @JeiPlugin
-//~ if >1.20.1 'ForgeRegistries.ITEMS.getValues()' -> 'BuiltInRegistries.ITEM'{
+
 public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
@@ -206,7 +202,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 	}
 
 }
-//~}
+
 
 
 

@@ -10,23 +10,19 @@ import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import org.jetbrains.annotations.NotNull;
-//? 1.20.1 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-//? } else {
-import net.minecraft.core.HolderLookup;
-//?}
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Accessors(fluent = true, chain = true)
-public class FuelCache extends ResizableCache implements IEnergyStorage {
-    private final static int[] cacheIndex = new int[0];
-        @Getter
+public class FuelCache extends ResizableCache implements EnergyHandler {
+    @Getter
     private FEnergyStorage energy;
     @Setter
     private Predicate<ItemStack> burnableFunction;
@@ -39,63 +35,17 @@ public class FuelCache extends ResizableCache implements IEnergyStorage {
     }
 
     @Override
-    public int receiveEnergy(int maxReceive, boolean simulate) {
-        return energy.receiveEnergy(maxReceive, simulate);
-    }
-
-    @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        return energy.extractEnergy(maxExtract, simulate);
-    }
-
-    @Override
-    public int getEnergyStored() {
-        return energy.getEnergyStored();
-    }
-
-    @Override
-    public int getMaxEnergyStored() {
-        return energy.getMaxEnergyStored();
-    }
-
-    @Override
-    public boolean canExtract() {
-        return energy.canExtract();
-    }
-
-    @Override
-    public boolean canReceive() {
-        return energy.canReceive();
-    }
-
-    public boolean canReceive(int energy) {
-        return (getEnergyStored() + energy) <= getMaxEnergyStored();
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+    public boolean isValid(int index, ItemResource resource) {
+        ItemStack stack = getStackInSlot(index);
         return burnableFunction.test(stack) || stack.getItem() instanceof ItemHeater;
     }
 
-    /*
-
     @Override
-    public void updateFurnaceMode(FurnaceMode mode, FurnacePatternBlockEntity blockEntity) {
-        if (mode.equals(FurnaceMode.FACTORY) && !this.stacks.isEmpty()){
-            blockEntity.addLevelConsumer(level -> {
-                blockEntity.returnOrDropStack(this.stacks, blockEntity.getOwner());
-
-            });
-        }
-    }
-*/
-    @Override
-    protected void onContentsChanged(int slot) {
+    protected void onContentsChanged(int index, ItemStack previousContents) {
         if (contentChangeCallback != null) {
             contentChangeCallback.accept(this);
         }
         recomputeFillStats();
-
     }
 
     @Override
@@ -110,28 +60,36 @@ public class FuelCache extends ResizableCache implements IEnergyStorage {
         return FurnaceModeManager.INSTANCE.getMaxFuelSlot(stats);
     }
 
-
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-
-        tag.put("Items", super.serializeNBT(registries));
-        Tag tag1 = energy.serializeNBT(registries);
-        tag.put("Energy", tag1);
-
-        return tag;
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        energy.serialize(output);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
-        if (nbt.contains("Items", Tag.TAG_COMPOUND)) {
-            super.deserializeNBT(registries, nbt.getCompound("Items"));
-        }
-        if (nbt.contains("Energy")) {
-            energy.deserializeNBT(registries, nbt.get("Energy"));
-        }
-
-        recomputeFillStats();
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        energy.deserialize(input);
     }
 
+
+    @Override
+    public long getAmountAsLong() {
+        return energy.getAmountAsLong();
+    }
+
+    @Override
+    public long getCapacityAsLong() {
+        return energy.getCapacityAsLong();
+    }
+
+    @Override
+    public int insert(int amount, TransactionContext transaction) {
+        return energy.insert(amount, transaction);
+    }
+
+    @Override
+    public int extract(int amount, TransactionContext transaction) {
+        return energy.extract(amount, transaction);
+    }
 }

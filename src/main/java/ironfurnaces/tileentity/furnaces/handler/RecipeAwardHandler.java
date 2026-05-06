@@ -2,6 +2,7 @@
 package ironfurnaces.tileentity.furnaces.handler;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
 import ironfurnaces.loaders.IronFurnaces;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -14,13 +15,17 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 //? >1.20.1 {
 import net.minecraft.world.item.crafting.RecipeHolder;
 //?}
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 负责记录“recipeId -> 成功产出次数”，并提供 NBT 持久化。
@@ -122,25 +127,45 @@ public final class RecipeAwardHandler {
     /* -----------------------------
      * NBT 序列化（你后面写 unlockRecipes 时会用到）
      * ----------------------------- */
+    private static final Codec<Map<Identifier, Integer>> RECIPES_USED_CODEC =
+            Codec.unboundedMap(Identifier.CODEC, Codec.INT);
 
-    public void loadFromTag(CompoundTag tag) {
+    public void load(ValueInput input) {
         recipesUsed.clear();
-        if (!tag.contains(NBT_KEY_RECIPES_USED, CompoundTag.TAG_COMPOUND)) {
+
+        input.read(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC)
+                .ifPresent(map -> {
+                    for (Map.Entry<Identifier, Integer> entry : map.entrySet()) {
+                        int count = entry.getValue();
+
+                        if (count <= 0) {
+                            continue;
+                        }
+
+                        recipesUsed.put(entry.getKey(), count);
+                    }
+                });
+    }
+
+    public void save(ValueOutput output) {
+        if (recipesUsed.isEmpty()) {
             return;
         }
 
-        CompoundTag recipesTag = tag.getCompound(NBT_KEY_RECIPES_USED);
-        for (String key : recipesTag.getAllKeys()) {
-            Identifier id = IronFurnaces.parse(key);
-            recipesUsed.put(id, recipesTag.getInt(key));
-        }
-    }
+        Map<Identifier, Integer> map = new LinkedHashMap<>();
 
-    public void saveToTag(CompoundTag tag) {
-        CompoundTag recipesTag = new CompoundTag();
-        for (Object2IntMap.Entry<Identifier> e : recipesUsed.object2IntEntrySet()) {
-            recipesTag.putInt(e.getKey().toString(), e.getIntValue());
+        for (Object2IntMap.Entry<Identifier> entry : recipesUsed.object2IntEntrySet()) {
+            int count = entry.getIntValue();
+
+            if (count <= 0) {
+                continue;
+            }
+
+            map.put(entry.getKey(), count);
         }
-        tag.put(NBT_KEY_RECIPES_USED, recipesTag);
+
+        if (!map.isEmpty()) {
+            output.store(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC, map);
+        }
     }
 }

@@ -4,8 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
+
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 //? forge {
@@ -14,6 +13,10 @@ import java.util.function.Consumer;
 import net.neoforged.neoforge.capabilities.Capabilities;
 //?}
 import net.minecraft.core.BlockPos;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 
 import java.util.function.Function;
@@ -28,7 +31,7 @@ public final class VanillaCapabilityHandler {
      * ----------------------------
      */
 
-    public static @Nullable IItemHandler getBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side) {
+    public static @Nullable ResourceHandler<ItemResource> getBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side) {
         if (blockEntity == null || blockEntity.isRemoved()) {
             return null;
         }
@@ -44,7 +47,7 @@ public final class VanillaCapabilityHandler {
         }
 
         return level.getCapability(
-                net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 blockEntity.getBlockPos(),
                 blockEntity.getBlockState(),
                 blockEntity,
@@ -53,7 +56,7 @@ public final class VanillaCapabilityHandler {
         //?}
     }
 
-    public static @Nullable IItemHandler getBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side) {
+    public static @Nullable ResourceHandler<ItemResource> getBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side) {
         if (level == null || pos == null) {
             return null;
         }
@@ -68,34 +71,34 @@ public final class VanillaCapabilityHandler {
                 .orElse(null);
         *///?} else {
         return level.getCapability(
-                net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 pos,
                 side
         );
         //?}
     }
 
-    public static void withBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side, Consumer<IItemHandler> consumer) {
-        IItemHandler handler = getBlockItemHandler(blockEntity, side);
+    public static void withBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side, Consumer<ResourceHandler<ItemResource>> consumer) {
+        ResourceHandler<ItemResource> handler = getBlockItemHandler(blockEntity, side);
         if (handler != null) {
             consumer.accept(handler);
         }
     }
 
-    public static void withBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side, Consumer<IItemHandler> consumer) {
-        IItemHandler handler = getBlockItemHandler(level, pos, side);
+    public static void withBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side, Consumer<ResourceHandler<ItemResource>> consumer) {
+        ResourceHandler<ItemResource> handler = getBlockItemHandler(level, pos, side);
         if (handler != null) {
             consumer.accept(handler);
         }
     }
 
-    public static <R> @Nullable R mapBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side, Function<IItemHandler, R> mapper) {
-        IItemHandler handler = getBlockItemHandler(blockEntity, side);
+    public static <R> @Nullable R mapBlockItemHandler(BlockEntity blockEntity, @Nullable Direction side, Function<ResourceHandler<ItemResource>, R> mapper) {
+        ResourceHandler<ItemResource> handler = getBlockItemHandler(blockEntity, side);
         return handler == null ? null : mapper.apply(handler);
     }
 
-    public static <R> @Nullable R mapBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side, Function<IItemHandler, R> mapper) {
-        IItemHandler handler = getBlockItemHandler(level, pos, side);
+    public static <R> @Nullable R mapBlockItemHandler(Level level, BlockPos pos, @Nullable Direction side, Function<ResourceHandler<ItemResource>, R> mapper) {
+        ResourceHandler<ItemResource> handler = getBlockItemHandler(level, pos, side);
         return handler == null ? null : mapper.apply(handler);
     }
 
@@ -105,7 +108,7 @@ public final class VanillaCapabilityHandler {
      * ----------------------------
      */
 
-    public static @Nullable IEnergyStorage getBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side) {
+    public static @Nullable EnergyHandler getBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side) {
         if (blockEntity == null || blockEntity.isRemoved()) {
             return null;
         }
@@ -121,7 +124,7 @@ public final class VanillaCapabilityHandler {
         }
 
         return level.getCapability(
-                net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 blockEntity.getBlockPos(),
                 blockEntity.getBlockState(),
                 blockEntity,
@@ -130,69 +133,54 @@ public final class VanillaCapabilityHandler {
         //?}
     }
 
-    public static @Nullable IEnergyStorage getItemEnergyStorage(ItemStack itemStack) {
-
-        //? if <=1.20.1 {
-        /*return itemStack.getCapability(ForgeCapabilities.ENERGY).resolve()
-                .orElse(null);
-        *///?} else {
-
+    public static @Nullable ItemAccessEnergyHandler getItemEnergyStorage(ItemStack itemStack) {
         return itemStack.getCapability(
-                Capabilities.EnergyStorage.ITEM
+                Capabilities.Energy.ITEM
         );
-        //?}
+
     }
 
-    public static @Nullable IEnergyStorage getBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side) {
+    public static @Nullable EnergyHandler getBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side) {
         if (level == null || pos == null) {
             return null;
         }
 
-        //? if <=1.20.1 {
-        /*BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null || blockEntity.isRemoved()) {
-            return null;
-        }
-        return blockEntity.getCapability(net.neoforged.neoforge.common.capabilities.ForgeCapabilities.ENERGY, side)
-                .resolve()
-                .orElse(null);
-        *///?} else {
         return level.getCapability(
-                net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 pos,
                 side
         );
-        //?}
+
     }
 
-    public static void withBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side, Consumer<IEnergyStorage> consumer) {
-        IEnergyStorage storage = getBlockEnergyStorage(blockEntity, side);
+    public static void withBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side, Consumer<EnergyHandler> consumer) {
+        EnergyHandler storage = getBlockEnergyStorage(blockEntity, side);
         if (storage != null) {
             consumer.accept(storage);
         }
     }
 
-    public static void withItemEnergyStorage(ItemStack itemStack, Consumer<IEnergyStorage> consumer) {
-        IEnergyStorage storage = getItemEnergyStorage(itemStack);
+    public static void withItemEnergyStorage(ItemStack itemStack, Consumer<EnergyHandler> consumer) {
+        EnergyHandler storage = getItemEnergyStorage(itemStack);
         if (storage != null) {
             consumer.accept(storage);
         }
     }
 
-    public static void withBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side, Consumer<IEnergyStorage> consumer) {
-        IEnergyStorage storage = getBlockEnergyStorage(level, pos, side);
+    public static void withBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side, Consumer<EnergyHandler> consumer) {
+        EnergyHandler storage = getBlockEnergyStorage(level, pos, side);
         if (storage != null) {
             consumer.accept(storage);
         }
     }
 
-    public static <R> @Nullable R mapBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side, Function<IEnergyStorage, R> mapper) {
-        IEnergyStorage storage = getBlockEnergyStorage(blockEntity, side);
+    public static <R> @Nullable R mapBlockEnergyStorage(BlockEntity blockEntity, @Nullable Direction side, Function<EnergyHandler, R> mapper) {
+        EnergyHandler storage = getBlockEnergyStorage(blockEntity, side);
         return storage == null ? null : mapper.apply(storage);
     }
 
-    public static <R> @Nullable R mapBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side, Function<IEnergyStorage, R> mapper) {
-        IEnergyStorage storage = getBlockEnergyStorage(level, pos, side);
+    public static <R> @Nullable R mapBlockEnergyStorage(Level level, BlockPos pos, @Nullable Direction side, Function<EnergyHandler, R> mapper) {
+        EnergyHandler storage = getBlockEnergyStorage(level, pos, side);
         return storage == null ? null : mapper.apply(storage);
     }
 }

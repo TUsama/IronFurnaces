@@ -1,14 +1,13 @@
 package ironfurnaces.adaptor.energy;
 
 import lombok.Setter;
-import lombok.With;
 import lombok.experimental.Accessors;
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 
 import java.util.function.Consumer;
 
 @Accessors(fluent = true, chain = true)
-public class FEnergyStorage extends EnergyStorage {
+public class FEnergyStorage extends SimpleEnergyHandler {
 
     @Setter
     private Consumer<FEnergyStorage> callback;
@@ -35,23 +34,11 @@ public class FEnergyStorage extends EnergyStorage {
         }
     }
 
-    public int getEnergy() {
-        return this.getEnergyStored();
+    @Override
+    protected void onEnergyChanged(int previousAmount) {
+        onEnergyChanged();
     }
 
-    @Override
-    public int receiveEnergy(int maxReceive, boolean simulate) {
-        int i = super.receiveEnergy(maxReceive, simulate);
-        if (!simulate && i > 0) onEnergyChanged();
-        return i;
-    }
-
-    @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        int i = super.extractEnergy(maxExtract, simulate);
-        if (!simulate && i > 0) onEnergyChanged();
-        return i;
-    }
 
     public void setEnergy(int energy) {
 
@@ -72,14 +59,12 @@ public class FEnergyStorage extends EnergyStorage {
 
     }
 
-    public int getCapacity() {
-        return this.getMaxEnergyStored();
-    }
 
-    public EnergyStorage setCapacity(int capacity) {
+    public void setCapacity(int capacity) {
         int old = this.capacity;
         if (old != capacity){
             this.capacity = capacity;
+            this.maxInsert = capacity;
             onEnergyChanged();
         }
 
@@ -87,23 +72,18 @@ public class FEnergyStorage extends EnergyStorage {
             energy = capacity;
         }
 
-        return this;
     }
 
-    public EnergyStorage setMaxTransfer(int maxTransfer) {
-
+    public void setMaxTransfer(int maxTransfer) {
         setMaxReceive(maxTransfer);
         setMaxExtract(maxTransfer);
-        return this;
     }
 
-    public EnergyStorage setMaxReceive(int maxReceive) {
-        this.maxReceive = maxReceive;
-        return this;
+    public void setMaxReceive(int maxReceive) {
+        this.maxInsert = maxReceive;
     }
 
-    public EnergyStorage setMaxExtract(int maxExtract) {
+    public void setMaxExtract(int maxExtract) {
         this.maxExtract = maxExtract;
-        return this;
     }
 }
