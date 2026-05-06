@@ -1,3 +1,7 @@
+### 0.4.3
+fix a bug that player furnace list can't be deserialized from disk
+fix new rainbow furnace, add a small delay for working state check
+
 ### 0.4.2
 fix crash when try to modify the energy in legacy furnaces
 fix an issue in 1.21.1 that new furnaces don't have ItemHandler capability, now pipes or others logistics things can interact with it correctly.

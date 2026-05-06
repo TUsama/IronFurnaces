@@ -281,6 +281,8 @@ stonecutter {
         replace("com.tterrag.registrate", "dev.anvilcraft.lib.v2.registrum")
         replace("RegistrateLangProvider", "RegistrumLangProvider")
         replace("AbstractRegistrate", "AbstractRegistrum")
+        replace("Consumer<Consumer<FinishedRecipe>>", "Consumer<RecipeOutput>")
+        replace(".getIdentifier()", ".getIdentifier()")
     }
     replacements.string(current.parsed.eq("26.1.2")) {
         replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.registrum.util.nullness")
@@ -294,6 +296,10 @@ stonecutter {
     replacements.string(current.parsed.eq("1.21.1")) {
         replace("com.tterrag.registrate.util.nullness", "dev.anvilcraft.lib.v2.util.nullness")
         replace("providers.RegistrateRecipeProvider", "providers.RegistrumRecipeProvider")
+    }
+
+    replacements.string(!current.parsed.eq("1.20.1")) {
+        replace("RegistrateRecipeProvider", "RegistrumRecipeProvider")
     }
 
 
