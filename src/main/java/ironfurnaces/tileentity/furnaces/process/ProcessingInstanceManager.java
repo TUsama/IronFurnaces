@@ -70,8 +70,6 @@ public class ProcessingInstanceManager implements INeedUpdate {
         } else {
             if (tile.hasLevel() && tile.getLevel() instanceof ServerLevel serverLevel){
                 if (currentTime <= delay) currentTime++;
-                System.out.println("currentTime is " + currentTime);
-                System.out.println("delay is " + delay);
                 if (currentTime == delay){
                     OwnerRainbowContextHelper.markDirtyByOwnerUuid(serverLevel, tile.getOwnerUuid());
                     needCheck = true;

@@ -38,7 +38,6 @@ public class S2CSyncAugmentPacket implements S2CModPacket<S2CSyncAugmentPacket> 
     @Override
     public void read(FriendlyByteBuf friendlyByteBuf) {
         this.tag = friendlyByteBuf.readNbt();
-        System.out.println(this.tag);
         this.pos = friendlyByteBuf.readBlockPos();
     }
 
