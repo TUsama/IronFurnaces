@@ -177,7 +177,6 @@ public class OwnerRainbowContext implements ValueIOSerializable {
                     continue;
                 }
                 result.add(otherPattern.id());
-                System.out.println("add to result");
             }
             return Tuple.of(result, rainbows);
         });

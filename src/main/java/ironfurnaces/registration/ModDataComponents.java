@@ -10,14 +10,11 @@ import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.network.codec.ByteBufCodecs;
-//? 1.20.1 {
 
-//? } else {
-import net.minecraft.core.component.DataComponentType;
-//?}
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -25,7 +22,7 @@ import java.util.function.Supplier;
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModDataComponents {
-    //? >1.20.1 {
+
     public static final RegistryEntry<DataComponentType<?>, DataComponentType<BlockPos>> BOUND_BLOCK_POS = REGISTRATE.simple("bound_blockpos", Registries.DATA_COMPONENT_TYPE, () ->
             DataComponentType.<BlockPos>builder()
                     .persistent(BlockPos.CODEC)
