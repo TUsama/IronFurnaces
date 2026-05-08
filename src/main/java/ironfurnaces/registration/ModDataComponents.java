@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
 import ironfurnaces.items.ItemFurnaceCopyV2;
 import ironfurnaces.registration.data_component.FurnaceItemInfo;
+import ironfurnaces.registration.data_component.HeaterItemInfo;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.core.BlockPos;
@@ -23,9 +24,9 @@ import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModDataComponents {
 
-    public static final RegistryEntry<DataComponentType<?>, DataComponentType<BlockPos>> BOUND_BLOCK_POS = REGISTRATE.simple("bound_blockpos", Registries.DATA_COMPONENT_TYPE, () ->
-            DataComponentType.<BlockPos>builder()
-                    .persistent(BlockPos.CODEC)
+    public static final RegistryEntry<DataComponentType<?>, DataComponentType<HeaterItemInfo>> HEATER_ITEM_INFO = REGISTRATE.simple("heater_item_info", Registries.DATA_COMPONENT_TYPE, () ->
+            DataComponentType.<HeaterItemInfo>builder()
+                    .persistent(HeaterItemInfo.CODEC)
                     .build());
 
     public static final RegistryEntry<DataComponentType<?>, DataComponentType<Identifier>> FURNACE_PATTERN_COMPONENT = REGISTRATE.simple("pattern_component",Registries.DATA_COMPONENT_TYPE, () ->

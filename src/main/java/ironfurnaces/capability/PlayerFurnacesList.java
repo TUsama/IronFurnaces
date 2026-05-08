@@ -7,15 +7,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import java.util.ArrayList;
@@ -29,6 +24,7 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, ValueIOSerializa
             GlobalPos.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("furnaces").forGetter(PlayerFurnacesList::getPosLinkedHashSet)
 
     ).apply(instance, PlayerFurnacesList::new));
+    private static final String KEY_DATA = "Data";
     @Getter(AccessLevel.PRIVATE)
     private LinkedHashSet<GlobalPos> posLinkedHashSet;
     private boolean upgradeFromLegacy = false;
@@ -68,7 +64,6 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, ValueIOSerializa
         this.upgradeFromLegacy = false;
     }
 
-
     public boolean isEmpty() {
         return this.posLinkedHashSet.isEmpty();
     }
@@ -87,8 +82,6 @@ public class PlayerFurnacesList implements IPlayerFurnacesList, ValueIOSerializa
         this.posLinkedHashSet.addAll(other.posLinkedHashSet);
         this.upgradeFromLegacy = other.upgradeFromLegacy;
     }
-
-    private static final String KEY_DATA = "Data";
 
     @Override
     public void serialize(ValueOutput output) {

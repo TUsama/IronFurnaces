@@ -1,5 +1,5 @@
 //? fd {
-package ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers;
+/*package ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers;
 
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
@@ -29,8 +29,8 @@ import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
 import vectorwing.farmersdelight.integration.jei.FDRecipeTypes;
 //? 1.20.1 {
-/*import net.neoforged.neoforge.registries.ForgeRegistries;
- *///?} else {
+/^import net.neoforged.neoforge.registries.ForgeRegistries;
+ ^///?} else {
 //?}
 
 import java.util.*;
@@ -471,4 +471,4 @@ public class FarmerDelightCookingRecipeTypeHandler implements IRecipeTypeHandler
     }
 }
 
-//?}
+*///?}

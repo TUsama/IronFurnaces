@@ -1,17 +1,6 @@
 package ironfurnaces.gui.furnaces.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
-
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-
-//? 1.20.1 {
-
-//? } else {
-import net.minecraft.client.gui.components.WidgetSprites;
-//?}
 
 import java.util.function.BooleanSupplier;
 

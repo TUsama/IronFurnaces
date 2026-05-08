@@ -691,7 +691,7 @@ public class LegacyFurnaceBlocks {
     public static void register() {
 
     }
-    //~ if >1.20.1 'Consumer<Consumer<FinishedRecipe>>' -> 'Consumer<RecipeOutput>' {
+    //~ if >1.20.1 'Consumer<RecipeOutput>' -> 'Consumer<RecipeOutput>' {
     private static <E extends Block> void  whenAllthemodium(Consumer<RecipeOutput> consumer, DataGenContext<Block, E> ctx, RegistrumRecipeProvider provider) {
         ConditionRecipeUtil.whenAllthemodium(consumer, ctx, "furnaces", ctx.getName(), provider);
     }

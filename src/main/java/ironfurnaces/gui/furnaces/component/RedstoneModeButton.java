@@ -20,57 +20,26 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class RedstoneModeButton extends BaseImageButton {
+public class RedstoneModeButton extends ReversibleImageButton {
     private Supplier<FurnaceSettingsV2> settingsV2;
     private final Map<FurnaceSettingsV2.RedStoneMode, WidgetSprites> spritesMap = new HashMap<>();
     private WidgetGroup substractionGroup;
-    private final OnPress rightClick;
 
 
     public RedstoneModeButton(int x, int y, int width, int height, OnPress onPress, OnPress rightClick, WidgetGroup substractionGroup, Supplier<FurnaceSettingsV2> settingsV2) {
-        super(x, y, width, height, "redstone_mode_ignore", onPress);
-        this.rightClick = rightClick;
+        super(x, y, width, height, "redstone_mode_ignore", onPress, rightClick);
         this.substractionGroup = substractionGroup;
         this.settingsV2 = settingsV2;
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.active && this.visible && button == 1) {
-            boolean flag = this.clicked(mouseX, mouseY);
-            if (flag) {
-                this.playDownSound(Minecraft.getInstance().getSoundManager());
-                this.rightClick.onPress(this);
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
+
     @Override
     public @Nullable Tooltip getTooltip() {
         return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.redstone_mode", Component.translatable(settingsV2.get().redStoneMode().translationKey)));
     }
 
 
-    //? 1.20.1 {
-    
-    /*@Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.setTooltip(getTooltip());
 
-        Identifier resourcelocation = spritesMap.computeIfAbsent(this.settingsV2.get().redStoneMode(), x -> {
-            var baseId = "redstone_mode_" + x.toString().toLowerCase(Locale.ROOT);
-            return new WidgetSprites(IronFurnaces.sprite(baseId + "_off"), IronFurnaces.sprite(baseId + "_inactive"), IronFurnaces.sprite(baseId + "_on"), IronFurnaces.sprite(baseId + "_inactive"));
-        }).get(this.isActive(), this.shouldHighlight());
-
-        if (settingsV2.get().redStoneMode().equals(FurnaceSettingsV2.RedStoneMode.COMPARATOR_SUBTRACTION)){
-            substractionGroup.activeAll();
-        } else {
-            substractionGroup.deactivateAll();
-        }
-        guiGraphics.blit(resourcelocation, this.getX(), this.getY(), 0, 0, this.width, this.height, getTextureWidth(), getTextureHeight());
-    }
-    *///? } else {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -86,6 +55,5 @@ public class RedstoneModeButton extends BaseImageButton {
         guiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);
     }
 
-    //?}
 
 }

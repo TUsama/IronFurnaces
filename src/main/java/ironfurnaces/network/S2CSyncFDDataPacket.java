@@ -1,3 +1,4 @@
+//? fd{
 package ironfurnaces.network;
 
 import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
@@ -101,3 +102,5 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
         return S2CSyncFDDataPacket.class;
     }
 }
+
+//?}

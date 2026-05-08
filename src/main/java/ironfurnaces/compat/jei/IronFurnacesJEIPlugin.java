@@ -1,14 +1,11 @@
 package ironfurnaces.compat.jei;
 
 import com.google.common.collect.Lists;
-import ironfurnaces.Config;
-import ironfurnaces.compat.jei.gui.FurnacesGuiHandler;
 import ironfurnaces.compat.jei.gui.FurnacesGuiHandlerForNewSet;
 import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.IUpgradeStorage;
-import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
@@ -197,7 +194,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registry) {
-        registry.addGenericGuiContainerHandler(BlockIronFurnaceScreenBase.class, new FurnacesGuiHandler());
+
         registry.addGuiContainerHandler(FurnacePatternScreen.class, new FurnacesGuiHandlerForNewSet());
 	}
 

@@ -8,8 +8,6 @@ import ironfurnaces.blocks.BlockWirelessEnergyHeater;
 import ironfurnaces.blocks.furnaces.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
-import ironfurnaces.blocks.furnaces.new_furnace.PatternHolderItemRenderer;
-import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
@@ -17,10 +15,8 @@ import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
-import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
-import net.minecraft.Util;
+import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
@@ -36,7 +32,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -119,7 +114,7 @@ public class ModBlocks {
                                                                 CopyBlockState.copyState(furnace)
                                                                         .copy(ModBlockState.JOVIAL_STATE)
                                                         )
-                                                        
+
                                                         .apply(CopyNameFunction.copyName(LootContext.BlockEntityTarget.BLOCK_ENTITY))
                                         )
                         );
@@ -415,7 +410,7 @@ public class ModBlocks {
                                 .unlockedBy("has_unobtainium_ingot",
                                         CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
                                 .save(x, IDUtil.makeNewFurnaceID(Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt")), ctx, Constants.UNOBTAINIUM_PATTERN_ID.getPath() + "_nbt", provider);
-                
+
 
             })
 
@@ -448,7 +443,7 @@ public class ModBlocks {
                         }
 
                         AABB aabb = shape.bounds();
-                        
+
                         RandomSource random = level.getRandom();
 
                         double x = pos.getX() + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2D) + 0.1D + aabb.minX;
@@ -504,12 +499,12 @@ public class ModBlocks {
                 .orElse(null);
     }
 
-    
+
     private static void whenAllthemodium(
             Consumer<RecipeOutput> consumerConsumer,
             DataGenContext<Item, FurnacePatternHolderItem> ctx,
             String id,
-            RegistrateRecipeProvider provider
+            RegistrumRecipeProvider provider
     ) {
         ConditionRecipeUtil.whenHasMod(consumerConsumer, ctx, "new_furnaces", id, "allthemodium", provider);
     }
@@ -518,7 +513,7 @@ public class ModBlocks {
     private static void whenHasTags(Consumer<RecipeOutput> consumerConsumer, DataGenContext<Item, FurnacePatternHolderItem> ctx, RegistrumRecipeProvider provider, String id, TagKey<Item>... tags) {
         ConditionRecipeUtil.whenHasTags(consumerConsumer, ctx, provider, "new_furnaces", id, tags);
     }
-    
+
 
     private static Ingredient bindPatternHolder(Item item, Identifier patternId) {
         return DataComponentIngredient.of(false, ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), patternId, item);
@@ -528,7 +523,6 @@ public class ModBlocks {
     public static <T extends BlockEntity> BlockEntityType<T> asGenericBlockEntityType(BlockEntry<?> entry) {
         return (BlockEntityType<T>) entry.getSibling(BuiltInRegistries.BLOCK_ENTITY_TYPE).get();
     }
-    
 
 
     public static void register() {

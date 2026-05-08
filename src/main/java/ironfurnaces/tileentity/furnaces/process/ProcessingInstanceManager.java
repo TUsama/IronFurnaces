@@ -79,10 +79,6 @@ public class ProcessingInstanceManager implements INeedUpdate {
 
 
         while (iterator.hasNext()){
-            //并不多余，这一段是用来处理普通熔炉模式下的，在没有新启动lit状态下再次开始烧制物品的情况。
-            //其他模式下不会，只有普通模式会出现虽然lit但什么也没在烧的情况。
-            //会出现多余检查，但极少，因为一般来说只有非常前期的情况下才会用普通模式，而此时的熔炉数量不会很多。
-
             ProcessingInstance next = iterator.next();
             int fromIndex = next.fromIndex;
             if (this.blockingIndexes.contains(fromIndex)) {

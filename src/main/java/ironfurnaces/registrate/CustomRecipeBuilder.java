@@ -39,8 +39,8 @@ public class CustomRecipeBuilder<T extends Recipe<?>, P> extends AbstractBuilder
         return this;
     }
 
-    public CustomRecipeBuilder<T, P> recipe(NonNullBiConsumer<DataGenContext<RecipeType<?>, RecipeType<?>>, RegistrateRecipeProvider> cons) {
-        this.<RegistrateRecipeProvider>setData(ProviderType.RECIPE, cons);
+    public CustomRecipeBuilder<T, P> recipe(NonNullBiConsumer<DataGenContext<RecipeType<?>, RecipeType<?>>, RegistrumRecipeProvider> cons) {
+        this.<RegistrumRecipeProvider>setData(ProviderType.RECIPE, cons);
         return this;
     }
 

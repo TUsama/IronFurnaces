@@ -8,6 +8,7 @@ import ironfurnaces.network.C2SUpdateFurnaceSettingPacket;
 import ironfurnaces.network.C2SUpdateMenuPacket;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -24,7 +25,7 @@ import java.util.function.Function;
 public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
     public static final Function<FurnacePatternScreen, AbstractWidget> energyAreaGetter = furnacePatternScreen -> new AbstractWidget(0, 0, 14, 42, Component.empty()) {
         @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             this.setTooltip(Tooltip.create(
                     Component.translatable("screen.ironfurnaces.energy_slot", furnacePatternScreen.getMenu().getEnergyStored(), furnacePatternScreen.getMenu().getMaxEnergy())
             ));
@@ -44,7 +45,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
             this.setTooltip(getTooltip());
         }
@@ -67,7 +68,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
 
 
     @Override
-    public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
 
         Identifier texture = pickTexture();
         int i = screen.getGuiLeft();

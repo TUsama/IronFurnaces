@@ -413,7 +413,7 @@ dependencies {
     // 把 Manifold 加到 javac 的 annotation processor path
     annotationProcessor("systems.manifold:manifold-ext:2026.1.6")
     testAnnotationProcessor("systems.manifold:manifold-ext:2026.1.6")
-
+    annotationProcessor ("systems.manifold:manifold-strings:2026.1.6")
 
 }
 

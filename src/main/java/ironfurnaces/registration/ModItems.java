@@ -1,5 +1,3 @@
-//~ replace_Registrate
-
 package ironfurnaces.registration;
 
 import dev.anvilcraft.lib.v2.registrum.Registrum;
@@ -20,17 +18,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-//? 1.20.1 {
-/*import net.neoforged.neoforge.common.crafting.conditions.TagEmptyCondition;
-import net.neoforged.neoforge.common.crafting.ConditionalRecipe;
-*///? } else {
-import net.neoforged.neoforge.common.conditions.ICondition;
-import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
-import net.neoforged.neoforge.common.crafting.ConditionalRecipeOutput;
-//? <1.21.11{
-/*import net.neoforged.neoforge.client.model.generators.ModelFile;
-*///?}
-//?}
+
 
 import java.util.List;
 

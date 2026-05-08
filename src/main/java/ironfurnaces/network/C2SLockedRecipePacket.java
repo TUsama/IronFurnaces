@@ -1,3 +1,4 @@
+//? fd{
 package ironfurnaces.network;
 
 import com.clefal.nirvana_lib.network.newtoolchain.C2SModPacket;
@@ -53,3 +54,5 @@ public class C2SLockedRecipePacket implements C2SModPacket<C2SLockedRecipePacket
         return C2SLockedRecipePacket.class;
     }
 }
+
+//?}
