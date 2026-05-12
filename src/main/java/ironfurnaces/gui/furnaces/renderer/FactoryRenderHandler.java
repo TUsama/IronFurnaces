@@ -7,17 +7,16 @@ import ironfurnaces.gui.furnaces.component.WidgetGroup;
 import ironfurnaces.network.C2SUpdateFurnaceSettingPacket;
 import ironfurnaces.network.C2SUpdateMenuPacket;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.PageButton;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FastColor;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.ARGB;
 
 import java.util.List;
 import java.util.function.Function;
@@ -25,7 +24,7 @@ import java.util.function.Function;
 public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
     public static final Function<FurnacePatternScreen, AbstractWidget> energyAreaGetter = furnacePatternScreen -> new AbstractWidget(0, 0, 14, 42, Component.empty()) {
         @Override
-        protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int i, int i1, float v) {
             this.setTooltip(Tooltip.create(
                     Component.translatable("screen.ironfurnaces.energy_slot", furnacePatternScreen.getMenu().getEnergyStored(), furnacePatternScreen.getMenu().getMaxEnergy())
             ));
@@ -39,16 +38,13 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
     };
 
     protected ImageButton autoFillButton = new BaseBoolStatuImageButton(0, 0, 14, 14, "auto_fill", button -> NetworkUtils.sendToServer(new C2SUpdateFurnaceSettingPacket(screen.getMenu().getSettingsV2().withAutoFill(!screen.getMenu().getSettingsV2().autoFill()), screen.getMenu().bePos)), () -> screen.getMenu().getSettingsV2().autoFill()) {
-        @Override
-        public @Nullable Tooltip getTooltip() {
-            return Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_fill", screen.getMenu().getSettingsV2().autoFill()));
-        }
 
         @Override
-        public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-            this.setTooltip(getTooltip());
+        public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            this.setTooltip(Tooltip.create(Component.translatable("ironfurnaces.furnace_setting.auto_fill", screen.getMenu().getSettingsV2().autoFill())));
+            super.extractContents(graphics, mouseX, mouseY, a);
         }
+
     };
     int y = screen.getGuiTop() + 70;
     int i1 = screen.getGuiLeft() + 70;
@@ -73,7 +69,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
         Identifier texture = pickTexture();
         int i = screen.getGuiLeft();
         int j = screen.getGuiTop();
-        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize());
+        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize(), 256, 256);
         int columns = 3;
         int visibleRows = 3;
         int pageSize = columns * visibleRows;
@@ -89,19 +85,19 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
             int col = indexInPage % columns;
             int row = indexInPage / columns;
 
-            guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
+            guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18, 176, 55, 18, 18, 256, 256);
             int verticalBurnProgress = menu.getVerticalBurnProgress(slotIndex);
             if (verticalBurnProgress != 0) {
-                guiGraphics.fill(i + 35 + col * 18 + 1, j + 16 + row * 18 + verticalBurnProgress, i + 35 + col * 18 + 18, j + 16 + row * 18 + 18, FastColor.ARGB32.color(100, 255, 255, 255));
+                guiGraphics.fill(i + 35 + col * 18 + 1, j + 16 + row * 18 + verticalBurnProgress, i + 35 + col * 18 + 18, j + 16 + row * 18 + 18, ARGB.color(100, 255, 255, 255));
                 //guiGraphics.blit(texture, i + 35 + col * 18, j + 16 + row * 18 - verticalBurnProgress, 176, 55, 18, 18);
             }
-            guiGraphics.blit(texture, i + 105 + col * 18, j + 16 + row * 18, 176, 55, 18, 18);
+            guiGraphics.blit(texture, i + 105 + col * 18, j + 16 + row * 18, 176, 55, 18, 18, 256, 256);
             slotIndex++;
         }
 
         if (menu.isLit()) {
             int k = menu.getLitProgress();
-            guiGraphics.blit(texture, i + 89, j + 36 - k + 15, 176, 12 - k, 14, k + 1);
+            guiGraphics.blit(texture, i + 89, j + 36 - k + 15, 176, 12 - k, 14, k + 1, 256, 256);
         }
 
         int barHeight = 42;
@@ -116,7 +112,7 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
                 : 0;
 
         if (l > 0) {
-            guiGraphics.blit(texture, barX, barY + (barHeight - l), 176, 14 + (barHeight - l), 14, l);
+            guiGraphics.blit(texture, barX, barY + (barHeight - l), 176, 14 + (barHeight - l), 14, l, 256, 256);
         }
         if (input.getPageCount() > 1) {
             pageGroup.activeAll();

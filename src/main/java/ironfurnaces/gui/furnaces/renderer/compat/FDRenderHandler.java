@@ -1,4 +1,5 @@
-package ironfurnaces.gui.furnaces.renderer.compat;
+//? fd{
+/*package ironfurnaces.gui.furnaces.renderer.compat;
 
 import com.clefal.nirvana_lib.utils.NetworkUtils;
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
@@ -24,8 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import vectorwing.farmersdelight.common.utility.TextUtils;
 //? 1.20.1 {
-/*import net.neoforged.neoforge.registries.ForgeRegistries;
-*///?} else {
+/^import net.neoforged.neoforge.registries.ForgeRegistries;
+ ^///?} else {
 //?}
 
 import java.awt.*;
@@ -157,3 +158,5 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
 
     }
 }
+
+*///?}

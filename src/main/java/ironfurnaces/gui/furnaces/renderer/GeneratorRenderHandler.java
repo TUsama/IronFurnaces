@@ -3,7 +3,9 @@ package ironfurnaces.gui.furnaces.renderer;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
@@ -22,16 +24,16 @@ public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler{
     }
 
     @Override
-    public void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         Identifier texture = pickTexture();
         int i = screen.getGuiLeft();
         int j = screen.getGuiTop();
 
-        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize());
+        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize(), 256, 256);
         FurnacePatternMenu menu = screen.getMenu();
         if (menu.isLit()) {
             int k = menu.getLitProgress();
-            guiGraphics.blit(texture, i + 57, j + 36 - k, 176, 12 - k, 14, k + 1);
+            guiGraphics.blit(texture, i + 57, j + 36 - k, 176, 12 - k, 14, k + 1, 256, 256);
         }
 
         int barHeight = 42;
@@ -53,7 +55,10 @@ public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler{
                     14 + (barHeight - l),     // 纹理 v 也同步下移
                     14,
                     l
+                    , 256, 256
             );
         }
     }
+
+
 }

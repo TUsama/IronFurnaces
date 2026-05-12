@@ -2,8 +2,8 @@ package ironfurnaces.loaders;
 
 import com.clefal.nirvana_lib.utils.ModUtils;
 //? fd{
-import ironfurnaces.compat.farmer_delight.FDCompat;
-//?}
+/*import ironfurnaces.compat.farmer_delight.FDCompat;
+*///?}
 import ironfurnaces.config.FurnaceConfig;
 import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.config.RainbowConfig;
@@ -24,10 +24,10 @@ public class CommonInit {
         ModItems.register();
 
         //? fd{
-        if (ModUtils.isModLoaded("farmersdelight")){
+        /*if (ModUtils.isModLoaded("farmersdelight")){
             FDCompat.registerCommon();
         }
-        //?}
+        *///?}
 
         ModItemGroups.register();
         ModAdvancements.register();

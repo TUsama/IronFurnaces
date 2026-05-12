@@ -6,6 +6,7 @@ import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.items.ItemHeater;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModItems;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
-
+    @Getter
     private final FEnergyStorage energy;
     private final ItemStacksResourceHandler items;
 

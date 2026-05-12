@@ -1,5 +1,5 @@
 //? fd{
-package ironfurnaces.network;
+/*package ironfurnaces.network;
 
 import com.clefal.nirvana_lib.network.newtoolchain.S2CModPacket;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
@@ -103,4 +103,4 @@ public class S2CSyncFDDataPacket implements S2CModPacket<S2CSyncFDDataPacket> {
     }
 }
 
-//?}
+*///?}

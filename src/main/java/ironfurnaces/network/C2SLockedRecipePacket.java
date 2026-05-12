@@ -1,5 +1,5 @@
 //? fd{
-package ironfurnaces.network;
+/*package ironfurnaces.network;
 
 import com.clefal.nirvana_lib.network.newtoolchain.C2SModPacket;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
@@ -55,4 +55,4 @@ public class C2SLockedRecipePacket implements C2SModPacket<C2SLockedRecipePacket
     }
 }
 
-//?}
+*///?}

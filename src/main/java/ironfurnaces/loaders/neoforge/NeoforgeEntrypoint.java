@@ -52,7 +52,7 @@ public class NeoforgeEntrypoint {
                     ModBlocks.HEATER.get());
 */
             x.registerBlock(Capabilities.Energy.BLOCK,
-                    (level, pos, state, be, side) -> ((BlockWirelessEnergyHeaterTile) be).getWrapper(),
+                    (level, pos, state, be, side) -> ((BlockWirelessEnergyHeaterTile) be).getEnergy(),
                     // blocks to register for
                     ModBlocks.HEATER.get());
 
