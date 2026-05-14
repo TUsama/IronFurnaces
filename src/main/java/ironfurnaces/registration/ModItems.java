@@ -11,6 +11,8 @@ import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBu
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -525,8 +527,13 @@ public class ModItems {
 
     public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
             registerItem("upgrade_tool", ItemUpgradeTool::new)
-                    .model((ctx, prov) -> prov.getBuilder(ctx.getName())
-                            .parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity")))
+                    .model(() -> (ctx, prov) -> {
+                        ModelTemplates.PARTICLE_ONLY.create(
+                                ctx.get(),
+                                TextureMapping.particleFromItem(ctx.get()),
+                                prov.modelOutput
+                        );
+                    })
                     .recipe((ctx, provider) -> {
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold"))
                                 .pattern("###")

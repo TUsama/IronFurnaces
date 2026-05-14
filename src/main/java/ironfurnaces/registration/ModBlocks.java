@@ -413,14 +413,11 @@ public class ModBlocks {
 
 
             })
-
             .model(() -> (ctx, prov) -> {
                 ModModelTemplate.createPatternHolderBaseModel(ctx.get(), prov);
             })
-
             .tag(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
             .build()
-
             .clientExtension(() -> () -> {
                 return new IClientBlockExtensions() {
                     @Override

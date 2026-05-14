@@ -1,4 +1,3 @@
-//? >1.21.11 {
 package ironfurnaces.registration;
 
 import ironfurnaces.loaders.IronFurnaces;
@@ -15,9 +14,6 @@ import java.util.Optional;
 
 public class ModModelTemplate {
 
-    private static final ModelTemplate PATTERN_HOLDER_BASE_TEMPLATE =
-            ModelTemplates.create(TextureSlot.PARTICLE);
-
     protected static void createPatternHolderBaseModel(Item patternHolder, ItemModelGenerators prov) {
         ModelTemplates.PARTICLE_ONLY.create(
                 patternHolder,
@@ -26,4 +22,3 @@ public class ModModelTemplate {
         );
     }
 }
-//?}

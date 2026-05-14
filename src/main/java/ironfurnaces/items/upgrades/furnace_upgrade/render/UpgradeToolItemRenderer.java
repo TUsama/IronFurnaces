@@ -35,7 +35,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
                 Minecraft.getInstance().getEntityModels()
         );
     }
-
+/*
     private static void setupRootTransform(ItemDisplayContext ctx, PoseStack poseStack) {
         switch (ctx) {
             case GUI -> {
@@ -60,7 +60,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
             }
         }
     }
-
+*/
     private static TextureAtlasSprite getBlockSprite(net.minecraft.resources.Identifier texture) {
         return Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
@@ -87,22 +87,14 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
             int packedLight, int packedOverlay,
             float nx, float ny, float nz
     ) {
-        //? 1.20.1 {
-        /*vc.vertex(pose.pose(), x, y, z)
-                .color(255, 255, 255, 255)
-                .uv(u, v)
-                .overlayCoords(packedOverlay)
-                .uv2(packedLight)
-                .normal(normal, nx, ny, nz)
-                .endVertex();
-        *///? } else {
+
         vc.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, 255)
                 .setUv(u, v)
                 .setOverlay(packedOverlay)
                 .setLight(packedLight)
                 .setNormal(pose, nx, ny, nz);
-        //?}
+
 
     }
 
@@ -301,9 +293,7 @@ public class UpgradeToolItemRenderer extends BlockEntityWithoutLevelRenderer {
             Block block = BuiltInRegistries.BLOCK.get(id);
             BlockState state = block.defaultBlockState();
             renderBlockPreview(state, poseStack, buffers, packedLight, packedOverlay);
-            return;
         }
 
-        // 兜底：未知 id 时可以渲染一个占位 pattern，或者直接不渲染
     }
 }

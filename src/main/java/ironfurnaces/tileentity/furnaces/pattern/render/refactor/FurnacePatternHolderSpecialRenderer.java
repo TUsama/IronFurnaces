@@ -1,4 +1,3 @@
-//? >1.21.11{
 package ironfurnaces.tileentity.furnaces.pattern.render.refactor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -86,5 +85,3 @@ public final class FurnacePatternHolderSpecialRenderer
         }
     }
 }
-
-//?}
