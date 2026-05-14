@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.menu.slot.compat;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.menu.slot.compat;
 
 import com.mojang.datafixers.util.Pair;
 import ironfurnaces.tileentity.furnaces.cache.recipe_type_handlers.FarmerDelightCookingRecipeTypeHandler;
@@ -38,3 +39,5 @@ public class LockedSlot extends DynamicAccessSlot {
 
     }
 }
+
+*///?}

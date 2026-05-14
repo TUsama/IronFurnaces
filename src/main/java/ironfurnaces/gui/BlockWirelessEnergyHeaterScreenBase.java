@@ -3,8 +3,9 @@ package ironfurnaces.gui;
 import ironfurnaces.container.BlockWirelessEnergyHeaterContainer;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.util.StringHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,40 +22,37 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
         this.name = name;
     }
 
-    @Override
-    public void render(GuiGraphics matrix, int mouseX, int mouseY, float partialTicks) {
-        //~ if >1.20.1 'matrix' -> 'matrix, mouseX, mouseY, partialTicks'
-        this.renderBackground(matrix, mouseX, mouseY, partialTicks);
-        super.render(matrix, mouseX, mouseY, partialTicks);
-        this.renderTooltip(matrix, mouseX, mouseY);
-    }
 
     @Override
-    protected void renderLabels(GuiGraphics matrix, int mouseX, int mouseY) {
-        matrix.drawString(font, this.playerInv.getDisplayName(), 7, this.getYSize() - 93, 4210752, false);
-        matrix.drawString(font, name, this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        super.extractLabels(graphics, xm, ym);
+        graphics.text(font, this.playerInv.getDisplayName(), 7, this.getYSize() - 93, 4210752, false);
+        graphics.text(font, name, this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
 
-        int actualMouseX = mouseX - ((this.width - this.getXSize()) / 2);
-        int actualMouseY = mouseY - ((this.height - this.getYSize()) / 2);
-        if(actualMouseX >= 68 && actualMouseX <= 108 && actualMouseY >= 64 && actualMouseY <= 76) {
-            int energy = ((BlockWirelessEnergyHeaterContainer)this.getMenu()).getEnergy();
-            int capacity = ((BlockWirelessEnergyHeaterContainer)this.getMenu()).getMaxEnergy();
-            matrix.renderTooltip(this.font, Component.literal(StringHelper.displayEnergy(energy, capacity).get(0)), actualMouseX, actualMouseY);
+        int actualMouseX = xm - ((this.width - this.getXSize()) / 2);
+        int actualMouseY = ym - ((this.height - this.getYSize()) / 2);
+        if (actualMouseX >= 68 && actualMouseX <= 108 && actualMouseY >= 64 && actualMouseY <= 76) {
+            int energy = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getEnergy();
+            int capacity = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getMaxEnergy();
+            graphics.setTooltipForNextFrame(this.font, Component.literal(StringHelper.displayEnergy(energy, capacity).get(0)), actualMouseX, actualMouseY);
 
         }
-
     }
 
     @Override
-    protected void renderBg(GuiGraphics matrix, float partialTicks, int mouseX, int mouseY) {
-        int relX = (this.width - this.getXSize()) / 2;
-        int relY = (this.height - this.getYSize()) / 2;
-        matrix.blit(GUI, relX, relY, 0, 0, this.getXSize(), this.getYSize());
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+    }
+
+    @Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos, topPos, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
 
         int i;
-        i = ((BlockWirelessEnergyHeaterContainer)this.getMenu()).getEnergyScaled(42);
-        matrix.blit(GUI, getGuiLeft() + 67, getGuiTop() + 63, 176, 0, i + 1, 14);
-
+        i = this.getMenu().getEnergyScaled(42);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos + 67, topPos + 63, 176, 0, i + 1, 14, 256, 256);
     }
+
 
 }

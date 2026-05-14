@@ -6,10 +6,8 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullFunction;
 import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
-import ironfurnaces.items.upgrades.*;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
-import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
@@ -19,8 +17,6 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-
-import java.util.List;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
@@ -704,9 +700,7 @@ public class ModItems {
                                 ctx, "new_upgrades", "upgrade_unobtainium", provider
                         );
                     })
-                    //? !forge {
-                    .clientExtension(() -> UpgradeToolClientExtensions::new)
-                    //?}
+
                     .register();
 
     //~}

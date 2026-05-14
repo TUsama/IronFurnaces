@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.pattern.mode.compat;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.pattern.mode.compat;
 
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.IRecipeTypeHandler;
@@ -71,3 +72,5 @@ public class FDCompatModeHandler extends CompatModeHandler {
         return FDMenuHandler::new;
     }
 }
+
+*///?}

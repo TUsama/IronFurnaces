@@ -3,6 +3,7 @@ package ironfurnaces.items.upgrades.furnace_upgrade;
 
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.UpgradeRuleHolder;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleManager;
@@ -19,33 +20,21 @@ import net.minecraft.core.component.DataComponents;
 //?}
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public interface IUpgradeStorage {
 
 
     @Nullable
     static PatternUpgradeRule get(ItemStack stack) {
-        //? 1.20.1 {
-        /*CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains(PatternUpgradeRule.KEY, Tag.TAG_STRING)) {
-            return null;
-        }
-        String s = tag.getString(PatternUpgradeRule.KEY);
-        Identifier id = Identifier.tryParse(s);
-        if (id == null) {
-            IronFurnaces.LOGGER.warn("Invalid PatternUpgradeRule id string: {}", s);
-            return null;
-        }
-        *///? } else {
-        Identifier id = stack.get(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT);
-        //?}
 
-        if (!PatternUpgradeRuleManager.isValidRuleId(id)) {
-            //IronFurnaces.LOGGER.warn("Found unregistered rule: {}", id);
-            return null;
+        var upgradeRuleHolder = stack.get(ModDataComponents.UPGRADE_RULE_HOLDER);
+
+        if (upgradeRuleHolder != null && upgradeRuleHolder.upgradeRule().isPresent() && PatternUpgradeRuleManager.isValidRuleId(upgradeRuleHolder.upgradeRule().get())) {
+            return PatternUpgradeRuleManager.get(upgradeRuleHolder.upgradeRule().get());
         }
 
-        return PatternUpgradeRuleManager.get(id);
+        return null;
     }
 
     static void writeRule(ItemStack stack, PatternUpgradeRule rule) {
@@ -54,20 +43,12 @@ public interface IUpgradeStorage {
 
     static void writeRule(ItemStack stack, Identifier rule) {
         if (rule == null || rule.equals(PatternUpgradeRule.backup.id())) {
-            //? 1.20.1 {
-            /*CompoundTag tag = stack.getTag();
-            if (tag != null) {
-                tag.remove(PatternUpgradeRule.KEY);
-            }
-            *///?}
-            return;
+            stack.set(ModDataComponents.UPGRADE_RULE_HOLDER, new UpgradeRuleHolder(Optional.empty()));
+        } else {
+            stack.set(ModDataComponents.UPGRADE_RULE_HOLDER, new UpgradeRuleHolder(Optional.of(rule)));
         }
-        //? 1.20.1 {
-        /*CompoundTag tag = stack.getOrCreateTag();
-        tag.putString(PatternUpgradeRule.KEY, rule.toString());
-        *///? } else {
-        stack.set(ModDataComponents.FURNACE_UPGRADE_RULE_COMPONENT, rule);
-        //?}
+
+
     }
 
 }

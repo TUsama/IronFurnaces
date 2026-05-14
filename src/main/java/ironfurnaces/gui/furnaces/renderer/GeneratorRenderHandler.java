@@ -2,18 +2,16 @@ package ironfurnaces.gui.furnaces.renderer;
 
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler{
-    
+public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler {
+
     private final AbstractWidget energyArea = FactoryRenderHandler.energyAreaGetter.apply(screen);
-    
+
     public GeneratorRenderHandler(FurnacePatternScreen screen) {
         super(screen);
     }

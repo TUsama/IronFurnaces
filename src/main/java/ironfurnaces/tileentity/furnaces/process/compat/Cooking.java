@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.process.compat;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.process.compat;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -136,3 +137,5 @@ public class Cooking extends ProcessingInstance {
         return currentTick / (expectedTick * 1.0f);
     }
 }
+
+*///?}

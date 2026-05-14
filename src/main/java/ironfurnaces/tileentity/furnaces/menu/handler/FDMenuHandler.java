@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.menu.handler;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.menu.handler;
 
 import com.mojang.datafixers.util.Pair;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
@@ -136,3 +137,5 @@ public class FDMenuHandler extends AbstractCompatMenuHandler{
         return builder;
     }
 }
+
+*///?}

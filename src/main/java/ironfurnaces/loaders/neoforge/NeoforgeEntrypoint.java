@@ -8,6 +8,7 @@ import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.loaders.ClientInit;
 import ironfurnaces.loaders.CommonInit;
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.recipes.RecipeSync;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModDataComponents;
@@ -17,6 +18,7 @@ import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternDefinitionReloadLi
 import ironfurnaces.tileentity.furnaces.pattern.render.FurnaceTextureScanner;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRuleReloadListener;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -24,8 +26,9 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 
@@ -67,27 +70,39 @@ public class NeoforgeEntrypoint {
 
         });
 
+        IEventBus gameBus = NeoForge.EVENT_BUS;
 
+        gameBus.<AddServerReloadListenersEvent>addListener(EventPriority.LOWEST, event -> {
+            Identifier furnacePatternDefinitions = IronFurnaces.id("furnace_pattern_definitions");
+            Identifier patternUpgradeRules = IronFurnaces.id("pattern_upgrade_rules");
 
+            event.addListener(furnacePatternDefinitions, new FurnacePatternDefinitionReloadListener());
+            event.addListener(patternUpgradeRules, new PatternUpgradeRuleReloadListener());
 
-        NeoForge.EVENT_BUS.<AddReloadListenerEvent>addListener(EventPriority.LOWEST, x -> {
-            x.addListener(new FurnacePatternDefinitionReloadListener());
-            x.addListener(new PatternUpgradeRuleReloadListener());
+            // 如果 PatternUpgradeRuleReloadListener 依赖 FurnacePatternDefinitionReloadListener 的结果，保留这一句。
+            event.addDependency(furnacePatternDefinitions, patternUpgradeRules);
         });
 
-        NeoForge.EVENT_BUS.<PlayerTickEvent.Post>addListener(event -> {
+        gameBus.<PlayerTickEvent.Post>addListener(event -> {
             if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
             PlayerDataHandler.editRainbowContext(serverPlayer, x -> x.tick(serverPlayer));
         });
 
-        modBus.<RegisterClientReloadListenersEvent>addListener(EventPriority.LOWEST, x -> {
-            x.registerReloadListener(FurnaceTextureScanner.INSTANCE);
+        RecipeSync.register(gameBus);
+
+        modBus.<AddClientReloadListenersEvent>addListener(EventPriority.LOWEST, event -> {
+            event.addListener(
+                    IronFurnaces.id("furnace_texture_scanner"),
+                    FurnaceTextureScanner.INSTANCE
+            );
         });
+
+
 
 
         ModCapabilities.ATTACHMENTS.register(modBus);
         CommonInit.init();
-        ClientInit.clientInit(NeoForge.EVENT_BUS, modBus);
+        ClientInit.clientInit(gameBus, modBus);
 
     }
 

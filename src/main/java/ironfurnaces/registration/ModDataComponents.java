@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
 import ironfurnaces.items.ItemFurnaceCopyV2;
 import ironfurnaces.registration.data_component.FurnaceItemInfo;
 import ironfurnaces.registration.data_component.HeaterItemInfo;
+import ironfurnaces.registration.data_component.UpgradeRuleHolder;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.core.BlockPos;
@@ -34,9 +35,14 @@ public class ModDataComponents {
                     .persistent(Identifier.CODEC)
                     .build());
 
-    public static final RegistryEntry<DataComponentType<?>, DataComponentType<FurnaceItemInfo>> FURNACE_ITEM_INFO = REGISTRATE.simple("pattern_component",Registries.DATA_COMPONENT_TYPE, () ->
+    public static final RegistryEntry<DataComponentType<?>, DataComponentType<FurnaceItemInfo>> FURNACE_ITEM_INFO = REGISTRATE.simple("furnace_item_info",Registries.DATA_COMPONENT_TYPE, () ->
             DataComponentType.<FurnaceItemInfo>builder()
                     .persistent(FurnaceItemInfo.CODEC)
+                    .build());
+
+    public static final RegistryEntry<DataComponentType<?>, DataComponentType<UpgradeRuleHolder>> UPGRADE_RULE_HOLDER = REGISTRATE.simple("upgrade_rule_holder",Registries.DATA_COMPONENT_TYPE, () ->
+            DataComponentType.<UpgradeRuleHolder>builder()
+                    .persistent(UpgradeRuleHolder.CODEC)
                     .build());
 
     public static final RegistryEntry<DataComponentType<?>, DataComponentType<Identifier>> FURNACE_UPGRADE_RULE_COMPONENT = REGISTRATE.simple("upgrade_component",Registries.DATA_COMPONENT_TYPE, () ->

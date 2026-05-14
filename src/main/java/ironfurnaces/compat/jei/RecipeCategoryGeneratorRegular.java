@@ -14,14 +14,13 @@ import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.jetbrains.annotations.Nullable;
 
 import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
@@ -45,6 +44,7 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
         animatedEnergy = guiHelper.createAnimatedDrawable(staticEnergy, 300, IDrawableAnimated.StartDirection.BOTTOM, false);
         this.background = guiHelper.createDrawable(IronFurnaces.id("textures/gui/jei.png"), 0, 0, 68, 42);
     }
+
     @Override
     public int getWidth() {
         return 68;
@@ -54,8 +54,9 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
     public int getHeight() {
         return 42;
     }
+
     @Override
-    public RecipeType<SimpleGeneratorRecipe> getRecipeType() {
+    public IRecipeType<SimpleGeneratorRecipe> getRecipeType() {
         return JEICompat.GENERATOR_REGULAR;
     }
 
@@ -72,16 +73,17 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SimpleGeneratorRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(INPUT, 1, 18)
-                .addIngredients(Ingredient.of(recipe.getIngredient().getItem()));
+        builder.addSlot(INPUT, 1, 18).add(Ingredient.of(recipe.getIngredient().getItem()));
     }
 
     @Override
-    public void draw(SimpleGeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics stack, double mouseX, double mouseY) {
-        background.draw(stack);
-        animatedFlame.draw(stack, 1, 1);
-        animatedEnergy.draw(stack, 54, 0);
+    public void draw(SimpleGeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+        IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
+        background.draw(guiGraphics);
+        animatedFlame.draw(guiGraphics, 1, 1);
+        animatedEnergy.draw(guiGraphics, 54, 0);
     }
+
 
     @Override
     public void getTooltip(ITooltipBuilder tooltip, SimpleGeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
@@ -96,10 +98,9 @@ public class RecipeCategoryGeneratorRegular implements IRecipeCategory<SimpleGen
         return IRecipeCategory.super.isHandled(recipe);
     }
 
+
     @Override
-    public @Nullable Identifier getRegistryName(SimpleGeneratorRecipe recipe) {
-        return IRecipeCategory.super.getRegistryName(recipe);
+    public @org.jspecify.annotations.Nullable Identifier getIdentifier(SimpleGeneratorRecipe recipe) {
+        return JEICompat.GENERATOR_REGULAR.getUid();
     }
-
-
 }

@@ -1,40 +1,30 @@
 package ironfurnaces.items.upgrades.furnace_upgrade;
 
-import ironfurnaces.capability.ModCapabilities;
 import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.RainbowConfig;
-import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolClientExtensions;
-import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.RainbowLimitHelper;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class ItemUpgradeTool extends Item {
 
@@ -149,24 +139,6 @@ public class ItemUpgradeTool extends Item {
 
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        tooltip.add(Component.literal(""));
-        PatternUpgradeRule rule = IUpgradeStorage.get(stack);
-        if (rule != null) {
-            var fromName = FurnacePattern.toDisplayName(rule.from()).copy().withStyle(ChatFormatting.YELLOW);
-            var toName = FurnacePattern.toDisplayName(rule.to()).copy().withStyle(ChatFormatting.GREEN);
-
-            tooltip.add(Component.translatable("item.ironfurnaces.upgrade_tool.upgrade_rule", fromName, toName));
-            tooltip.add(Component.literal(""));
-            tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".upgrade_right_click")
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-        } else {
-            tooltip.add(Component.translatable("item.ironfurnaces.upgrade_tool.broken_upgrade_tool")
-                    .withStyle(style -> style.withBold(true).withColor(ChatFormatting.RED)));
-        }
-    }
-
-    @Override
     public InteractionResult useOn(UseOnContext context) {
         if (context.getLevel().isClientSide()) {
             return super.useOn(context);
@@ -212,13 +184,6 @@ public class ItemUpgradeTool extends Item {
 
         return whenInvalided(context, player);
     }
-
-    //? forge {
-    /*@Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new UpgradeToolClientExtensions());
-    }
-    *///?}
 
 
 }

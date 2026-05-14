@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.menu.partition;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.menu.partition;
 
 import net.neoforged.neoforge.items.IItemHandler;
 import org.joml.Vector2i;
@@ -15,3 +16,5 @@ public class LockedRecipePartition extends TrackSlotPartition {
     }
 
 }
+
+*///?}

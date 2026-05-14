@@ -4,28 +4,19 @@ import com.mojang.datafixers.util.Function5;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import ironfurnaces.config.FurnaceConfig;
-import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.AugmentCache;
 import ironfurnaces.tileentity.furnaces.cache.FuelCache;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
-import ironfurnaces.util.FuelBurnTimeUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Containers;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
-//? 1.20.1
-//import net.neoforged.neoforge.common.ForgeHooks;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-import java.util.Optional;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 @Getter(AccessLevel.PRIVATE)
 public abstract class Generate extends ProcessingInstance {
@@ -46,7 +37,7 @@ public abstract class Generate extends ProcessingInstance {
 
     }
 
-    protected static <T extends Generate> MapCodec<T> simpleGenerateCodec(Function5<Integer, Boolean, Float, Float, Float,T> factory) {
+    protected static <T extends Generate> MapCodec<T> simpleGenerateCodec(Function5<Integer, Boolean, Float, Float, Float, T> factory) {
         return RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
                         ExtraCodecs.POSITIVE_INT.fieldOf("fromIndex").forGetter(Generate::getFromIndex),
@@ -61,13 +52,27 @@ public abstract class Generate extends ProcessingInstance {
     public void whenStart(FurnacePatternBlockEntity tile) {
         ItemStack copy = tile.getFuel().getStackInSlot(fromIndex).copy();
         tile.getFuel().getStackInSlot(fromIndex).shrink(1);
-        if (copy.hasCraftingRemainingItem()){
-            ItemStack copy1 = copy.getCraftingRemainingItem().copy();
-            ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy1, false);
-            Level level = tile.getLevel();
-            BlockPos blockPos = tile.getBlockPos();
-            if (level != null && !level.isClientSide){
-                Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
+        ItemStackTemplate remainderTemplate = copy.getItem().getCraftingRemainder(copy);
+        if (remainderTemplate != null) {
+            ItemStack remainder = remainderTemplate.create();
+
+            if (!remainder.isEmpty()) {
+                ItemStack notInserted = tile.getRemaining().insertItemReturnRemaining(remainder, false, null);
+
+                if (!notInserted.isEmpty()) {
+                    Level level = tile.getLevel();
+                    BlockPos blockPos = tile.getBlockPos();
+
+                    if (level != null && !level.isClientSide()) {
+                        Containers.dropItemStack(
+                                level,
+                                blockPos.getX() + 0.5D,
+                                blockPos.getY() + 0.5D,
+                                blockPos.getZ() + 0.5D,
+                                notInserted
+                        );
+                    }
+                }
             }
         }
     }
@@ -86,18 +91,21 @@ public abstract class Generate extends ProcessingInstance {
 
         float actualGeneration = currentModifiers.generatePerTickOutputModifier().get(eachTickOutPut);
         int min = (int) Math.ceil(Math.min(actualGeneration, expectedTotalOutput - currentOutput));
+        try (Transaction transaction = Transaction.openRoot()) {
+            int insert = fuel.insert(min, transaction);
+            if (insert == min) {
+                transaction.commit();
+                currentOutput += currentModifiers.generateCurrentOutputModifier().get(min);
 
-        if (fuel.canReceive(min)) {
-            fuel.receiveEnergy(min, false);
-            currentOutput += currentModifiers.generateCurrentOutputModifier().get(min);
-
-            if (currentOutput >= expectedTotalOutput) {
-                return TickResult.DONE;
+                if (currentOutput >= expectedTotalOutput) {
+                    return TickResult.DONE;
+                }
+                return TickResult.SUCCESS;
+            } else {
+                return TickResult.BLOCKED;
             }
-            return TickResult.SUCCESS;
-        } else {
-            return TickResult.BLOCKED;
         }
+
     }
 
 

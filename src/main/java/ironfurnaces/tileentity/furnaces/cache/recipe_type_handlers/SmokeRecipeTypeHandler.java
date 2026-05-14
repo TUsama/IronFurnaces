@@ -10,8 +10,11 @@ import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
+import ironfurnaces.util.FoodUtil;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,8 +38,7 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
 
     @Override
     public boolean testBurnable(ItemStack stack, FurnacePatternBlockEntity blockEntity) {
-        FoodProperties foodProperties = stack.getItem().getFoodProperties(stack, null);
-        return foodProperties != null && foodProperties.nutrition() > 0;
+        return FoodUtil.isBurnableFood(stack);
     }
 
 
@@ -52,12 +54,10 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
                 if (workingIndexes.contains(i)) continue;
                 ItemStack stackInSlot = blockEntity.getFuel().getStackInSlot(i);
                 if (stackInSlot.isEmpty()) continue;
-                Item item = stackInSlot.getItem();
-                FoodProperties foodProperties = item.getFoodProperties(stackInSlot, null);
-                if (foodProperties != null && foodProperties.nutrition() > 0) {
-                    instanceManager.addInstance(new Generate.SmokingGenerate(i, foodProperties.nutrition() * FurnaceConfig.config.nutrition_to_energy_factor, usedStats.energyGenerationPerTick()));
-                }
-
+                int finalI = i;
+                FoodUtil.whenIsBurnableFood(stackInSlot, x -> {
+                    instanceManager.addInstance(new Generate.SmokingGenerate(finalI, x, usedStats.energyGenerationPerTick()));
+                });
             }
         } else {
             for (int i = 0; i < input.getSlots(); i++) {
@@ -78,7 +78,7 @@ public class SmokeRecipeTypeHandler implements IRecipeTypeHandler {
     }
 
     @Override
-    public List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
+    public List<IRecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
         if (mode.isGenerator()) {
             var type1 = JEICompat.GENERATOR_SMOKING;
             return List.of(type1);

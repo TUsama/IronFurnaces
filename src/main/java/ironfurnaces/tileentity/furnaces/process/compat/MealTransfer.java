@@ -1,4 +1,5 @@
-package ironfurnaces.tileentity.furnaces.process.compat;
+//? fd{
+/*package ironfurnaces.tileentity.furnaces.process.compat;
 
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
@@ -79,3 +80,5 @@ public class MealTransfer extends ProcessingInstance {
         return 0;
     }
 }
+
+*///?}

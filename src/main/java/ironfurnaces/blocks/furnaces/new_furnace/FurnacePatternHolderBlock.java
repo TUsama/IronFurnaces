@@ -1,9 +1,7 @@
 package ironfurnaces.blocks.furnaces.new_furnace;
 
 import com.mojang.serialization.MapCodec;
-import ironfurnaces.Config;
 import ironfurnaces.capability.PlayerDataHandler;
-import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.IJovialSetter;
 import ironfurnaces.items.ItemFurnaceCopyV2;
 import ironfurnaces.items.ItemJovial;
@@ -58,7 +56,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.component.DataComponents;
 //?}
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 import static ironfurnaces.registration.ModBlocks.getReferenceStateOrNull;
 import static net.minecraft.network.chat.Component.translatable;
@@ -181,9 +178,6 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
 
     @Override
     public int getLightEmission(BlockState state, BlockGetter world, BlockPos pos) {
-        if (Config.disableLightupdates.get()) {
-            return 0;
-        }
         return state.getValue(BlockStateProperties.LIT) ? 14 : 0;
     }
 

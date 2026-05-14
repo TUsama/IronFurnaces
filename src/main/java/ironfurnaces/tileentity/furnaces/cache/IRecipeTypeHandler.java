@@ -2,8 +2,11 @@
 //~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.cache;
 
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -25,11 +28,16 @@ public interface IRecipeTypeHandler extends ValueIOSerializable {
 
     void provideInstance(FurnacePatternBlockEntity blockEntity);
 
-    List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode);
+    List<IRecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode);
 
     default Optional<? extends RecipeHolder> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
-        //~ if >1.20.1 'SimpleContainer(stacks.toArray(new ItemStack[0]))' -> 'SingleRecipeInput(stacks.get(0))'
-        return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SingleRecipeInput(stacks.get(0)), blockEntity.getLevel());
+        if (blockEntity.getLevel().isClientSide()) {
+            IronFurnaces.LOGGER.debug("Invoke getRecipe() in ClientLevel!");
+            return Optional.empty();
+        } else {
+            return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SingleRecipeInput(stacks.get(0)), ((ServerLevel) blockEntity.getLevel()));
+        }
+
     }
 
     default boolean allowPlaceItem(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {

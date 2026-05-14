@@ -9,6 +9,7 @@ import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import ironfurnaces.tileentity.furnaces.process.Generate;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -56,7 +57,7 @@ public class GeneratorBlastRecipeTypeHandler implements IRecipeTypeHandler {
 
 
     @Override
-    public List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
+    public List<IRecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
         return List.of(ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get());
     }
 

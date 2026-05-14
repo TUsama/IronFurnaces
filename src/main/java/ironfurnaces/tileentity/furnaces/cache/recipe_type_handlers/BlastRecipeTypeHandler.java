@@ -9,6 +9,7 @@ import ironfurnaces.tileentity.furnaces.process.Burn;
 import ironfurnaces.tileentity.furnaces.process.ProcessingInstanceManager;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -59,7 +60,7 @@ public class BlastRecipeTypeHandler implements IRecipeTypeHandler {
 
 
     @Override
-    public List<mezz.jei.api.recipe.RecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
+    public List<IRecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode) {
         return List.of(RecipeTypes.BLASTING);
     }
 

@@ -1,4 +1,3 @@
-//~ replace_serialization
 package ironfurnaces.tileentity.heater;
 
 import ironfurnaces.adaptor.energy.FEnergyStorage;
@@ -25,6 +24,7 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
     @Getter
     private final FEnergyStorage energy;
+    @Getter
     private final ItemStacksResourceHandler items;
 
     public BlockWirelessEnergyHeaterTile(BlockPos pos, BlockState state) {
@@ -55,10 +55,6 @@ public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
         return Component.translatable("container.ironfurnaces.wireless_energy_heater");
     }
 
-    @Override
-    protected NonNullList<ItemStack> getItems() {
-        return this.items.copyToList();
-    }
 
     @Override
     protected void setItems(NonNullList<ItemStack> nonNullList) {

@@ -2,6 +2,7 @@ package ironfurnaces.compat.jei;
 
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.GeneratorRecipe;
+import ironfurnaces.registration.JEICompat;
 import ironfurnaces.registration.ModCustomRecipe;
 import ironfurnaces.registration.ModItems;
 import ironfurnaces.util.StringHelper;
@@ -14,13 +15,13 @@ import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static mezz.jei.api.recipe.RecipeIngredientRole.INPUT;
 
@@ -56,7 +57,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
     }
 
     @Override
-    public RecipeType<GeneratorRecipe> getRecipeType() {
+    public IRecipeType<GeneratorRecipe> getRecipeType() {
         return ModCustomRecipe.GENERATOR_RECIPE.asJEIRecipeType().get();
     }
 
@@ -73,12 +74,12 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneratorRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(INPUT, 1, 18)
-                .addIngredients(recipe.getIngredient());
+        builder.addSlot(INPUT, 1, 18).add(recipe.getIngredient());
     }
 
     @Override
-    public void draw(GeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(GeneratorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+        IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
         background.draw(guiGraphics, 0, 0);
         animatedFlame.draw(guiGraphics, 1, 1);
         animatedEnergy.draw(guiGraphics, 54, 0);
@@ -98,7 +99,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
     }
 
     @Override
-    public @Nullable Identifier getRegistryName(GeneratorRecipe recipe) {
-        return IRecipeCategory.super.getRegistryName(recipe);
+    public @Nullable Identifier getIdentifier(GeneratorRecipe recipe) {
+        return JEICompat.GENERATOR_REGULAR.getUid();
     }
 }

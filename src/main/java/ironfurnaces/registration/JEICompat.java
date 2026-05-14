@@ -3,12 +3,13 @@ package ironfurnaces.registration;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.recipes.SimpleGeneratorRecipe;
+import mezz.jei.api.recipe.types.IRecipeType;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class JEICompat {
-    public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_SMOKING = mezz.jei.api.recipe.RecipeType.create(IronFurnaces.MOD_ID, "generator_smoking", SimpleGeneratorRecipe.class);
-    public static mezz.jei.api.recipe.RecipeType<SimpleGeneratorRecipe> GENERATOR_REGULAR = mezz.jei.api.recipe.RecipeType.create(IronFurnaces.MOD_ID, "generator_regular", SimpleGeneratorRecipe.class);
+    public static IRecipeType<SimpleGeneratorRecipe> GENERATOR_SMOKING = IRecipeType.create(IronFurnaces.MOD_ID, "generator_smoking", SimpleGeneratorRecipe.class);
+    public static IRecipeType<SimpleGeneratorRecipe> GENERATOR_REGULAR = IRecipeType.create(IronFurnaces.MOD_ID, "generator_regular", SimpleGeneratorRecipe.class);
 
     public static void register(){
         REGISTRATE.addDataGenerator(ProviderType.LANG, x -> {

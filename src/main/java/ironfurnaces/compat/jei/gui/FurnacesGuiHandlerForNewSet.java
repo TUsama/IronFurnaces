@@ -1,6 +1,5 @@
 package ironfurnaces.compat.jei.gui;
 
-import ironfurnaces.gui.furnaces.BlockIronFurnaceScreenBase;
 import ironfurnaces.gui.furnaces.FurnacePatternScreen;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
@@ -32,7 +31,7 @@ public class FurnacesGuiHandlerForNewSet implements IGuiContainerHandler<Furnace
             currentTop += width;
         }
 
-        if (menu.openRemaining){
+        if (menu.openRemaining) {
             rect2is.add(new Rect2i(guiLeft - width - sidePanelWidth, currentTop + width, sidePanelWidth, sidePanelHeight));
             currentTop += sidePanelHeight;
         } else {
@@ -40,7 +39,7 @@ public class FurnacesGuiHandlerForNewSet implements IGuiContainerHandler<Furnace
             currentTop += width;
         }
 
-        if (menu.openAugment){
+        if (menu.openAugment) {
             rect2is.add(new Rect2i(guiLeft - width - sidePanelWidth, currentTop + width + width, sidePanelWidth, sidePanelHeight));
         } else {
             rect2is.add(new Rect2i(guiLeft - width, currentTop + width + width, width, width));

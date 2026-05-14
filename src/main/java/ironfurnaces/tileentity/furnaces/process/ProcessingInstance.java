@@ -6,11 +6,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.IFurnaceStats;
-import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
+//? fd{
+/*import ironfurnaces.tileentity.furnaces.process.compat.Cooking;
 import ironfurnaces.tileentity.furnaces.process.compat.MealTransfer;
+*///?}
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class ProcessingInstance {
@@ -20,9 +23,11 @@ public abstract class ProcessingInstance {
             Burn.Smoking.TYPE, Burn.Smoking.CODEC,
             Generate.SmeltGenerate.TYPE, Generate.SmeltGenerate.CODEC,
             Generate.BlastGenerate.TYPE, Generate.BlastGenerate.CODEC,
-            Generate.SmokingGenerate.TYPE, Generate.SmokingGenerate.CODEC,
-            Cooking.TYPE, Cooking.CODEC,
+            Generate.SmokingGenerate.TYPE, Generate.SmokingGenerate.CODEC
+            //? fd{
+            /*,Cooking.TYPE, Cooking.CODEC,
             MealTransfer.TYPE, MealTransfer.CODEC
+            *///?}
     );
 
     public static final Codec<ProcessingInstance> DISPATCH_CODEC = Codec.STRING.dispatch(
@@ -71,8 +76,8 @@ public abstract class ProcessingInstance {
         return TickResult.SUCCESS;
     }
 
-    protected boolean validateSlot(IItemHandler handler, FurnacePatternBlockEntity tile){
-        return fromIndex >= 0 && fromIndex < handler.getSlots();
+    protected boolean validateSlot(ResourceHandler<ItemResource> handler, FurnacePatternBlockEntity tile){
+        return fromIndex >= 0 && fromIndex < handler.size();
     }
 
 

@@ -1,4 +1,5 @@
-package ironfurnaces.items.augments.compat;
+//? fd{
+/*package ironfurnaces.items.augments.compat;
 
 import ironfurnaces.items.augments.ItemAugmentBlue;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
@@ -17,3 +18,5 @@ public class ItemAugmentFarmerDelightCooking extends ItemAugmentBlue {
 
 
 }
+
+*///?}

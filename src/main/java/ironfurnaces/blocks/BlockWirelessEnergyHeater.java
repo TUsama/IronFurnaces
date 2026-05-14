@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.NetworkHooks;
 *///?} else {
 import net.minecraft.core.component.DataComponents;
 import ironfurnaces.registration.ModDataComponents;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 //?}
 import javax.annotation.Nullable;
 
@@ -49,7 +50,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
     @Nullable
     protected static <T extends BlockEntity> BlockEntityTicker<T> createTicker(Level p_151988_, BlockEntityType<T> p_151989_, BlockEntityType<? extends BlockWirelessEnergyHeaterTile> p_151990_) {
-        return p_151988_.isClientSide ? null : createTickerHelper(p_151989_, p_151990_, BlockWirelessEnergyHeaterTile::tick);
+        return p_151988_.isClientSide() ? null : createTickerHelper(p_151989_, p_151990_, BlockWirelessEnergyHeaterTile::tick);
     }
 
     private static void setNameIfCustomNameExist(BlockWirelessEnergyHeaterTile te, ItemStack stack) {
@@ -71,22 +72,27 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     }
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        if (!world.isClientSide) {
-            BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
+        if (!level.isClientSide()) {
+            BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) level.getBlockEntity(pos);
             ItemStack stack = new ItemStack(ModBlocks.HEATER.get());
             setNameIfCustomNameExist(te, stack);
-            EnergyWrapper wrapper = te.getWrapper();
-            if (wrapper.getEnergyStored() > 0) {
+            var wrapper = te.getEnergy();
+            if (wrapper.getAmountAsInt() > 0) {
                 VanillaCapabilityHandler.withItemEnergyStorage(stack, x -> {
-                    x.receiveEnergy(wrapper.getEnergyStored(), false);
+                    try (Transaction tx = Transaction.openRoot()){
+                        x.insert(wrapper.getAmountAsInt(), tx);
+                        tx.commit();
+                    }
+
                 });
             }
             if (!player.isCreative())
-                Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
+                Containers.dropItemStack(level, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
         }
-        return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
+        return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
     }
+
 
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
@@ -95,54 +101,32 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
             setNameIfCustomNameExist(te, stack);
             VanillaCapabilityHandler.withItemEnergyStorage(stack, energy ->{
                 VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    h.receiveEnergy(energy.getEnergyStored(), false);
+                    try (Transaction tx = Transaction.openRoot()){
+                        h.insert(energy.getAmountAsInt(), tx);
+                        tx.commit();
+                    }
                 });
             });
         }
     }
 
-    //? forge {
-    /*@Override
-    public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player, InteractionHand p_225533_5_, BlockHitResult p_225533_6_) {
-        if (!world.isClientSide) {
-            this.interactWith(world, pos, player);
-        }
-        return InteractionResult.SUCCESS;
-    }
-
-
-
-
-
-    *///? } else {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             this.interactWith(level, pos, player);
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
-    //?}
+
 
 
     private void interactWith(Level world, BlockPos pos, Player player) {
         BlockEntity tileEntity = world.getBlockEntity(pos);
-        if (tileEntity instanceof MenuProvider) {
-            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"), (window, playerinv, $) -> new BlockWirelessEnergyHeaterContainer(ModMenus.HEATER_MENU.get(), window, world, playerinv, player, pos), buf -> {
+        if (tileEntity instanceof BlockWirelessEnergyHeaterTile tile) {
+            ModMenus.HEATER_MENU.open((ServerPlayer) player, Component.translatable("container.ironfurnaces.wireless_energy_heater"), (window, playerinv, $) -> new BlockWirelessEnergyHeaterContainer(window, playerinv, tile), buf -> {
                 buf.writeBlockPos(tileEntity.getBlockPos());
             });
         }
     }
 
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean p_196243_5_) {
-        if (state.getBlock() != oldState.getBlock()) {
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof BlockWirelessEnergyHeaterTile) {
-                Containers.dropContents(world, pos, (BlockWirelessEnergyHeaterTile) te);
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, world, pos, oldState, p_196243_5_);
-        }
-    }
 }

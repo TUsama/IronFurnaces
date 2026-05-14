@@ -1,4 +1,3 @@
-//~ replace_INBTSerializable
 package ironfurnaces.capability;
 
 import com.mojang.serialization.Codec;

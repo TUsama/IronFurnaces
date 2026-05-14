@@ -1,204 +1,197 @@
 package ironfurnaces.container;
 
-import ironfurnaces.capability.VanillaCapabilityHandler;
-import ironfurnaces.container.slots.SlotHeater;
-import ironfurnaces.adaptor.energy.FEnergyStorage;
-import ironfurnaces.items.ItemHeater;
+import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
+import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
+import ironfurnaces.tileentity.furnaces.data.ContainerDataField;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-//? 1.20.1 {
-/*import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-*///? } else {
-
-//?}
-
-
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import org.jetbrains.annotations.Nullable;
-
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
+    private static final int HEATER_SLOT = 0;
 
+    private static final int PLAYER_INVENTORY_START = 1;
+    private static final int PLAYER_INVENTORY_END = PLAYER_INVENTORY_START + 27;
 
-    protected BlockWirelessEnergyHeaterTile te;
-    protected Player playerEntity;
-    protected IItemHandler playerInventory;
-    protected final Level world;
+    private static final int HOTBAR_START = PLAYER_INVENTORY_END;
+    private static final int HOTBAR_END = HOTBAR_START + 9;
 
-    public BlockWirelessEnergyHeaterContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        this(ModMenus.HEATER_MENU.get(), windowId, world, playerInventory, player, pos);
+    private static final int DATA_ENERGY = 0;
+    private static final int DATA_MAX_ENERGY = 1;
+    private static final int DATA_COUNT = 2;
 
+    @Getter
+    private final BlockWirelessEnergyHeaterTile blockEntity;
+    private final ContainerLevelAccess access;
+
+    public BlockWirelessEnergyHeaterContainer(
+            int containerId,
+            Inventory playerInventory,
+            RegistryFriendlyByteBuf buf
+    ) {
+        this(
+                containerId,
+                playerInventory,
+                getBlockEntity(playerInventory, buf.readBlockPos()),
+                new SimpleContainerData(DATA_COUNT)
+        );
     }
 
-    public BlockWirelessEnergyHeaterContainer(@Nullable MenuType<?> menuType, int containerId, Level world, Inventory playerInventory, Player playerEntity, BlockPos pos) {
-        super(menuType, containerId);
-        this.world = world;
-        this.playerInventory = new InvWrapper(playerInventory);
-        this.playerEntity = playerEntity;
-        this.te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
-        trackPower();
-        this.addSlot(new SlotHeater(te, 0, 80, 37));
-        layoutPlayerInventorySlots(8, 84);
+    public BlockWirelessEnergyHeaterContainer(
+            int containerId,
+            Inventory playerInventory,
+            BlockWirelessEnergyHeaterTile blockEntity
+    ) {
+        this(
+                containerId,
+                playerInventory,
+                blockEntity,
+                createServerData(blockEntity)
+        );
     }
+
+    private BlockWirelessEnergyHeaterContainer(
+            int containerId,
+            Inventory playerInventory,
+            BlockWirelessEnergyHeaterTile blockEntity,
+            ContainerData data
+    ) {
+        super(ModMenus.HEATER_MENU.get(), containerId);
+
+        checkContainerDataCount(data, DATA_COUNT);
+
+        this.blockEntity = blockEntity;
+        this.access = ContainerLevelAccess.create(
+                blockEntity.getLevel(),
+                blockEntity.getBlockPos()
+        );
+
+        this.addSlot(new ResourceHandlerSlot(blockEntity.getItems(), (index, resource, amount) -> blockEntity.getItems().set(index, resource, amount), 0, 80, 37));
+
+        addPlayerInventory(playerInventory, 8, 84);
+        addPlayerHotbar(playerInventory, 8, 142);
+
+        this.addDataSlots(data);
+    }
+
+    private static BlockWirelessEnergyHeaterTile getBlockEntity(
+            Inventory playerInventory,
+            BlockPos pos
+    ) {
+        Level level = playerInventory.player.level();
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+
+        if (blockEntity instanceof BlockWirelessEnergyHeaterTile heater) {
+            return heater;
+        }
+
+        throw new IllegalStateException(
+                "Expected BlockWirelessEnergyHeaterTile at " + pos
+                        + ", got " + blockEntity
+        );
+    }
+
+    private static ContainerData createServerData(BlockWirelessEnergyHeaterTile blockEntity) {
+        return ContainerDataBuilder.create()
+                .intValue(() -> blockEntity.getEnergy().getAmountAsInt(),
+                        x -> blockEntity.getEnergy().setEnergy(x)
+                )
+                .intValue(() -> blockEntity.getEnergy().getCapacityAsInt(),
+                        x -> blockEntity.getEnergy().setCapacity(x)
+                ).build();
+    }
+
 
     public int getEnergy() {
-        IEnergyStorage blockEnergyStorage = VanillaCapabilityHandler.getBlockEnergyStorage(this.te, null);
-        if (blockEnergyStorage != null){
-            return blockEnergyStorage.getEnergyStored();
-        }
-        return 0;
+        return blockEntity.getEnergy().getAmountAsInt();
     }
 
-    public int getMaxEnergy()
-    {
-        IEnergyStorage blockEnergyStorage = VanillaCapabilityHandler.getBlockEnergyStorage(this.te, null);
-        if (blockEnergyStorage != null){
-            return blockEnergyStorage.getMaxEnergyStored();
-        }
-        return 0;
+    public int getMaxEnergy() {
+        return blockEntity.getEnergy().getCapacityAsInt();
     }
 
-    // Credit - Mcjty
-    // Setup syncing of power from server to client so that the GUI can show the amount of power in the block
-    private void trackPower() {
-        // Unfortunatelly on a dedicated server ints are actually truncated to short so we need
-        // to split our integer here (split our 32 bit integer into two 16 bit integers)
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return getMaxEnergy() & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    int capacity = h.getMaxEnergyStored() & 0xffff0000;
-                    ((FEnergyStorage)h).setCapacity(capacity + (value & 0xffff));
-                });
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return (getMaxEnergy() >> 16) & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    int capacity = h.getMaxEnergyStored() & 0x0000ffff;
-                    ((FEnergyStorage)h).setCapacity(capacity | (value << 16));
-                });
-            }
-        });
-
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return getEnergy() & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    int energyStored = h.getEnergyStored() & 0xffff0000;
-                    ((FEnergyStorage)h).setEnergy(energyStored + (value & 0xffff));
-                });
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return (getEnergy() >> 16) & 0xffff;
-            }
-
-            @Override
-            public void set(int value) {
-                VanillaCapabilityHandler.withBlockEnergyStorage(te, null, h -> {
-                    int energyStored = h.getEnergyStored() & 0x0000ffff;
-                    ((FEnergyStorage)h).setEnergy(energyStored | (value << 16));
-                });
-            }
-        });
-    }
-
-    
     public int getEnergyScaled(int pixels) {
-        int i = this.getEnergy();
-        int j = this.getMaxEnergy();
-        return j != 0 && i != 0 ? i * pixels / j : 0;
-    }
+        int energy = getEnergy();
+        int maxEnergy = getMaxEnergy();
 
-    private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
-        for (int i = 0 ; i < amount ; i++) {
-            addSlot(new SlotItemHandler(handler, index, x, y));
-            x += dx;
-            index++;
+        if (energy <= 0 || maxEnergy <= 0) {
+            return 0;
         }
-        return index;
+
+        return (int) ((long) energy * pixels / maxEnergy);
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
-        for (int j = 0 ; j < verAmount ; j++) {
-            index = addSlotRange(handler, index, x, y, horAmount, dx);
-            y += dy;
+    private void addPlayerInventory(Inventory playerInventory, int left, int top) {
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 9; column++) {
+                this.addSlot(new Slot(
+                        playerInventory,
+                        column + row * 9 + 9,
+                        left + column * 18,
+                        top + row * 18
+                ));
+            }
         }
-        return index;
     }
 
-    private void layoutPlayerInventorySlots(int leftCol, int topRow) {
-        // Player inventory
-        addSlotBox(playerInventory, 9, leftCol, topRow, 9, 18, 3, 18);
-
-        // Hotbar
-        topRow += 58;
-        addSlotRange(playerInventory, 0, leftCol, topRow, 9, 18);
+    private void addPlayerHotbar(Inventory playerInventory, int left, int top) {
+        for (int column = 0; column < 9; column++) {
+            this.addSlot(new Slot(
+                    playerInventory,
+                    column,
+                    left + column * 18,
+                    top
+            ));
+        }
     }
 
     @Override
-    public ItemStack quickMoveStack(Player playerIn, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
+    public ItemStack quickMoveStack(Player player, int index) {
+        ItemStack result = ItemStack.EMPTY;
+
         Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
-            ItemStack itemstack1 = slot.getItem();
-            itemstack = itemstack1.copy();
-            if (!(itemstack.getItem() instanceof ItemHeater))
-            {
-                return ItemStack.EMPTY;
-            }
-            if (index < 1) {
-                if (!this.moveItemStackTo(itemstack1, 1, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
-                return ItemStack.EMPTY;
-            }
+        if (slot == null || !slot.hasItem()) {
+            return result;
+        }
 
-            if (itemstack1.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
+        ItemStack stackInSlot = slot.getItem();
+        result = stackInSlot.copy();
+
+        if (index == HEATER_SLOT) {
+            if (!this.moveItemStackTo(stackInSlot, PLAYER_INVENTORY_START, HOTBAR_END, true)) {
+                return ItemStack.EMPTY;
+            }
+        } else {
+            if (!this.moveItemStackTo(stackInSlot, HEATER_SLOT, HEATER_SLOT + 1, false)) {
+                return ItemStack.EMPTY;
             }
         }
 
-        return itemstack;
+        if (stackInSlot.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        if (stackInSlot.getCount() == result.getCount()) {
+            return ItemStack.EMPTY;
+        }
+
+        slot.onTake(player, stackInSlot);
+        return result;
     }
 
     @Override
-    public boolean stillValid(Player p_38874_) {
-        return this.te.stillValid(p_38874_);
+    public boolean stillValid(Player player) {
+        return stillValid(this.access, player, ModBlocks.HEATER.get());
     }
-
 }
