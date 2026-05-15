@@ -1,3 +1,6 @@
+### 0.4.4
+fix slot interaction with vanilla hopper
+
 ### 0.4.3
 fix a bug that player furnace list can't be deserialized from disk
 fix new rainbow furnace, add a small delay for working state check
