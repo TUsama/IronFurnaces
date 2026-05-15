@@ -20,6 +20,7 @@ public abstract class ResizableCache extends ItemStackHandler implements ICacheI
     protected AbstractFurnaceModeHandler mode;
     @Nullable
     private int[] cacheSlotArray;
+    protected IFurnaceStats<?> usedStats;
     private final FillStats fill_stats = new FillStats();
 
     public ResizableCache(AbstractFurnaceModeHandler mode) {
@@ -93,6 +94,7 @@ public abstract class ResizableCache extends ItemStackHandler implements ICacheI
     @Override
     public void update(AbstractFurnaceModeHandler mode, IRecipeTypeHandler recipeTypeHandler, IFurnaceStats<?> stats, FurnacePatternBlockEntity blockEntity) {
         this.mode = mode;
+        this.usedStats = stats;
         resizeSlots(mode, recipeTypeHandler, stats, blockEntity);
         int slots = this.getSlots();
         int[] ints = new int[slots];

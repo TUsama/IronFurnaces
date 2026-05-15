@@ -33,6 +33,11 @@ public class InputCache extends ResizableCache {
 
 
     @Override
+    public int getSlots() {
+        return mode.expectedInputSlots(usedStats);
+    }
+
+    @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         return grabRecipeCallback.apply(stack);
     }

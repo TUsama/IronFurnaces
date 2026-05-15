@@ -159,7 +159,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             setChanged();
             markForClientUpdate();
         });
-
+        //allInv和allInvForAutomation有个关键点，前四个如果顺序不一致，那么和原版的交互就会出问题，因为getItem()用的是allInv，而getslotforface()用的是allInvForAutomation
         this.allInv = new IFCombinedCache(this.input, output, fuel, remaining, augments, viewOnly);
         this.allInvForAutomation = new IFCombinedCache(this.input, output, fuel, remaining);
         this.allOutput = new IFCombinedCache(output, remaining);
@@ -639,7 +639,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
     @Override
     public int[] getSlotsForFace(Direction side) {
-        return ((ICacheIndex) settingsV2.IOSetting().get(side).handlerSelector.apply(this)).getCacheIndex();
+        return allInvForAutomation.getSlotIndexesOf(settingsV2.IOSetting().get(side).handlerSelector.apply(this));
     }
 
     @Override

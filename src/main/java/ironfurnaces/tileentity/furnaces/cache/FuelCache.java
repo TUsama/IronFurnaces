@@ -39,6 +39,11 @@ public class FuelCache extends ResizableCache implements IEnergyStorage {
     }
 
     @Override
+    public int getSlots() {
+        return mode.expectedFuelSlots(usedStats);
+    }
+
+    @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
         return energy.receiveEnergy(maxReceive, simulate);
     }

@@ -10,7 +10,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.IntStream;
 
 // a copy from CombinedInvWrapper, but with recalc when furnace mode updated.
@@ -55,6 +55,103 @@ public class IFCombinedCache implements ICacheIndex, IItemHandlerModifiable, ICa
             }
         }
         return -1;
+    }
+
+    public int[] getSlotIndexesOf(IItemHandlerModifiable target) {
+        if (target == null) {
+            return new int[0];
+        }
+
+        if (target == this) {
+            return IntStream.range(0, getSlots()).toArray();
+        }
+
+        Set<IItemHandlerModifiable> targetLeaves = Collections.newSetFromMap(new IdentityHashMap<>());
+        collectLeafHandlers(
+                target,
+                targetLeaves,
+                Collections.newSetFromMap(new IdentityHashMap<>())
+        );
+
+        if (targetLeaves.isEmpty()) {
+            return new int[0];
+        }
+
+        List<Integer> result = new ArrayList<>();
+        collectMatchingSlotIndexes(
+                this,
+                0,
+                targetLeaves,
+                result,
+                Collections.newSetFromMap(new IdentityHashMap<>())
+        );
+
+        return result.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private static void collectLeafHandlers(
+            IItemHandlerModifiable handler,
+            Set<IItemHandlerModifiable> result,
+            Set<IFCombinedCache> visiting
+    ) {
+        if (handler == null || handler instanceof ViewOnlyCache) {
+            return;
+        }
+
+        if (handler instanceof IFCombinedCache combined) {
+            if (!visiting.add(combined)) {
+                return;
+            }
+
+            for (IItemHandlerModifiable child : combined.itemHandler) {
+                collectLeafHandlers(child, result, visiting);
+            }
+
+            visiting.remove(combined);
+            return;
+        }
+
+        result.add(handler);
+    }
+
+    private static void collectMatchingSlotIndexes(
+            IItemHandlerModifiable current,
+            int globalOffset,
+            Set<IItemHandlerModifiable> targetLeaves,
+            List<Integer> result,
+            Set<IFCombinedCache> visiting
+    ) {
+        if (current == null || current instanceof ViewOnlyCache) {
+            return;
+        }
+
+        if (current instanceof IFCombinedCache combined) {
+            if (!visiting.add(combined)) {
+                return;
+            }
+
+            int offset = globalOffset;
+
+            for (IItemHandlerModifiable child : combined.itemHandler) {
+                if (child instanceof ViewOnlyCache) {
+                    continue;
+                }
+
+                collectMatchingSlotIndexes(child, offset, targetLeaves, result, visiting);
+                offset += child.getSlots();
+            }
+
+            visiting.remove(combined);
+            return;
+        }
+
+        if (!targetLeaves.contains(current)) {
+            return;
+        }
+
+        for (int i = 0; i < current.getSlots(); i++) {
+            result.add(globalOffset + i);
+        }
     }
 
     protected IItemHandlerModifiable getHandlerFromIndex(int index)
