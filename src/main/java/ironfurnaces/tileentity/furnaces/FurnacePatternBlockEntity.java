@@ -700,8 +700,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
                     VanillaCapabilityHandler.withBlockItemHandler(neighbor, dir.getOpposite(), x -> {
                         if (settingsV2.autoOutput()) {
                             IItemHandler outputHandler = switch (mode) {
-                                case OUTPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
-                                case ALL -> FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
+                                case OUTPUT, INPUT_AND_OUTPUT, ALL ->  FurnaceSettingsV2.IOMode.OUTPUT.handlerSelector.apply(this);
                                 default -> EmptyHandler.INSTANCE;
                             };
                             if (outputHandler != EmptyHandler.INSTANCE) {
@@ -711,9 +710,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
                         // 输入阶段
                         if (settingsV2.autoInput()) {
-                            // 输入只拉 INPUT 或 FUEL
                             IItemHandler inputHandler = switch (mode) {
-                                case INPUT, INPUT_AND_OUTPUT -> mode.handlerSelector.apply(this);
+                                case INPUT, INPUT_AND_OUTPUT, FUEL -> mode.handlerSelector.apply(this);
                                 case ALL -> FurnaceSettingsV2.IOMode.INPUT.handlerSelector.apply(this);
                                 default -> EmptyHandler.INSTANCE;
                             };

@@ -1,5 +1,7 @@
 ### 0.4.4
 fix slot interaction with vanilla hopper
+fix auto input can't pull the fuel into fuel slot
+input and output mode is still kinda confused, I don't recommend you use this mode atm.
 
 ### 0.4.3
 fix a bug that player furnace list can't be deserialized from disk
