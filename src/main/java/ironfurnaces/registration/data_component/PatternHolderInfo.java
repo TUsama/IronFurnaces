@@ -27,30 +27,30 @@ import java.util.function.Consumer;
 
 import static net.minecraft.network.chat.Component.translatable;
 
-@Getter(AccessLevel.PRIVATE)
-public class FurnaceItemInfo implements TooltipProvider {
-    public static final Codec<FurnaceItemInfo> CODEC = RecordCodecBuilder.create(instance ->
+@Getter(AccessLevel.PUBLIC)
+public class PatternHolderInfo implements TooltipProvider {
+    public static final Codec<PatternHolderInfo> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    FurnacePattern.REF_CODEC.fieldOf("pattern").forGetter(FurnaceItemInfo::getPattern),
-                    FurnaceSettingsV2.CODEC.fieldOf("setting").forGetter(FurnaceItemInfo::getSettingsV2)
-            ).apply(instance, FurnaceItemInfo::new));
+                    FurnacePattern.REF_CODEC.fieldOf("pattern").forGetter(PatternHolderInfo::getPattern),
+                    FurnaceSettingsV2.CODEC.fieldOf("setting").forGetter(PatternHolderInfo::getSettingsV2)
+            ).apply(instance, PatternHolderInfo::new));
 
     private FurnacePattern pattern;
     private FurnaceSettingsV2 settingsV2;
 
-    public FurnaceItemInfo(@Nullable FurnacePattern pattern, @Nullable FurnaceSettingsV2 settingsV2) {
+    public PatternHolderInfo(@Nullable FurnacePattern pattern, @Nullable FurnaceSettingsV2 settingsV2) {
         this.pattern = pattern;
         if (this.pattern == null) this.pattern = FurnacePattern.FALLBACK;
         this.settingsV2 = settingsV2;
         if (this.settingsV2 == null) this.settingsV2 = FurnaceSettingsV2.DEFAULT;
     }
 
-    public static void writeTo(ItemStack stack, FurnaceItemInfo info) {
+    public static void writeTo(ItemStack stack, PatternHolderInfo info) {
         if (stack.isEmpty()) {
             return;
         }
 
-        stack.set(ModDataComponents.FURNACE_ITEM_INFO.get(), info);
+        stack.set(ModDataComponents.PATTERN_HOLDER_INFO.get(), info);
     }
 
     public static void writeTo(
@@ -58,7 +58,7 @@ public class FurnaceItemInfo implements TooltipProvider {
             FurnacePattern pattern,
             FurnaceSettingsV2 settingsV2
     ) {
-        writeTo(stack, new FurnaceItemInfo(pattern, settingsV2));
+        writeTo(stack, new PatternHolderInfo(pattern, settingsV2));
     }
 
     @Override

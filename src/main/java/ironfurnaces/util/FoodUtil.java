@@ -42,7 +42,7 @@ public class FoodUtil {
         return foodProperties != null && foodProperties.nutrition() > 0;
     }
 
-    public boolean whenIsBurnableFood(ItemStack stack, IntConsumer energy) {
+    public void whenIsBurnableFood(ItemStack stack, IntConsumer energy) {
         if (isBurnableFood(stack)){
             energy.accept(getEnergyFromFood(stack));
         }

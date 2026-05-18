@@ -25,7 +25,7 @@ public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
     @Getter
     private final FEnergyStorage energy;
     @Getter
-    private final ItemStacksResourceHandler items;
+    private final ItemStacksResourceHandler itemHandler;
 
     public BlockWirelessEnergyHeaterTile(BlockPos pos, BlockState state) {
         this(ModBlocks.asGenericBlockEntityType(ModBlocks.HEATER), pos, state);
@@ -34,7 +34,7 @@ public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
     public BlockWirelessEnergyHeaterTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
         super(tileEntityTypeIn, pos, state);
         this.energy = new FEnergyStorage(GameplayConfig.config.heater_capacity.get(), GameplayConfig.config.heater_capacity.get(), 0).callback(fEnergyStorage -> setChanged());
-        this.items = new ItemStacksResourceHandler(1) {
+        this.itemHandler = new ItemStacksResourceHandler(1) {
             @Override
             public boolean isValid(int index, ItemResource resource) {
                 return resource.is(ModItems.ITEM_HEATER.asItem());
@@ -55,12 +55,21 @@ public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
         return Component.translatable("container.ironfurnaces.wireless_energy_heater");
     }
 
+    @Override
+    protected NonNullList<ItemStack> getItems() {
+        return itemHandler.copyToList();
+    }
 
     @Override
     protected void setItems(NonNullList<ItemStack> nonNullList) {
-        for (int i = 0; i < this.items.size(); i++) {
-            if (nonNullList.size() - 1 > i) this.items.setAsEmpty(i);
-            this.items.set(i, ItemResource.of(nonNullList.get(i)), nonNullList.get(i).getCount());
+
+    }
+
+
+    protected void setItemHandler(NonNullList<ItemStack> nonNullList) {
+        for (int i = 0; i < this.itemHandler.size(); i++) {
+            if (nonNullList.size() - 1 > i) this.itemHandler.setAsEmpty(i);
+            this.itemHandler.set(i, ItemResource.of(nonNullList.get(i)), nonNullList.get(i).getCount());
         }
     }
 
@@ -73,19 +82,19 @@ public class BlockWirelessEnergyHeaterTile extends BaseContainerBlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         energy.deserialize(input);
-        this.items.deserialize(input);
+        this.itemHandler.deserialize(input);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         energy.serialize(output);
-        this.items.serialize(output);
+        this.itemHandler.serialize(output);
     }
 
 
     @Override
     public int getContainerSize() {
-        return this.items.size();
+        return this.itemHandler.size();
     }
 }

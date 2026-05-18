@@ -1,6 +1,8 @@
 package ironfurnaces.items;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.SpookyItemInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -17,15 +19,10 @@ public class ItemSpooky extends ItemJovial implements IJovialSetter{
 
 
     public ItemSpooky(Properties properties) {
-        super(properties);
-    }
-
-    
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky_right_click").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky1").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".spooky2").setStyle(Style.EMPTY.applyFormat((ChatFormatting.GRAY))));
+        super(properties.component(
+                ModDataComponents.SPOOKY_ITEM_INFO.get(),
+                SpookyItemInfo.INSTANCE
+        ));
     }
 
 

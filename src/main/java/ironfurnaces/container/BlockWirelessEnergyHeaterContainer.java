@@ -3,7 +3,6 @@ package ironfurnaces.container;
 import ironfurnaces.registration.ModBlocks;
 import ironfurnaces.registration.ModMenus;
 import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
-import ironfurnaces.tileentity.furnaces.data.ContainerDataField;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -75,7 +74,7 @@ public class BlockWirelessEnergyHeaterContainer extends AbstractContainerMenu {
                 blockEntity.getBlockPos()
         );
 
-        this.addSlot(new ResourceHandlerSlot(blockEntity.getItems(), (index, resource, amount) -> blockEntity.getItems().set(index, resource, amount), 0, 80, 37));
+        this.addSlot(new ResourceHandlerSlot(blockEntity.getItemHandler(), (index, resource, amount) -> blockEntity.getItemHandler().set(index, resource, amount), 0, 80, 37));
 
         addPlayerInventory(playerInventory, 8, 84);
         addPlayerHotbar(playerInventory, 8, 142);

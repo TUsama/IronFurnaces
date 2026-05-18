@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-public class PagedGridPartition extends GridPartition {
+public class PagedGridPartition extends ItemStackGridPartition {
     protected final int visibleRows;
 
     /**
@@ -31,7 +31,7 @@ public class PagedGridPartition extends GridPartition {
             int size,
             Vector2i startPoint,
             BooleanSupplier interactable,
-            IItemHandler handler,
+            ItemStacksResourceHandler handler,
             int containerStartIndex,
             int columns,
             int visibleRows

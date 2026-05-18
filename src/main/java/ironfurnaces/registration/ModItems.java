@@ -527,13 +527,14 @@ public class ModItems {
 
     public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
             registerItem("upgrade_tool", ItemUpgradeTool::new)
-                    .model(() -> (ctx, prov) -> {
+                    .defaultModel()
+                    /*.model(() -> (ctx, prov) -> {
                         ModelTemplates.PARTICLE_ONLY.create(
                                 ctx.get(),
                                 TextureMapping.particleFromItem(ctx.get()),
                                 prov.modelOutput
                         );
-                    })
+                    })*/
                     .recipe((ctx, provider) -> {
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold"))
                                 .pattern("###")
@@ -585,6 +586,9 @@ public class ModItems {
 
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_crystal"))
                                 .pattern("###")
+                                .pattern("#X#")
+                                .pattern("###")
+                                .define('#', bindForge("glass"))
                                 .define('X', bindForge("gems/diamond"))
                                 .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
                                 .save(provider, IDUtil.newUpgrade("upgrade_crystal"));

@@ -5,18 +5,24 @@ import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import ironfurnaces.blocks.BlockWirelessEnergyHeater;
-import ironfurnaces.blocks.furnaces.BlockItemHeater;
+import ironfurnaces.blocks.BlockItemHeater;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderBlock;
 import ironfurnaces.blocks.furnaces.new_furnace.FurnacePatternHolderItem;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.FurnacePatternHolderRecipeBuilder;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.Constants;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
+import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
@@ -97,7 +103,7 @@ public class ModBlocks {
             .lang("Pattern Furnace")
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_FURNACE)
             .blockstate(() -> (ctx, provider) -> {
-                provider.createNonTemplateModelBlock(Blocks.AIR);
+                provider.createAirLikeBlock(ctx.get(), Items.IRON_BLOCK);
             })
             .loot((ctx, furnace) -> {
                 LootTable.Builder builder = LootTable.lootTable()
@@ -108,7 +114,7 @@ public class ModBlocks {
                                                 LootItem.lootTableItem(furnace)
                                                         .apply(
                                                                 CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
-                                                                        .include(DataComponents.CUSTOM_DATA)
+                                                                        .include(ModDataComponents.PATTERN_HOLDER_INFO.get())
                                                         )
                                                         .apply(
                                                                 CopyBlockState.copyState(furnace)
@@ -414,7 +420,21 @@ public class ModBlocks {
 
             })
             .model(() -> (ctx, prov) -> {
-                ModModelTemplate.createPatternHolderBaseModel(ctx.get(), prov);
+                Identifier baseModel = IronFurnaces.id("item/pattern_holder_base");
+
+                ModelTemplates.PARTICLE_ONLY.create(
+                        baseModel,
+                        TextureMapping.particle(TextureMapping.getBlockTexture(Blocks.IRON_BLOCK)),
+                        prov.modelOutput
+                );
+
+                prov.itemModelOutput.accept(
+                        ctx.get(),
+                        ItemModelUtils.specialModel(
+                                baseModel,
+                                new FurnacePatternHolderSpecialRenderer.Unbaked()
+                        )
+                );
             })
             .tag(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
             .build()

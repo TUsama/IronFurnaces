@@ -1,19 +1,15 @@
 package ironfurnaces.tileentity.furnaces.menu;
 
-import ironfurnaces.tileentity.furnaces.menu.partition.GridPartition;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,9 +18,9 @@ import java.util.List;
 public abstract class DistributePartitionContainerMenu extends AbstractContainerMenu {
     protected final ArrayList<Partition> partitions = new ArrayList<>();
     protected final IntList baseIndex = new IntArrayList();
+    protected final List<QuickMoveRule> quickMoveRules = new ArrayList<>();
     @Getter
     protected int sizeCount = 0;
-    protected final List<QuickMoveRule> quickMoveRules = new ArrayList<>();
 
     protected DistributePartitionContainerMenu(@Nullable MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
@@ -184,11 +180,4 @@ public abstract class DistributePartitionContainerMenu extends AbstractContainer
     }
 
 
-    protected GridPartition createPlayerMainInventoryPartition(Inventory playerInventory) {
-        return new GridPartition(27, new Vector2i(8, 84), () -> true, new PlayerMainInvWrapper(playerInventory), 9, 9);
-    }
-
-    protected GridPartition createPlayerHotbarPartition(Inventory playerInventory) {
-        return new GridPartition(9, new Vector2i(8, 142), () -> true, new PlayerMainInvWrapper(playerInventory), 0, 9);
-    }
 }

@@ -3,13 +3,13 @@ package ironfurnaces.tileentity.furnaces.menu.slot;
 import ironfurnaces.tileentity.furnaces.menu.Partition;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class PartitionAccessSlot extends FurnaceSlotBase {
     private final Partition partition;
 
-    public PartitionAccessSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, Partition partition) {
+    public PartitionAccessSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition, Partition partition) {
         super(itemHandler, index, xPosition, yPosition);
         this.partition = partition;
     }

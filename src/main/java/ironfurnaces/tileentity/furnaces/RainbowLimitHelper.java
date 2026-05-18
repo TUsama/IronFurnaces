@@ -18,7 +18,7 @@ public final class RainbowLimitHelper {
     }
 
     public static int countOwnedRainbowFurnaces(@Nullable Player player) {
-        if (player == null || player.level().isClientSide) {
+        if (player == null || player.level().isClientSide()) {
             return 0;
         }
 
@@ -53,7 +53,7 @@ public final class RainbowLimitHelper {
             int maxAllowed
     ) {
         if (player == null) return false;
-        if (level.isClientSide) return true;
+        if (level.isClientSide()) return true;
         if (maxAllowed < 0) return true;
 
         int owned = countOwnedRainbowFurnaces(player);

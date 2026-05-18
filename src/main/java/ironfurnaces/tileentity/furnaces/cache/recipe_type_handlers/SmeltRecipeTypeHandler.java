@@ -35,7 +35,7 @@ public class SmeltRecipeTypeHandler implements IRecipeTypeHandler {
 
     @Override
     public boolean testBurnable(ItemStack stack, FurnacePatternBlockEntity blockEntity) {
-        return FuelBurnTimeUtil.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().getRecipeType()) > 0;
+        return FuelBurnTimeUtil.getBurnTime(stack, blockEntity.getAugments().getCurrentRecipeType().getRecipeType(), blockEntity.getLevel()) > 0;
     }
 
 
@@ -52,7 +52,7 @@ public class SmeltRecipeTypeHandler implements IRecipeTypeHandler {
                 ItemStack stackInSlot = blockEntity.getFuel().getStackInSlot(i);
                 if (stackInSlot.isEmpty()) continue;
                 int generation = usedStats.energyGenerationPerTick();
-                int burnTime = FuelBurnTimeUtil.getBurnTime(stackInSlot, blockEntity.getAugments().getCurrentRecipeType().getRecipeType());
+                int burnTime = FuelBurnTimeUtil.getBurnTime(stackInSlot, blockEntity.getAugments().getCurrentRecipeType().getRecipeType(), blockEntity.getLevel());
                 if (burnTime > 0){
                     instanceManager.addInstance(new Generate.SmeltGenerate(i, burnTime, generation));
                 }

@@ -9,7 +9,7 @@ import ironfurnaces.items.JovialState;
 import ironfurnaces.registration.ModBlockEntities;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModMenus;
-import ironfurnaces.registration.data_component.FurnaceItemInfo;
+import ironfurnaces.registration.data_component.PatternHolderInfo;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.menu.FurnacePatternMenu;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
@@ -191,7 +191,7 @@ public class FurnacePatternHolderBlock extends BaseEntityBlock implements Entity
         if (be instanceof FurnacePatternBlockEntity furnace) {
             FurnacePattern pattern = furnace.getPattern();
             if (pattern != null && pattern != FurnacePattern.FALLBACK) {
-                new FurnaceItemInfo(pattern, furnace.getSettingsV2()).writeTo(stack);
+                new PatternHolderInfo(pattern, furnace.getSettingsV2()).writeTo(stack);
             }
 
             if (furnace.hasCustomName()) {

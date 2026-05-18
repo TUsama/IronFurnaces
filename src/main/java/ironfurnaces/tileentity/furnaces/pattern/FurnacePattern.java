@@ -15,18 +15,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public sealed abstract class FurnacePattern implements TooltipProvider permits NormalFurnacePattern, RainbowFurnacePattern {
+public sealed abstract class FurnacePattern permits NormalFurnacePattern, RainbowFurnacePattern {
 
     public static final Codec<FurnacePattern> CODEC =
             PatternKind.CODEC.dispatch(
                     "pattern_type",
                     FurnacePattern::kind,
-                    //~ if 1.20.1 '.CODEC' -> '.CODEC.codec()'{
+
                     kind -> switch (kind) {
                         case NORMAL -> NormalFurnacePattern.CODEC;
                         case RAINBOW -> RainbowFurnacePattern.CODEC;
                     }
-                    //~ }
+
 
             );
     public static final String NBT_KEY = "ir_current_pattern";

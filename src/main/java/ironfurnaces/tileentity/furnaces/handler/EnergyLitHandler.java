@@ -11,6 +11,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+
 @Getter(value = AccessLevel.PRIVATE)
 public class EnergyLitHandler implements IFurnaceLitHandler{
     public static final MapCodec<EnergyLitHandler> CODEC = RecordCodecBuilder.mapCodec(instance ->
@@ -34,8 +36,12 @@ public class EnergyLitHandler implements IFurnaceLitHandler{
         FuelCache fuel = tile.getFuel();
         int cost = tile.getAugments().getCurrentModifiers().energyWorkCostModifier().applyAsInt(tile.usedStats.energyConsumerPerTick());
         boolean b = tile.getInstanceManager().needLit(tile);
-        if (b && tile.getInstanceManager().hasInstances() && fuel.getEnergyStored() >= cost){
-            fuel.extractEnergy(cost, false);
+        if (b && tile.getInstanceManager().hasInstances() && fuel.getAmountAsLong() >= cost){
+            try (var tx = Transaction.openRoot()) {
+                fuel.extract(cost, tx);
+                tx.commit();
+            }
+
             isLit = true;
         } else {
             isLit = false;

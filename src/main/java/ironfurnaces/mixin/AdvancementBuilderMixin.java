@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 @MixinEnvironment
 public abstract class AdvancementBuilderMixin implements AdvancementBuilderDuck {
 
-    //~ if >1.20.1 'Advancement' -> 'AdvancementHolder' {
+
     @Shadow
     public abstract AdvancementHolder build(Identifier id);
 
@@ -29,5 +29,5 @@ public abstract class AdvancementBuilderMixin implements AdvancementBuilderDuck 
         consumer.accept(advancement);
         return advancement;
     }
-    //~}
+
 }

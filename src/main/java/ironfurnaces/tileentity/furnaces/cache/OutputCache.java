@@ -6,6 +6,9 @@ import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.function.IntConsumer;
 
@@ -19,11 +22,12 @@ public class OutputCache extends ResizableCache implements ICacheFillStats {
         super(stats.inputSlotAmount(), mode);
     }
 
+
     @Override
-    protected void onContentsChanged(int slot) {
-        super.onContentsChanged(slot);
+    protected void onContentsChanged(int index, ItemStack previousContents) {
+        super.onContentsChanged(index, previousContents);
         if (contentChangeCallback != null) {
-            contentChangeCallback.accept(slot);
+            contentChangeCallback.accept(index);
         }
         recomputeFillStats();
     }

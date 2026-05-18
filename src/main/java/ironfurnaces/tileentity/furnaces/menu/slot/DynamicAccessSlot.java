@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BooleanSupplier;
@@ -13,12 +14,12 @@ import java.util.function.BooleanSupplier;
 
 @Accessors(chain = true)
 @Getter
-public class DynamicAccessSlot extends PartitionAccessSlot{
+public class DynamicAccessSlot extends PartitionAccessSlot {
     private BooleanSupplier mayPlaceCallback = () -> true;
     private BooleanSupplier mayPickupCallback = () -> true;
     private BooleanSupplier isActiveCallback = () -> true;
 
-    public DynamicAccessSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, Partition partition) {
+    public DynamicAccessSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition, Partition partition) {
         super(itemHandler, index, xPosition, yPosition, partition);
     }
 

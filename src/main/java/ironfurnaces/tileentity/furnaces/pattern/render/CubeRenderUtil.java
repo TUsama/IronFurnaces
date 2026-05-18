@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -24,7 +25,6 @@ public final class CubeRenderUtil {
 
     private CubeRenderUtil() {}
 
-    //? >1.21.11{
     public static void renderCube(
             CubeTextures textures,
             Direction facing,
@@ -71,70 +71,13 @@ public final class CubeRenderUtil {
         renderDownFace(buffers, local, bottom, packedLight, packedOverlay);
 
     }
-    //?}
 
-    //? <1.21.11{
-    /*public static void renderCube(
-            CubeTextures textures,
-            Direction facing,
-            PoseStack poseStack,
-            MultiBufferSource buffers,
-            int packedLight,
-            int packedOverlay
-    ) {
-        TextureAtlasSprite front = sprite(textures.front());
-        TextureAtlasSprite back = sprite(textures.back());
-        TextureAtlasSprite left = sprite(textures.left());
-        TextureAtlasSprite right = sprite(textures.right());
-        TextureAtlasSprite top = sprite(textures.top());
-        TextureAtlasSprite bottom = sprite(textures.bottom());
-
-        VertexConsumer vc = buffers.getBuffer(RenderType.cutout());
-
-        poseStack.pushPose();
-
-        // 以方块中心为轴旋转，使“默认 front 朝 north”的局部模型对齐到实际 facing
-        poseStack.translate(0.5D, 0.5D, 0.5D);
-        switch (facing) {
-            case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-            case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-            case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
-            default -> {
-            }
-        }
-        poseStack.translate(-0.5D, -0.5D, -0.5D);
-
-        PoseStack.Pose pose = poseStack.last();
-
-        // 默认局部朝向：
-        // north = front
-        // south = back
-        // west  = left
-        // east  = right
-        // up    = top
-        // down  = bottom
-        renderNorthFace(vc, pose, front, packedLight, packedOverlay);
-        renderSouthFace(vc, pose, back, packedLight, packedOverlay);
-        renderWestFace(vc, pose, left, packedLight, packedOverlay);
-        renderEastFace(vc, pose, right, packedLight, packedOverlay);
-        renderUpFace(vc, pose, top, packedLight, packedOverlay);
-        renderDownFace(vc, pose, bottom, packedLight, packedOverlay);
-
-        poseStack.popPose();
-    }
-*///?}
 
     private static TextureAtlasSprite sprite(Identifier rl) {
-        //? <1.21.11{
-        /*return Minecraft.getInstance()
-                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(rl);
-        *///?} else {
-        Minecraft.getInstance()
+        return Minecraft.getInstance()
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(rl);
-        //?}
     }
 
     private static void putVertex(
@@ -146,22 +89,12 @@ public final class CubeRenderUtil {
             int packedLight, int packedOverlay,
             float nx, float ny, float nz
     ) {
-        //? 1.20.1 {
-        /*vc.vertex(pose.pose(), x, y, z)
-                .color(255, 255, 255, 255)
-                .uv(u, v)
-                .overlayCoords(packedOverlay)
-                .uv2(packedLight)
-                .normal(normal, nx, ny, nz)
-                .endVertex();
-        *///? } else {
         vc.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, 255)
                 .setUv(u, v)
                 .setOverlay(packedOverlay)
                 .setLight(packedLight)
                 .setNormal(pose, nx, ny, nz);
-        //?}
 
     }
 

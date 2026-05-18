@@ -12,9 +12,13 @@ import lombok.Getter;
 import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.Map;
 
@@ -56,12 +60,33 @@ public abstract class Burn extends ProcessingInstance {
 
     @Override
     public boolean needLit(FurnacePatternBlockEntity tile) {
-        Recipe recipe = tile.getInstanceManager()
+        Recipe<?> recipe = tile.getInstanceManager()
                 .getCachedCookingRecipe(tile, this);
-        if (recipe == null) return false;
-        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess());
-        ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem.copyWithCount(batch * resultItem.getCount()), true);
-        return itemStack.isEmpty();
+
+        if (!(recipe instanceof AbstractCookingRecipe cookingRecipe)) {
+            return false;
+        }
+
+        ItemStack input = tile.getInput().getStackInSlot(fromIndex);
+        if (input.isEmpty()) {
+            return false;
+        }
+
+        ItemStack resultItem = cookingRecipe.assemble(new SingleRecipeInput(input));
+        if (resultItem.isEmpty()) {
+            return false;
+        }
+
+        ItemStack result = resultItem.copyWithCount(batch * resultItem.getCount());
+
+        ItemStack remainder = tile.getOutput().insertItemReturnRemaining(
+                fromIndex,
+                result,
+                true,
+                null
+        );
+
+        return remainder.isEmpty();
     }
 
     @Override
@@ -75,22 +100,26 @@ public abstract class Burn extends ProcessingInstance {
         Level level = tile.getLevel();
         ItemStack stackInSlot = tile.getInput().getStackInSlot(fromIndex);
         tile.getRecipe(stackInSlot).ifPresent(x -> {
-            //~ if >1.20.1 'x.getResultItem' -> 'x.value().getResultItem'
-            ItemStack resultItem = x.value().getResultItem(level.registryAccess()).copy();
+            ItemStack resultItem = x.value().assemble(new SingleRecipeInput(stackInSlot)).copy();
             //可以确保这里是能完全存入的，因为whenDone会在whenTick后直接执行，而whenTick确保了有空位。
             resultItem.setCount(resultItem.getCount() * batch);
-            tile.getOutput().insertItem(fromIndex, resultItem, false);
-            tile.getInput().extractItem(fromIndex, batch, false);
-            for (int i = 0; i < batch; i++) {
-                tile.setRecipeUsed(x);
+            try (var tx = Transaction.openRoot()) {
+                tile.getOutput().insert(fromIndex, ItemResource.of(resultItem), resultItem.getCount(), tx);
+                int extract = tile.getInput().extract(fromIndex, ItemResource.of(stackInSlot), batch, tx);
+                tx.commit();
+                for (int i = 0; i < batch; i++) {
+                    tile.setRecipeUsed(x);
+                }
+                ItemStack itemStack = new ItemStack(stackInSlot.getItem(), batch);
+                CompatUtil.firePmmoSmeltedEvent(itemStack, resultItem,tile.getLevel(), tile.getBlockPos());
+                if (tile.getOwner() != null) {
+                    CompatUtil.handleVanillaWhenHasPlayer(tile.getOwner(), resultItem, batch);
+                } else {
+                    CompatUtil.handleVanillaWhenWithoutPlayer(resultItem, level);
+                }
             }
-            ItemStack itemStack = new ItemStack(stackInSlot.getItem(), batch);
-            CompatUtil.firePmmoSmeltedEvent(itemStack, resultItem,tile.getLevel(), tile.getBlockPos());
-            if (tile.getOwner() != null) {
-                CompatUtil.handleVanillaWhenHasPlayer(tile.getOwner(), itemStack);
-            } else {
-                CompatUtil.handleVanillaWhenWithoutPlayer(resultItem, level);
-            }
+
+
 
         });
 
@@ -105,21 +134,23 @@ public abstract class Burn extends ProcessingInstance {
         Recipe recipe = tile.getInstanceManager()
                 .getCachedCookingRecipe(tile, this);
         if (recipe == null) return TickResult.DISCARD;
-        ItemStack resultItem = recipe.getResultItem(tile.getLevel().registryAccess()).copy();
+        ItemStack resultItem = recipe.assemble(new SingleRecipeInput(stackInSlot)).copy();
         resultItem.setCount(resultItem.getCount() * batch);
-        ItemStack itemStack = tile.getOutput().insertItem(fromIndex, resultItem, true);
-        if (itemStack.isEmpty()) {
-            currentTick++;
-            partialProgress = tile.getAugments().getCurrentModifiers().normalWorkTimeModifier().apply(partialProgress);
-            int whole = (int) partialProgress;
-            currentTick += whole;
-            partialProgress -= whole;
-            if (currentTick >= expectedTick) {
-                return TickResult.DONE;
+        try (var tx = Transaction.openRoot()) {
+            int amount = tile.getOutput().insert(fromIndex, ItemResource.of(resultItem), resultItem.getCount(), tx);
+            if (amount == resultItem.getCount()) {
+                currentTick++;
+                partialProgress = tile.getAugments().getCurrentModifiers().normalWorkTimeModifier().apply(partialProgress);
+                int whole = (int) partialProgress;
+                currentTick += whole;
+                partialProgress -= whole;
+                if (currentTick >= expectedTick) {
+                    return TickResult.DONE;
+                }
+                return TickResult.SUCCESS;
+            } else {
+                return TickResult.BLOCKED;
             }
-            return TickResult.SUCCESS;
-        } else {
-            return TickResult.BLOCKED;
         }
 
     }

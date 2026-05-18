@@ -1,6 +1,8 @@
 package ironfurnaces.items.augments;
 
 import ironfurnaces.loaders.IronFurnaces;
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.AugmentItemInfo;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -23,20 +25,18 @@ import java.util.List;
 
 public class ItemAugment extends Item {
 
-
     public ItemAugment(Properties properties) {
-        super(properties);
+        super(properties.component(
+                ModDataComponents.AUGMENT_ITEM_INFO.get(),
+                AugmentItemInfo.INSTANCE
+        ));
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        tooltip.add(Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".augment_right_click").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-    }
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return super.useOn(context);
         }
         BlockPos pos = context.getClickedPos();

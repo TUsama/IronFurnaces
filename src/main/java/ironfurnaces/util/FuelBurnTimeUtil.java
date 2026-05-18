@@ -1,34 +1,31 @@
 package ironfurnaces.util;
 
 import lombok.experimental.UtilityClass;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.FuelValues;
+import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
+import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+import java.util.Optional;
 
 @UtilityClass
 public final class FuelBurnTimeUtil {
 
 
-    /**
-     * Returns the burn time for the given stack in the given recipe type.
-     *
-     * Semantics:
-     * - 0 means not a valid fuel
-     * - positive value means burn time in ticks
-     */
-    public static int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+    public static int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType, Level level) {
         if (stack.isEmpty()) {
             return 0;
         }
+        FuelValues fuelValues = level.fuelValues();
+        return stack.getBurnTime(recipeType, fuelValues);
 
-        //? if <=1.20.1 {
-        /*return net.neoforged.neoforge.common.ForgeHooks.getBurnTime(stack, recipeType);
-         *///?} else {
-        return stack.getBurnTime(recipeType);
-        //?}
     }
 
-    public static boolean isFuel(ItemStack stack, @Nullable RecipeType<?> recipeType) {
-        return getBurnTime(stack, recipeType) > 0;
-    }
 }

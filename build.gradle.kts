@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.add
 plugins {
     kotlin("jvm") version "2.2.10"
     id("com.google.devtools.ksp") version "2.2.10-2.0.2"
-    id("dev.isxander.modstitch.base") version "0.8.4"
+    id("dev.isxander.modstitch.base") version "0.8.5"
     id("me.modmuss50.mod-publish-plugin") version "1.1.0"
     id("dev.kikugie.fletching-table") version "0.1.0-alpha.22"
 }
@@ -63,7 +63,7 @@ modstitch {
             // You can put any other replacement properties/metadata here that
             // modstitch doesn't initially support. Some examples below.
             put("mod_issue_tracker", property("mod_issue") as String)
-            put("pack_format", when (property("deps.minecraft")) {
+            /*put("pack_format", when (property("deps.minecraft")) {
                     "1.20.1" -> 15
                     "1.21.1" -> 34
                     "1.21.4" -> 46
@@ -72,7 +72,7 @@ modstitch {
                     "1.21.11" -> 70.0
                     "26.1.2" -> 84.0
                 else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
-            }.toString())
+            }.toString())*/
 
             prop("deps.fzzy_config_version"){
                 put("fzzy_config_version", it)
@@ -418,7 +418,7 @@ dependencies {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-Xplugin:Manifold")
+    options.compilerArgs.add("-Xplugin:Manifold --no-bootstrap")
 }
 
 fletchingTable {

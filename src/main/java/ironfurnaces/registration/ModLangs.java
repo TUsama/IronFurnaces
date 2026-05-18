@@ -1,12 +1,12 @@
 package ironfurnaces.registration;
 
 
-import ironfurnaces.util.StringHelper;
-import net.minecraft.ChatFormatting;
+import manifold.rt.api.DisableStringLiteralTemplates;
 import net.minecraft.network.chat.Component;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
+@DisableStringLiteralTemplates
 public class ModLangs {
     public static final Component PERSISTENT_ENERGY = REGISTRATE.addRawLang("ironfurnaces.data_component." + "persistent_energy", "Energy: %1$s/%2$s");
 
@@ -137,7 +137,6 @@ public class ModLangs {
     public static final Component SETTING_ENABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_enable", "Enable");
     public static final Component SETTING_DISABLE = REGISTRATE.addRawLang("ironfurnaces.furnace_setting." + "setting_disable", "Disable");
     public static final Component WORK_SPEED = REGISTRATE.addRawLang("ironfurnaces.block.furnace." + "work_speed", "Base Cook Time: %s tick/per item");
-
 
 
     public static final Component UPGRADE_RIGHT_CLICK =
@@ -385,7 +384,7 @@ public class ModLangs {
 
     public static final Component RAINBOW_LIMIT_REACHED = REGISTRATE.addRawLang("item.ironfurnaces.upgrade_tool." + "rainbow_limit_reached", "You have reached the maximum number of Rainbow Furnaces: %s");
 
-    public static void register(){
+    public static void register() {
 
     }
 

@@ -4,7 +4,7 @@ import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.items.upgrades.furnace_pattern.IPatternAccessor;
 import ironfurnaces.registration.ModBlockState;
 import ironfurnaces.registration.ModDataComponents;
-import ironfurnaces.registration.data_component.FurnaceItemInfo;
+import ironfurnaces.registration.data_component.PatternHolderInfo;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
@@ -123,9 +123,9 @@ public class FurnacePatternHolderItem extends BlockItem {
             if (player instanceof ServerPlayer serverPlayer) OwnerRainbowContextHelper.markDirty(serverPlayer);
         }
 
-        if (stack.has(ModDataComponents.FURNACE_ITEM_INFO)) {
-            FurnaceItemInfo furnaceItemInfo = stack.get(ModDataComponents.FURNACE_ITEM_INFO);
-            furnaceItemInfo.writeToBlockEntity(fp);
+        if (stack.has(ModDataComponents.PATTERN_HOLDER_INFO)) {
+            PatternHolderInfo patternHolderInfo = stack.get(ModDataComponents.PATTERN_HOLDER_INFO);
+            patternHolderInfo.writeToBlockEntity(fp);
             changed = true;
         }
 

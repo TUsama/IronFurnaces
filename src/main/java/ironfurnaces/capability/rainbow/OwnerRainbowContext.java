@@ -144,13 +144,12 @@ public class OwnerRainbowContext implements ValueIOSerializable {
         return PlayerDataHandler.readFurnacesList(player, list -> {
             LinkedHashSet<Identifier> result = new LinkedHashSet<>();
             List<FurnacePatternBlockEntity> rainbows = new ArrayList<>();
-            //System.out.println("current size is " + list.get().size());
             for (GlobalPos globalPos : list.get()) {
                 if (globalPos == null) {
                     continue;
                 }
 
-                ServerLevel level = player.server.getLevel(globalPos.dimension());
+                ServerLevel level = player.level().getServer().getLevel(globalPos.dimension());
                 if (level == null) {
                     continue;
                 }

@@ -1,18 +1,18 @@
-//~ replace_all_recipe
 package ironfurnaces.tileentity.furnaces.handler;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import ironfurnaces.loaders.IronFurnaces;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.storage.ValueInput;
@@ -40,7 +40,7 @@ public final class RecipeAwardHandler {
     private static final String NBT_KEY_RECIPES_USED = "RecipesUsed";
 
     @Getter
-    private final Object2IntOpenHashMap<Identifier> recipesUsed = new Object2IntOpenHashMap<>();
+    private final Reference2IntOpenHashMap<ResourceKey<Recipe<?>>> recipesUsed = new Reference2IntOpenHashMap();
 
     public static int computeTotalXpToReachLevel(int level) {
         int xpNeeded = 0;
@@ -82,16 +82,13 @@ public final class RecipeAwardHandler {
 
 
     public void record(@Nullable RecipeHolder<?> recipe, int maxXpLevelConfig) {
-        //? >1.20.1
         if (recipe == null) return;
-        //~ if >1.20.1 'recipe instanceof' -> 'recipe.value() instanceof'
         if (!(recipe.value() instanceof AbstractCookingRecipe cookingRecipe)) {
             return;
         }
-        //~ if >1.20.1 'cookingRecipe.getId()' -> 'recipe.id()'
-        Identifier id = recipe.id();
+        var id = recipe.id();
 
-        float xpPerRecipe = cookingRecipe.getExperience();
+        float xpPerRecipe = cookingRecipe.experience();
         int xpCap = computeTotalXpToReachLevel(maxXpLevelConfig) + 1;
 
         int current = recipesUsed.getInt(id);
@@ -101,50 +98,46 @@ public final class RecipeAwardHandler {
         }
     }
 
-    public void unlockRecipes(ServerPlayer player) {
+    public void awardUsedRecipesAndPopExperience(ServerPlayer player, List<ItemStack> outputs) {
+        List<RecipeHolder<?>> recipesToAward = this.getRecipesToAwardAndPopExperience(player.level(), player.position());
+        player.awardRecipes(recipesToAward);
 
-        List<RecipeHolder<?>> list = this.grantStoredRecipeExperience(player.serverLevel(), player.position());
-        player.awardRecipes(list);
-        recipesUsed.clear();
+        for(RecipeHolder<?> recipe : recipesToAward) {
+            player.triggerRecipeCrafted(recipe, outputs);
+        }
+
+        this.recipesUsed.clear();
     }
 
-    public List<RecipeHolder<?>> grantStoredRecipeExperience(ServerLevel level, Vec3 worldPosition) {
-        List<RecipeHolder<?>> list = Lists.newArrayList();
+    public List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel level, Vec3 position) {
+        List<RecipeHolder<?>> recipesToAward = Lists.newArrayList();
 
-        for (Object2IntMap.Entry<Identifier> entry : recipesUsed.object2IntEntrySet()) {
-            level.getRecipeManager().byKey(entry.getKey()).ifPresent((h) -> {
-                list.add(h);
-                //~ if >1.20.1 '((AbstractCookingRecipe) h)' -> '((AbstractCookingRecipe) h.value())'
-                splitAndSpawnExperience(level, worldPosition, entry.getIntValue(), ((AbstractCookingRecipe) h.value()).getExperience());
+        for (Reference2IntMap.Entry<ResourceKey<Recipe<?>>> resourceKeyEntry : this.recipesUsed.reference2IntEntrySet()) {
+            level.recipeAccess().byKey(resourceKeyEntry.getKey()).ifPresent((recipe) -> {
+                recipesToAward.add(recipe);
+                createExperience(level, position, resourceKeyEntry.getIntValue(), ((AbstractCookingRecipe) recipe.value()).experience());
             });
         }
 
-        recipesUsed.clear();
-
-        return list;
+        return recipesToAward;
     }
 
-    /* -----------------------------
-     * NBT 序列化（你后面写 unlockRecipes 时会用到）
-     * ----------------------------- */
-    private static final Codec<Map<Identifier, Integer>> RECIPES_USED_CODEC =
-            Codec.unboundedMap(Identifier.CODEC, Codec.INT);
+    private static void createExperience(ServerLevel level, Vec3 position, int amount, float value) {
+        int xpReward = Mth.floor((float)amount * value);
+        float xpFraction = Mth.frac((float)amount * value);
+        if (xpFraction != 0.0F && level.getRandom().nextFloat() < xpFraction) {
+            ++xpReward;
+        }
+
+        ExperienceOrb.award(level, position, xpReward);
+    }
+
+    private static final Codec<Map<ResourceKey<Recipe<?>>, Integer>> RECIPES_USED_CODEC =
+            Codec.unboundedMap(Recipe.KEY_CODEC, Codec.INT);
 
     public void load(ValueInput input) {
         recipesUsed.clear();
-
-        input.read(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC)
-                .ifPresent(map -> {
-                    for (Map.Entry<Identifier, Integer> entry : map.entrySet()) {
-                        int count = entry.getValue();
-
-                        if (count <= 0) {
-                            continue;
-                        }
-
-                        recipesUsed.put(entry.getKey(), count);
-                    }
-                });
+        this.recipesUsed.putAll(input.read(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC).orElse(Map.of()));
     }
 
     public void save(ValueOutput output) {
@@ -152,20 +145,7 @@ public final class RecipeAwardHandler {
             return;
         }
 
-        Map<Identifier, Integer> map = new LinkedHashMap<>();
+        output.store(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC, this.recipesUsed);
 
-        for (Object2IntMap.Entry<Identifier> entry : recipesUsed.object2IntEntrySet()) {
-            int count = entry.getIntValue();
-
-            if (count <= 0) {
-                continue;
-            }
-
-            map.put(entry.getKey(), count);
-        }
-
-        if (!map.isEmpty()) {
-            output.store(NBT_KEY_RECIPES_USED, RECIPES_USED_CODEC, map);
-        }
     }
 }

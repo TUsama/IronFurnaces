@@ -1,12 +1,13 @@
 
 package ironfurnaces.items.upgrades.furnace_pattern;
 
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.PatternHolderInfo;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
 
-import net.minecraft.nbt.CompoundTag;
+import ironfurnaces.tileentity.furnaces.pattern.FurnacePatternManager;
+import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
 //? 1.20.1 {
@@ -21,40 +22,38 @@ public interface IPatternAccessor {
     //todo potential bug: server added new pattern without sync to client, resulting this method return null.
     @Nullable
     static FurnacePattern getFurnacePatternFromTag(ItemStack stack){
-        //? 1.20.1 {
-        /*CompoundTag tag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        if (tag != null && tag.contains(FurnacePattern.NBT_KEY)){
-            Identifier resourceLocation = Identifier.tryParse(tag.getString(FurnacePattern.NBT_KEY));
-            if (resourceLocation != null){
-                return FurnacePatternManager.get(resourceLocation);
-            }
-
-        }
-        *///? } else {
         var a = stack.get(DataComponents.CUSTOM_DATA);
         if (a != null && a.contains(FurnacePattern.NBT_KEY)) {
-            Identifier resourceLocation = Identifier.tryParse(a.copyTag().getString(FurnacePattern.NBT_KEY));
-            if (resourceLocation != null){
-                return FurnacePatternManager.get(resourceLocation);
-            }
+            a.copyTag().getString(FurnacePattern.NBT_KEY).ifPresent(x -> {
+                Identifier resourceLocation = Identifier.tryParse(x);
+                if (resourceLocation != null) {
+                    FurnacePattern furnacePattern = FurnacePatternManager.get(resourceLocation);
+                    stack.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(furnacePattern, FurnaceSettingsV2.DEFAULT));
+                    a.update(tag -> tag.remove(FurnacePattern.NBT_KEY));
+                }
+            });
+
         }
-        //?}
+
+        PatternHolderInfo patternHolderInfo = stack.get(ModDataComponents.PATTERN_HOLDER_INFO);
+        if (patternHolderInfo != null) {
+            return patternHolderInfo.getPattern();
+        }
 
         return null;
     }
 
     static void writePatternToItemStack(ItemStack stack, FurnacePattern pattern){
-        writePatternToItemStack(stack, pattern.id());
+        PatternHolderInfo old = stack.get(ModDataComponents.PATTERN_HOLDER_INFO);
+        if (old != null){
+            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(pattern, old.getSettingsV2()));
+        } else {
+            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(pattern, null));
+        }
+
     }
 
     static void writePatternToItemStack(ItemStack stack, Identifier pattern){
-        //? 1.20.1 {
-        /*CompoundTag blockEntityTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        blockEntityTag.putString(FurnacePattern.NBT_KEY, pattern.toString());
-        *///? } else {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            tag.putString(FurnacePattern.NBT_KEY, pattern.toString());
-        });
-        //?}
+        writePatternToItemStack(stack, FurnacePatternManager.get(pattern));
     }
 }

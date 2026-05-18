@@ -1,6 +1,7 @@
 package ironfurnaces.capability;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,7 +14,9 @@ import java.util.function.Consumer;
 import net.neoforged.neoforge.capabilities.Capabilities;
 //?}
 import net.minecraft.core.BlockPos;
+import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -133,10 +136,8 @@ public final class VanillaCapabilityHandler {
         //?}
     }
 
-    public static @Nullable ItemAccessEnergyHandler getItemEnergyStorage(ItemStack itemStack) {
-        return itemStack.getCapability(
-                Capabilities.Energy.ITEM
-        );
+    public static @Nullable EnergyHandler getItemEnergyStorage(ItemStack itemStack) {
+        return itemStack.getCapability(Capabilities.Energy.ITEM, ItemAccess.forStack(itemStack));
 
     }
 

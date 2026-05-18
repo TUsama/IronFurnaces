@@ -10,6 +10,5 @@ public abstract class ItemAugmentRed extends ItemAugment {
     }
 
     public abstract IRecipeTypeHandler getRecipeTypeHandler();
-    public abstract int getType();
 
 }

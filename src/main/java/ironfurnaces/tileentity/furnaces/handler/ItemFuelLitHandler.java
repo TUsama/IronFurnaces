@@ -4,15 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ironfurnaces.items.ItemHeater;
-import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
+import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.util.FuelBurnTimeUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 @Getter
 public class ItemFuelLitHandler implements IFurnaceLitHandler {
@@ -45,30 +45,33 @@ public class ItemFuelLitHandler implements IFurnaceLitHandler {
         if (litTime == 0 && tile.getInstanceManager().needLit(tile)) {
 
             ItemStack stackInSlot = tile.getFuel().getStackInSlot(0);
-            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(FuelBurnTimeUtil.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().getRecipeType()));
+            int burnTime = tile.getAugments().getCurrentModifiers().normalBurnTimeModifier().applyAsInt(FuelBurnTimeUtil.getBurnTime(stackInSlot, tile.getAugments().getCurrentRecipeType().getRecipeType(), tile.getLevel()));
 
             if (burnTime > 0) {
                 litTime = burnTime;
                 litDuration = burnTime;
                 ItemStack copy1 = stackInSlot.copy();
-                if (stackInSlot.isDamageableItem()){
+                if (stackInSlot.isDamageableItem()) {
                     stackInSlot.setDamageValue(stackInSlot.getDamageValue() + 1);
                 } else {
                     stackInSlot.shrink(1);
                 }
 
-                if (copy1.hasCraftingRemainingItem()) {
-                    ItemStack copy = copy1.getCraftingRemainingItem().copy();
-                    ItemStack itemStack = ItemHandlerHelper.insertItem(tile.getRemaining(), copy, false);
-                    if (level != null && !level.isClientSide) {
+                if (copy1.getCraftingRemainder() != null) {
+                    ItemStack copy = copy1.getCraftingRemainder().withCount(copy1.getCount()).create();
+                    ItemStack itemStack = tile.getRemaining().insertItemReturnRemaining(copy, false, null);
+                    if (level != null && !level.isClientSide()) {
                         Containers.dropItemStack(level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack);
                     }
                 }
             } else if (stackInSlot.getItem() instanceof ItemHeater) {
                 BlockPos boundBlockPos = ItemHeater.getBoundBlockPos(stackInSlot);
-                if (boundBlockPos != null){
-                    if (level.getBlockEntity(boundBlockPos) instanceof BlockWirelessEnergyHeaterTile heaterTile && heaterTile.getWrapper().getEnergyStored() >= 20) {
-                        heaterTile.getWrapper().extractEnergy(20, false);
+                if (boundBlockPos != null) {
+                    if (level.getBlockEntity(boundBlockPos) instanceof BlockWirelessEnergyHeaterTile heaterTile && heaterTile.getEnergy().getAmountAsInt() >= 20) {
+                        try (var tx = Transaction.openRoot()) {
+                            heaterTile.getEnergy().extract(20, tx);
+                            tx.commit();
+                        }
                         litTime = 5;
                         litDuration = 5;
                     }

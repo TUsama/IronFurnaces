@@ -16,71 +16,69 @@ import lombok.Setter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import java.util.function.BiConsumer;
 import java.util.function.IntUnaryOperator;
 
-public class AugmentCache extends CombinedResourceHandler<ItemResource> implements ValueIOSerializable {
-    BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback;
+public class AugmentCache extends ItemStacksResourceHandler {
+    private final BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback;
+
     @Getter
     @Setter
     private IRecipeTypeHandler currentRecipeType;
+
     private GreenAugmentModifier greenAugmentModifier;
 
     public AugmentCache(BiConsumer<AbstractFurnaceModeHandler, IRecipeTypeHandler> stateChangedCallback) {
-        super(new AugmentCacheHandler(),
-                new AugmentCacheHandler(),
-                new AugmentCacheHandler());
+        super(3);
         this.greenAugmentModifier = GreenAugmentModifier.NONE;
         this.currentRecipeType = SmeltRecipeTypeHandler.INSTANCE;
         this.stateChangedCallback = stateChangedCallback;
-        ((AugmentCacheHandler) getHandlerFromIndex(0))
-                .onChange(i -> {
-                    refreshState();
-                })
-                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentRed);
-
-        ((AugmentCacheHandler) getHandlerFromIndex(1))
-                .onChange(i -> {
-                    refreshState();
-                })
-                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentGreen);
-
-        ((AugmentCacheHandler) getHandlerFromIndex(2))
-                .onChange(i -> {
-                    refreshState();
-                })
-                .validator((i, stack) -> stack.getItem() instanceof ItemAugmentBlue);
+        refreshState();
     }
 
+    @Override
+    protected void onContentsChanged(int index, ItemStack previousContents) {
+        refreshState();
+    }
+
+    @Override
+    public boolean isValid(int index, ItemResource resource) {
+        if (!super.isValid(index, resource)) {
+            return false;
+        }
+
+        return switch (index) {
+            case 0 -> resource.getItem() instanceof ItemAugmentRed;
+            case 1 -> resource.getItem() instanceof ItemAugmentGreen;
+            case 2 -> resource.getItem() instanceof ItemAugmentBlue;
+            default -> false;
+        };
+    }
 
     public void refreshState() {
-        ItemStack buff = ItemUtil.getStack(getHandlerFromIndex(1), 0);
+        ItemStack buff = ItemUtil.getStack(this, 1);
         if (buff.isEmpty()) {
             this.greenAugmentModifier = GreenAugmentModifier.NONE;
         } else if (buff.getItem() instanceof ItemAugmentGreen green) {
             this.greenAugmentModifier = green.getModifier();
         }
 
-        ItemStack modeItem = ItemUtil.getStack(getHandlerFromIndex(2), 0);
-        AbstractFurnaceModeHandler mode = null;
-        if (modeItem.isEmpty()) {
-            mode = VanillaFurnaceModeHandler.INSTANCE;
-        } else if (modeItem.getItem() instanceof ItemAugmentBlue blue) {
+        ItemStack modeItem = ItemUtil.getStack(this, 2);
+        AbstractFurnaceModeHandler mode = VanillaFurnaceModeHandler.INSTANCE;
+        if (modeItem.getItem() instanceof ItemAugmentBlue blue) {
             mode = blue.getModeHandler();
         }
 
-        var item = ItemUtil.getStack(getHandlerFromIndex(0), 0);
+        ItemStack item = ItemUtil.getStack(this, 0);
         if (!mode.isInternal()) {
             IRecipeTypeHandler attachRecipeTypeHandler = ((CompatModeHandler) mode).getAttachRecipeTypeHandler();
             if (!attachRecipeTypeHandler.getRecipeType().equals(this.currentRecipeType.getRecipeType())) {
                 this.currentRecipeType = attachRecipeTypeHandler;
             }
-
         } else if (item.isEmpty()) {
             this.currentRecipeType = SmeltRecipeTypeHandler.INSTANCE;
         } else if (item.getItem() instanceof ItemAugmentRed red) {
@@ -89,7 +87,10 @@ public class AugmentCache extends CombinedResourceHandler<ItemResource> implemen
                 this.currentRecipeType = GeneratorBlastRecipeTypeHandler.INSTANCE;
             }
         }
-        stateChangedCallback.accept(mode, this.currentRecipeType);
+
+        if (stateChangedCallback != null) {
+            stateChangedCallback.accept(mode, this.currentRecipeType);
+        }
     }
 
     public GreenAugmentModifier.Modifiers getCurrentModifiers() {
@@ -98,20 +99,16 @@ public class AugmentCache extends CombinedResourceHandler<ItemResource> implemen
 
     @Override
     public void serialize(ValueOutput output) {
-        ((AugmentCacheHandler) getHandlerFromIndex(0)).serialize(output);
-        ((AugmentCacheHandler) getHandlerFromIndex(1)).serialize(output);
-        ((AugmentCacheHandler) getHandlerFromIndex(2)).serialize(output);
+        super.serialize(output);
         this.getCurrentRecipeType().serialize(output);
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        ((AugmentCacheHandler) getHandlerFromIndex(0)).deserialize(input);
-        ((AugmentCacheHandler) getHandlerFromIndex(1)).deserialize(input);
-        ((AugmentCacheHandler) getHandlerFromIndex(2)).deserialize(input);
+        super.deserialize(input);
         this.getCurrentRecipeType().deserialize(input);
+        refreshState();
     }
-
 
     public enum GreenAugmentModifier {
         SPEED(new Modifiers(
@@ -155,5 +152,4 @@ public class AugmentCache extends CombinedResourceHandler<ItemResource> implemen
         ) {
         }
     }
-
 }

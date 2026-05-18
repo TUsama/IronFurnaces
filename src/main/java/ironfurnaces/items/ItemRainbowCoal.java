@@ -1,76 +1,82 @@
 package ironfurnaces.items;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
-
-import javax.annotation.Nullable;
+import net.minecraft.world.level.block.entity.FuelValues;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemRainbowCoal extends Item {
     private static final int DURABILITY = 5120;
+    private static final int BURN_TIME = 200;
 
-    public ItemRainbowCoal(Properties properties)
-    {
-        super(properties.durability(5120));
+    public ItemRainbowCoal(Properties properties) {
+        super(properties
+                .durability(DURABILITY)
+                .setNoCombineRepair()
+        );
     }
 
     @Override
-    public boolean isBarVisible(ItemStack p_150899_) {
+    public boolean isBarVisible(ItemStack stack) {
         return true;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return (int) ((int)13 * (1 - (double) stack.getDamageValue() / (double) getDurability()));
+        return Math.round(13.0F * (1.0F - (float) stack.getDamageValue() / (float) getDurability()));
     }
 
     @Override
-    public int getBarColor(ItemStack p_150901_) {
-        float f = Math.max(0.0F, ((float)getDurability() - (float)p_150901_.getDamageValue()) / (float)getDurability());
-        return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
+    public int getBarColor(ItemStack stack) {
+        float durabilityLeft = Math.max(
+                0.0F,
+                ((float) getDurability() - (float) stack.getDamageValue()) / (float) getDurability()
+        );
+
+        return Mth.hsvToRgb(durabilityLeft / 3.0F, 1.0F, 1.0F);
     }
 
     @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType) {
-        return 200;
+    public int getBurnTime(
+            ItemStack stack,
+            @Nullable RecipeType<?> recipeType,
+            FuelValues fuelValues
+    ) {
+        return BURN_TIME;
     }
 
-
     @Override
-    public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return true;
-    }
+    public @Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        int nextDamage = instance.getOrDefault(DataComponents.DAMAGE, 0) + 1;
 
-
-    @Override
-    public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
-        ItemStack stack = new ItemStack(this);
-        stack.setDamageValue(this.getDamage(itemStack) + 1);
-        if (stack.getDamageValue() >= getDurability())
-        {
-            stack = ItemStack.EMPTY;
+        if (nextDamage >= getDurability()) {
+            return null;
         }
-        return stack;
+
+        ItemStack remainder = new ItemStack(this);
+        remainder.set(DataComponents.DAMAGE, nextDamage);
+
+        return ItemStackTemplate.fromNonEmptyStack(remainder);
     }
 
-    private int getDurability(){
-        return 5120;
-    }
-    //? 1.20.1{
-    /*@Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        return false;
-    }
-    *///?}
     @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+    public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
         return false;
     }
 
     @Override
-    public boolean isEnchantable(ItemStack p_77616_1_) {
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
         return false;
+    }
+
+    private int getDurability() {
+        return DURABILITY;
     }
 }

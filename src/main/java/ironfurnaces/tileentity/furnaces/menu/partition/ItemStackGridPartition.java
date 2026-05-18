@@ -5,24 +5,24 @@ import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
 import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
 import lombok.experimental.Accessors;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.joml.Vector2i;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 @Accessors(chain = true)
-public class GridPartition extends Partition {
-    protected final IItemHandler handler;
+public class ItemStackGridPartition extends Partition {
+    protected final ItemStacksResourceHandler handler;
     protected final int containerStartIndex;
     protected final int columns;
     protected SlotCreator creator;
 
-    public GridPartition(
+    public ItemStackGridPartition(
             int size,
             Vector2i startPoint,
             BooleanSupplier interactable,
-            IItemHandler handler,
+            ItemStacksResourceHandler handler,
             int containerStartIndex,
             int columns
     ) {
@@ -37,13 +37,13 @@ public class GridPartition extends Partition {
         int x = this.startPoint.x() + (localIndex % this.columns) * 18;
         int y = this.startPoint.y() + (localIndex / this.columns) * 18;
         int containerIndex = this.containerStartIndex + localIndex;
-        if (creator != null){
+        if (creator != null) {
             return creator.create(this.handler, containerIndex, x, y, this);
         }
         return new PartitionAccessSlot(this.handler, containerIndex, x, y, this);
     }
 
-    public <T extends Partition> T withDynamicAccessSlot(Consumer<DynamicAccessSlot> slotConsumer){
+    public <T extends Partition> T withDynamicAccessSlot(Consumer<DynamicAccessSlot> slotConsumer) {
         setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
             DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition);
             slotConsumer.accept(dynamicAccessSlot);
@@ -58,7 +58,7 @@ public class GridPartition extends Partition {
     }
 
     public interface SlotCreator {
-        Slot create(IItemHandler itemHandler, int index, int xPosition, int yPosition, Partition partition);
+        Slot create(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition, Partition partition);
     }
 
 

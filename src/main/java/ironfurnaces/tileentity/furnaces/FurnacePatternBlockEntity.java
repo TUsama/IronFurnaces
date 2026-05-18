@@ -11,6 +11,8 @@ import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.PatternHolderInfo;
 import ironfurnaces.tileentity.furnaces.cache.*;
 import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
 import ironfurnaces.tileentity.furnaces.handler.IFurnaceLitHandler;
@@ -26,6 +28,8 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.*;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -518,6 +522,28 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         return null;
     }
 
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        PatternHolderInfo orDefault = components.getOrDefault(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(FurnacePattern.FALLBACK, FurnaceSettingsV2.DEFAULT));
+        updatePattern(orDefault.getPattern());
+        setWholeSettingV2(orDefault.getSettingsV2());
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        components.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(this.pattern, this.settingsV2));
+    }
+
+    @Override
+    public void removeComponentsFromTag(ValueOutput output) {
+        super.removeComponentsFromTag(output);
+        output.discard(FurnacePattern.NBT_KEY);
+        output.discard(FurnaceSettingsV2.NBT_KEY);
+    }
+
+
     public @Nullable UUID getOwnerUuid() {
         return ownerUuid;
     }
@@ -700,7 +726,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
         super.preRemoveSideEffects(pos, state);
 
         if (level instanceof ServerLevel serverLevel) {
-            this.getRecipeAwardHandler().grantStoredRecipeExperience(
+            this.getRecipeAwardHandler().getRecipesToAwardAndPopExperience(
                     serverLevel,
                     Vec3.atLowerCornerOf(pos)
             );

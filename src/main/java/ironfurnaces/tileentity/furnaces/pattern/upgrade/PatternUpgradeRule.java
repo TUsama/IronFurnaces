@@ -53,7 +53,7 @@ public record PatternUpgradeRule(
 
         // 再判 block
         if (isBlockId(target)) {
-            return state.is(BuiltInRegistries.BLOCK.get(target));
+            return state.is(BuiltInRegistries.BLOCK.getValue(target));
         }
 
         return false;

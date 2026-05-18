@@ -22,6 +22,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -99,9 +100,9 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
             List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
             for (Item item : BuiltInRegistries.ITEM) {
-                if (FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING) > 0) {
+                if (FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING, Minecraft.getInstance().level) > 0) {
                     ItemStack stack = new ItemStack(item);
-                    recipes.add(new SimpleGeneratorRecipe(FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING) * 20, stack));
+                    recipes.add(new SimpleGeneratorRecipe(FuelBurnTimeUtil.getBurnTime(new ItemStack(item), RecipeType.SMELTING, Minecraft.getInstance().level) * 20, stack));
                 }
             }
             registration.addRecipes(JEICompat.GENERATOR_REGULAR, recipes);

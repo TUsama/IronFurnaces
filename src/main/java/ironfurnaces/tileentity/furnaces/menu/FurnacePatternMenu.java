@@ -3,21 +3,16 @@ package ironfurnaces.tileentity.furnaces.menu;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.cache.RemainingCache;
 import ironfurnaces.tileentity.furnaces.menu.handler.AbstractCompatMenuHandler;
-import ironfurnaces.tileentity.furnaces.menu.partition.GridPartition;
+import ironfurnaces.tileentity.furnaces.menu.partition.ItemStackGridPartition;
 import ironfurnaces.tileentity.furnaces.menu.partition.MovableGridPartition;
 import ironfurnaces.tileentity.furnaces.menu.partition.PagedGridPartition;
-import ironfurnaces.tileentity.furnaces.menu.slot.BooleanDataSlot;
-import ironfurnaces.tileentity.furnaces.menu.slot.DynamicAccessSlot;
-import ironfurnaces.tileentity.furnaces.menu.slot.IntDataSlot;
-import ironfurnaces.tileentity.furnaces.menu.slot.PartitionAccessSlot;
+import ironfurnaces.tileentity.furnaces.menu.slot.*;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
 import ironfurnaces.tileentity.furnaces.pattern.mode.AbstractFurnaceModeHandler;
 import ironfurnaces.tileentity.furnaces.pattern.mode.FurnaceModeManager;
 import ironfurnaces.tileentity.furnaces.setting.FurnaceSettingsV2;
 import ironfurnaces.util.FuelBurnTimeUtil;
 import it.unimi.dsi.fastutil.ints.Int2FloatLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +21,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -39,8 +36,8 @@ import java.util.function.Consumer;
 public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     public static final String ID = "furnace_pattern_menu";
     public final FurnacePatternBlockEntity blockEntity;
-    private final Partition playerMainInv;
-    private final Partition playerHotBarInv;
+
+    private final PlayerInvPartition playerInvWrapper;
     private final Partition furnaceInput;
     private final Partition furnaceOutput;
     private final PagedGridPartition factoryInput;
@@ -76,23 +73,23 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         this.data = data;
         addDataSlots(data);
         this.player = playerInventory.player;
-        playerHotBarInv = this.addPartition(this.createPlayerHotbarPartition(playerInventory));
-        playerMainInv = this.addPartition(this.createPlayerMainInventoryPartition(playerInventory));
+
+        this.playerInvWrapper = addPartition(new PlayerInvPartition(PlayerInventoryWrapper.of(playerInventory)));
 
         Consumer<DynamicAccessSlot> noPlace = x -> x.appendMayPlaceCallback(() -> false);
-        this.furnaceInput = this.addPartition(new GridPartition(1, new Vector2i(56, 17), () -> getMode().isFurnace(), blockEntity.getInput(), 0, 1));
-        this.furnaceOutput = this.addPartition(new GridPartition(1, new Vector2i(116, 35), () -> getMode().isFurnace(), blockEntity.getOutput(), 0, 1)
+        this.furnaceInput = this.addPartition(new ItemStackGridPartition(1, new Vector2i(56, 17), () -> getMode().isFurnace(), blockEntity.getInput(), 0, 1));
+        this.furnaceOutput = this.addPartition(new ItemStackGridPartition(1, new Vector2i(116, 35), () -> getMode().isFurnace(), blockEntity.getOutput(), 0, 1)
                 .setCreator((itemHandler, index, xPosition, yPosition, partition) -> {
                     DynamicAccessSlot dynamicAccessSlot = new DynamicAccessSlot(itemHandler, index, xPosition, yPosition, partition) {
                         @Override
                         public void onTake(Player player, ItemStack stack) {
                             super.onTake(player, stack);
 
-                            if (!player.level().isClientSide
+                            if (!player.level().isClientSide()
                                     && player instanceof ServerPlayer serverPlayer
                                     && blockEntity.getLevel() instanceof ServerLevel serverLevel) {
                                 blockEntity.getRecipeAwardHandler()
-                                        .unlockRecipes(serverPlayer);
+                                        .awardUsedRecipesAndPopExperience(serverPlayer, List.of(stack));
                             }
                         }
                     };
@@ -107,11 +104,11 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 public void onTake(Player player, ItemStack stack) {
                     super.onTake(player, stack);
 
-                    if (!player.level().isClientSide
+                    if (!player.level().isClientSide()
                             && player instanceof ServerPlayer serverPlayer
                             && blockEntity.getLevel() instanceof ServerLevel serverLevel) {
                         blockEntity.getRecipeAwardHandler()
-                                .unlockRecipes(serverPlayer);
+                                .awardUsedRecipesAndPopExperience(serverPlayer, List.of(stack));
                     }
                 }
             };
@@ -155,7 +152,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
                 }).menuSlots(this.slots));
 
         RemainingCache remaining = blockEntity.getRemaining();
-        this.remaining = addPartition(new MovableGridPartition(remaining.getSlots(), new Vector2i(-55, 53), this::isOpenRemaining, remaining, 0, 3).yMovementProvider(() -> {
+        this.remaining = addPartition(new MovableGridPartition(remaining.size(), new Vector2i(-55, 53), this::isOpenRemaining, remaining, 0, 3).yMovementProvider(() -> {
             int i = 53;
             //magic number 81 indicate that the y movement when panel open.
             i += isOpenSetting() ? 81 : 0;
@@ -164,7 +161,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         }).menuSlots(this.slots).withDynamicAccessSlot(noPlace));
         this.allMenuHandlers = FurnaceModeManager.INSTANCE.getAllMenuHandlers(this);
 
-        this.playerInv = PartitionGroup.of(playerMainInv, playerHotBarInv);
+        this.playerInv = PartitionGroup.of(playerInvWrapper);
         this.allInput = PartitionGroup.of(factoryInput, furnaceInput);
         this.allOutput = PartitionGroup.of(factoryOutput, furnaceOutput);
         Collection<AbstractCompatMenuHandler> values = allMenuHandlers.values();
@@ -177,7 +174,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         }
         var build = QuickMoveRuleBuilder.create()
                 .rule()
-                .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().getRecipeType()) > 0 && this.fuel.isAvailable())
+                .when(x -> FuelBurnTimeUtil.getBurnTime(x.stack(), blockEntity.getAugments().getCurrentRecipeType().getRecipeType(), blockEntity.getLevel()) > 0 && this.fuel.isAvailable())
                 .oneWay(playerInv, fuel)
 
                 .rule()
@@ -193,7 +190,7 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
         }
 
         build.rule()
-                .when(x -> blockEntity.getInput().isItemValid(0, x.stack()))
+                .when(x -> blockEntity.getInput().isValid(0, ItemResource.of(x.stack())))
                 .oneWay(playerInv, allInput)
                 .rule()
                 .oneWay(allInput, playerInv);
@@ -266,11 +263,11 @@ public class FurnacePatternMenu extends DistributePartitionContainerMenu {
     }
 
     public int getEnergyStored() {
-        return this.blockEntity.getFuel().getEnergyStored();
+        return this.blockEntity.getFuel().getAmountAsInt();
     }
 
     public int getMaxEnergy() {
-        return this.blockEntity.getFuel().getMaxEnergyStored();
+        return this.blockEntity.getFuel().getCapacityAsInt();
     }
 
     public boolean isLit() {
