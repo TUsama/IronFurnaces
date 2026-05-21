@@ -125,7 +125,7 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
 
         this.remaining = new RemainingCache();
 
-        var callback = Util.memoize(this::allowPlaceItem);
+        Function<ItemStack, Boolean> callback = x -> allowPlaceItem(x);
 
         this.input = new InputCache(this.mode, usedStats).grabRecipeCallback(callback).contentChangeCallback(x -> {
             this.instanceManager.invalidateRecipeCache(x);
