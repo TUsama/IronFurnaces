@@ -31,7 +31,7 @@ public class ProcessingInstanceManager implements INeedUpdate {
     public static final Codec<ProcessingInstanceManager> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ProcessingInstance.DISPATCH_CODEC.listOf().fieldOf("instances").forGetter(ProcessingInstanceManager::instances),
-                    ExtraCodecs.POSITIVE_INT.listOf().xmap(IntOpenHashSet::new, ArrayList::new).fieldOf("blockingIndexes").forGetter(ProcessingInstanceManager::blockingIndexes)
+                    ExtraCodecs.NON_NEGATIVE_INT.listOf().xmap(IntOpenHashSet::new, ArrayList::new).fieldOf("blockingIndexes").forGetter(ProcessingInstanceManager::blockingIndexes)
             ).apply(instance, ProcessingInstanceManager::new));
     @Getter
     private final List<ProcessingInstance> instances;
