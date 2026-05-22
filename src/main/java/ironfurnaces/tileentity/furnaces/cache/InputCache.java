@@ -34,7 +34,7 @@ public class InputCache extends ResizableCache {
 
     @Override
     public boolean isValid(int index, ItemResource resource) {
-        return grabRecipeCallback.apply(getStackInSlot(index));
+        return grabRecipeCallback.apply(resource.toStack());
     }
 
     @Override

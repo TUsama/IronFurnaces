@@ -37,7 +37,7 @@ public interface IPatternAccessor {
 
         PatternHolderInfo patternHolderInfo = stack.get(ModDataComponents.PATTERN_HOLDER_INFO);
         if (patternHolderInfo != null) {
-            return patternHolderInfo.getPattern();
+            return patternHolderInfo.pattern();
         }
 
         return null;
@@ -46,9 +46,9 @@ public interface IPatternAccessor {
     static void writePatternToItemStack(ItemStack stack, FurnacePattern pattern){
         PatternHolderInfo old = stack.get(ModDataComponents.PATTERN_HOLDER_INFO);
         if (old != null){
-            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(pattern, old.getSettingsV2()));
+            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, PatternHolderInfo.of(pattern, old.settingsV2()));
         } else {
-            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(pattern, null));
+            stack.set(ModDataComponents.PATTERN_HOLDER_INFO, PatternHolderInfo.of(pattern, null));
         }
 
     }

@@ -36,7 +36,7 @@ public class FuelCache extends ResizableCache implements EnergyHandler {
 
     @Override
     public boolean isValid(int index, ItemResource resource) {
-        ItemStack stack = getStackInSlot(index);
+        ItemStack stack = resource.toStack();
         return burnableFunction.test(stack) || stack.getItem() instanceof ItemHeater;
     }
 

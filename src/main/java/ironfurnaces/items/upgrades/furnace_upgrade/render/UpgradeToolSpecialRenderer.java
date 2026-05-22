@@ -12,20 +12,16 @@ import ironfurnaces.tileentity.furnaces.pattern.render.CubeTextures;
 import ironfurnaces.tileentity.furnaces.pattern.render.PatternPreviewTextureResolver;
 import ironfurnaces.tileentity.furnaces.pattern.upgrade.PatternUpgradeRule;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -41,17 +37,26 @@ public final class UpgradeToolSpecialRenderer
 
     public static final UpgradeToolSpecialRenderer INSTANCE = new UpgradeToolSpecialRenderer();
 
-    /*
-     * 注意：
-     * 这里默认箭头纹理被 stitched 到 BLOCK_ATLAS 里。
+    /**
+     * 对应文件：
+     * resources/assets/ironfurnaces/textures/gui/arrow.png
      *
-     * 推荐路径：
-     * assets/ironfurnaces/textures/item/upgrade_arrow.png
-     *
-     * 如果你仍然使用旧的 IronFurnaces.gui("arrow") 原始 GUI 纹理，
-     * 那么 arrow 需要单独提交一个 entityCutoutNoCull 类型的 CustomGeometry。
+     * 注意：这里传给 RenderType 的是完整纹理路径，不是 atlas sprite id。
      */
-    private static final Identifier ARROW_SPRITE = IronFurnaces.id("item/upgrade_arrow");
+    private static final Identifier ARROW_TEXTURE =
+            IronFurnaces.id("textures/gui/arrow.png");
+
+    private static final float LEFT_ENTRY_X = 0.20F;
+    private static final float RIGHT_ENTRY_X = 0.80F;
+    private static final float ENTRY_Y = 0.50F;
+    private static final float ENTRY_Z = 0.50F;
+
+    private static final float ARROW_X = 0.50F;
+    private static final float ARROW_Y = 0.50F;
+    private static final float ARROW_Z = 0.51F;
+
+    private static final float PATTERN_FRONT_SCALE = 0.32F;
+    private static final float BLOCK_PREVIEW_SCALE = 0.36F;
 
     private UpgradeToolSpecialRenderer() {
     }
@@ -70,19 +75,40 @@ public final class UpgradeToolSpecialRenderer
             return;
         }
 
-        /*
-         * GUI 下如果你想保持旧代码的满亮效果，可以强制 packedLight。
-         *
-         * 但 SpecialModelRenderer.submit 没有 ItemDisplayContext，
-         * 所以这里无法像旧 BEWLR 那样只在 GUI 时判断。
-         * 如果你希望所有场景都满亮，可以取消下一行注释。
-         */
-        // packedLight = 0xF000F0;
+        submitSideEntry(
+                data.from(),
+                poseStack,
+                collector,
+                packedLight,
+                packedOverlay,
+                outlineColor,
+                LEFT_ENTRY_X,
+                ENTRY_Y,
+                ENTRY_Z
+        );
 
         collector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.cutoutMovingBlock(),
-                new UpgradeToolGeometry(data, collector, packedLight, packedOverlay)
+                RenderTypes.entityCutout(ARROW_TEXTURE),
+                new ArrowGeometry(
+                        packedLight,
+                        packedOverlay,
+                        ARROW_X,
+                        ARROW_Y,
+                        ARROW_Z
+                )
+        );
+
+        submitSideEntry(
+                data.to(),
+                poseStack,
+                collector,
+                packedLight,
+                packedOverlay,
+                outlineColor,
+                RIGHT_ENTRY_X,
+                ENTRY_Y,
+                ENTRY_Z
         );
     }
 
@@ -122,91 +148,134 @@ public final class UpgradeToolSpecialRenderer
         }
     }
 
-    private static final class UpgradeToolGeometry implements SubmitNodeCollector.CustomGeometryRenderer {
-        private final UpgradeToolRenderData data;
-        private final SubmitNodeCollector collector;
+    private static void submitSideEntry(
+            Identifier id,
+            PoseStack poseStack,
+            SubmitNodeCollector collector,
+            int packedLight,
+            int packedOverlay,
+            int outlineColor,
+            float centerX,
+            float centerY,
+            float centerZ
+    ) {
+        if (PatternUpgradeRule.isPatternId(id)) {
+            collector.submitCustomGeometry(
+                    poseStack,
+                    RenderTypes.cutoutMovingBlock(),
+                    new PatternFrontGeometry(
+                            id.getPath(),
+                            packedLight,
+                            packedOverlay,
+                            centerX,
+                            centerY,
+                            centerZ
+                    )
+            );
+            return;
+        }
+
+        if (PatternUpgradeRule.isBlockId(id)) {
+            submitBlockPreview(
+                    id,
+                    poseStack,
+                    collector,
+                    packedLight,
+                    packedOverlay,
+                    outlineColor,
+                    centerX,
+                    centerY,
+                    centerZ
+            );
+        }
+    }
+
+    private static void submitBlockPreview(
+            Identifier id,
+            PoseStack sourcePoseStack,
+            SubmitNodeCollector collector,
+            int packedLight,
+            int packedOverlay,
+            int outlineColor,
+            float centerX,
+            float centerY,
+            float centerZ
+    ) {
+        Block block = BuiltInRegistries.BLOCK
+                .get(id)
+                .map(reference -> reference.value())
+                .orElse(Blocks.AIR);
+
+        if (block == Blocks.AIR) {
+            return;
+        }
+
+        BlockState state = block.defaultBlockState();
+
+        PoseStack poseStack = copyPoseStack(sourcePoseStack);
+
+        poseStack.translate(centerX, centerY, centerZ);
+        poseStack.scale(BLOCK_PREVIEW_SCALE, BLOCK_PREVIEW_SCALE, BLOCK_PREVIEW_SCALE);
+        poseStack.mulPose(Axis.YP.rotationDegrees(195.0F));
+        poseStack.translate(-0.50D, -0.50D, -0.50D);
+
+        BlockModelResolver blockModelResolver =
+                Minecraft.getInstance().getBlockModelResolver();
+
+        BlockModelRenderState blockModelRenderState =
+                new BlockModelRenderState();
+
+        blockModelResolver.update(
+                blockModelRenderState,
+                state,
+                BlockDisplayContext.create()
+        );
+
+        blockModelRenderState.submit(
+                poseStack,
+                collector,
+                packedLight,
+                packedOverlay,
+                outlineColor
+        );
+    }
+
+    private static PoseStack copyPoseStack(PoseStack source) {
+        PoseStack copy = new PoseStack();
+        copy.last().set(source.last().copy());
+        return copy;
+    }
+
+    private static final class PatternFrontGeometry implements SubmitNodeCollector.CustomGeometryRenderer {
+        private final String patternPath;
         private final int packedLight;
         private final int packedOverlay;
+        private final float centerX;
+        private final float centerY;
+        private final float centerZ;
 
-        private UpgradeToolGeometry(
-                UpgradeToolRenderData data,
-                SubmitNodeCollector collector,
+        private PatternFrontGeometry(
+                String patternPath,
                 int packedLight,
-                int packedOverlay
-        ) {
-            this.data = data;
-            this.collector = collector;
-            this.packedLight = packedLight;
-            this.packedOverlay = packedOverlay;
-        }
-
-        @Override
-        public void render(PoseStack.Pose rootPose, VertexConsumer consumer) {
-            renderSideEntry(
-                    data.from(),
-                    rootPose,
-                    consumer,
-                    0.28F,
-                    0.50F,
-                    0.50F
-            );
-
-            renderArrow(
-                    rootPose,
-                    consumer,
-                    0.50F,
-                    0.50F,
-                    0.51F
-            );
-
-            renderSideEntry(
-                    data.to(),
-                    rootPose,
-                    consumer,
-                    0.72F,
-                    0.50F,
-                    0.50F
-            );
-        }
-
-        private void renderSideEntry(
-                Identifier id,
-                PoseStack.Pose rootPose,
-                VertexConsumer consumer,
+                int packedOverlay,
                 float centerX,
                 float centerY,
                 float centerZ
         ) {
-            if (PatternUpgradeRule.isPatternId(id)) {
-                PoseStack.Pose pose = rootPose.copy();
-                pose.translate(centerX, centerY, centerZ);
-                pose.scale(0.32F, 0.32F, 0.32F);
-
-                renderPatternFront(
-                        id.getPath(),
-                        pose,
-                        consumer
-                );
-                return;
-            }
-
-            if (PatternUpgradeRule.isBlockId(id)) {
-                renderBlockPreview(
-                        id,
-                        rootPose,
-                        consumer,
-                        centerX,
-                        centerY,
-                        centerZ
-                );
-            }
+            this.patternPath = patternPath;
+            this.packedLight = packedLight;
+            this.packedOverlay = packedOverlay;
+            this.centerX = centerX;
+            this.centerY = centerY;
+            this.centerZ = centerZ;
         }
 
-        private void renderPatternFront(
-                String patternPath,
-                PoseStack.Pose pose,
-                VertexConsumer consumer
-        ) {
+        @Override
+        public void render(PoseStack.Pose rootPose, VertexConsumer consumer) {
+            PoseStack.Pose pose = rootPose.copy();
+            pose.translate(centerX, centerY, centerZ);
+            pose.scale(0.32F, 0.32F, 0.32F);
+
             CubeTextures textures = PatternPreviewTextureResolver.resolve(
                     patternPath,
                     false,
@@ -215,10 +284,13 @@ public final class UpgradeToolSpecialRenderer
             );
 
             TextureAtlasSprite sprite = blockAtlasSprite(textures.front());
-            renderSpriteQuad(
+
+            renderAtlasSpriteQuad(
                     sprite,
                     pose,
                     consumer,
+                    packedLight,
+                    packedOverlay,
                     -0.50F,
                     0.50F,
                     -0.50F,
@@ -226,23 +298,39 @@ public final class UpgradeToolSpecialRenderer
                     0.001F
             );
         }
+    }
 
-        private void renderArrow(
-                PoseStack.Pose rootPose,
-                VertexConsumer consumer,
+    private static final class ArrowGeometry implements SubmitNodeCollector.CustomGeometryRenderer {
+        private final int packedLight;
+        private final int packedOverlay;
+        private final float centerX;
+        private final float centerY;
+        private final float centerZ;
+
+        private ArrowGeometry(
+                int packedLight,
+                int packedOverlay,
                 float centerX,
                 float centerY,
                 float centerZ
         ) {
+            this.packedLight = packedLight;
+            this.packedOverlay = packedOverlay;
+            this.centerX = centerX;
+            this.centerY = centerY;
+            this.centerZ = centerZ;
+        }
+
+        @Override
+        public void render(PoseStack.Pose rootPose, VertexConsumer consumer) {
             PoseStack.Pose pose = rootPose.copy();
             pose.translate(centerX, centerY, centerZ);
 
-            TextureAtlasSprite sprite = blockAtlasSprite(ARROW_SPRITE);
-
-            renderSpriteQuad(
-                    sprite,
+            renderRawTextureQuad(
                     pose,
                     consumer,
+                    packedLight,
+                    packedOverlay,
                     -0.11F,
                     0.11F,
                     -0.11F,
@@ -250,101 +338,117 @@ public final class UpgradeToolSpecialRenderer
                     0.002F
             );
         }
+    }
 
-        private void renderBlockPreview(
-                Identifier id,
-                PoseStack.Pose rootPose,
-                VertexConsumer consumer,
-                float centerX,
-                float centerY,
-                float centerZ
-        ) {
-            Block block = BuiltInRegistries.BLOCK
-                    .get(id)
-                    .map(reference -> reference.value())
-                    .orElse(Blocks.AIR);
+    private static TextureAtlasSprite blockAtlasSprite(Identifier texture) {
+        return Minecraft.getInstance()
+                .getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(texture);
+    }
 
-            if (block == Blocks.AIR) {
-                return;
-            }
+    private static void renderAtlasSpriteQuad(
+            TextureAtlasSprite sprite,
+            PoseStack.Pose pose,
+            VertexConsumer consumer,
+            int packedLight,
+            int packedOverlay,
+            float minX,
+            float maxX,
+            float minY,
+            float maxY,
+            float z
+    ) {
+        renderQuad(
+                pose,
+                consumer,
+                packedLight,
+                packedOverlay,
+                minX,
+                maxX,
+                minY,
+                maxY,
+                z,
+                sprite.getU0(),
+                sprite.getU1(),
+                sprite.getV0(),
+                sprite.getV1()
+        );
+    }
 
-            BlockState state = block.defaultBlockState();
+    private static void renderRawTextureQuad(
+            PoseStack.Pose pose,
+            VertexConsumer consumer,
+            int packedLight,
+            int packedOverlay,
+            float minX,
+            float maxX,
+            float minY,
+            float maxY,
+            float z
+    ) {
+        renderQuad(
+                pose,
+                consumer,
+                packedLight,
+                packedOverlay,
+                minX,
+                maxX,
+                minY,
+                maxY,
+                z,
+                0.0F,
+                1.0F,
+                0.0F,
+                1.0F
+        );
+    }
 
-            PoseStack poseStack = new PoseStack();
-            poseStack.last().set(rootPose.copy());
+    private static void renderQuad(
+            PoseStack.Pose pose,
+            VertexConsumer consumer,
+            int packedLight,
+            int packedOverlay,
+            float minX,
+            float maxX,
+            float minY,
+            float maxY,
+            float z,
+            float u0,
+            float u1,
+            float v0,
+            float v1
+    ) {
+        putVertex(consumer, pose, packedLight, packedOverlay, minX, maxY, z, u0, v0, 0.0F, 0.0F, 1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, maxX, maxY, z, u1, v0, 0.0F, 0.0F, 1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, maxX, minY, z, u1, v1, 0.0F, 0.0F, 1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, minX, minY, z, u0, v1, 0.0F, 0.0F, 1.0F);
 
-            /*
-             * 这里把旧 BEWLR 的 block preview 逻辑迁移到 CustomGeometryRenderer 内部。
-             * 注意：因为 CustomGeometryRenderer 只给了一个 VertexConsumer，
-             * 所以这里用一个简单 MultiBufferSource 适配器把所有 RenderType 都写进同一个 consumer。
-             *
-             * 对普通 furnace block preview 足够用。
-             * 如果后续遇到复杂 block model 的 RenderType 不对，再改成真正的 BlockModelRenderState 提交。
-             */
-            poseStack.translate(centerX, centerY, centerZ);
-            poseStack.scale(0.42F, 0.42F, 0.42F);
-            poseStack.mulPose(Axis.YP.rotationDegrees(195.0F));
-            poseStack.translate(-0.50D, -0.50D, -0.50D);
+        putVertex(consumer, pose, packedLight, packedOverlay, minX, minY, -z, u0, v1, 0.0F, 0.0F, -1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, maxX, minY, -z, u1, v1, 0.0F, 0.0F, -1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, maxX, maxY, -z, u1, v0, 0.0F, 0.0F, -1.0F);
+        putVertex(consumer, pose, packedLight, packedOverlay, minX, maxY, -z, u0, v0, 0.0F, 0.0F, -1.0F);
+    }
 
-            MultiBufferSource forcedBuffer = renderType -> consumer;
-            BlockModelResolver blockModelResolver = Minecraft.getInstance().getBlockModelResolver();
-            BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
-            blockModelResolver.update(blockModelRenderState, state, BlockDisplayContext.create());
-            blockModelRenderState.submit(poseStack, collector, 0, OverlayTexture.NO_OVERLAY, 0);
-
-        }
-
-        private static TextureAtlasSprite blockAtlasSprite(Identifier texture) {
-            return Minecraft.getInstance()
-                    .getAtlasManager()
-                    .getAtlasOrThrow(AtlasIds.BLOCKS)
-                    .getSprite(texture);
-        }
-
-        private void renderSpriteQuad(
-                TextureAtlasSprite sprite,
-                PoseStack.Pose pose,
-                VertexConsumer consumer,
-                float minX,
-                float maxX,
-                float minY,
-                float maxY,
-                float z
-        ) {
-            float u0 = sprite.getU0();
-            float u1 = sprite.getU1();
-            float v0 = sprite.getV0();
-            float v1 = sprite.getV1();
-
-            putVertex(consumer, pose, minX, maxY, z, u0, v0, 0.0F, 0.0F, 1.0F);
-            putVertex(consumer, pose, maxX, maxY, z, u1, v0, 0.0F, 0.0F, 1.0F);
-            putVertex(consumer, pose, maxX, minY, z, u1, v1, 0.0F, 0.0F, 1.0F);
-            putVertex(consumer, pose, minX, minY, z, u0, v1, 0.0F, 0.0F, 1.0F);
-
-            putVertex(consumer, pose, minX, minY, -z, u0, v1, 0.0F, 0.0F, -1.0F);
-            putVertex(consumer, pose, maxX, minY, -z, u1, v1, 0.0F, 0.0F, -1.0F);
-            putVertex(consumer, pose, maxX, maxY, -z, u1, v0, 0.0F, 0.0F, -1.0F);
-            putVertex(consumer, pose, minX, maxY, -z, u0, v0, 0.0F, 0.0F, -1.0F);
-        }
-
-        private void putVertex(
-                VertexConsumer consumer,
-                PoseStack.Pose pose,
-                float x,
-                float y,
-                float z,
-                float u,
-                float v,
-                float normalX,
-                float normalY,
-                float normalZ
-        ) {
-            consumer.addVertex(pose, x, y, z)
-                    .setColor(255, 255, 255, 255)
-                    .setUv(u, v)
-                    .setOverlay(packedOverlay)
-                    .setLight(packedLight)
-                    .setNormal(pose, normalX, normalY, normalZ);
-        }
+    private static void putVertex(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            int packedLight,
+            int packedOverlay,
+            float x,
+            float y,
+            float z,
+            float u,
+            float v,
+            float normalX,
+            float normalY,
+            float normalZ
+    ) {
+        consumer.addVertex(pose, x, y, z)
+                .setColor(255, 255, 255, 255)
+                .setUv(u, v)
+                .setOverlay(packedOverlay)
+                .setLight(packedLight)
+                .setNormal(pose, normalX, normalY, normalZ);
     }
 }

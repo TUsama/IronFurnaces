@@ -27,22 +27,16 @@ import java.util.function.Consumer;
 
 import static net.minecraft.network.chat.Component.translatable;
 
-@Getter(AccessLevel.PUBLIC)
-public class PatternHolderInfo implements TooltipProvider {
+public record PatternHolderInfo(@Nullable FurnacePattern pattern, FurnaceSettingsV2 settingsV2) implements TooltipProvider {
     public static final Codec<PatternHolderInfo> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    FurnacePattern.REF_CODEC.fieldOf("pattern").forGetter(PatternHolderInfo::getPattern),
-                    FurnaceSettingsV2.CODEC.fieldOf("setting").forGetter(PatternHolderInfo::getSettingsV2)
+                    FurnacePattern.REF_CODEC.fieldOf("pattern").forGetter(PatternHolderInfo::pattern),
+                    FurnaceSettingsV2.CODEC.fieldOf("setting").forGetter(PatternHolderInfo::settingsV2)
             ).apply(instance, PatternHolderInfo::new));
 
-    private FurnacePattern pattern;
-    private FurnaceSettingsV2 settingsV2;
 
-    public PatternHolderInfo(@Nullable FurnacePattern pattern, @Nullable FurnaceSettingsV2 settingsV2) {
-        this.pattern = pattern;
-        if (this.pattern == null) this.pattern = FurnacePattern.FALLBACK;
-        this.settingsV2 = settingsV2;
-        if (this.settingsV2 == null) this.settingsV2 = FurnaceSettingsV2.DEFAULT;
+    public static PatternHolderInfo of(@Nullable FurnacePattern pattern, @Nullable FurnaceSettingsV2 settingsV2){
+        return new PatternHolderInfo(pattern == null ? FurnacePattern.FALLBACK : pattern, settingsV2 == null ? FurnaceSettingsV2.DEFAULT : settingsV2);
     }
 
     public static void writeTo(ItemStack stack, PatternHolderInfo info) {

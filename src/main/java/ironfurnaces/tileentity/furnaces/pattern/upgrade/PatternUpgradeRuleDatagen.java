@@ -2,6 +2,7 @@
 package ironfurnaces.tileentity.furnaces.pattern.upgrade;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.pattern.CodecJsonProvider;
 import net.minecraft.data.PackOutput;

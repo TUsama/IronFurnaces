@@ -15,8 +15,8 @@ public class FurnacesGuiHandlerForNewSet implements IGuiContainerHandler<Furnace
     @Override
     public List<Rect2i> getGuiExtraAreas(FurnacePatternScreen containerScreen) {
         List<Rect2i> rect2is = new ArrayList<>();
-        int guiLeft = containerScreen.getGuiLeft();
-        int guiTop = containerScreen.getGuiTop();
+        int guiLeft = containerScreen.getLeftPos();
+        int guiTop = containerScreen.getTopPos();
         int width = 13;
         int sidePanelHeight = 100;
         int sidePanelWidth = 35;

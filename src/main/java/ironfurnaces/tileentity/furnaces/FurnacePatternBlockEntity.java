@@ -526,8 +526,8 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
         PatternHolderInfo orDefault = components.getOrDefault(ModDataComponents.PATTERN_HOLDER_INFO, new PatternHolderInfo(FurnacePattern.FALLBACK, FurnaceSettingsV2.DEFAULT));
-        updatePattern(orDefault.getPattern());
-        setWholeSettingV2(orDefault.getSettingsV2());
+        updatePattern(orDefault.pattern());
+        setWholeSettingV2(orDefault.settingsV2());
     }
 
     @Override

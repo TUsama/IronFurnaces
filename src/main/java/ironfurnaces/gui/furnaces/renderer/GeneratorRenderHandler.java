@@ -24,10 +24,10 @@ public class GeneratorRenderHandler extends AbstractPatternScreenRenderHandler {
     @Override
     public void extractBackground(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         Identifier texture = pickTexture();
-        int i = screen.getGuiLeft();
-        int j = screen.getGuiTop();
+        int i = screen.getLeftPos();
+        int j = screen.getTopPos();
 
-        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize(), 256, 256);
+        guiGraphics.blit(texture, i, j, 0, 0, screen.getImageWidth(), screen.getImageHeight(), 256, 256);
         FurnacePatternMenu menu = screen.getMenu();
         if (menu.isLit()) {
             int k = menu.getLitProgress();

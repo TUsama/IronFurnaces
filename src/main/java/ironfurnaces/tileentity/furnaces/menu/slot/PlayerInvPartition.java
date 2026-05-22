@@ -15,7 +15,7 @@ public class PlayerInvPartition extends Partition {
     private final Vector2i hotbarStartPoint = new Vector2i(8, 142);
 
     public PlayerInvPartition(PlayerInventoryWrapper wrapper) {
-        super(36, new Vector2i(8, 84), () -> true);
+        super(36, new Vector2i(8, 66), () -> true);
         this.wrapper = wrapper;
     }
 
@@ -28,8 +28,10 @@ public class PlayerInvPartition extends Partition {
             return new ResourceHandlerSlot(wrapper, (a, b, c) -> {
                 ResourceHandler<ItemResource> slot = wrapper.getSlot(a);
                 try (var tx = Transaction.openRoot()) {
-                    slot.extract(slot.getResource(0), slot.getAmountAsInt(0), tx);
-                    slot.insert(b, c, tx);
+                    if (!slot.getResource(0).isEmpty()){
+                        slot.extract(slot.getResource(0), slot.getAmountAsInt(0), tx);
+                    }
+                    if (!b.isEmpty()) slot.insert(b, c, tx);
                     tx.commit();
                 }
 
@@ -41,8 +43,10 @@ public class PlayerInvPartition extends Partition {
             return new ResourceHandlerSlot(wrapper, (a, b, c) -> {
                 ResourceHandler<ItemResource> slot = wrapper.getSlot(a);
                 try (var tx = Transaction.openRoot()) {
-                    slot.extract(slot.getResource(0), slot.getAmountAsInt(0), tx);
-                    slot.insert(b, c, tx);
+                    if (!slot.getResource(0).isEmpty()) slot.extract(slot.getResource(0), slot.getAmountAsInt(0), tx);
+                    if (!b.isEmpty()) {
+                        slot.insert(b, c, tx);
+                    }
                     tx.commit();
                 }
 

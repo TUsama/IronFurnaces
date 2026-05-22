@@ -26,11 +26,11 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         super.extractLabels(graphics, xm, ym);
-        graphics.text(font, this.playerInv.getDisplayName(), 7, this.getYSize() - 93, 4210752, false);
-        graphics.text(font, name, this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
+        graphics.text(font, this.playerInv.getDisplayName(), 7, this.getImageHeight() - 93, 4210752, false);
+        graphics.text(font, name, this.getImageWidth() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
 
-        int actualMouseX = xm - ((this.width - this.getXSize()) / 2);
-        int actualMouseY = ym - ((this.height - this.getYSize()) / 2);
+        int actualMouseX = xm - ((this.width - this.getImageWidth()) / 2);
+        int actualMouseY = ym - ((this.height - this.getImageHeight()) / 2);
         if (actualMouseX >= 68 && actualMouseX <= 108 && actualMouseY >= 64 && actualMouseY <= 76) {
             int energy = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getEnergy();
             int capacity = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getMaxEnergy();
@@ -47,7 +47,7 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos, topPos, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos, topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
 
         int i;
         i = this.getMenu().getEnergyScaled(42);

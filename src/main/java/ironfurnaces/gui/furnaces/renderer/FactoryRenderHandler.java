@@ -46,8 +46,8 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
         }
 
     };
-    int y = screen.getGuiTop() + 70;
-    int i1 = screen.getGuiLeft() + 70;
+    int y = screen.getTopPos() + 70;
+    int i1 = screen.getLeftPos() + 70;
     private AbstractWidget energyArea = energyAreaGetter.apply(screen);
     private PageButton forwardButton = new PageButton(i1 + 38, y, true, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(3)), false);
     private PageButton backButton = new PageButton(i1 - 8, y, false, (button) -> NetworkUtils.sendToServer(new C2SUpdateMenuPacket(4)), false);
@@ -67,9 +67,9 @@ public class FactoryRenderHandler extends AbstractPatternScreenRenderHandler {
     public void extractBackground(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
 
         Identifier texture = pickTexture();
-        int i = screen.getGuiLeft();
-        int j = screen.getGuiTop();
-        guiGraphics.blit(texture, i, j, 0, 0, screen.getXSize(), screen.getYSize(), 256, 256);
+        int i = screen.getLeftPos();
+        int j = screen.getTopPos();
+        guiGraphics.blit(texture, i, j, 0, 0, screen.getImageWidth(), screen.getImageHeight(), 256, 256);
         int columns = 3;
         int visibleRows = 3;
         int pageSize = columns * visibleRows;

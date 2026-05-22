@@ -52,11 +52,11 @@ public class SideTab extends BaseImageButton implements IUpdateContext {
                 panel.update(positionContext);
             }
             case CLOSE -> {
-                super.extractRenderState(graphics, mouseX, mouseY, a);
+                super.extractContents(graphics, mouseX, mouseY, a);
                 this.update(positionContext);
             }
         }
-        super.extractContents(graphics, mouseX, mouseY, a);
+
     }
 
 

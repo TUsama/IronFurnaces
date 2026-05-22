@@ -8,265 +8,33 @@ import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
+import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolSpecialRenderer;
+import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
+import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 import static ironfurnaces.registration.ModItemTags.*;
 import static ironfurnaces.registration.util.IDUtil.makeID;
 
-//~ if > 1.21.11 'RecipeCategory.MISC, ctx.get()' -> 'provider.getItems(), RecipeCategory.MISC, ctx.get()'{
 public class ModItems {
 
 
-    //? <1.21.11{
-    /*public static final ItemEntry<ItemUpgradeIron> IRON_UPGRADE =
-            registerItem("upgrade_iron", "Upgrade: Stone -> Iron", ItemUpgradeIron::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("###")
-                                .define('#', bindForge("ingots/iron"))
-                                .define('X', bindVanilla("stone_tool_materials"))
-                                .unlockedBy("has_iron", CriterionUtil.has(bindForge("ingots/iron"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeGold> GOLD_UPGRADE =
-            registerItem("upgrade_gold", "Upgrade: Iron -> Gold", ItemUpgradeGold::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("#Y#")
-                                .define('#', bindForge("ingots/gold"))
-                                .define('X', bindForge("ingots/iron"))
-                                .define('Y', bindForge("storage_blocks/gold"))
-                                .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeDiamond> DIAMOND_UPGRADE =
-            registerItem("upgrade_diamond", "Upgrade: Gold -> Diamond", ItemUpgradeDiamond::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("GXG")
-                                .pattern("###")
-                                .define('#', bindForge("gems/diamond"))
-                                .define('X', bindForge("ingots/gold"))
-                                .define('G', bindForge("glass"))
-                                .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeEmerald> EMERALD_UPGRADE =
-            registerItem("upgrade_emerald", "Upgrade: Diamond -> Emerald", ItemUpgradeEmerald::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("###")
-                                .define('#', bindForge("gems/emerald"))
-                                .define('X', bindForge("gems/diamond"))
-                                .unlockedBy("has_emerald", CriterionUtil.has(bindForge("gems/emerald"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeObsidian> OBSIDIAN_UPGRADE =
-            registerItem("upgrade_obsidian", "Upgrade: Emerald -> Obsidian", ItemUpgradeObsidian::new).recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("#Y#")
-                                .pattern("YXY")
-                                .pattern("#Y#")
-                                .define('#', bindForge("obsidian"))
-                                .define('X', bindForge("gems/emerald"))
-                                .define('Y', bindForge("rods/blaze"))
-                                .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeCrystal> CRYSTAL_UPGRADE =
-            registerItem("upgrade_crystal", "Upgrade: Diamond -> Crystal", ItemUpgradeCrystal::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("###")
-                                .define('#', bindForge("glass"))
-                                .define('X', bindForge("gems/diamond"))
-                                .unlockedBy("has_glass", CriterionUtil.has(bindForge("glass"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeNetherite> NETHERITE_UPGRADE =
-            registerItem("upgrade_netherite", "Upgrade: Obsidian -> Netherite", ItemUpgradeNetherite::new).recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("N#N")
-                                .pattern("#X#")
-                                .pattern("NSN")
-                                .define('#', Items.MAGMA_CREAM)
-                                .define('X', bindForge("furnaces/obsidian"))
-                                .define('S', bindVanilla("soul_fire_base_blocks"))
-                                .define('N', Items.NETHERITE_INGOT)
-                                .unlockedBy("has_netherite", CriterionUtil.has(Items.NETHERITE_INGOT, provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeCopper> COPPER_UPGRADE =
-            registerItem("upgrade_copper", "Upgrade: Stone -> Copper", ItemUpgradeCopper::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("###")
-                                .define('#', bindForge("ingots/copper"))
-                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
-                                .unlockedBy("has_copper", CriterionUtil.has(bindForge("ingots/copper"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeSilver> SILVER_UPGRADE =
-            registerItem("upgrade_silver", "Upgrade: Copper -> Silver", ItemUpgradeSilver::new).recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#S#")
-                                .pattern("#X#")
-                                .define('#', bindForge("ingots/silver"))
-                                .define('X', bindForge("ingots/copper"))
-                                .define('S', bindVanilla("stone_tool_materials"))
-                                .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
-
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeObsidian2> OBSIDIAN2_UPGRADE =
-            registerItem("upgrade_obsidian2", "Upgrade: Crystal -> Obsidian", ItemUpgradeObsidian2::new).recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("#Y#")
-                                .pattern("YXY")
-                                .pattern("#Y#")
-                                .define('#', bindForge("obsidian"))
-                                .define('X', bindForge("glass"))
-                                .define('Y', bindForge("rods/blaze"))
-                                .unlockedBy("has_obsidian", CriterionUtil.has(bindForge("obsidian"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeIron2> IRON2_UPGRADE =
-            registerItem("upgrade_iron2", "Upgrade: Copper -> Iron", ItemUpgradeIron2::new)
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("GXG")
-                                .pattern("###")
-                                .define('#', bindForge("ingots/iron"))
-                                .define('X', bindForge("ingots/copper"))
-                                .define('G', bindForge("glass"))
-                                .unlockedBy("has_diamond", CriterionUtil.has(bindForge("gems/diamond"), provider))
-                                .save(provider, makeID("upgrades/" + ctx.getName()));
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeGold2> GOLD2_UPGRADE =
-            registerItem("upgrade_gold2", "Upgrade: Silver -> Gold", ItemUpgradeGold2::new)
-                    .recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("###")
-                                .pattern("#X#")
-                                .pattern("#Y#")
-                                .define('#', bindForge("ingots/gold"))
-                                .define('X', bindForge("ingots/silver"))
-                                .define('Y', bindForge("storage_blocks/gold"))
-                                .unlockedBy("has_gold", CriterionUtil.has(bindForge("ingots/gold"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), bindForge("ingots/silver"));
-                        ;
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeSilver2> SILVER2_UPGRADE =
-            registerItem("upgrade_silver2", "Upgrade: Iron -> Silver", ItemUpgradeSilver2::new)
-                    .recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenHasTags(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("#G#")
-                                .pattern("GXG")
-                                .pattern("#G#")
-                                .define('#', bindForge("ingots/silver"))
-                                .define('X', bindForge("ingots/iron"))
-                                .define('G', bindForge("glass"))
-                                .unlockedBy("has_silver", CriterionUtil.has(bindForge("ingots/silver"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, provider, "upgrades", ctx.getName(), ModItemTags.SILVER);
-                        ;
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeAllthemodium> ALLTHEMODIUM_UPGRADE =
-            registerItem("upgrade_allthemodium", "Upgrade: Netherite -> Allthemodium",
-                    ItemUpgradeAllthemodium::new).recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("B#B")
-                                .pattern("#X#")
-                                .pattern("B#B")
-                                .define('#', bindForge("ingots/allthemodium"))
-                                .define('B', bindForge("storage_blocks/allthemodium"))
-                                .define('X', ModItemTags.NETHERITE_UPGRADE)
-                                .unlockedBy("has_allthemodium", CriterionUtil.has(bindForge("ingots/allthemodium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeVibranium> VIBRANIUM_UPGRADE =
-            registerItem("upgrade_vibranium", "Upgrade: Allthemodium -> Vibranium",
-                    ItemUpgradeVibranium::new).recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("B#B")
-                                .pattern("#X#")
-                                .pattern("B#B")
-                                .define('#', bindForge("ingots/vibranium"))
-                                .define('B', bindForge("storage_blocks/vibranium"))
-                                .define('X', bindForge("ingots/allthemodium"))
-                                .unlockedBy("has_vibranium", CriterionUtil.has(bindForge("ingots/vibranium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
-
-                    })
-                    .register();
-
-    public static final ItemEntry<ItemUpgradeUnobtainium> UNOBTAINIUM_UPGRADE =
-            registerItem("upgrade_unobtainium", "Upgrade: Vibranium -> Unobtainium",
-                    ItemUpgradeUnobtainium::new).recipe((ctx, provider) -> {
-                        ConditionRecipeUtil.whenAllthemodium(x -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern("B#B")
-                                .pattern("#X#")
-                                .pattern("B#B")
-                                .define('#', bindForge("ingots/unobtainium"))
-                                .define('B', bindForge("storage_blocks/unobtainium"))
-                                .define('X', bindForge("ingots/vibranium"))
-                                .unlockedBy("has_unobtainium", CriterionUtil.has(bindForge("ingots/unobtainium"), provider))
-                                .save(x, makeID("upgrades/" + ctx.getName())), ctx, "upgrades", ctx.getName(), provider);
-
-                    })
-                    .register();
-*///?}
 
 
     public static final ItemEntry<ItemHeater> ITEM_HEATER =
@@ -404,21 +172,7 @@ public class ModItems {
                     })
                     .register();
 
-    //? <1.21.11{
-    /*public static final ItemEntry<ItemFurnaceCopy> ITEM_COPY =
-            registerItem("item_copy", p -> new ItemFurnaceCopy(p.stacksTo(1)))
-                    .recipe((ctx, provider) -> {
-                        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
-                                .pattern(" # ")
-                                .pattern("#X#")
-                                .pattern(" # ")
-                                .define('#', Items.PAPER)
-                                .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
-                                .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
-                    })
-                    .register();
-*///?}
+
 
     public static final ItemEntry<ItemFurnaceCopyV2> ITEM_COPY_V2 =
             registerItem("item_copy", p -> new ItemFurnaceCopyV2(p.stacksTo(1)))
@@ -527,14 +281,24 @@ public class ModItems {
 
     public static final ItemEntry<ItemUpgradeTool> UPGRADE_TOOL =
             registerItem("upgrade_tool", ItemUpgradeTool::new)
-                    .defaultModel()
-                    /*.model(() -> (ctx, prov) -> {
+                    .model(() -> (ctx, prov) -> {
+
+                        Identifier baseModel = IronFurnaces.id("item/upgrade_tool_base");
+
                         ModelTemplates.PARTICLE_ONLY.create(
-                                ctx.get(),
-                                TextureMapping.particleFromItem(ctx.get()),
+                                baseModel,
+                                TextureMapping.particle(TextureMapping.getBlockTexture(Blocks.STONE)),
                                 prov.modelOutput
                         );
-                    })*/
+
+                        prov.itemModelOutput.accept(
+                                ctx.get(),
+                                ItemModelUtils.specialModel(
+                                        baseModel,
+                                        new UpgradeToolSpecialRenderer.Unbaked()
+                                )
+                        );
+                    })
                     .recipe((ctx, provider) -> {
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold"))
                                 .pattern("###")
@@ -714,7 +478,6 @@ public class ModItems {
 
                     .register();
 
-    //~}
     protected static <T extends Item> ItemBuilder<T, Registrum> registerItem(
             String name,
             String langName,

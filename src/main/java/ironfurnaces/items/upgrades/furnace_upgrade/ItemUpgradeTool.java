@@ -4,6 +4,8 @@ import ironfurnaces.capability.PlayerDataHandler;
 import ironfurnaces.capability.rainbow.OwnerRainbowContextHelper;
 import ironfurnaces.config.RainbowConfig;
 import ironfurnaces.registration.ModBlocks;
+import ironfurnaces.registration.ModDataComponents;
+import ironfurnaces.registration.data_component.UpgradeRuleHolder;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.RainbowLimitHelper;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
@@ -16,6 +18,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,14 +30,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class ItemUpgradeTool extends Item {
 
 
     public ItemUpgradeTool(Properties properties) {
-        super(properties);
+        super(properties.component(ModDataComponents.UPGRADE_RULE_HOLDER, new UpgradeRuleHolder(Optional.empty())));
     }
 
+    @Override
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+        itemStack.addToTooltip(ModDataComponents.UPGRADE_RULE_HOLDER, context, display, builder, tooltipFlag);
+    }
 
     private static @NotNull InteractionResult whenInvalided(UseOnContext context, Player player) {
         if (player != null)

@@ -31,11 +31,12 @@ public interface IRecipeTypeHandler extends ValueIOSerializable {
     List<IRecipeType<?>> getShownRecipeTypes(AbstractFurnaceModeHandler mode);
 
     default Optional<? extends RecipeHolder> getRecipe(FurnacePatternBlockEntity blockEntity, List<ItemStack> stacks) {
-        if (blockEntity.getLevel().isClientSide()) {
-            IronFurnaces.LOGGER.debug("Invoke getRecipe() in ClientLevel!");
+        if (!blockEntity.hasLevel() || blockEntity.getLevel().isClientSide()) {
             return Optional.empty();
         } else {
-            return blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SingleRecipeInput(stacks.get(0)), ((ServerLevel) blockEntity.getLevel()));
+            Optional<? extends RecipeHolder<?>> recipeFor = blockEntity.getQuickCheck().apply(blockEntity.getAugments().getCurrentRecipeType().getRecipeType()).getRecipeFor(new SingleRecipeInput(stacks.get(0)), ((ServerLevel) blockEntity.getLevel()));
+
+            return recipeFor;
         }
 
     }

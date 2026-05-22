@@ -77,12 +77,12 @@ public class FDRenderHandler extends AbstractPatternScreenRenderHandler {
         }
 
 
-        int guiLeft = screen.getGuiLeft();
-        int guiTop = screen.getGuiTop();
+        int guiLeft = screen.getLeftPos();
+        int guiTop = screen.getTopPos();
 
         FurnacePatternMenu menu = screen.getMenu();
 
-        guiGraphics.blit(BACKGROUND_TEXTURE, guiLeft, guiTop, 0, 0, screen.getXSize(), screen.getYSize());
+        guiGraphics.blit(BACKGROUND_TEXTURE, guiLeft, guiTop, 0, 0, screen.getImageWidth(), screen.getImageHeight());
         if (menu.getLitProgress() > 0) {
             guiGraphics.blit(BACKGROUND_TEXTURE, guiLeft + HEAT_ICON.x, guiTop + HEAT_ICON.y, 176, 0, HEAT_ICON.width, HEAT_ICON.height);
         }

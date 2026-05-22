@@ -2,9 +2,12 @@
 package ironfurnaces.tileentity.furnaces.pattern;
 
 import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import ironfurnaces.loaders.IronFurnaces;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -58,45 +61,61 @@ public final class FurnacePatternDatagen extends CodecJsonProvider<FurnacePatter
 
     public static final Map<Identifier, FurnacePatternDefinition> DUMMY_FURNACE_PATTERN_DEFINITIONS =
             Stream.of(
-                    Map.entry(IronFurnaces.id("copper_furnace"),
+                    entry("copper_furnace",
                             definition(180, 80_000, 40, 1, ResourceLocationUtils.make("minecraft", "copper_block"))),
 
-                    Map.entry(IronFurnaces.id("iron_furnace"),
+                    entry("iron_furnace",
                             definition(160, 80_000, 80, 2, ResourceLocationUtils.make("minecraft", "iron_block"))),
 
-                    Map.entry(IronFurnaces.id("silver_furnace"),
+                    entry("silver_furnace",
                             definition(140, 200_000, 120, 3, ResourceLocationUtils.make("minecraft", "iron_block"))),
 
-                    Map.entry(IronFurnaces.id("gold_furnace"),
+                    entry("gold_furnace",
                             definition(120, 200_000, 160, 4, ResourceLocationUtils.make("minecraft", "gold_block"))),
 
-                    Map.entry(IronFurnaces.id("diamond_furnace"),
+                    entry("diamond_furnace",
                             definition(80, 1_000_000, 240, 5, ResourceLocationUtils.make("minecraft", "diamond_block"))),
 
-                    Map.entry(IronFurnaces.id("emerald_furnace"),
+                    entry("emerald_furnace",
                             definition(40, 1_000_000, 320, 6, ResourceLocationUtils.make("minecraft", "emerald_block"))),
 
-                    Map.entry(IronFurnaces.id("crystal_furnace"),
+                    entry("crystal_furnace",
                             definition(40, 1_000_000, 360, 7, ResourceLocationUtils.make("minecraft", "glass"))),
 
-                    Map.entry(IronFurnaces.id("obsidian_furnace"),
+                    entry("obsidian_furnace",
                             definition(20, 1_000_000, 500, 8, ResourceLocationUtils.make("minecraft", "obsidian"))),
 
-                    Map.entry(IronFurnaces.id("netherite_furnace"),
+                    entry("netherite_furnace",
                             definition(5, 1_000_000, 1000, 9, ResourceLocationUtils.make("minecraft", "netherite_block"))),
 
-                    Map.entry(IronFurnaces.id("allthemodium_furnace"),
+                    entry("allthemodium_furnace",
                             definition(20, 16, 2_000_000, 2000, 10, ResourceLocationUtils.make("allthemodium", "allthemodium_block"))),
 
 
-                    Map.entry(IronFurnaces.id("vibranium_furnace"),
+                    entry("vibranium_furnace",
                             definition(20, 32, 3_000_000, 3000, 11, ResourceLocationUtils.make("allthemodium", "vibranium_block"))),
 
-                    Map.entry(IronFurnaces.id("unobtainium_furnace"),
+                    entry("unobtainium_furnace",
                             definition(20, 64, 5_000_000, 5000, 12, ResourceLocationUtils.make("allthemodium", "unobtainium_block")))
 
             ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    private static Map.Entry<Identifier, FurnacePatternDefinition> entry(
+            String id,
+            FurnacePatternDefinition definition
+    ) {
+        IronFurnaces.REGISTRATE.addRawLang(
+                        "block." + IronFurnaces.MOD_ID + "." + id,
+                        WordUtils.capitalizeFully(id.replace('_', ' '))
+
+        );
+
+
+        return Map.entry(
+                IronFurnaces.id(id),
+                definition
+        );
+    }
     @Override
     protected void buildEntries() {
         entries.putAll(DUMMY_FURNACE_PATTERN_DEFINITIONS);

@@ -37,7 +37,6 @@ public class AugmentCache extends ItemStacksResourceHandler {
         this.greenAugmentModifier = GreenAugmentModifier.NONE;
         this.currentRecipeType = SmeltRecipeTypeHandler.INSTANCE;
         this.stateChangedCallback = stateChangedCallback;
-        refreshState();
     }
 
     @Override

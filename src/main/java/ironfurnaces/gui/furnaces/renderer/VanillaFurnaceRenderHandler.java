@@ -18,8 +18,8 @@ public class VanillaFurnaceRenderHandler extends AbstractPatternScreenRenderHand
 
     @Override
     public void extractBackground(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = screen.getGuiLeft();
-        int j = screen.getGuiTop();
+        int i = screen.getLeftPos();
+        int j = screen.getTopPos();
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, VANILLA, i, j, 0.0F, 0.0F, 176, 166, 256, 256);
         if (screen.getMenu().isLit()) {
             int k = 14;
