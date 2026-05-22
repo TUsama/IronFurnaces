@@ -1,3 +1,8 @@
+### 0.4.5
+upgrade to 26.1.2
+potential bug that will cause furnace can't find the new-added recipe due to the recipe cache
+fix a bug that manager can't be encoded when index is 0
+
 ### 0.4.4
 fix slot interaction with vanilla hopper
 fix auto input can't pull the fuel into fuel slot
