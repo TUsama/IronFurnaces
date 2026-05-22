@@ -1,3 +1,8 @@
+### 0.4.5
+upgrade to 26.1.2
+potential bug that will cause furnace can't find the new-added recipe due to the recipe cache
+fix a bug that manager can't be encoded when index is 0
+
 ### 0.4.3
 fix a bug that player furnace list can't be deserialized from disk
 fix new rainbow furnace, add a small delay for working state check
