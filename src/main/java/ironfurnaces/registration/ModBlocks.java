@@ -134,7 +134,7 @@ public class ModBlocks {
                         .pattern("###")
                         .pattern("#X#")
                         .pattern("###")
-                        .define('#', bindForge("ingots/iron"))
+                        .define('#', bindForge("ingots/iron", Items.IRON_INGOT))
                         .define('X', bindC("player_workstations/furnaces"))
                         .unlockedBy("has_iron", CriterionUtil.has(Items.IRON_INGOT, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.IRON_PATTERN_ID.getPath()));
@@ -143,7 +143,7 @@ public class ModBlocks {
                         .pattern("YYY")
                         .pattern("#X#")
                         .pattern("YYY")
-                        .define('#', bindForge("glass"))
+                        .define('#', bindForge("glass", Items.GLASS))
                         .define('X', bindForge("furnaces/copper"))
                         .define('Y', bindForge("ingots/iron"))
                         .unlockedBy("has_iron_ingot", CriterionUtil.has(Items.IRON_INGOT, provider))
@@ -174,9 +174,9 @@ public class ModBlocks {
                         .pattern("###")
                         .pattern("#X#")
                         .pattern("#Y#")
-                        .define('#', bindForge("ingots/gold"))
+                        .define('#', bindForge("ingots/gold", Items.GOLD_INGOT))
                         .define('X', bindPatternHolder(ctx.get(), Constants.IRON_PATTERN_ID))
-                        .define('Y', bindForge("storage_blocks/gold"))
+                        .define('Y', bindForge("storage_blocks/gold", Items.GOLD_BLOCK))
                         .unlockedBy("has_gold_ingot", CriterionUtil.has(Items.GOLD_INGOT, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.GOLD_PATTERN_ID.getPath() + "_nbt"));
 
@@ -204,7 +204,7 @@ public class ModBlocks {
                         .pattern("###")
                         .pattern("GXG")
                         .pattern("###")
-                        .define('#', bindForge("gems/diamond"))
+                        .define('#', bindForge("gems/diamond", Items.DIAMOND))
                         .define('X', bindForge("furnaces/gold"))
                         .define('G', bindForge("glass"))
                         .unlockedBy("has_diamond", CriterionUtil.has(Items.DIAMOND, provider))
@@ -224,7 +224,7 @@ public class ModBlocks {
                         .pattern("###")
                         .pattern("#X#")
                         .pattern("###")
-                        .define('#', bindForge("gems/emerald"))
+                        .define('#', bindForge("gems/emerald", Items.EMERALD))
                         .define('X', bindForge("furnaces/diamond"))
                         .unlockedBy("has_emerald", CriterionUtil.has(Items.EMERALD, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.EMERALD_PATTERN_ID.getPath()));
@@ -242,7 +242,7 @@ public class ModBlocks {
                         .pattern("###")
                         .pattern("#X#")
                         .pattern("###")
-                        .define('#', bindForge("ingots/copper"))
+                        .define('#', bindForge("ingots/copper", Items.COPPER_INGOT))
                         .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                         .unlockedBy("has_copper_ingot", CriterionUtil.has(Items.COPPER_INGOT, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.COPPER_PATTERN_ID.getPath()));
@@ -289,9 +289,9 @@ public class ModBlocks {
                         .pattern("#Y#")
                         .pattern("YXY")
                         .pattern("#Y#")
-                        .define('#', bindForge("obsidian"))
+                        .define('#', ModItemTags.C_OBSIDIAN_NORMAL)
                         .define('X', bindForge("furnaces/emerald"))
-                        .define('Y', bindForge("rods/blaze"))
+                        .define('Y', bindForge("rods/blaze", Items.BLAZE_ROD))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.OBSIDIAN_PATTERN_ID.getPath()));
 
@@ -299,7 +299,7 @@ public class ModBlocks {
                         .pattern("#Y#")
                         .pattern("YXY")
                         .pattern("#Y#")
-                        .define('#', bindForge("obsidian"))
+                        .define('#', ModItemTags.C_OBSIDIAN_NORMAL)
                         .define('X', bindPatternHolder(ctx.get(), Constants.EMERALD_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
@@ -309,7 +309,7 @@ public class ModBlocks {
                         .pattern("#Y#")
                         .pattern("YXY")
                         .pattern("#Y#")
-                        .define('#', bindForge("obsidian"))
+                        .define('#', ModItemTags.C_OBSIDIAN_NORMAL)
                         .define('X', bindForge("furnaces/crystal"))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
@@ -319,7 +319,7 @@ public class ModBlocks {
                         .pattern("#Y#")
                         .pattern("YXY")
                         .pattern("#Y#")
-                        .define('#', bindForge("obsidian"))
+                        .define('#', ModItemTags.C_OBSIDIAN_NORMAL)
                         .define('X', bindPatternHolder(ctx.get(), Constants.CRYSTAL_PATTERN_ID))
                         .define('Y', bindForge("rods/blaze"))
                         .unlockedBy("has_obsidian", CriterionUtil.has(Blocks.OBSIDIAN, provider))
@@ -344,6 +344,16 @@ public class ModBlocks {
                         .define('E', Items.ENDER_EYE)
                         .unlockedBy("has_diamond_furnace", CriterionUtil.has(Items.DIAMOND, provider))
                         .save(provider, IDUtil.makeNewFurnaceID(Constants.CRYSTAL_PATTERN_ID.getPath() + "_nbt"));
+
+                FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IronFurnaces.id("rainbow_furnace"))
+                        .pattern("###")
+                        .pattern("#C#")
+                        .pattern("###")
+                        .define('C', ModItems.RAINBOW_CORE.get())
+                        .define('#', ModItems.RAINBOW_PLATING.get())
+                        .unlockedBy("has_rainbow_core",
+                                CriterionUtil.has(ModItems.RAINBOW_CORE.get(), provider))
+                        .save(provider, IDUtil.makeNewFurnaceID("rainbow_furnace"));
 
                 whenAllthemodium(x ->
                         FurnacePatternHolderRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), Constants.ALLTHEMODIUM_PATTERN_ID)
@@ -421,13 +431,6 @@ public class ModBlocks {
             })
             .model(() -> (ctx, prov) -> {
                 Identifier baseModel = IronFurnaces.id("item/pattern_holder_base");
-
-                ModelTemplates.PARTICLE_ONLY.create(
-                        baseModel,
-                        TextureMapping.particle(TextureMapping.getBlockTexture(Blocks.IRON_BLOCK)),
-                        prov.modelOutput
-                );
-
                 prov.itemModelOutput.accept(
                         ctx.get(),
                         ItemModelUtils.specialModel(
@@ -435,6 +438,14 @@ public class ModBlocks {
                                 new FurnacePatternHolderSpecialRenderer.Unbaked()
                         )
                 );
+/*
+                ModelTemplates.PARTICLE_ONLY.create(
+                        baseModel,
+                        TextureMapping.particle(TextureMapping.getBlockTexture(Blocks.IRON_BLOCK)),
+                        prov.modelOutput
+                );
+*/
+
             })
             .tag(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
             .build()

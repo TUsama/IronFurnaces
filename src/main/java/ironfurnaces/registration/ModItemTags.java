@@ -12,16 +12,20 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
 
 public class ModItemTags {
+    public static final Map<TagKey<Item>, Item[]> deferredTagDataGen = new HashMap<>();
     public static final TagKey<Item> PLAYER_WORKSTATIONS_FURNACE = Util.make(() -> {
         TagKey<Item> itemTagKey = bindC(
                 "player_workstations/furnaces"
         );
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, x -> x
-                //~ if > 1.21.11 'addTag' -> 'tag'
                 .tag(itemTagKey)
                 .add(Items.FURNACE));
         return itemTagKey;
@@ -111,7 +115,6 @@ public class ModItemTags {
         TagKey<Item> itemTagKey = TagKey.create(Registries.ITEM, IronFurnaces.id("netherite_upgrade_crafting"));
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
             registrateItemTagsProvider
-                    //~ if > 1.21.11 'addTag' -> 'tag'
                     .tag(itemTagKey)
                     .add(Items.NETHERITE_INGOT, Items.NETHERITE_SCRAP)
                     .addOptionalTags(bindC("ingots/netherite"), bindC("ores/netherite_scrap"));
@@ -124,7 +127,6 @@ public class ModItemTags {
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
 
             registrateItemTagsProvider
-                    //~ if > 1.21.11 'addTag' -> 'tag'
                     .tag(itemTagKey)
                     .add(Items.OBSIDIAN);
         });
@@ -139,16 +141,16 @@ public class ModItemTags {
         return TagKey.create(registry, location);
     }
 
-    protected static TagKey<Item> bindC(String id) {
-        return of(Registries.ITEM, ResourceLocationUtils.make("c", id));
+    protected static TagKey<Item> bindC(String id, Item... addItems) {
+        TagKey<Item> c = of(Registries.ITEM, ResourceLocationUtils.make("c", id));
+        if (ArrayUtils.isNotEmpty(addItems)){
+            deferredTagDataGen.put(c, addItems);
+        }
+        return c;
     }
 
-    protected static TagKey<Item> bindForge(String id) {
-        //? 1.20.1 {
-        /*return of(Registries.ITEM, ResourceLocationUtils.make("forge", id));
-        *///? } else {
-        return bindC(id);
-        //?}
+    protected static TagKey<Item> bindForge(String id, Item... addItems) {
+        return bindC(id, addItems);
     }
 
     protected static TagKey<Item> bind(String id) {
@@ -157,5 +159,18 @@ public class ModItemTags {
 
     protected static TagKey<Item> bindVanilla(String id) {
         return of(Registries.ITEM, ResourceLocationUtils.make("minecraft", id));
+    }
+
+
+
+    public static void deferredGenTag(){
+        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, registrateItemTagsProvider -> {
+            for (Map.Entry<TagKey<Item>, Item[]> tagKeyEntry : deferredTagDataGen.entrySet()) {
+                registrateItemTagsProvider
+                        .tag(tagKeyEntry.getKey())
+                        .add(tagKeyEntry.getValue());
+            }
+        });
+
     }
 }

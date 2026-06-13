@@ -47,7 +47,7 @@ public class ModItems {
                                 .define('R', bindForge("dusts/redstone"))
                                 .define('X', Items.COMPARATOR)
                                 .unlockedBy("has_comparator", CriterionUtil.has(Items.COMPARATOR, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider);
                     })
                     .register();
 
@@ -156,7 +156,7 @@ public class ModItems {
                                 .requires(Items.CARVED_PUMPKIN)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider);
                     })
                     .register();
 
@@ -168,7 +168,7 @@ public class ModItems {
                                 .requires(Items.PAPER)
                                 .requires(ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider);
                     })
                     .register();
 
@@ -184,7 +184,7 @@ public class ModItems {
                                 .define('#', Items.PAPER)
                                 .define('X', ModItemTags.PLAYER_WORKSTATIONS_FURNACE)
                                 .unlockedBy("has_furnace", CriterionUtil.has(ModItemTags.PLAYER_WORKSTATIONS_FURNACE, provider))
-                                .save(provider, makeID(ctx.getName()));
+                                .save(provider);
                     })
                     .lang("Copy Tool")
                     .register();

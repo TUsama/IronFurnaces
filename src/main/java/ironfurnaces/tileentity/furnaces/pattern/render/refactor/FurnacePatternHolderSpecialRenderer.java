@@ -67,8 +67,8 @@ public final class FurnacePatternHolderSpecialRenderer
 
     @Override
     public void getExtents(Consumer<Vector3fc> output) {
-        output.accept(new Vector3f(-0.25F, -0.25F, -0.25F));
-        output.accept(new Vector3f(1.25F, 1.25F, 1.25F));
+        output.accept(new Vector3f(0.0F, 0.0F, 0.0F));
+        output.accept(new Vector3f(1.0F, 1.0F, 1.0F));
     }
 
     public record Unbaked() implements SpecialModelRenderer.Unbaked<FurnacePatternRenderData> {
