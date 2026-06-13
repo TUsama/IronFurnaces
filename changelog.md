@@ -1,3 +1,8 @@
+### 0.4.6
+fix default recipe
+(1.21.1 & 26.1.2 neoforge) port to the data component, might break furnaces in your world(legacy furnaces won't be affect)! Please back up your world before you update!
+
+
 ### 0.4.5
 upgrade to 26.1.2
 potential bug that will cause furnace can't find the new-added recipe due to the recipe cache
