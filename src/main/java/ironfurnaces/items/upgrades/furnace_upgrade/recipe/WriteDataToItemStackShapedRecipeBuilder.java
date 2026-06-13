@@ -1,5 +1,3 @@
-
-//? <1.21.11 {
 package ironfurnaces.items.upgrades.furnace_upgrade.recipe;
 
 import com.google.gson.JsonArray;
@@ -48,7 +46,6 @@ import java.util.function.Consumer;
 
 public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder {
     private final Consumer<ItemStack> writer;
-    //~ if > 1.21.11 '(RecipeCategory category' -> '(HolderGetter<Item> items, RecipeCategory category'
     public WriteDataToItemStackShapedRecipeBuilder(RecipeCategory category, ItemLike result, int count, Consumer<ItemStack> writer) {
 
 
@@ -150,4 +147,3 @@ public class WriteDataToItemStackShapedRecipeBuilder extends ShapedRecipeBuilder
     }
     //? }
 }
-//?}

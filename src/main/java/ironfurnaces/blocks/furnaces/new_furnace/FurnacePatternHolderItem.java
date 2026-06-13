@@ -115,31 +115,23 @@ public class FurnacePatternHolderItem extends BlockItem {
         //? 1.20.1 {
         CompoundTag beTag = BlockItem.getBlockEntityData(stack);
         if (beTag != null) {
-            changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
+            changed = updateDataToBlock(pos, level, player, stack, fp, changed);
 
         }
         //?} else {
-        /*if (stack.has(DataComponents.CUSTOM_DATA)){
-            CompoundTag beTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
-            changed = updateDataToBlock(pos, level, player, stack, fp, beTag, changed);
-        }
-
+        /*changed = updateDataToBlock(pos, level, player, stack, fp, changed);
         *///?}
         return changed;
     }
 
-    private static boolean updateDataToBlock(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, FurnacePatternBlockEntity fp, CompoundTag beTag, boolean changed) {
-        if (beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-            FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                    .result()
-                    .ifPresentOrElse(fp::setWholeSettingV2, () -> {
-                        if (player != null) {
-                            player.sendSystemMessage(Component.translatable("item.ironfurnaces.pattern_holder_item.read_setting_failed"));
-                        }
-                    });
+    private static boolean updateDataToBlock(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, FurnacePatternBlockEntity fp, boolean changed) {
+        FurnaceSettingsV2 settingFromStack = FurnaceSettingsV2.getSettingFromStack(stack);
+        fp.setWholeSettingV2(settingFromStack);
+        if (!settingFromStack.equals(FurnaceSettingsV2.DEFAULT)){
             fp.setChanged();
             changed = true;
         }
+
         FurnacePattern furnacePatternFromTag = IPatternAccessor.getFurnacePatternFromTag(stack);
         if (furnacePatternFromTag != null) {
             fp.updatePattern(furnacePatternFromTag);

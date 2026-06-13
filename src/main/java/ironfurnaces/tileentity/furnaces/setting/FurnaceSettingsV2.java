@@ -2,6 +2,7 @@ package ironfurnaces.tileentity.furnaces.setting;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import lombok.With;
 import net.minecraft.ChatFormatting;
@@ -24,6 +25,7 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraft.world.item.component.CustomData;
 *///?}
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
@@ -74,52 +76,120 @@ public record FurnaceSettingsV2(EnumMap<Direction, IOMode> IOSetting, boolean au
         return this.withDirectionChanged(worldSide, ioMode);
     }
 
-    public ItemStack writeToStack(ItemStack stack){
+    public ItemStack writeToStack(ItemStack stack) {
         //? 1.20.1 {
-        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .result()
-                .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
-        return stack;
-        //? } else {
-        /*CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> CODEC.encodeStart(NbtOps.INSTANCE, this).result().ifPresent(tag -> x.put(NBT_KEY, tag)));
+    CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+    FurnaceSettingsV2.CODEC.encodeStart(NbtOps.INSTANCE, this)
+            .result()
+            .ifPresent(tag -> beTag.put(FurnaceSettingsV2.NBT_KEY, tag));
+    return stack;
+    //? } else {
+        /*// 先处理旧数据，主要目的是清掉历史遗留的 CUSTOM_DATA。
+        // 最终写入值一定以当前 this 为准。
+        migrateLegacySettingIfNeeded(stack);
+
+        stack.set(ModDataComponents.PERSISTENT_SETTING.get(), this);
+        removeLegacySettingData(stack);
+
         return stack;
         *///?}
     }
 
-    public static FurnaceSettingsV2 getSettingFromStack(ItemStack stack){
+    public static FurnaceSettingsV2 getSettingFromStack(ItemStack stack) {
         //? 1.20.1 {
-        CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
-            DEFAULT.writeToStack(stack);
-            return DEFAULT;
+    CompoundTag beTag = stack.getTagElement(BlockItem.BLOCK_ENTITY_TAG);
+    if (beTag == null || !beTag.contains(FurnaceSettingsV2.NBT_KEY, CompoundTag.TAG_COMPOUND)) {
+        DEFAULT.writeToStack(stack);
+        return DEFAULT;
+    }
+    return FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
+            .result()
+            .orElseGet(() -> {
+                DEFAULT.writeToStack(stack);
+                return DEFAULT;
+            });
+    //? } else {
+        /*FurnaceSettingsV2 componentSetting = stack.get(ModDataComponents.PERSISTENT_SETTING.get());
+
+        // 新组件存在时，新组件是权威数据。
+        if (componentSetting != null) {
+            removeLegacySettingData(stack);
+            return componentSetting;
         }
-        return FurnaceSettingsV2.CODEC.parse(NbtOps.INSTANCE, beTag.getCompound(FurnaceSettingsV2.NBT_KEY))
-                .result()
-                .orElseGet(() -> {
-                    DEFAULT.writeToStack(stack);
-                    return DEFAULT;
-                });
-        //? } else {
-        /*if (stack.has(DataComponents.CUSTOM_DATA)){
-            var tag = stack.get(DataComponents.CUSTOM_DATA).copyTag().get(NBT_KEY);
-            if (tag != null){
-                return CODEC.parse(NbtOps.INSTANCE, tag).result().orElse(DEFAULT);
-            }
+
+        // 新组件不存在，但旧 CUSTOM_DATA 存在时，迁移旧数据。
+        FurnaceSettingsV2 legacySetting = getLegacySetting(stack);
+        if (legacySetting != null) {
+            stack.set(ModDataComponents.PERSISTENT_SETTING.get(), legacySetting);
+            removeLegacySettingData(stack);
+            return legacySetting;
         }
+
+        // 保留你原来的行为：没有任何设置时，写入 DEFAULT。
         DEFAULT.writeToStack(stack);
         return DEFAULT;
         *///?}
     }
 
-    public static void removeSetting(ItemStack stack){
+    public static void removeSetting(ItemStack stack) {
         //? 1.20.1 {
-        CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
-        beTag.remove(FurnaceSettingsV2.NBT_KEY);
-        //? } else {
-        /*CustomData.update(DataComponents.CUSTOM_DATA, stack, x -> x.remove(NBT_KEY));
+    CompoundTag beTag = stack.getOrCreateTagElement(BlockItem.BLOCK_ENTITY_TAG);
+    beTag.remove(FurnaceSettingsV2.NBT_KEY);
+    //? } else {
+        /*stack.remove(ModDataComponents.PERSISTENT_SETTING.get());
+        removeLegacySettingData(stack);
         *///?}
     }
+
+    //? >1.20.1 {
+    /*private static void migrateLegacySettingIfNeeded(ItemStack stack) {
+        FurnaceSettingsV2 componentSetting = stack.get(ModDataComponents.PERSISTENT_SETTING.get());
+        FurnaceSettingsV2 legacySetting = getLegacySetting(stack);
+
+        if (legacySetting == null) {
+            return;
+        }
+
+        if (componentSetting == null) {
+            stack.set(ModDataComponents.PERSISTENT_SETTING.get(), legacySetting);
+        }
+
+        removeLegacySettingData(stack);
+    }
+
+    @Nullable
+    private static FurnaceSettingsV2 getLegacySetting(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null || !customData.contains(NBT_KEY)) {
+            return null;
+        }
+
+        var tag = customData.copyTag().get(NBT_KEY);
+        if (tag == null) {
+            return null;
+        }
+
+        return CODEC.parse(NbtOps.INSTANCE, tag)
+                .result()
+                .orElse(null);
+    }
+
+    private static void removeLegacySettingData(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null || !customData.contains(NBT_KEY)) {
+            return;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        tag.remove(NBT_KEY);
+
+        if (tag.isEmpty()) {
+            stack.remove(DataComponents.CUSTOM_DATA);
+        } else {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+    }
+*///?}
 
     public List<Component> toTooltips(){
         List<Component> tooltips = new ArrayList<>();

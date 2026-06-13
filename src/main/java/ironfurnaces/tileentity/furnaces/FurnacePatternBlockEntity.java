@@ -11,6 +11,7 @@ import ironfurnaces.config.GameplayConfig;
 import ironfurnaces.network.S2CSyncAugmentPacket;
 import ironfurnaces.network.S2CSyncInstancesToMenuPackets;
 import ironfurnaces.network.S2CSyncPatternAndStatsToMenuPackets;
+import ironfurnaces.registration.ModDataComponents;
 import ironfurnaces.tileentity.furnaces.cache.*;
 import ironfurnaces.tileentity.furnaces.data.ContainerDataBuilder;
 import ironfurnaces.tileentity.furnaces.handler.IFurnaceLitHandler;
@@ -32,6 +33,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -64,6 +66,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 /*import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentMap;
 *///?}
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -887,6 +890,48 @@ public class FurnacePatternBlockEntity extends BaseContainerBlockEntity implemen
             return false;
         }
     }
+
+    //? >1.20.1 {
+
+    /*@Override
+    protected void applyImplicitComponents(DataComponentInput components) {
+        super.applyImplicitComponents(components);
+
+        ResourceLocation patternId = components.get(ModDataComponents.FURNACE_PATTERN_COMPONENT.get());
+        if (patternId != null) {
+            FurnacePattern parsed = FurnacePatternManager.get(patternId);
+            if (parsed != null && !parsed.equals(this.pattern)) {
+                updatePattern(parsed);
+            }
+        }
+
+        FurnaceSettingsV2 setting = components.get(ModDataComponents.PERSISTENT_SETTING.get());
+        if (setting != null && !setting.equals(this.settingsV2)) {
+            setWholeSettingV2(setting);
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+
+        if (this.pattern != null) {
+            components.set(ModDataComponents.FURNACE_PATTERN_COMPONENT.get(), this.pattern.id());
+        }
+
+        if (this.settingsV2 != null) {
+            components.set(ModDataComponents.PERSISTENT_SETTING.get(), this.settingsV2);
+        }
+    }
+
+    @Override
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+
+        tag.remove(FurnacePattern.NBT_KEY);
+        tag.remove(FurnaceSettingsV2.NBT_KEY);
+    }
+    *///?}
 
     public void addLevelConsumer(Consumer<Level> runnable){
         if (hasLevel()){

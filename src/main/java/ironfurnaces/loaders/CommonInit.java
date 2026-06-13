@@ -33,6 +33,7 @@ public class CommonInit {
         if (runningDataGen) {
             ModLangs.register();
             ModNewFurnace.register();
+            ModItemTags.deferredGenTag();
         }
 
         if (ModUtils.isModLoaded("jei")){
