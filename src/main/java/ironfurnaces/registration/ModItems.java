@@ -8,24 +8,15 @@ import ironfurnaces.items.*;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.items.upgrades.furnace_upgrade.ItemUpgradeTool;
 import ironfurnaces.items.upgrades.furnace_upgrade.recipe.PatternUpgradeRecipeBuilder;
-import ironfurnaces.items.upgrades.furnace_upgrade.render.UpgradeToolSpecialRenderer;
-import ironfurnaces.loaders.IronFurnaces;
 import ironfurnaces.registration.util.ConditionRecipeUtil;
 import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
-import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
+import ironfurnaces.util.ClientUtil;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 
 import static ironfurnaces.loaders.IronFurnaces.REGISTRATE;
@@ -283,21 +274,7 @@ public class ModItems {
             registerItem("upgrade_tool", ItemUpgradeTool::new)
                     .model(() -> (ctx, prov) -> {
 
-                        Identifier baseModel = IronFurnaces.id("item/upgrade_tool_base");
-
-                        ModelTemplates.PARTICLE_ONLY.create(
-                                baseModel,
-                                TextureMapping.particle(TextureMapping.getBlockTexture(Blocks.STONE)),
-                                prov.modelOutput
-                        );
-
-                        prov.itemModelOutput.accept(
-                                ctx.get(),
-                                ItemModelUtils.specialModel(
-                                        baseModel,
-                                        new UpgradeToolSpecialRenderer.Unbaked()
-                                )
-                        );
+                        ClientUtil.genModels(ctx, prov);
                     })
                     .recipe((ctx, provider) -> {
                         PatternUpgradeRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), IDUtil.makeID("upgrade_gold"))

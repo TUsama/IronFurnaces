@@ -16,19 +16,14 @@ import ironfurnaces.registration.util.CriterionUtil;
 import ironfurnaces.registration.util.IDUtil;
 import ironfurnaces.tileentity.furnaces.FurnacePatternBlockEntity;
 import ironfurnaces.tileentity.furnaces.pattern.FurnacePattern;
-import ironfurnaces.tileentity.furnaces.pattern.render.refactor.FurnacePatternHolderSpecialRenderer;
 import ironfurnaces.tileentity.heater.BlockWirelessEnergyHeaterTile;
 import ironfurnaces.tileentity.heater.WirelessEnergyHeaterRenderState;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
+import ironfurnaces.util.ClientUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -430,14 +425,7 @@ public class ModBlocks {
 
             })
             .model(() -> (ctx, prov) -> {
-                Identifier baseModel = IronFurnaces.id("item/pattern_holder_base");
-                prov.itemModelOutput.accept(
-                        ctx.get(),
-                        ItemModelUtils.specialModel(
-                                baseModel,
-                                new FurnacePatternHolderSpecialRenderer.Unbaked()
-                        )
-                );
+                //ClientUtil.genModel(ctx, prov);
 /*
                 ModelTemplates.PARTICLE_ONLY.create(
                         baseModel,
