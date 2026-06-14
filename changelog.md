@@ -1,3 +1,6 @@
+### 0.4.7
+(26.1.2 neoforge) fix crash on server startup
+
 ### 0.4.6
 fix default recipe
 (1.21.1 & 26.1.2 neoforge) port to the data component, might break furnaces in your world(legacy furnaces won't be affect)! Please back up your world before you update!
