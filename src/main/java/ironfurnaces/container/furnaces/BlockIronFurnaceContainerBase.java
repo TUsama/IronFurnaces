@@ -1,6 +1,7 @@
 //? <1.21.11{
 package ironfurnaces.container.furnaces;
 
+import com.clefal.nirvana_lib.utils.ResourceLocationUtils;
 import ironfurnaces.container.slots.*;
 import ironfurnaces.adaptor.energy.FEnergyStorage;
 import ironfurnaces.items.ItemHeater;
@@ -12,6 +13,7 @@ import ironfurnaces.tileentity.furnaces.UnifiedTileEntity;
 import ironfurnaces.util.container.FactoryDataSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,6 +23,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -722,7 +725,11 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
         }
 
         if (isPlayerInventory(index)) {
-            if (BlockIronFurnaceTileBase.isItemFuel(stack, RecipeType.SMELTING)){
+            boolean b = false;
+            if (ModList.get().isLoaded("fuelgoeshere") && stack.is(ItemTags.create(ResourceLocationUtils.make("fuelgoeshere", "forced_fuels")))){
+                b = true;
+            }
+            if (b || BlockIronFurnaceTileBase.isItemFuel(stack, RecipeType.SMELTING)){
                 if (tryMoveFurnaceFuel(stack)) return true;
                 if (tryMoveFurnaceInput(stack)) return true;
             } else {
