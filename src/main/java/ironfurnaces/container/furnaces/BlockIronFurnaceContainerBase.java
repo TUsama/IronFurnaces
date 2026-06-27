@@ -591,6 +591,9 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
         ItemStack stack = slot.getItem();
         ItemStack copy = stack.copy();
+        //purely for Fuel Goes Here compat.
+        boolean b = this.te.hasRecipe(stack);
+
 
         boolean moved = false;
 
@@ -719,10 +722,13 @@ public class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
         }
 
         if (isPlayerInventory(index)) {
-
-            if (tryMoveFurnaceInput(stack)) return true;
-
-            if (tryMoveFurnaceFuel(stack)) return true;
+            if (BlockIronFurnaceTileBase.isItemFuel(stack, RecipeType.SMELTING)){
+                if (tryMoveFurnaceFuel(stack)) return true;
+                if (tryMoveFurnaceInput(stack)) return true;
+            } else {
+                if (tryMoveFurnaceInput(stack)) return true;
+                if (tryMoveFurnaceFuel(stack)) return true;
+            }
 
             if (handleAugment(stack)) return true;
 
