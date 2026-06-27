@@ -25,6 +25,8 @@ object ForgeDeps {
 
             modstitchLegacyModCompileOnly("curse.maven:farmers-delight-398521:7801523")
             modstitchLegacyModRuntimeOnly ("curse.maven:farmers-delight-398521:7801523")
+
+            modstitchLegacyModRuntimeOnly ("curse.maven:fuelgoeshere-659090:6003423")
         }
     }
 }

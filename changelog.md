@@ -1,3 +1,6 @@
+### 0.4.8
+(1.21.1 neoforge)fix a bug that crashed when Fuel Goes Here installed
+
 ### 0.4.7
 (26.1.2 neoforge) fix crash on server startup
 
